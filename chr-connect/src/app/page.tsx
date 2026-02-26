@@ -11,17 +11,25 @@ import MissionWorkflow from '@/components/mission/MissionWorkflow';
 import LiveMissionTracker from '@/components/mission/LiveMissionTracker';
 import PatronDashboard from '@/components/patron/PatronDashboard';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutGrid, Bell, Settings, User, X, Briefcase, UserCircle, ChevronDown, PlayCircle } from 'lucide-react';
+import { LayoutGrid, Bell, Settings, User, X, Briefcase, UserCircle, ChevronDown, PlayCircle, Power } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Button } from '@/components/ui/button';
+import { useEffect } from 'react';
 import { SIMULATED_PROFILES } from '@/constants/profiles';
 
 export default function Home() {
   const { userRole, setUserRole } = useStore();
   const { status, startMission } = useMissionEngine();
   const [showNotifications, setShowNotifications] = useState(false);
-  const [workerView, setWorkerView] = useState<'MISSIONS' | 'PROFILE'>('MISSIONS');
-  
+  const [workerView, setWorkerView] = useState<'MISSIONS' | 'PROFILE'>('PROFILE');
+  const [isAvailable, setIsAvailable] = useState(false);
+
+  useEffect(() => {
+    if (!isAvailable && workerView === 'MISSIONS') {
+      setWorkerView('PROFILE');
+    }
+  }, [isAvailable, workerView]);
+
   // State for simulated user profile
   const [currentProfile, setCurrentProfile] = useState(SIMULATED_PROFILES[0]);
   const [showProfileSwitcher, setShowProfileSwitcher] = useState(false);
@@ -128,6 +136,25 @@ export default function Home() {
            </AnimatePresence>
 
            <button 
+             onClick={() => {
+               const newValue = !isAvailable;
+               setIsAvailable(newValue);
+               if (newValue) {
+                 setWorkerView('MISSIONS');
+               }
+             }}
+             className={clsx(
+               "flex items-center gap-2 px-4 py-2 rounded-full transition-all font-medium text-sm",
+               isAvailable 
+                 ? "bg-green-500/20 text-green-400 border-2 border-green-500/50 hover:bg-green-500/30" 
+                 : "bg-white/5 text-gray-400 border-2 border-white/10 hover:bg-white/10 hover:text-white"
+             )}
+           >
+             <Power className={clsx("w-4 h-4", isAvailable ? "text-green-400" : "")} />
+             {isAvailable ? "Disponible" : "Se rendre disponible"}
+           </button>
+
+           <button 
              onClick={() => setUserRole(null)} 
              className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors border border-white/10"
            >
@@ -149,18 +176,6 @@ export default function Home() {
                 <div className="flex justify-center mb-6 shrink-0 relative">
                    <div className="bg-white/5 p-1 rounded-xl flex gap-1 border border-white/10">
                       <button 
-                         onClick={() => setWorkerView('MISSIONS')}
-                         className={clsx(
-                           "px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2", 
-                           workerView === 'MISSIONS' 
-                             ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-900/20" 
-                             : "text-gray-400 hover:text-white hover:bg-white/5"
-                         )}
-                      >
-                         <Briefcase className="w-4 h-4" />
-                         Missions
-                      </button>
-                      <button 
                          onClick={() => setWorkerView('PROFILE')}
                          className={clsx(
                            "px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2", 
@@ -171,6 +186,21 @@ export default function Home() {
                       >
                          <UserCircle className="w-4 h-4" />
                          Mon Profil
+                      </button>
+                      <button 
+                         onClick={() => isAvailable && setWorkerView('MISSIONS')}
+                         disabled={!isAvailable}
+                         className={clsx(
+                           "px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2", 
+                           !isAvailable 
+                             ? "bg-zinc-900/30 text-gray-600 cursor-not-allowed" 
+                             : workerView === 'MISSIONS' 
+                               ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-900/20" 
+                               : "text-gray-400 hover:text-white hover:bg-white/5"
+                         )}
+                      >
+                         <Briefcase className="w-4 h-4" />
+                         Missions
                       </button>
                    </div>
                 </div>
