@@ -43,10 +43,10 @@ interface FaultDeclarationModalProps {
 
 function SeverityBadge({ severity }: { severity: FaultSeverity }) {
   const config = {
-    LOW: { label: 'Faible', color: 'bg-blue-500/20 text-blue-400 border-blue-500/40' },
-    MEDIUM: { label: 'Moyen', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40' },
-    HIGH: { label: 'Élevé', color: 'bg-orange-500/20 text-orange-400 border-orange-500/40' },
-    CRITICAL: { label: 'Critique', color: 'bg-red-500/20 text-red-400 border-red-500/40' },
+    LOW: { label: 'Faible', color: 'bg-blue-500 text-white border-blue-500' },
+    MEDIUM: { label: 'Moyen', color: 'bg-yellow-500 text-white border-yellow-500' },
+    HIGH: { label: 'Élevé', color: 'bg-orange-500 text-white border-orange-500' },
+    CRITICAL: { label: 'Critique', color: 'bg-red-500 text-white border-red-500' },
   };
 
   return (
@@ -250,24 +250,15 @@ export function FaultDeclarationModal({
                           <div className="flex items-center gap-3">
                             <div
                               className={cn(
-                                'w-10 h-10 rounded-lg flex items-center justify-center',
+                                'w-10 h-10 rounded-lg flex items-center justify-center shadow-md',
                                 fault.severity === 'CRITICAL'
-                                  ? 'bg-red-500/20'
+                                  ? 'bg-red-500'
                                   : fault.severity === 'HIGH'
-                                    ? 'bg-orange-500/20'
-                                    : 'bg-yellow-500/20'
+                                    ? 'bg-orange-500'
+                                    : 'bg-yellow-500'
                               )}
                             >
-                              <AlertTriangle
-                                className={cn(
-                                  'w-5 h-5',
-                                  fault.severity === 'CRITICAL'
-                                    ? 'text-red-400'
-                                    : fault.severity === 'HIGH'
-                                      ? 'text-orange-400'
-                                      : 'text-yellow-400'
-                                )}
-                              />
+                              <AlertTriangle className="w-5 h-5 text-white" />
                             </div>
                             <div>
                               <p className="text-[var(--text-primary)] font-medium">{fault.label}</p>
@@ -374,27 +365,27 @@ export function FaultDeclarationModal({
                       <button
                         onClick={() => setUrgency('normal')}
                         className={cn(
-                          'p-4 rounded-xl border text-left transition-colors',
+                          'p-4 rounded-xl border text-left transition-all',
                           urgency === 'normal'
-                            ? 'bg-blue-500/20 border-blue-500/50'
+                            ? 'bg-blue-500 border-blue-500 shadow-lg shadow-blue-500/30'
                             : 'bg-[var(--bg-hover)] border-[var(--border)] hover:bg-[var(--bg-active)]'
                         )}
                       >
                         <Clock
                           className={cn(
                             'w-6 h-6 mb-2',
-                            urgency === 'normal' ? 'text-blue-400' : 'text-[var(--text-muted)]'
+                            urgency === 'normal' ? 'text-white' : 'text-[var(--text-muted)]'
                           )}
                         />
                         <p
                           className={cn(
                             'font-medium',
-                            urgency === 'normal' ? 'text-blue-300' : 'text-[var(--text-primary)]'
+                            urgency === 'normal' ? 'text-white' : 'text-[var(--text-primary)]'
                           )}
                         >
                           Normal
                         </p>
-                        <p className="text-[var(--text-muted)] text-xs mt-1">
+                        <p className={cn("text-xs mt-1", urgency === 'normal' ? 'text-white/70' : 'text-[var(--text-muted)]')}>
                           Intervention sous 24-48h
                         </p>
                       </button>
@@ -402,27 +393,27 @@ export function FaultDeclarationModal({
                       <button
                         onClick={() => setUrgency('urgent')}
                         className={cn(
-                          'p-4 rounded-xl border text-left transition-colors',
+                          'p-4 rounded-xl border text-left transition-all',
                           urgency === 'urgent'
-                            ? 'bg-red-500/20 border-red-500/50'
+                            ? 'bg-red-500 border-red-500 shadow-lg shadow-red-500/30'
                             : 'bg-[var(--bg-hover)] border-[var(--border)] hover:bg-[var(--bg-active)]'
                         )}
                       >
                         <Zap
                           className={cn(
                             'w-6 h-6 mb-2',
-                            urgency === 'urgent' ? 'text-red-400' : 'text-[var(--text-muted)]'
+                            urgency === 'urgent' ? 'text-white' : 'text-[var(--text-muted)]'
                           )}
                         />
                         <p
                           className={cn(
                             'font-medium',
-                            urgency === 'urgent' ? 'text-red-300' : 'text-[var(--text-primary)]'
+                            urgency === 'urgent' ? 'text-white' : 'text-[var(--text-primary)]'
                           )}
                         >
                           Urgent
                         </p>
-                        <p className="text-[var(--text-muted)] text-xs mt-1">
+                        <p className={cn("text-xs mt-1", urgency === 'urgent' ? 'text-white/70' : 'text-[var(--text-muted)]')}>
                           Intervention dans l&apos;heure
                         </p>
                       </button>
@@ -439,8 +430,8 @@ export function FaultDeclarationModal({
                   animate={{ opacity: 1, scale: 1 }}
                   className="p-8 text-center"
                 >
-                  <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
-                    <Check className="w-10 h-10 text-green-400" />
+                  <div className="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-500/30">
+                    <Check className="w-10 h-10 text-white" />
                   </div>
                   <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
                     Demande envoyée !

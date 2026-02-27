@@ -162,9 +162,11 @@ export function EquipmentDetailsModal({
                 {/* Status Badge */}
                 <div
                   className={cn(
-                    'absolute top-4 left-4 px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 backdrop-blur-md',
-                    statusInfo.bgColor,
-                    statusInfo.color
+                    'absolute top-4 left-4 px-3 py-1.5 rounded-full text-sm font-bold flex items-center gap-2 shadow-md text-white',
+                    equipment.status === 'OPERATIONAL' ? 'bg-green-500' :
+                    equipment.status === 'WARNING' ? 'bg-yellow-500' :
+                    equipment.status === 'FAULT' ? 'bg-red-500' :
+                    'bg-blue-500'
                   )}
                 >
                   {statusInfo.label}
@@ -219,15 +221,15 @@ export function EquipmentDetailsModal({
                   <div className="space-y-6">
                     {/* Status Banner */}
                     {equipment.status === 'FAULT' && (
-                      <div className="bg-red-500/20 border border-red-500/40 rounded-xl p-4 flex items-start gap-3">
-                        <AlertCircle className="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" />
+                      <div className="bg-red-500 rounded-xl p-4 flex items-start gap-3 shadow-lg">
+                        <AlertCircle className="w-6 h-6 text-white flex-shrink-0 mt-0.5" />
                         <div className="flex-1">
-                          <p className="text-red-300 font-medium">Équipement en panne</p>
-                          <p className="text-red-300/70 text-sm mt-1">
+                          <p className="text-white font-bold">Équipement en panne</p>
+                          <p className="text-white/80 text-sm mt-1">
                             {equipment.metadata?.lastFault || 'Problème signalé'}
                           </p>
                           {equipment.metadata?.faultReportedAt && (
-                            <p className="text-red-300/50 text-xs mt-2">
+                            <p className="text-white/60 text-xs mt-2">
                               Signalé le {new Date(equipment.metadata.faultReportedAt).toLocaleDateString('fr-FR')}
                             </p>
                           )}
@@ -236,11 +238,11 @@ export function EquipmentDetailsModal({
                     )}
 
                     {equipment.status === 'WARNING' && (
-                      <div className="bg-yellow-500/20 border border-yellow-500/40 rounded-xl p-4 flex items-start gap-3">
-                        <AlertTriangle className="w-6 h-6 text-yellow-400 flex-shrink-0 mt-0.5" />
+                      <div className="bg-yellow-500 rounded-xl p-4 flex items-start gap-3 shadow-lg">
+                        <AlertTriangle className="w-6 h-6 text-white flex-shrink-0 mt-0.5" />
                         <div className="flex-1">
-                          <p className="text-yellow-300 font-medium">Maintenance recommandée</p>
-                          <p className="text-yellow-300/70 text-sm mt-1">
+                          <p className="text-white font-bold">Maintenance recommandée</p>
+                          <p className="text-white/80 text-sm mt-1">
                             {equipment.metadata?.warningReason || 'Vérification préventive conseillée'}
                           </p>
                         </div>
@@ -373,74 +375,49 @@ export function EquipmentDetailsModal({
                     {warrantyStatus && (
                       <div
                         className={cn(
-                          'rounded-xl p-4 border flex flex-col gap-3',
+                          'rounded-xl p-4 flex flex-col gap-3 shadow-md text-white',
                           warrantyStatus.status === 'active'
-                            ? 'bg-green-500/10 border-green-500/30'
+                            ? 'bg-green-500'
                             : warrantyStatus.status === 'expiring_soon'
-                              ? 'bg-yellow-500/10 border-yellow-500/30'
-                              : 'bg-red-500/10 border-red-500/30'
+                              ? 'bg-yellow-500'
+                              : 'bg-red-500'
                         )}
                       >
                         <div className="flex items-start gap-3">
-                          <Shield
-                            className={cn(
-                              'w-6 h-6 flex-shrink-0 mt-1',
-                              warrantyStatus.status === 'active'
-                                ? 'text-green-400'
-                                : warrantyStatus.status === 'expiring_soon'
-                                  ? 'text-yellow-400'
-                                  : 'text-red-400'
-                            )}
-                          />
+                          <Shield className="w-6 h-6 flex-shrink-0 mt-1 text-white" />
                           <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start mb-2">
                               <div>
-                                <p
-                                  className={cn(
-                                    'font-medium',
-                                    warrantyStatus.status === 'active'
-                                      ? 'text-green-300'
-                                      : warrantyStatus.status === 'expiring_soon'
-                                        ? 'text-yellow-300'
-                                        : 'text-red-300'
-                                  )}
-                                >
+                                <p className="font-bold text-white">
                                   {warrantyStatus.status === 'active'
                                     ? 'Sous garantie'
                                     : warrantyStatus.status === 'expiring_soon'
                                       ? 'Garantie expire bientôt'
                                       : 'Garantie expirée'}
                                 </p>
-                                <p className="text-[var(--text-muted)] text-sm">
+                                <p className="text-white/80 text-sm">
                                   {warrantyStatus.status === 'expired'
                                     ? `Expirée depuis ${warrantyStatus.days} jours`
                                     : `${warrantyStatus.days} jours restants`}
                                 </p>
                               </div>
                               <div className="text-right">
-                                <p className="text-[var(--text-muted)] text-xs">Fin de garantie</p>
-                                <p className="text-[var(--text-secondary)] text-sm font-mono">
+                                <p className="text-white/70 text-xs">Fin de garantie</p>
+                                <p className="text-white text-sm font-mono">
                                   {new Date(equipment.warrantyExpiry!).toLocaleDateString('fr-FR')}
                                 </p>
                               </div>
                             </div>
 
                             {/* Progress Bar */}
-                            <div className="w-full h-2 bg-black/40 rounded-full overflow-hidden mb-1">
+                            <div className="w-full h-2 bg-white/30 rounded-full overflow-hidden mb-1">
                               <div
-                                className={cn(
-                                  'h-full rounded-full transition-all duration-1000 ease-out',
-                                  warrantyStatus.status === 'active'
-                                    ? 'bg-green-500'
-                                    : warrantyStatus.status === 'expiring_soon'
-                                      ? 'bg-yellow-500'
-                                      : 'bg-red-500'
-                                )}
+                                className="h-full rounded-full transition-all duration-1000 ease-out bg-white"
                                 style={{ width: `${warrantyStatus.progress}%` }}
                               />
                             </div>
-                            
-                            <div className="flex justify-between items-center text-[10px] text-[var(--text-muted)]">
+
+                            <div className="flex justify-between items-center text-[10px] text-white/70">
                               <span>
                                 {equipment.purchaseDate || equipment.installationDate
                                   ? new Date(equipment.purchaseDate || equipment.installationDate!).toLocaleDateString('fr-FR')
@@ -459,7 +436,7 @@ export function EquipmentDetailsModal({
                     {equipment.status !== 'FAULT' && !equipment.isDeleted && (
                       <button
                         onClick={() => setShowFaultModal(true)}
-                        className="w-full py-4 px-6 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
+                        className="w-full py-4 px-6 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-red-500/30"
                       >
                         <AlertTriangle className="w-5 h-5" />
                         Déclarer une panne
@@ -490,24 +467,15 @@ export function EquipmentDetailsModal({
                               <div className="flex items-center gap-3">
                                 <div
                                   className={cn(
-                                    'w-10 h-10 rounded-lg flex items-center justify-center',
+                                    'w-10 h-10 rounded-lg flex items-center justify-center shadow-md',
                                     record.type === 'REPAIR'
-                                      ? 'bg-red-500/20'
+                                      ? 'bg-red-500'
                                       : record.type === 'PREVENTIVE'
-                                        ? 'bg-blue-500/20'
-                                        : 'bg-green-500/20'
+                                        ? 'bg-blue-500'
+                                        : 'bg-green-500'
                                   )}
                                 >
-                                  <Wrench
-                                    className={cn(
-                                      'w-5 h-5',
-                                      record.type === 'REPAIR'
-                                        ? 'text-red-400'
-                                        : record.type === 'PREVENTIVE'
-                                          ? 'text-blue-400'
-                                          : 'text-green-400'
-                                    )}
-                                  />
+                                  <Wrench className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
                                   <p className="text-[var(--text-primary)] font-medium">{record.description}</p>
@@ -522,12 +490,12 @@ export function EquipmentDetailsModal({
                               </div>
                               <span
                                 className={cn(
-                                  'text-xs px-2 py-1 rounded-full',
+                                  'text-xs font-bold px-2 py-1 rounded-full text-white',
                                   record.type === 'REPAIR'
-                                    ? 'bg-red-500/20 text-red-400'
+                                    ? 'bg-red-500'
                                     : record.type === 'PREVENTIVE'
-                                      ? 'bg-blue-500/20 text-blue-400'
-                                      : 'bg-green-500/20 text-green-400'
+                                      ? 'bg-blue-500'
+                                      : 'bg-green-500'
                                 )}
                               >
                                 {record.type === 'REPAIR'
@@ -584,10 +552,10 @@ export function EquipmentDetailsModal({
                 {/* DOCUMENTS TAB */}
                 {activeTab === 'documents' && (
                   <div className="space-y-4">
-                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 flex items-start gap-3">
-                      <FileText className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                    <div className="bg-blue-500 rounded-xl p-4 flex items-start gap-3 shadow-md">
+                      <FileText className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-blue-300 text-sm">
+                        <p className="text-white font-medium text-sm">
                           Documentation technique pour {equipment.brand} {equipment.model}
                         </p>
                       </div>
@@ -607,13 +575,13 @@ export function EquipmentDetailsModal({
             </div>
 
             {/* Fixed Footer Actions */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#121212] via-[#121212] to-transparent pt-8">
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[var(--bg-sidebar)] via-[var(--bg-sidebar)] to-transparent pt-8">
               <div className="flex gap-3">
                 {equipment.isDeleted ? (
                   onRestore && (
                     <button
                       onClick={onRestore}
-                      className="w-full py-3 px-6 bg-green-500/20 hover:bg-green-500/30 border border-green-500/40 text-green-300 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
+                      className="w-full py-3 px-6 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-green-500/30"
                     >
                       <RotateCcw className="w-4 h-4" />
                       Restaurer l'équipement
@@ -640,7 +608,7 @@ export function EquipmentDetailsModal({
                     {onDelete && (
                       <button
                         onClick={() => setShowDeleteConfirm(true)}
-                        className="w-12 h-12 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-xl flex items-center justify-center transition-colors flex-shrink-0"
+                        className="w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-xl flex items-center justify-center transition-colors flex-shrink-0 shadow-md"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
@@ -670,8 +638,8 @@ export function EquipmentDetailsModal({
               onClick={(e) => e.stopPropagation()}
               className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-6 max-w-sm w-full"
             >
-              <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-4">
-                <Trash2 className="w-6 h-6 text-red-400" />
+              <div className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center mb-4 shadow-md">
+                <Trash2 className="w-6 h-6 text-white" />
               </div>
               
               <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">

@@ -409,8 +409,8 @@ export function EquipmentForm({
           {/* QR Code Success View */}
           {showQRCode && qrPreviewUrl && (
             <div className="flex-1 flex flex-col items-center justify-center p-8">
-              <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
-                <Check className="w-10 h-10 text-green-400" />
+              <div className="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center mb-6 shadow-lg shadow-green-500/30">
+                <Check className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-[var(--text-primary)] text-xl font-semibold mb-2">
                 Équipement enregistré !
@@ -449,16 +449,16 @@ export function EquipmentForm({
                   <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-start gap-4"
+                    className="p-4 bg-orange-500 rounded-xl flex items-start gap-4 shadow-lg"
                   >
-                    <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-                      <RotateCcw className="w-5 h-5 text-orange-400" />
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                      <RotateCcw className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-[var(--text-primary)] font-medium mb-1">
+                      <h3 className="text-white font-bold mb-1">
                         Équipement similaire trouvé dans la corbeille
                       </h3>
-                      <p className="text-[var(--text-muted)] text-sm mb-3">
+                      <p className="text-white/80 text-sm mb-3">
                         Un équipement correspondant à <strong>{duplicateMatch.brand} {duplicateMatch.model}</strong> a été supprimé le {duplicateMatch.deletedAt ? new Date(duplicateMatch.deletedAt).toLocaleDateString('fr-FR') : 'récemment'}.
                         Souhaitez-vous le restaurer plutôt que d'en créer un nouveau ?
                       </p>
@@ -467,7 +467,7 @@ export function EquipmentForm({
                           restoreEquipment(duplicateMatch.id);
                           onClose();
                         }}
-                        className="px-4 py-2 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 rounded-lg text-sm font-medium transition-colors"
+                        className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm font-bold transition-colors"
                       >
                         Restaurer l'équipement
                       </button>
@@ -543,10 +543,10 @@ export function EquipmentForm({
                               }}
                               className={cn(
                                 'w-full p-3 text-left hover:bg-[var(--bg-hover)] flex items-center gap-3 transition-colors',
-                                category === cat.id && 'bg-blue-500/20'
+                                category === cat.id && 'bg-blue-500 text-white rounded-lg'
                               )}
                             >
-                              <cat.iconComponent className="w-5 h-5 text-[var(--text-muted)]" />
+                              <cat.iconComponent className={cn("w-5 h-5", category === cat.id ? "text-white" : "text-[var(--text-muted)]")} />
                               <span className="text-[var(--text-primary)]">{cat.label}</span>
                             </button>
                           ))}
@@ -650,9 +650,9 @@ export function EquipmentForm({
                         key={loc}
                         onClick={() => setLocation(loc)}
                         className={cn(
-                          'px-3 py-1.5 text-xs rounded-full transition-colors',
+                          'px-3 py-1.5 text-xs font-bold rounded-full transition-all',
                           location === loc
-                            ? 'bg-blue-500/30 text-blue-300 border border-blue-500/50'
+                            ? 'bg-blue-500 text-white shadow-md'
                             : 'bg-[var(--bg-hover)] text-[var(--text-muted)] hover:bg-[var(--bg-active)]'
                         )}
                       >
@@ -745,13 +745,13 @@ export function EquipmentForm({
 
                 {/* QR Code Info */}
                 {!editingEquipment && (
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 flex gap-3">
-                    <QrCode className="w-6 h-6 text-blue-400 flex-shrink-0" />
+                  <div className="bg-blue-500 rounded-xl p-4 flex gap-3 shadow-md">
+                    <QrCode className="w-6 h-6 text-white flex-shrink-0" />
                     <div>
-                      <p className="text-blue-300 text-sm font-medium">
+                      <p className="text-white text-sm font-bold">
                         QR Code HorecaLink
                       </p>
-                      <p className="text-blue-300/70 text-xs mt-1">
+                      <p className="text-white/70 text-xs mt-1">
                         Un QR code unique sera généré pour cet équipement. Vous pourrez
                         l&apos;imprimer et le coller sur la machine pour un accès rapide.
                       </p>

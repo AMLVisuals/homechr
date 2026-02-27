@@ -212,7 +212,7 @@ export default function PatronDashboard() {
         </AnimatePresence>
 
         {/* Content */}
-        <div className={clsx("flex-1 overflow-y-auto custom-scrollbar", activeTab === 'GARAGE' ? "p-0" : (['PLANNING', 'INVOICES', 'PAYSLIPS'].includes(activeTab) ? "p-0 lg:p-8" : "p-4 lg:p-8"))}>
+        <div className={clsx("flex-1 overflow-y-auto custom-scrollbar", ['PLANNING', 'INVOICES', 'PAYSLIPS'].includes(activeTab) ? "p-0 lg:p-8" : "p-4 lg:p-8")}>
           {activeTab === 'DASHBOARD' && (
             <div className="max-w-7xl mx-auto space-y-10">
               {/* Quick Actions */}
@@ -262,7 +262,7 @@ export default function PatronDashboard() {
                         <QrCode className="w-7 h-7 text-white" />
                       </div>
                       <div className="text-left">
-                        <h3 className="text-xl font-bold text-[var(--text-primary)] mb-1">Garage Virtuel</h3>
+                        <h3 className="text-xl font-bold text-[var(--text-primary)] mb-1">Mes Équipements</h3>
                         <p className="text-[var(--text-secondary)] text-sm">Gérez vos équipements et déclarez les pannes en un scan</p>
                       </div>
                     </div>

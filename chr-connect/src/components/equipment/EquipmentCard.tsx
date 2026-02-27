@@ -16,6 +16,27 @@ import type { Equipment, EquipmentCategory, EquipmentStatus } from '@/types/equi
 import { EQUIPMENT_STATUS_INFO } from '@/types/equipment';
 import { EQUIPMENT_CATEGORIES_DETAILS } from '@/constants/equipment';
 
+// Category solid background colors for icon display
+const CATEGORY_BG_COLORS: Partial<Record<EquipmentCategory, string>> = {
+  FRIDGE: 'bg-cyan-500',
+  FREEZER: 'bg-blue-500',
+  COLD_ROOM: 'bg-indigo-500',
+  COFFEE_MACHINE: 'bg-amber-500',
+  OVEN: 'bg-orange-500',
+  DISHWASHER: 'bg-emerald-500',
+  ICE_MACHINE: 'bg-sky-500',
+  BEER_TAP: 'bg-amber-600',
+  VENTILATION: 'bg-gray-500',
+  COOKING: 'bg-red-500',
+  AUDIO: 'bg-purple-500',
+  LIGHTING: 'bg-yellow-500',
+  VIDEO: 'bg-blue-500',
+  POS: 'bg-green-500',
+  NETWORK: 'bg-cyan-500',
+  SCREEN: 'bg-indigo-500',
+  OTHER: 'bg-gray-500',
+};
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -99,11 +120,11 @@ export function EquipmentCard({ equipment, onClick, compact = false }: Equipment
         <div className="flex items-center gap-3">
           <div
             className={cn(
-              'w-10 h-10 rounded-lg flex items-center justify-center',
-              statusInfo.bgColor
+              'w-10 h-10 rounded-lg flex items-center justify-center shadow-md',
+              CATEGORY_BG_COLORS[equipment.category] || 'bg-gray-500'
             )}
           >
-            <Icon className={cn('w-5 h-5', statusInfo.color)} />
+            <Icon className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[var(--text-primary)] font-medium truncate">{displayName}</p>
@@ -143,17 +164,19 @@ export function EquipmentCard({ equipment, onClick, compact = false }: Equipment
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Icon className="w-16 h-16 text-[var(--text-muted)]" />
+          <div className={cn("w-full h-full flex items-center justify-center", CATEGORY_BG_COLORS[equipment.category] || 'bg-gray-500', 'opacity-20')}>
+            <Icon className="w-16 h-16 text-[var(--text-primary)]" />
           </div>
         )}
 
         {/* Status Badge */}
         <div
           className={cn(
-            'absolute top-3 right-3 px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 backdrop-blur-md',
-            statusInfo.bgColor,
-            statusInfo.color
+            'absolute top-3 right-3 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md text-white',
+            equipment.status === 'OPERATIONAL' ? 'bg-green-500' :
+            equipment.status === 'WARNING' ? 'bg-yellow-500' :
+            equipment.status === 'FAULT' ? 'bg-red-500' :
+            'bg-blue-500'
           )}
         >
           <StatusIconComponent className="w-3.5 h-3.5" />
@@ -207,12 +230,12 @@ export function EquipmentCard({ equipment, onClick, compact = false }: Equipment
 
               <span
                 className={cn(
-                  'text-xs px-2 py-1 rounded-full',
+                  'text-xs font-bold px-2 py-1 rounded-full text-white',
                   warrantyInfo.status === 'active'
-                    ? 'bg-green-500/20 text-green-400'
+                    ? 'bg-green-500'
                     : warrantyInfo.status === 'expiring_soon'
-                      ? 'bg-yellow-500/20 text-yellow-400'
-                      : 'bg-red-500/20 text-red-400'
+                      ? 'bg-yellow-500'
+                      : 'bg-red-500'
                 )}
               >
                 {warrantyInfo.status === 'active'

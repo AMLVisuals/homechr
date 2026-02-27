@@ -266,7 +266,7 @@ export function EstablishmentDashboard() {
             Sélectionnez un établissement
           </h2>
           <p className="text-[var(--text-muted)] mb-6">
-            Choisissez un établissement pour voir son garage et ses missions.
+            Choisissez un établissement pour voir ses équipements et ses missions.
           </p>
           <EstablishmentSelector />
         </div>
@@ -403,13 +403,13 @@ export function EstablishmentDashboard() {
                 </section>
               )}
 
-              {/* Garage Section */}
+              {/* Equipment Section */}
               <section>
                 <div className="sticky top-[71px] z-40 bg-[var(--bg-app)] backdrop-blur-xl pt-4 pb-2 -mx-6 px-6 mb-4 border-b border-[var(--border)] shadow-lg shadow-black/20 transition-all duration-300">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-[var(--text-primary)] flex items-center gap-2">
                       <QrCode className="w-5 h-5 text-green-400" />
-                      Mon Garage
+                      Mes Équipements
                     </h2>
                     <div className="flex items-center gap-2">
                       {/* Search */}
