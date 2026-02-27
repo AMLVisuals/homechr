@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, PlusCircle, Calendar, FileText,
   Users, Settings, Bell, Search, ChevronRight,
@@ -46,9 +47,25 @@ export default function PatronDashboard() {
   const { setUserRole } = useStore();
   const { activeVenueId, venues } = useVenuesStore();
   const { missions } = useMissionsStore();
+  const pathname = usePathname();
+  const router = useRouter();
 
   const activeVenue = venues.find(v => v.id === activeVenueId);
-  const [activeTab, setActiveTab] = useState('DASHBOARD');
+
+  const getInitialTab = (path: string) => {
+    const tabMap: Record<string, string> = {
+      '/': 'DASHBOARD',
+      '/patron/tableau-de-bord': 'DASHBOARD',
+      '/patron/mon-equipe': 'TEAM',
+      '/patron/bulletins-paie': 'PAYSLIPS',
+      '/patron/equipements': 'GARAGE',
+      '/patron/factures': 'INVOICES',
+      '/patron/planning': 'PLANNING',
+    };
+    return tabMap[path] || 'DASHBOARD';
+  };
+
+  const [activeTab, setActiveTab] = useState(() => getInitialTab(pathname));
   const [showNewRequestModal, setShowNewRequestModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<CategoryId | undefined>(undefined);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -60,6 +77,19 @@ export default function PatronDashboard() {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const { status } = useMissionEngine();
+
+  useEffect(() => {
+    setActiveTab(getInitialTab(pathname));
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleSetPatronTab = (e: CustomEvent) => {
+      setActiveTab(e.detail);
+    };
+
+    window.addEventListener('set-patron-tab', handleSetPatronTab as EventListener);
+    return () => window.removeEventListener('set-patron-tab', handleSetPatronTab as EventListener);
+  }, []);
 
   const activeMissions = useMemo(() => {
     if (!activeVenueId) return [];
@@ -88,7 +118,7 @@ export default function PatronDashboard() {
     <div className="flex h-screen bg-[var(--bg-app)] text-[var(--text-primary)] overflow-hidden font-sans">
       {/* Sidebar Desktop */}
       <aside className="hidden lg:flex w-64 border-r border-[var(--border)] bg-[var(--bg-sidebar)] flex-col z-20">
-        <Sidebar activeTab={activeTab} onTabChange={handleTabChange} onRoleChange={() => setUserRole(null)} onSettingsClick={() => setShowSettings(true)} layoutId="activeTabDesktop" />
+        <Sidebar activeTab={activeTab} onSettingsClick={() => setShowSettings(true)} layoutId="activeTabDesktop" />
       </aside>
 
       {/* Mobile Menu Drawer */}
@@ -100,7 +130,7 @@ export default function PatronDashboard() {
               <div className="absolute top-4 right-4 z-10">
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><X className="w-5 h-5" /></button>
               </div>
-              <Sidebar activeTab={activeTab} onTabChange={handleTabChange} onRoleChange={() => setUserRole(null)} onSettingsClick={() => { setIsMobileMenuOpen(false); setShowSettings(true); }} layoutId="activeTabMobile" />
+              <Sidebar activeTab={activeTab} onSettingsClick={() => { setIsMobileMenuOpen(false); setShowSettings(true); }} layoutId="activeTabMobile" />
             </motion.aside>
           </>
         )}

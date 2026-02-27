@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from '@/store/useStore';
 import { useMissionEngine } from '@/store/mission-engine';
+import { usePathname, useRouter } from 'next/navigation';
 import RoleSwitcher from '@/components/RoleSwitcher';
 import UniversalRequestModal from '@/components/UniversalRequestModal';
 import MissionRadar from '@/components/provider/MissionRadar';
@@ -14,32 +15,42 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutGrid, Bell, Settings, User, X, Briefcase, UserCircle, ChevronDown, PlayCircle, Power } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Button } from '@/components/ui/button';
-import { useEffect } from 'react';
 import { SIMULATED_PROFILES } from '@/constants/profiles';
 
 export default function Home() {
   const { userRole, setUserRole } = useStore();
   const { status, startMission } = useMissionEngine();
+  const pathname = usePathname();
+  const router = useRouter();
   const [showNotifications, setShowNotifications] = useState(false);
-  const [workerView, setWorkerView] = useState<'MISSIONS' | 'PROFILE'>('PROFILE');
+  
+  const workerView = pathname === '/worker/mes-missions' ? 'MISSIONS' : 'PROFILE';
+  
   const [isAvailable, setIsAvailable] = useState(false);
 
   useEffect(() => {
     if (!isAvailable && workerView === 'MISSIONS') {
-      setWorkerView('PROFILE');
+      router.push('/worker/mon-profil');
     }
-  }, [isAvailable, workerView]);
+  }, [isAvailable, workerView, router]);
 
   // State for simulated user profile
   const [currentProfile, setCurrentProfile] = useState(SIMULATED_PROFILES[0]);
   const [showProfileSwitcher, setShowProfileSwitcher] = useState(false);
+
+  useEffect(() => {
+    if (userRole === 'PATRON') {
+      router.replace('/patron/tableau-de-bord');
+    }
+  }, [userRole, router]);
 
   if (!userRole) {
     return <RoleSwitcher />;
   }
 
   if (userRole === 'PATRON') {
-    return <PatronDashboard />;
+    // Redirect handled in useEffect
+    return null; 
   }
 
   return (
@@ -140,7 +151,7 @@ export default function Home() {
                const newValue = !isAvailable;
                setIsAvailable(newValue);
                if (newValue) {
-                 setWorkerView('MISSIONS');
+                 router.push('/worker/mes-missions');
                }
              }}
              className={clsx(
@@ -176,7 +187,7 @@ export default function Home() {
                 <div className="flex justify-center mb-6 shrink-0 relative">
                    <div className="bg-white/5 p-1 rounded-xl flex gap-1 border border-white/10">
                       <button 
-                         onClick={() => setWorkerView('PROFILE')}
+                         onClick={() => router.push('/worker/mon-profil')}
                          className={clsx(
                            "px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2", 
                            workerView === 'PROFILE' 
@@ -188,7 +199,7 @@ export default function Home() {
                          Mon Profil
                       </button>
                       <button 
-                         onClick={() => isAvailable && setWorkerView('MISSIONS')}
+                         onClick={() => isAvailable && router.push('/worker/mes-missions')}
                          disabled={!isAvailable}
                          className={clsx(
                            "px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2", 
