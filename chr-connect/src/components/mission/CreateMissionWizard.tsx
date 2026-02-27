@@ -821,21 +821,21 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-2xl max-h-[90vh] bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+        className="relative w-full max-w-2xl max-h-[90vh] bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl shadow-2xl overflow-hidden flex flex-col"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
+        <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
           <div className="flex items-center gap-3">
             {step !== 'category' && step !== 'success' && (
               <button
                 onClick={handleBack}
-                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                className="w-10 h-10 rounded-full bg-[var(--bg-card)] flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className="w-5 h-5 text-[var(--text-primary)]" />
               </button>
             )}
             <div>
-              <h2 className="text-xl font-bold text-white">
+              <h2 className="text-xl font-bold text-[var(--text-primary)]">
                 {step === 'category' && 'Nouvelle Demande'}
                 {step === 'subcategory' && selectedCategory?.label}
                 {step === 'asset-selection' && 'Sélectionnez l\'équipement'}
@@ -846,7 +846,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                 {step === 'success' && 'Demande envoyée !'}
               </h2>
               {currentEstablishment && step !== 'success' && (
-                <p className="text-white/50 text-sm flex items-center gap-1">
+                <p className="text-[var(--text-muted)] text-sm flex items-center gap-1">
                   <MapPin className="w-3 h-3" />
                   {currentEstablishment.name}
                 </p>
@@ -855,16 +855,16 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+            className="w-10 h-10 rounded-full bg-[var(--bg-card)] flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
           >
-            <X className="w-5 h-5 text-white/60" />
+            <X className="w-5 h-5 text-[var(--text-muted)]" />
           </button>
         </div>
 
         {/* Progress Bar */}
         {step !== 'success' && (
           <div className="px-6 pt-4">
-            <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+            <div className="h-1 bg-[var(--bg-active)] rounded-full overflow-hidden">
               <motion.div
                 className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
                 initial={{ width: 0 }}
@@ -893,7 +893,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     <button
                       key={cat.id}
                       onClick={() => handleCategorySelect(cat)}
-                      className="flex items-start gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all group text-left"
+                      className="flex items-start gap-4 p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border)] hover:bg-[var(--bg-active)] hover:border-[var(--border-strong)] transition-all group text-left"
                     >
                       <div className={cn(
                         'w-14 h-14 rounded-xl flex items-center justify-center bg-gradient-to-br',
@@ -902,10 +902,10 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                         <Icon className="w-7 h-7 text-white" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-white mb-1">{cat.label}</h3>
-                        <p className="text-sm text-white/50">{cat.description}</p>
+                        <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-1">{cat.label}</h3>
+                        <p className="text-sm text-[var(--text-muted)]">{cat.description}</p>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-white/30 group-hover:text-white/60 transition-colors self-center" />
+                      <ChevronRight className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors self-center" />
                     </button>
                   );
                 })}
@@ -927,10 +927,10 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     <button
                       key={sub.id}
                       onClick={() => handleSubCategorySelect(sub)}
-                      className="flex flex-col items-center justify-center gap-3 p-5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all h-32"
+                      className="flex flex-col items-center justify-center gap-3 p-5 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] hover:bg-[var(--bg-active)] hover:border-[var(--border-strong)] transition-all h-32"
                     >
-                      <Icon className="w-8 h-8 text-white" />
-                      <span className="text-sm font-medium text-white text-center">{sub.label}</span>
+                      <Icon className="w-8 h-8 text-[var(--text-primary)]" />
+                      <span className="text-sm font-medium text-[var(--text-primary)] text-center">{sub.label}</span>
                     </button>
                   );
                 })}
@@ -948,14 +948,14 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
               >
                 <button
                   onClick={() => setStep('asset-selection')}
-                  className="flex flex-col items-center text-center gap-4 p-8 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-blue-500/50 transition-all group"
+                  className="flex flex-col items-center text-center gap-4 p-8 rounded-2xl bg-[var(--bg-card)] border border-[var(--border)] hover:bg-[var(--bg-active)] hover:border-blue-500/50 transition-all group"
                 >
                   <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Wrench className="w-8 h-8 text-blue-400" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white mb-2">Intervention sur Équipement</h3>
-                    <p className="text-white/50">
+                    <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Intervention sur Équipement</h3>
+                    <p className="text-[var(--text-muted)]">
                       Réparation, installation ou maintenance sur un équipement spécifique de votre inventaire.
                     </p>
                   </div>
@@ -967,14 +967,14 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
 
                 <button
                   onClick={() => setStep('details')}
-                  className="flex flex-col items-center text-center gap-4 p-8 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-500/50 transition-all group"
+                  className="flex flex-col items-center text-center gap-4 p-8 rounded-2xl bg-[var(--bg-card)] border border-[var(--border)] hover:bg-[var(--bg-active)] hover:border-purple-500/50 transition-all group"
                 >
                   <div className="w-16 h-16 rounded-2xl bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Users className="w-8 h-8 text-purple-400" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white mb-2">Prestation de Service</h3>
-                    <p className="text-white/50">
+                    <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Prestation de Service</h3>
+                    <p className="text-[var(--text-muted)]">
                       Demande de prestation sans équipement spécifique (DJ, Ingénieur son, Régisseur, etc.).
                     </p>
                   </div>
@@ -997,26 +997,26 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
               >
                 {/* Search */}
                 <div className="relative">
-                  <Search className="w-4 h-4 text-white/40 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     placeholder="Rechercher un équipement..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-blue-500/50"
+                    className="w-full pl-10 pr-4 py-3 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50"
                   />
                 </div>
 
                 {/* Equipment Grid */}
                 {filteredEquipment.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                      <Wrench className="w-8 h-8 text-white/20" />
+                    <div className="w-16 h-16 rounded-full bg-[var(--bg-card)] flex items-center justify-center mx-auto mb-4">
+                      <Wrench className="w-8 h-8 text-[var(--text-muted)]" />
                     </div>
-                    <h3 className="text-white font-medium mb-2">
+                    <h3 className="text-[var(--text-primary)] font-medium mb-2">
                       Aucun équipement trouvé
                     </h3>
-                    <p className="text-white/50 text-sm mb-4">
+                    <p className="text-[var(--text-muted)] text-sm mb-4">
                       Aucun équipement de cette catégorie dans votre garage
                     </p>
                   </div>
@@ -1028,7 +1028,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                         <button
                           key={eq.id}
                           onClick={() => handleEquipmentSelect(eq)}
-                          className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-blue-500/30 transition-all text-left group"
+                          className="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] hover:bg-[var(--bg-active)] hover:border-blue-500/30 transition-all text-left group"
                         >
                           {eq.photos.length > 0 ? (
                             <img
@@ -1037,23 +1037,23 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                               className="w-16 h-16 rounded-xl object-cover"
                             />
                           ) : (
-                            <div className="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center">
-                              <Icon className="w-8 h-8 text-white/40" />
+                            <div className="w-16 h-16 rounded-xl bg-[var(--bg-active)] flex items-center justify-center">
+                              <Icon className="w-8 h-8 text-[var(--text-muted)]" />
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <p className="text-white font-medium truncate">
+                            <p className="text-[var(--text-primary)] font-medium truncate">
                               {eq.nickname || `${eq.brand} ${eq.model}`}
                             </p>
-                            <p className="text-white/50 text-sm truncate">
+                            <p className="text-[var(--text-muted)] text-sm truncate">
                               {eq.brand} {eq.model}
                             </p>
-                            <p className="text-white/40 text-xs flex items-center gap-1 mt-1">
+                            <p className="text-[var(--text-muted)] text-xs flex items-center gap-1 mt-1">
                               <MapPin className="w-3 h-3" />
                               {eq.location}
                             </p>
                           </div>
-                          <ChevronRight className="w-5 h-5 text-white/30 group-hover:text-white/60 transition-colors" />
+                          <ChevronRight className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors" />
                         </button>
                       );
                     })}
@@ -1086,7 +1086,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                 className="space-y-4"
               >
                 {/* Selected Equipment Summary */}
-                <div className="bg-white/5 rounded-xl p-4 flex items-center gap-4 border border-white/10">
+                <div className="bg-[var(--bg-card)] rounded-xl p-4 flex items-center gap-4 border border-[var(--border)]">
                   {selectedEquipment.photos.length > 0 ? (
                     <img
                       src={selectedEquipment.photos[0].url}
@@ -1094,15 +1094,15 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                       className="w-14 h-14 rounded-xl object-cover"
                     />
                   ) : (
-                    <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center">
-                      <Wrench className="w-7 h-7 text-white/40" />
+                    <div className="w-14 h-14 rounded-xl bg-[var(--bg-active)] flex items-center justify-center">
+                      <Wrench className="w-7 h-7 text-[var(--text-muted)]" />
                     </div>
                   )}
                   <div>
-                    <p className="text-white font-medium">
+                    <p className="text-[var(--text-primary)] font-medium">
                       {selectedEquipment.nickname || `${selectedEquipment.brand} ${selectedEquipment.model}`}
                     </p>
-                    <p className="text-white/50 text-sm">{selectedEquipment.location}</p>
+                    <p className="text-[var(--text-muted)] text-sm">{selectedEquipment.location}</p>
                   </div>
                 </div>
 
@@ -1120,7 +1120,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                           'w-full p-4 rounded-xl border text-left transition-all',
                           isSelected
                             ? `${severityConfig.bgColor} ${severityConfig.borderColor}`
-                            : 'bg-white/5 border-white/10 hover:bg-white/10'
+                            : 'bg-[var(--bg-card)] border-[var(--border)] hover:bg-[var(--bg-active)]'
                         )}
                       >
                         <div className="flex items-start justify-between gap-3">
@@ -1132,11 +1132,11 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                               <AlertTriangle className={cn('w-5 h-5', severityConfig.color)} />
                             </div>
                             <div>
-                              <p className="text-white font-medium">
+                              <p className="text-[var(--text-primary)] font-medium">
                                 {problem.id === 'other' ? 'Autre problème' : problem.label}
                               </p>
                               {problem.description && (
-                                <p className="text-white/50 text-sm mt-0.5">{problem.description}</p>
+                                <p className="text-[var(--text-muted)] text-sm mt-0.5">{problem.description}</p>
                               )}
                               <div className="flex items-center gap-3 mt-2">
                                 <span className={cn(
@@ -1147,7 +1147,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                                 )}>
                                   {severityConfig.label}
                                 </span>
-                                <span className="text-white/40 text-xs flex items-center gap-1">
+                                <span className="text-[var(--text-muted)] text-xs flex items-center gap-1">
                                   <Clock className="w-3 h-3" />
                                   {problem.estimatedResponseTime}
                                 </span>
@@ -1184,8 +1184,8 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     <div className="flex items-center gap-3">
                       <AlertTriangle className={cn('w-6 h-6', SEVERITY_CONFIG[selectedProblem.severity].color)} />
                       <div>
-                        <p className="text-white font-medium">{selectedProblem.label}</p>
-                        <p className="text-white/50 text-sm">
+                        <p className="text-[var(--text-primary)] font-medium">{selectedProblem.label}</p>
+                        <p className="text-[var(--text-muted)] text-sm">
                           {selectedProblem.id === 'other' 
                             ? selectedProblem.estimatedResponseTime
                             : `Intervention estimée: ${selectedProblem.estimatedResponseTime}`
@@ -1198,8 +1198,8 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
 
                 {/* Service Mission Details (Tech without Equipment) */}
                 {selectedCategory?.id === 'TECH' && !selectedEquipment && (
-                  <div className="space-y-6 bg-white/5 rounded-xl p-4 border border-white/10">
-                    <h3 className="text-white font-medium flex items-center gap-2 border-b border-white/10 pb-3">
+                  <div className="space-y-6 bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
+                    <h3 className="text-[var(--text-primary)] font-medium flex items-center gap-2 border-b border-[var(--border)] pb-3">
                       <Calendar className="w-5 h-5 text-purple-400" />
                       Détails de la prestation
                     </h3>
@@ -1207,21 +1207,21 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     {/* Date & Time */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-white/70 text-sm font-medium mb-2">Date</label>
+                        <label className="block text-[var(--text-secondary)] text-sm font-medium mb-2">Date</label>
                         <input
                           type="date"
                           value={staffingDate}
                           onChange={(e) => setStaffingDate(e.target.value)}
-                          className="w-full p-3 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50 [color-scheme:dark]"
+                          className="w-full p-3 bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-purple-500/50 [color-scheme:dark]"
                         />
                       </div>
                       <div>
-                        <label className="block text-white/70 text-sm font-medium mb-2">Heure de début</label>
+                        <label className="block text-[var(--text-secondary)] text-sm font-medium mb-2">Heure de début</label>
                         <input
                           type="time"
                           value={staffingTime}
                           onChange={(e) => setStaffingTime(e.target.value)}
-                          className="w-full p-3 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50 [color-scheme:dark]"
+                          className="w-full p-3 bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-purple-500/50 [color-scheme:dark]"
                         />
                       </div>
                     </div>
@@ -1230,7 +1230,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-4">
                         <div className="flex justify-between items-end">
-                          <label className="text-white/70 text-sm font-medium flex items-center gap-2">
+                          <label className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
                             <Clock className="w-4 h-4 text-blue-400" />
                             Durée estimée
                           </label>
@@ -1241,9 +1241,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                               step="0.5"
                               value={staffingDuration}
                               onChange={(e) => setStaffingDuration(e.target.value)}
-                              className="w-16 p-1 text-right bg-transparent border-b border-white/20 text-white font-bold focus:outline-none focus:border-blue-500"
+                              className="w-16 p-1 text-right bg-transparent border-b border-[var(--border-strong)] text-[var(--text-primary)] font-bold focus:outline-none focus:border-blue-500"
                             />
-                            <span className="text-sm font-normal text-white/50">h</span>
+                            <span className="text-sm font-normal text-[var(--text-muted)]">h</span>
                           </div>
                         </div>
                         <div className="relative pt-1">
@@ -1254,9 +1254,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                             step="0.5"
                             value={staffingDuration}
                             onChange={(e) => setStaffingDuration(e.target.value)}
-                            className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                            className="w-full h-2 bg-[var(--bg-active)] rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                           />
-                          <div className="flex justify-between text-[10px] text-white/30 mt-2 font-medium uppercase tracking-wider">
+                          <div className="flex justify-between text-[10px] text-[var(--text-muted)] mt-2 font-medium uppercase tracking-wider">
                             <span>1h</span>
                             <span>4h</span>
                             <span>8h</span>
@@ -1267,7 +1267,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
 
                       <div className="space-y-4">
                          <div className="flex justify-between items-end">
-                          <label className="text-white/70 text-sm font-medium flex items-center gap-2">
+                          <label className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
                             <Euro className="w-4 h-4 text-purple-400" />
                             Taux horaire
                           </label>
@@ -1278,9 +1278,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                               step="1"
                               value={servicePrice || '0'}
                               onChange={(e) => setServicePrice(e.target.value)}
-                              className="w-16 p-1 text-right bg-transparent border-b border-white/20 text-white font-bold focus:outline-none focus:border-purple-500"
+                              className="w-16 p-1 text-right bg-transparent border-b border-[var(--border-strong)] text-[var(--text-primary)] font-bold focus:outline-none focus:border-purple-500"
                             />
-                            <span className="text-sm font-normal text-white/50">€/h</span>
+                            <span className="text-sm font-normal text-[var(--text-muted)]">€/h</span>
                           </div>
                         </div>
                         <div className="relative pt-1">
@@ -1291,9 +1291,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                             step="1"
                             value={servicePrice || '0'}
                             onChange={(e) => setServicePrice(e.target.value)}
-                            className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400 transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                            className="w-full h-2 bg-[var(--bg-active)] rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400 transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                           />
-                          <div className="flex justify-between text-[10px] text-white/30 mt-2 font-medium uppercase tracking-wider">
+                          <div className="flex justify-between text-[10px] text-[var(--text-muted)] mt-2 font-medium uppercase tracking-wider">
                             <span>0€</span>
                             <span>50€</span>
                             <span>100€</span>
@@ -1304,23 +1304,23 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     </div>
                     
                     {/* Total Calculation Display */}
-                    <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-white/10 flex items-center justify-between">
+                    <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-[var(--border)] flex items-center justify-between">
                       <div>
-                        <span className="text-white/60 text-sm font-medium">Total estimé de la prestation</span>
-                        <p className="text-white/40 text-xs mt-1">
+                        <span className="text-[var(--text-muted)] text-sm font-medium">Total estimé de la prestation</span>
+                        <p className="text-[var(--text-muted)] text-xs mt-1">
                           {staffingDuration}h × {servicePrice || 0}€/h
                         </p>
                       </div>
                       <div className="text-right">
-                         <span className="text-2xl font-bold text-white tabular-nums">
+                         <span className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
                             {(parseFloat(staffingDuration || '0') * parseFloat(servicePrice || '0')).toFixed(0)}€
                          </span>
                       </div>
                     </div>
                     
                     {/* Mission Context Section */}
-                    <div className="pt-4 border-t border-white/10 space-y-6">
-                       <h4 className="text-white font-medium flex items-center gap-2">
+                    <div className="pt-4 border-t border-[var(--border)] space-y-6">
+                       <h4 className="text-[var(--text-primary)] font-medium flex items-center gap-2">
                           <Zap className="w-4 h-4 text-yellow-400" />
                           Contexte de la mission
                        </h4>
@@ -1328,25 +1328,25 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative">
                           {/* Event Type */}
                           <div>
-                             <label className="block text-white/70 text-sm font-medium mb-2">Type d'événement</label>
+                             <label className="block text-[var(--text-secondary)] text-sm font-medium mb-2">Type d'événement</label>
                              {!isCustomEventType ? (
                                <select 
                                   value={eventType}
                                   onChange={(e) => handleEventTypeChange(e.target.value)}
-                                  className="w-full p-3 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500/50 appearance-none"
+                                  className="w-full p-3 bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-blue-500/50 appearance-none"
                                >
-                                  <option className="bg-[#1a1a1a]" disabled value="">Sélectionner un type...</option>
+                                  <option className="bg-[var(--bg-hover)]" disabled value="">Sélectionner un type...</option>
                                   {DEFAULT_EVENT_TYPES.map(type => (
-                                    <option key={type} className="bg-[#1a1a1a]" value={type}>{type}</option>
+                                    <option key={type} className="bg-[var(--bg-hover)]" value={type}>{type}</option>
                                   ))}
                                   {savedEventTypes.length > 0 && (
-                                    <optgroup label="Vos types personnalisés" className="bg-[#1a1a1a] text-white/50">
+                                    <optgroup label="Vos types personnalisés" className="bg-[var(--bg-hover)] text-[var(--text-muted)]">
                                       {savedEventTypes.map(type => (
-                                        <option key={type} className="bg-[#1a1a1a] text-white" value={type}>{type}</option>
+                                        <option key={type} className="bg-[var(--bg-hover)] text-[var(--text-primary)]" value={type}>{type}</option>
                                       ))}
                                     </optgroup>
                                   )}
-                                  <option className="bg-[#1a1a1a] font-medium text-blue-400" value="custom_new">+ Autre / Nouveau...</option>
+                                  <option className="bg-[var(--bg-hover)] font-medium text-blue-400" value="custom_new">+ Autre / Nouveau...</option>
                                </select>
                              ) : (
                                <div className="flex gap-2">
@@ -1356,7 +1356,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                                    onChange={(e) => setCustomEventType(e.target.value)}
                                    placeholder="Ex: Festival, Vernissage..."
                                    autoFocus
-                                   className="flex-1 p-3 bg-black/20 border border-blue-500/50 rounded-xl text-white focus:outline-none"
+                                   className="flex-1 p-3 bg-[var(--bg-active)] border border-blue-500/50 rounded-xl text-[var(--text-primary)] focus:outline-none"
                                    onKeyDown={(e) => {
                                      if (e.key === 'Enter') {
                                        e.preventDefault();
@@ -1373,7 +1373,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                                  </button>
                                  <button
                                    onClick={() => setIsCustomEventType(false)}
-                                   className="px-4 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition-colors"
+                                   className="px-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] hover:bg-[var(--bg-active)] transition-colors"
                                  >
                                    Annuler
                                  </button>
@@ -1389,20 +1389,20 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                                    "w-full p-3 rounded-xl border flex items-center gap-3 cursor-pointer transition-all select-none",
                                    equipmentProvided 
                                       ? "bg-green-500/10 border-green-500/50" 
-                                      : "bg-white/5 border-white/10 hover:bg-white/10"
+                                      : "bg-[var(--bg-card)] border-[var(--border)] hover:bg-[var(--bg-active)]"
                                 )}
                              >
                                 <div className={cn(
                                    "w-5 h-5 rounded flex items-center justify-center border transition-colors",
-                                   equipmentProvided ? "bg-green-500 border-green-500" : "border-white/30"
+                                   equipmentProvided ? "bg-green-500 border-green-500" : "border-[var(--border-strong)]"
                                 )}>
                                    {equipmentProvided && <Check className="w-3 h-3 text-black" />}
                                 </div>
                                 <div>
-                                   <span className={cn("text-sm font-medium", equipmentProvided ? "text-green-400" : "text-white")}>
+                                   <span className={cn("text-sm font-medium", equipmentProvided ? "text-green-400" : "text-[var(--text-primary)]")}>
                                       Matériel fourni sur place
                                    </span>
-                                   <p className="text-[10px] text-white/40">
+                                   <p className="text-[10px] text-[var(--text-muted)]">
                                       {equipmentProvided ? "Le prestataire vient les mains vides" : "Le prestataire doit apporter son matériel"}
                                    </p>
                                 </div>
@@ -1415,7 +1415,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
 
                 {/* Media Upload (Photos & Videos) */}
                 <div className="relative z-0">
-                  <label className="block text-white/70 text-sm font-medium mb-2">Photos, Vidéos et Audios de l'espace / scène (Optionnel)</label>
+                  <label className="block text-[var(--text-secondary)] text-sm font-medium mb-2">Photos, Vidéos et Audios de l'espace / scène (Optionnel)</label>
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -1430,25 +1430,25 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                       onClick={() => {
                         setAddMediaModalOpen(true);
                       }}
-                      className="flex-shrink-0 w-24 h-24 rounded-xl border border-dashed border-white/20 hover:border-white/40 bg-white/5 hover:bg-white/10 flex flex-col items-center justify-center gap-2 transition-all group"
+                      className="flex-shrink-0 w-24 h-24 rounded-xl border border-dashed border-[var(--border-strong)] hover:border-[var(--border-strong)] bg-[var(--bg-card)] hover:bg-[var(--bg-active)] flex flex-col items-center justify-center gap-2 transition-all group"
                       title="Ajouter un média"
                     >
-                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Plus className="w-4 h-4 text-white/60" />
+                      <div className="w-8 h-8 rounded-full bg-[var(--bg-active)] flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Plus className="w-4 h-4 text-[var(--text-muted)]" />
                       </div>
-                      <span className="text-[10px] text-white/40 group-hover:text-white/60">Ajouter</span>
+                      <span className="text-[10px] text-[var(--text-muted)] group-hover:text-[var(--text-muted)]">Ajouter</span>
                     </button>
                     {/* Media Preview List */}
                     {media.map((item, idx) => (
-                      <div key={idx} className="relative flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden border border-white/10 group bg-black">
+                      <div key={idx} className="relative flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden border border-[var(--border)] group bg-[var(--bg-sidebar)]">
                         {/* Media type-specific previews */}
                         {item.type === 'video' ? (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-900">
-                            <Video className="w-8 h-8 text-white/50" />
+                          <div className="w-full h-full flex items-center justify-center bg-[var(--bg-sidebar)]">
+                            <Video className="w-8 h-8 text-[var(--text-muted)]" />
                           </div>
                         ) : item.type === 'audio' ? (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-900">
-                            <Mic className="w-8 h-8 text-white/50" />
+                          <div className="w-full h-full flex items-center justify-center bg-[var(--bg-sidebar)]">
+                            <Mic className="w-8 h-8 text-[var(--text-muted)]" />
                           </div>
                         ) : (
                           <img 
@@ -1464,7 +1464,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                               setCurrentMediaIndex(idx);
                               setAnnotatorOpen(true);
                             }}
-                            className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                            className="p-1.5 bg-[var(--bg-active)] hover:bg-[var(--bg-elevated)] rounded-lg text-white transition-colors"
                             title={item.type === 'video' ? "Voir" : item.type === 'audio' ? "Écouter" : "Voir et Annoter"}
                           >
                             {item.type === 'audio' ? <Mic className="w-4 h-4" /> : <ImageIcon className="w-4 h-4" />}
@@ -1480,14 +1480,14 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                       </div>
                     ))}
                   </div>
-                  <p className="text-[10px] text-white/30 mt-1">
+                  <p className="text-[10px] text-[var(--text-muted)] mt-1">
                     Formats acceptés : JPG, PNG, MP4, MP3, WAV, M4A. Max 50Mo.
                   </p>
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="block text-white font-medium mb-2">
+                  <label className="block text-[var(--text-primary)] font-medium mb-2">
                     Description {(!selectedProblem || selectedProblem.id === 'other') && <span className="text-red-400">*</span>}
                   </label>
                   <textarea
@@ -1501,16 +1501,16 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                           : "Ajoutez des détails supplémentaires (optionnel)..."
                     }
                     rows={4}
-                    className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-blue-500/50"
+                    className="w-full p-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none focus:outline-none focus:border-blue-500/50"
                   />
                 </div>
 
                 {/* Price Estimate */}
                 {selectedProblem && (
-                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                  <div className="bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
                     <div className="flex items-center justify-between">
-                      <span className="text-white/60">Estimation</span>
-                      <span className="text-white font-semibold text-lg">
+                      <span className="text-[var(--text-muted)]">Estimation</span>
+                      <span className="text-[var(--text-primary)] font-semibold text-lg">
                         {selectedProblem.priceRange.min}€ - {selectedProblem.priceRange.max}€
                       </span>
                     </div>
@@ -1530,7 +1530,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
               >
                 {/* Role Selection */}
                 <div>
-                  <label className="block text-white font-medium mb-3">
+                  <label className="block text-[var(--text-primary)] font-medium mb-3">
                     Type de poste
                   </label>
                   <div className="grid grid-cols-1 gap-2">
@@ -1542,18 +1542,18 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                           'flex items-center gap-4 p-4 rounded-xl border transition-all text-left',
                           selectedStaffingRole?.id === role.id
                             ? 'bg-purple-500/20 border-purple-500/50'
-                            : 'bg-white/5 border-white/10 hover:bg-white/10'
+                            : 'bg-[var(--bg-card)] border-[var(--border)] hover:bg-[var(--bg-active)]'
                         )}
                       >
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
                           <Users className="w-6 h-6 text-white" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-white font-medium">{role.role}</p>
-                          <p className="text-white/50 text-sm">{role.description}</p>
+                          <p className="text-[var(--text-primary)] font-medium">{role.role}</p>
+                          <p className="text-[var(--text-muted)] text-sm">{role.description}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-white font-semibold">{role.hourlyRate.min}-{role.hourlyRate.max}€/h</p>
+                          <p className="text-[var(--text-primary)] font-semibold">{role.hourlyRate.min}-{role.hourlyRate.max}€/h</p>
                         </div>
                         {selectedStaffingRole?.id === role.id && (
                           <Check className="w-5 h-5 text-purple-400" />
@@ -1564,8 +1564,8 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                 </div>
 
                 {/* DETAILS FORM (Adapted from Tech AV) */}
-                <div className="space-y-6 bg-white/5 rounded-xl p-4 border border-white/10">
-                    <h3 className="text-white font-medium flex items-center gap-2 border-b border-white/10 pb-3">
+                <div className="space-y-6 bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
+                    <h3 className="text-[var(--text-primary)] font-medium flex items-center gap-2 border-b border-[var(--border)] pb-3">
                       <Calendar className="w-5 h-5 text-purple-400" />
                       Détails de la prestation
                     </h3>
@@ -1573,21 +1573,21 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     {/* Date & Time */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-white/70 text-sm font-medium mb-2">Date</label>
+                        <label className="block text-[var(--text-secondary)] text-sm font-medium mb-2">Date</label>
                         <input
                           type="date"
                           value={staffingDate}
                           onChange={(e) => setStaffingDate(e.target.value)}
-                          className="w-full p-3 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50 [color-scheme:dark]"
+                          className="w-full p-3 bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-purple-500/50 [color-scheme:dark]"
                         />
                       </div>
                       <div>
-                        <label className="block text-white/70 text-sm font-medium mb-2">Heure de début</label>
+                        <label className="block text-[var(--text-secondary)] text-sm font-medium mb-2">Heure de début</label>
                         <input
                           type="time"
                           value={staffingTime}
                           onChange={(e) => setStaffingTime(e.target.value)}
-                          className="w-full p-3 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50 [color-scheme:dark]"
+                          className="w-full p-3 bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-purple-500/50 [color-scheme:dark]"
                         />
                       </div>
                     </div>
@@ -1599,7 +1599,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                         {/* Duration */}
                         <div className="space-y-4">
                             <div className="flex justify-between items-end">
-                              <label className="text-white/70 text-sm font-medium flex items-center gap-2">
+                              <label className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
                                 <Clock className="w-4 h-4 text-blue-400" />
                                 Durée estimée
                               </label>
@@ -1610,9 +1610,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                                   step="0.5"
                                   value={staffingDuration}
                                   onChange={(e) => setStaffingDuration(e.target.value)}
-                                  className="w-16 p-1 text-right bg-transparent border-b border-white/20 text-white font-bold focus:outline-none focus:border-blue-500"
+                                  className="w-16 p-1 text-right bg-transparent border-b border-[var(--border-strong)] text-[var(--text-primary)] font-bold focus:outline-none focus:border-blue-500"
                                 />
-                                <span className="text-sm font-normal text-white/50">h</span>
+                                <span className="text-sm font-normal text-[var(--text-muted)]">h</span>
                               </div>
                             </div>
                             <div className="relative pt-1">
@@ -1623,9 +1623,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                                 step="0.5"
                                 value={staffingDuration}
                                 onChange={(e) => setStaffingDuration(e.target.value)}
-                                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                className="w-full h-2 bg-[var(--bg-active)] rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                               />
-                              <div className="flex justify-between text-[10px] text-white/30 mt-2 font-medium uppercase tracking-wider">
+                              <div className="flex justify-between text-[10px] text-[var(--text-muted)] mt-2 font-medium uppercase tracking-wider">
                                 <span>1h</span>
                                 <span>4h</span>
                                 <span>8h</span>
@@ -1636,7 +1636,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
 
                         {/* Number of People */}
                         <div>
-                           <label className="text-white/70 text-sm font-medium flex items-center gap-2 mb-2">
+                           <label className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2 mb-2">
                               <Users className="w-4 h-4 text-green-400" />
                               Nombre de personnes
                            </label>
@@ -1644,14 +1644,14 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                               <select
                                 value={staffingCount}
                                 onChange={(e) => setStaffingCount(e.target.value)}
-                                className="w-full p-3 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-500/50 appearance-none"
+                                className="w-full p-3 bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-green-500/50 appearance-none"
                               >
                                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                                  <option key={n} value={n} className="bg-[#1a1a1a]">{n} personne{n > 1 ? 's' : ''}</option>
+                                  <option key={n} value={n} className="bg-[var(--bg-hover)]">{n} personne{n > 1 ? 's' : ''}</option>
                                 ))}
                               </select>
                               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                                 <ChevronRight className="w-4 h-4 text-white/30 rotate-90" />
+                                 <ChevronRight className="w-4 h-4 text-[var(--text-muted)] rotate-90" />
                               </div>
                            </div>
                         </div>
@@ -1660,7 +1660,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                       {/* Hourly Rate */}
                       <div className="space-y-4">
                          <div className="flex justify-between items-end">
-                          <label className="text-white/70 text-sm font-medium flex items-center gap-2">
+                          <label className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
                             <Euro className="w-4 h-4 text-purple-400" />
                             Taux horaire
                           </label>
@@ -1671,9 +1671,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                               step="1"
                               value={servicePrice || '0'}
                               onChange={(e) => setServicePrice(e.target.value)}
-                              className="w-16 p-1 text-right bg-transparent border-b border-white/20 text-white font-bold focus:outline-none focus:border-purple-500"
+                              className="w-16 p-1 text-right bg-transparent border-b border-[var(--border-strong)] text-[var(--text-primary)] font-bold focus:outline-none focus:border-purple-500"
                             />
-                            <span className="text-sm font-normal text-white/50">€/h</span>
+                            <span className="text-sm font-normal text-[var(--text-muted)]">€/h</span>
                           </div>
                         </div>
                         <div className="relative pt-1">
@@ -1684,9 +1684,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                             step="1"
                             value={servicePrice || '0'}
                             onChange={(e) => setServicePrice(e.target.value)}
-                            className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400 transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                            className="w-full h-2 bg-[var(--bg-active)] rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400 transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                           />
-                          <div className="flex justify-between text-[10px] text-white/30 mt-2 font-medium uppercase tracking-wider">
+                          <div className="flex justify-between text-[10px] text-[var(--text-muted)] mt-2 font-medium uppercase tracking-wider">
                             <span>15€</span>
                             <span>40€</span>
                             <span>70€</span>
@@ -1694,7 +1694,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                           </div>
                         </div>
                         {selectedStaffingRole && (
-                            <p className="text-xs text-white/40 mt-2">
+                            <p className="text-xs text-[var(--text-muted)] mt-2">
                                 Fourchette conseillée pour {selectedStaffingRole.role}: <span className="text-purple-400">{selectedStaffingRole.hourlyRate.min}-{selectedStaffingRole.hourlyRate.max}€/h</span>
                             </p>
                         )}
@@ -1702,23 +1702,23 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     </div>
                     
                     {/* Total Calculation Display */}
-                    <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-white/10 flex items-center justify-between">
+                    <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-[var(--border)] flex items-center justify-between">
                       <div>
-                        <span className="text-white/60 text-sm font-medium">Total estimé</span>
-                        <p className="text-white/40 text-xs mt-1">
+                        <span className="text-[var(--text-muted)] text-sm font-medium">Total estimé</span>
+                        <p className="text-[var(--text-muted)] text-xs mt-1">
                           {staffingCount} pers. × {staffingDuration}h × {servicePrice || 0}€/h
                         </p>
                       </div>
                       <div className="text-right">
-                         <span className="text-2xl font-bold text-white tabular-nums">
+                         <span className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
                             {(parseFloat(staffingCount) * parseFloat(staffingDuration || '0') * parseFloat(servicePrice || '0')).toFixed(0)}€
                          </span>
                       </div>
                     </div>
                     
                     {/* Mission Context Section */}
-                    <div className="pt-4 border-t border-white/10 space-y-6">
-                       <h4 className="text-white font-medium flex items-center gap-2">
+                    <div className="pt-4 border-t border-[var(--border)] space-y-6">
+                       <h4 className="text-[var(--text-primary)] font-medium flex items-center gap-2">
                           <Zap className="w-4 h-4 text-yellow-400" />
                           Contexte de la mission
                        </h4>
@@ -1726,25 +1726,25 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative">
                           {/* Event Type */}
                           <div>
-                             <label className="block text-white/70 text-sm font-medium mb-2">Type d'événement</label>
+                             <label className="block text-[var(--text-secondary)] text-sm font-medium mb-2">Type d'événement</label>
                              {!isCustomEventType ? (
                                <select 
                                   value={eventType}
                                   onChange={(e) => handleEventTypeChange(e.target.value)}
-                                  className="w-full p-3 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500/50 appearance-none"
+                                  className="w-full p-3 bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-blue-500/50 appearance-none"
                                >
-                                  <option className="bg-[#1a1a1a]" disabled value="">Sélectionner un type...</option>
+                                  <option className="bg-[var(--bg-hover)]" disabled value="">Sélectionner un type...</option>
                                   {DEFAULT_EVENT_TYPES.map(type => (
-                                    <option key={type} className="bg-[#1a1a1a]" value={type}>{type}</option>
+                                    <option key={type} className="bg-[var(--bg-hover)]" value={type}>{type}</option>
                                   ))}
                                   {savedEventTypes.length > 0 && (
-                                    <optgroup label="Vos types personnalisés" className="bg-[#1a1a1a] text-white/50">
+                                    <optgroup label="Vos types personnalisés" className="bg-[var(--bg-hover)] text-[var(--text-muted)]">
                                       {savedEventTypes.map(type => (
-                                        <option key={type} className="bg-[#1a1a1a] text-white" value={type}>{type}</option>
+                                        <option key={type} className="bg-[var(--bg-hover)] text-[var(--text-primary)]" value={type}>{type}</option>
                                       ))}
                                     </optgroup>
                                   )}
-                                  <option className="bg-[#1a1a1a] font-medium text-blue-400" value="custom_new">+ Autre / Nouveau...</option>
+                                  <option className="bg-[var(--bg-hover)] font-medium text-blue-400" value="custom_new">+ Autre / Nouveau...</option>
                                </select>
                              ) : (
                                <div className="flex gap-2">
@@ -1754,7 +1754,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                                    onChange={(e) => setCustomEventType(e.target.value)}
                                    placeholder="Ex: Festival, Vernissage..."
                                    autoFocus
-                                   className="flex-1 p-3 bg-black/20 border border-blue-500/50 rounded-xl text-white focus:outline-none"
+                                   className="flex-1 p-3 bg-[var(--bg-active)] border border-blue-500/50 rounded-xl text-[var(--text-primary)] focus:outline-none"
                                    onKeyDown={(e) => {
                                      if (e.key === 'Enter') {
                                        e.preventDefault();
@@ -1771,7 +1771,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                                  </button>
                                  <button
                                    onClick={() => setIsCustomEventType(false)}
-                                   className="px-4 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition-colors"
+                                   className="px-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] hover:bg-[var(--bg-active)] transition-colors"
                                  >
                                    Annuler
                                  </button>
@@ -1781,13 +1781,13 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                           
                           {/* Notes */}
                           <div>
-                             <label className="block text-white/70 text-sm font-medium mb-2">Notes</label>
+                             <label className="block text-[var(--text-secondary)] text-sm font-medium mb-2">Notes</label>
                              <textarea
                                value={description}
                                onChange={(e) => setDescription(e.target.value)}
                                placeholder="Dress code, instructions..."
                                rows={1}
-                               className="w-full p-3 bg-black/20 border border-white/10 rounded-xl text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-purple-500/50 min-h-[50px]"
+                               className="w-full p-3 bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none focus:outline-none focus:border-purple-500/50 min-h-[50px]"
                              />
                           </div>
                        </div>
@@ -1806,17 +1806,17 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                 className="space-y-6"
               >
                 {/* Mission Preview Card */}
-                <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden relative group">
+                <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] overflow-hidden relative group">
                   {/* Decorative Gradient Background */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-purple-600/5 to-pink-600/5 opacity-50" />
                   
                   {/* Header Section */}
-                  <div className="relative p-6 border-b border-white/10">
+                  <div className="relative p-6 border-b border-[var(--border)]">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex gap-4">
                         {/* Icon/Avatar */}
                         <div className={cn(
-                          "w-16 h-16 rounded-2xl flex items-center justify-center border border-white/10 shadow-lg flex-shrink-0",
+                          "w-16 h-16 rounded-2xl flex items-center justify-center border border-[var(--border)] shadow-lg flex-shrink-0",
                           selectedCategory?.id === 'STAFFING' 
                             ? "bg-gradient-to-br from-purple-500/20 to-pink-500/20" 
                             : "bg-gradient-to-br from-blue-500/20 to-cyan-500/20"
@@ -1852,14 +1852,14 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                               </button>
                             )}
                           </div>
-                          <h3 className="text-xl font-bold text-white mb-1">
+                          <h3 className="text-xl font-bold text-[var(--text-primary)] mb-1">
                             {selectedProblem 
                               ? selectedProblem.label 
                               : selectedStaffingRole 
                                 ? selectedStaffingRole.role 
                                 : selectedSubCategory?.label || "Mission personnalisée"}
                           </h3>
-                          <p className="text-white/50 text-sm">
+                          <p className="text-[var(--text-muted)] text-sm">
                             {selectedCategory?.id === 'STAFFING' 
                               ? "Renfort d'équipe" 
                               : selectedEquipment 
@@ -1888,21 +1888,21 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                       {selectedEquipment && (
                         <button 
                           onClick={() => setShowEquipmentDetails(true)}
-                          className="w-full h-full min-h-[100px] text-left p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer group/card flex flex-col justify-center relative overflow-hidden"
+                          className="w-full h-full min-h-[100px] text-left p-3 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] hover:bg-[var(--bg-active)] hover:border-[var(--border-strong)] transition-all cursor-pointer group/card flex flex-col justify-center relative overflow-hidden"
                         >
                           <div className="flex gap-4 items-center relative z-10">
-                            <div className="relative overflow-hidden bg-gray-800 flex-shrink-0 w-12 h-12 rounded-lg border border-white/10">
+                            <div className="relative overflow-hidden bg-[var(--bg-active)] flex-shrink-0 w-12 h-12 rounded-lg border border-[var(--border)]">
                               {selectedEquipment.photos?.[0]?.url ? (
                                 <img src={selectedEquipment.photos[0].url} alt={selectedEquipment.brand} className="w-full h-full object-cover" />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center">
-                                  <Monitor className="w-6 h-6 text-white/40" />
+                                  <Monitor className="w-6 h-6 text-[var(--text-muted)]" />
                                 </div>
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-bold text-white truncate text-sm">{selectedEquipment.brand} {selectedEquipment.model}</h3>
-                              <p className="text-gray-400 text-xs truncate mb-1 flex items-center gap-1">
+                              <h3 className="font-bold text-[var(--text-primary)] truncate text-sm">{selectedEquipment.brand} {selectedEquipment.model}</h3>
+                              <p className="text-[var(--text-muted)] text-xs truncate mb-1 flex items-center gap-1">
                                 <MapPin className="w-3 h-3" />
                                 {selectedEquipment.location}
                               </p>
@@ -1916,26 +1916,26 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     {(selectedCategory?.id === 'STAFFING' || (selectedCategory?.id === 'TECH' && !selectedEquipment)) && (
                       <div className="grid grid-cols-2 gap-4">
                         <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-                            <Calendar className="w-4 h-4 text-white/60" />
+                          <div className="w-8 h-8 rounded-lg bg-[var(--bg-card)] flex items-center justify-center flex-shrink-0">
+                            <Calendar className="w-4 h-4 text-[var(--text-muted)]" />
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-white/40 mb-0.5">Date & Heure</p>
-                            <p className="text-white font-medium capitalize">
+                            <p className="text-sm font-medium text-[var(--text-muted)] mb-0.5">Date & Heure</p>
+                            <p className="text-[var(--text-primary)] font-medium capitalize">
                               {staffingDate ? new Date(staffingDate).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }) : 'Non défini'}
                             </p>
-                            <p className="text-white/50 text-sm">{staffingTime || '--:--'}</p>
+                            <p className="text-[var(--text-muted)] text-sm">{staffingTime || '--:--'}</p>
                           </div>
                         </div>
                         <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-                            <Clock className="w-4 h-4 text-white/60" />
+                          <div className="w-8 h-8 rounded-lg bg-[var(--bg-card)] flex items-center justify-center flex-shrink-0">
+                            <Clock className="w-4 h-4 text-[var(--text-muted)]" />
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-white/40 mb-0.5">Durée</p>
-                            <p className="text-white font-medium">{staffingDuration}h</p>
+                            <p className="text-sm font-medium text-[var(--text-muted)] mb-0.5">Durée</p>
+                            <p className="text-[var(--text-primary)] font-medium">{staffingDuration}h</p>
                             {selectedCategory?.id === 'STAFFING' && (
-                              <p className="text-white/50 text-sm">x{staffingCount} personne{parseInt(staffingCount) > 1 ? 's' : ''}</p>
+                              <p className="text-[var(--text-muted)] text-sm">x{staffingCount} personne{parseInt(staffingCount) > 1 ? 's' : ''}</p>
                             )}
                           </div>
                         </div>
@@ -1955,7 +1955,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                            "px-3 py-1 rounded-full border text-xs font-medium flex items-center gap-1.5",
                            equipmentProvided 
                              ? "bg-green-500/10 border-green-500/20 text-green-300"
-                             : "bg-white/5 border-white/10 text-white/50"
+                             : "bg-[var(--bg-card)] border-[var(--border)] text-[var(--text-muted)]"
                          )}>
                            <Check className={cn("w-3 h-3", !equipmentProvided && "opacity-0")} />
                            {equipmentProvided ? "Matériel fourni" : "Matériel non fourni"}
@@ -1965,19 +1965,19 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
 
                     {/* Problem Description */}
                     {(description || selectedProblem) && (
-                      <div className="p-4 bg-white/5 rounded-xl border border-white/5">
-                        <p className="text-sm font-medium text-white/40 mb-2">
+                      <div className="p-4 bg-[var(--bg-card)] rounded-xl border border-[var(--border)]">
+                        <p className="text-sm font-medium text-[var(--text-muted)] mb-2">
                           {selectedCategory?.id === 'STAFFING' ? 'Instructions & Notes' : 'Description du problème'}
                         </p>
                         {selectedProblem && (
-                          <div className="mb-2 pb-2 border-b border-white/5">
-                            <span className="text-white font-medium block">{selectedProblem.label}</span>
+                          <div className="mb-2 pb-2 border-b border-[var(--border)]">
+                            <span className="text-[var(--text-primary)] font-medium block">{selectedProblem.label}</span>
                           </div>
                         )}
                         {description ? (
-                          <p className="text-white/80 text-sm leading-relaxed whitespace-pre-wrap">{description}</p>
+                          <p className="text-[var(--text-secondary)] text-sm leading-relaxed whitespace-pre-wrap">{description}</p>
                         ) : (
-                          <p className="text-white/30 text-sm italic">Aucune note supplémentaire</p>
+                          <p className="text-[var(--text-muted)] text-sm italic">Aucune note supplémentaire</p>
                         )}
                       </div>
                     )}
@@ -1985,7 +1985,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     {/* Media Preview */}
                     {media.length > 0 && (
                       <div>
-                        <p className="text-sm font-medium text-white/40 mb-3">Photos jointes</p>
+                        <p className="text-sm font-medium text-[var(--text-muted)] mb-3">Photos jointes</p>
                         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                           {media.map((item, i) => (
                             <button 
@@ -1994,17 +1994,17 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                                 setCurrentMediaIndex(i);
                                 setAnnotatorOpen(true);
                               }}
-                              className="relative w-20 h-20 rounded-lg overflow-hidden border border-white/10 flex-shrink-0 hover:opacity-80 transition-opacity"
+                              className="relative w-20 h-20 rounded-lg overflow-hidden border border-[var(--border)] flex-shrink-0 hover:opacity-80 transition-opacity"
                             >
                               {item.type === 'image' ? (
                                 <img src={item.url} alt={`Preuve ${i + 1}`} className="w-full h-full object-cover" />
                               ) : item.type === 'video' ? (
                                 <div className="w-full h-full flex items-center justify-center bg-black/50">
-                                  <Video className="w-6 h-6 text-white/50" />
+                                  <Video className="w-6 h-6 text-[var(--text-muted)]" />
                                 </div>
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-black/50">
-                                  <Mic className="w-6 h-6 text-white/50" />
+                                  <Mic className="w-6 h-6 text-[var(--text-muted)]" />
                                 </div>
                               )}
                             </button>
@@ -2014,7 +2014,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     )}
 
                     {/* Price Estimate (Subtle) */}
-                    <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                    <div className="pt-4 border-t border-[var(--border)] flex items-center justify-between">
                       <div className="flex items-center gap-2">
                          <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center">
                            <ShieldCheck className="w-3 h-3 text-green-400" />
@@ -2022,8 +2022,8 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                          <span className="text-xs text-green-400 font-medium">Mission vérifiée</span>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs text-white/40 uppercase tracking-wider font-medium mb-0.5">Budget Estimé</p>
-                        <p className="text-white font-bold text-lg">
+                        <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-medium mb-0.5">Budget Estimé</p>
+                        <p className="text-[var(--text-primary)] font-bold text-lg">
                            {selectedProblem
                             ? `${selectedProblem.priceRange.min}€ - ${selectedProblem.priceRange.max}€`
                             : selectedStaffingRole
@@ -2038,7 +2038,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                   </div>
                 </div>
                 
-                <p className="text-center text-xs text-white/30 max-w-xs mx-auto">
+                <p className="text-center text-xs text-[var(--text-muted)] max-w-xs mx-auto">
                   En publiant cette mission, elle sera visible par notre réseau de prestataires qualifiés.
                 </p>
               </motion.div>
@@ -2055,10 +2055,10 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                 <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
                   <Check className="w-10 h-10 text-green-400" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">
+                <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
                   Demande envoyée !
                 </h3>
-                <p className="text-white/60 mb-8 max-w-sm mx-auto">
+                <p className="text-[var(--text-muted)] mb-8 max-w-sm mx-auto">
                   Nous recherchons les meilleurs experts disponibles. Vous recevrez une notification dès qu'un professionnel acceptera votre mission.
                 </p>
 
@@ -2075,7 +2075,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
 
         {/* Footer */}
         {step !== 'category' && step !== 'success' && (
-          <div className="p-6 border-t border-white/10">
+          <div className="p-6 border-t border-[var(--border)]">
             {step === 'details' && (
               <button
                 onClick={handleContinueToSummary}
@@ -2087,7 +2087,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                   'w-full py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2',
                   ((selectedProblem || description.trim() || selectedCategory?.id !== 'MAINTENANCE') && !(selectedProblem?.id === 'other' && !description.trim()))
                     ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/25'
-                    : 'bg-white/10 text-white/30 cursor-not-allowed'
+                    : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
                 )}
               >
                 Continuer
@@ -2103,7 +2103,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                   'w-full py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2',
                   (selectedStaffingRole && staffingDate && staffingTime)
                     ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:shadow-purple-500/25'
-                    : 'bg-white/10 text-white/30 cursor-not-allowed'
+                    : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
                 )}
               >
                 Continuer
@@ -2182,48 +2182,48 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-xs shadow-2xl overflow-hidden"
+              className="relative bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl p-6 w-full max-w-xs shadow-2xl overflow-hidden"
             >
               <button 
                 onClick={() => setAddMediaModalOpen(false)}
-                className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full transition-colors"
+                className="absolute top-4 right-4 p-2 hover:bg-[var(--bg-active)] rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-white/60" />
+                <X className="w-5 h-5 text-[var(--text-muted)]" />
               </button>
 
-              <h3 className="text-lg font-bold text-white mb-6 text-center">
+              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-6 text-center">
                 Ajouter un média
               </h3>
 
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => openCapture('PHOTO')}
-                  className="flex flex-col items-center justify-center gap-3 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group"
+                  className="flex flex-col items-center justify-center gap-3 p-4 bg-[var(--bg-card)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-2xl transition-all group"
                 >
                   <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Camera className="w-6 h-6 text-blue-400" />
                   </div>
-                  <span className="text-white font-medium text-sm">Photo</span>
+                  <span className="text-[var(--text-primary)] font-medium text-sm">Photo</span>
                 </button>
 
                 <button
                   onClick={() => openCapture('VIDEO')}
-                  className="flex flex-col items-center justify-center gap-3 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group"
+                  className="flex flex-col items-center justify-center gap-3 p-4 bg-[var(--bg-card)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-2xl transition-all group"
                 >
                   <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Video className="w-6 h-6 text-purple-400" />
                   </div>
-                  <span className="text-white font-medium text-sm">Vidéo</span>
+                  <span className="text-[var(--text-primary)] font-medium text-sm">Vidéo</span>
                 </button>
 
                 <button
                   onClick={() => openCapture('AUDIO')}
-                  className="flex flex-col items-center justify-center gap-3 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group"
+                  className="flex flex-col items-center justify-center gap-3 p-4 bg-[var(--bg-card)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-2xl transition-all group"
                 >
                   <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Mic className="w-6 h-6 text-amber-400" />
                   </div>
-                  <span className="text-white font-medium text-sm">Audio</span>
+                  <span className="text-[var(--text-primary)] font-medium text-sm">Audio</span>
                 </button>
 
                 <button
@@ -2231,12 +2231,12 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     fileInputRef.current?.click();
                     setAddMediaModalOpen(false);
                   }}
-                  className="flex flex-col items-center justify-center gap-3 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group"
+                  className="flex flex-col items-center justify-center gap-3 p-4 bg-[var(--bg-card)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-2xl transition-all group"
                 >
                   <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Upload className="w-6 h-6 text-green-400" />
                   </div>
-                  <span className="text-white font-medium text-sm">Importer</span>
+                  <span className="text-[var(--text-primary)] font-medium text-sm">Importer</span>
                 </button>
               </div>
             </motion.div>

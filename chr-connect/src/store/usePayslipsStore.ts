@@ -8,6 +8,8 @@ import type {
   PayslipSummary,
 } from '@/types/payslip';
 import { mockPayslipApi } from '@/services/payslipApi.mock';
+import { defaultPayslipProvider, createPayslipProvider } from '@/services/payslipProvider';
+import type { PayslipProviderConfig, PayslipProviderInterface } from '@/types/payslip';
 
 interface PayslipState {
   payslips: Payslip[];
@@ -38,6 +40,10 @@ interface PayslipState {
   getSelectedPayslip: () => Payslip | undefined;
   getPayslipSummary: (venueId?: string, startDate?: string, endDate?: string) => Promise<PayslipSummary>;
   getAvailablePeriods: (venueId?: string) => Promise<string[]>;
+
+  // Provider management
+  provider: PayslipProviderInterface;
+  setProvider: (config: PayslipProviderConfig) => void;
 }
 
 export const usePayslipsStore = create<PayslipState>()(
@@ -112,7 +118,7 @@ export const usePayslipsStore = create<PayslipState>()(
       generatePayslip: async (request: PayslipGenerationRequest) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await mockPayslipApi.generatePayslip(request);
+          const response = await get().provider.generatePayslip(request);
           if (response.success && response.payslipId) {
             await get().fetchPayslips();
             return response.payslipId;
@@ -220,6 +226,12 @@ export const usePayslipsStore = create<PayslipState>()(
           set({ error: error instanceof Error ? error.message : 'Failed to fetch available periods' });
           throw error;
         }
+      },
+
+      // Provider management
+      provider: defaultPayslipProvider,
+      setProvider: (config: PayslipProviderConfig) => {
+        set({ provider: createPayslipProvider(config) });
       },
     }),
     {

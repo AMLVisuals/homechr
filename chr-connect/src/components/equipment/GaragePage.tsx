@@ -95,20 +95,20 @@ function FilterBar({
       {/* Search Bar */}
       <div className="flex gap-3">
         <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Rechercher un équipement..."
-            className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-blue-500/50"
+            className="w-full pl-12 pr-4 py-3 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500"
           />
           {searchQuery && (
             <button
               onClick={() => onSearchChange('')}
               className="absolute right-4 top-1/2 -translate-y-1/2"
             >
-              <X className="w-4 h-4 text-white/40 hover:text-white/60" />
+              <X className="w-4 h-4 text-[var(--text-muted)] hover:text-[var(--text-secondary)]" />
             </button>
           )}
         </div>
@@ -119,7 +119,7 @@ function FilterBar({
             'px-4 py-3 rounded-xl border transition-colors flex items-center gap-2',
             showFilters
               ? 'bg-blue-500/20 border-blue-500/50 text-blue-300'
-              : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+              : 'bg-[var(--bg-hover)] border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)]'
           )}
         >
           <SlidersHorizontal className="w-5 h-5" />
@@ -135,10 +135,10 @@ function FilterBar({
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-4">
+            <div className="p-4 bg-[var(--bg-hover)] rounded-xl border border-[var(--border)] space-y-4">
               {/* Category Filters */}
               <div>
-                <p className="text-white/60 text-sm mb-2">Type d&apos;équipement</p>
+                <p className="text-[var(--text-secondary)] text-sm mb-2">Type d&apos;équipement</p>
                 <div className="flex flex-wrap gap-2">
                   {categories.map(({ value, label, icon: Icon }) => (
                     <button
@@ -150,7 +150,7 @@ function FilterBar({
                         'px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors',
                         selectedCategory === value
                           ? 'bg-blue-500/30 text-blue-300 border border-blue-500/50'
-                          : 'bg-white/5 text-white/60 hover:bg-white/10 border border-transparent'
+                          : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)] border border-transparent'
                       )}
                     >
                       <Icon className="w-4 h-4" />
@@ -162,14 +162,14 @@ function FilterBar({
 
               {/* Other Filters */}
               <div>
-                <p className="text-white/60 text-sm mb-2">Autres filtres</p>
+                <p className="text-[var(--text-secondary)] text-sm mb-2">Autres filtres</p>
                 <button
                   onClick={() => onShowDeletedChange(!showDeleted)}
                   className={cn(
                     'px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors',
                     showDeleted
                       ? 'bg-red-500/20 text-red-300 border border-red-500/50'
-                      : 'bg-white/5 text-white/60 hover:bg-white/10 border border-transparent'
+                      : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)] border border-transparent'
                   )}
                 >
                   <Trash2 className="w-4 h-4" />
@@ -288,10 +288,10 @@ function EmptyState({ onAddEquipment }: EmptyStateProps) {
       <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center mb-6">
         <QrCode className="w-12 h-12 text-blue-400" />
       </div>
-      <h3 className="text-xl font-semibold text-white mb-2">
+      <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
         Votre garage est vide
       </h3>
-      <p className="text-white/60 text-center mb-8 max-w-md">
+      <p className="text-[var(--text-secondary)] text-center mb-8 max-w-md">
         Ajoutez vos équipements pour créer leur jumeau numérique et faciliter les
         interventions de maintenance.
       </p>
@@ -330,7 +330,7 @@ function AddEquipmentModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-end justify-center sm:items-center p-4"
+      className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-end justify-center sm:items-center p-4"
       onClick={onClose}
     >
       <motion.div
@@ -338,13 +338,13 @@ function AddEquipmentModal({
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#121212] border border-white/10 rounded-3xl overflow-hidden w-full max-w-md"
+        className="bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl overflow-hidden w-full max-w-md"
       >
-        <div className="p-6 text-center border-b border-white/10">
-          <h2 className="text-xl font-semibold text-white">
+        <div className="p-6 text-center border-b border-[var(--border)]">
+          <h2 className="text-xl font-semibold text-[var(--text-primary)]">
             Ajouter un équipement
           </h2>
-          <p className="text-white/50 text-sm mt-1">
+          <p className="text-[var(--text-muted)] text-sm mt-1">
             Choisissez une méthode d&apos;ajout
           </p>
         </div>
@@ -360,10 +360,10 @@ function AddEquipmentModal({
                 <Camera className="w-7 h-7 text-blue-400" />
               </div>
               <div className="flex-1">
-                <h3 className="text-white font-semibold text-lg mb-1">
+                <h3 className="text-[var(--text-primary)] font-semibold text-lg mb-1">
                   Scanner la plaque
                 </h3>
-                <p className="text-white/60 text-sm">
+                <p className="text-[var(--text-secondary)] text-sm">
                   Notre IA lit automatiquement les informations de la plaque
                   signalétique
                 </p>
@@ -377,17 +377,17 @@ function AddEquipmentModal({
           {/* Manual Option */}
           <button
             onClick={onManualChoice}
-            className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl text-left hover:bg-white/10 transition-colors"
+            className="w-full p-5 bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl text-left hover:bg-[var(--bg-active)] transition-colors"
           >
             <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center">
-                <Keyboard className="w-7 h-7 text-white/60" />
+              <div className="w-14 h-14 rounded-xl bg-[var(--bg-active)] flex items-center justify-center">
+                <Keyboard className="w-7 h-7 text-[var(--text-secondary)]" />
               </div>
               <div className="flex-1">
-                <h3 className="text-white font-semibold text-lg mb-1">
+                <h3 className="text-[var(--text-primary)] font-semibold text-lg mb-1">
                   Saisie manuelle
                 </h3>
-                <p className="text-white/60 text-sm">
+                <p className="text-[var(--text-secondary)] text-sm">
                   Entrez les informations de l&apos;équipement à la main
                 </p>
               </div>
@@ -398,7 +398,7 @@ function AddEquipmentModal({
         <div className="p-6 pt-0">
           <button
             onClick={onClose}
-            className="w-full py-3 text-white/60 hover:text-white transition-colors"
+            className="w-full py-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             Annuler
           </button>
@@ -532,13 +532,13 @@ export function GaragePage({ venueId, ownerId, venueName, onBack }: GaragePagePr
   };
 
   return (
-    <div className="min-h-screen bg-[#050505]">
+    <div className="min-h-screen bg-[var(--bg-app)]">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-[#050505]/80 backdrop-blur-xl border-b border-white/10 transition-all duration-300">
+      <div className="sticky top-0 z-40 bg-[var(--bg-header)] backdrop-blur-xl border-b border-[var(--border)] transition-all duration-300">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="w-full flex flex-col items-center text-center">
-              <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-[var(--gradient-heading-from)] via-[var(--gradient-heading-via)] to-[var(--gradient-heading-to)] bg-clip-text text-transparent">
                 Garage Virtuel
               </h1>
               {venueName && (
@@ -584,7 +584,7 @@ export function GaragePage({ venueId, ownerId, venueName, onBack }: GaragePagePr
             )}
 
             {/* Filter Bar */}
-            <div className="sticky top-[92px] z-30 bg-[#050505]/95 backdrop-blur-xl py-4 -mx-6 px-6 mb-6 border-b border-white/5 shadow-lg shadow-black/20 transition-all duration-300">
+            <div className="sticky top-[92px] z-30 bg-[var(--bg-app)] backdrop-blur-xl py-4 -mx-6 px-6 mb-6 border-b border-[var(--border)] shadow-lg transition-all duration-300">
               <FilterBar
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
@@ -598,7 +598,7 @@ export function GaragePage({ venueId, ownerId, venueName, onBack }: GaragePagePr
             </div>
 
             {/* Results count */}
-            <p className="text-white/40 text-sm mb-4">
+            <p className="text-[var(--text-muted)] text-sm mb-4">
               {filteredEquipment.length} équipement{filteredEquipment.length > 1 ? 's' : ''}{' '}
               {(searchQuery || selectedCategory || selectedStatus) && 'trouvé(s)'}
               {showDeleted && ' (Corbeille)'}
@@ -607,7 +607,7 @@ export function GaragePage({ venueId, ownerId, venueName, onBack }: GaragePagePr
             {/* Equipment Grid/List */}
             {filteredEquipment.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-white/60">
+                <p className="text-[var(--text-secondary)]">
                   Aucun équipement ne correspond à vos critères
                 </p>
                 <button

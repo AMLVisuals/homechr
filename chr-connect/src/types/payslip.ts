@@ -143,3 +143,30 @@ export const PAYSLIP_PERIOD_LABELS: Record<PayslipPeriodType, string> = {
   WEEKLY: 'Hebdomadaire',
   BIWEEKLY: 'Bihebdomadaire',
 };
+
+// Provider abstraction types
+export interface PayslipProviderConfig {
+  type: 'mock' | 'external';
+  name: string;
+  apiKey?: string;
+  apiEndpoint?: string;
+}
+
+export interface PayslipProviderInterface {
+  name: string;
+  generatePayslip(request: PayslipGenerationRequest): Promise<PayslipGenerationResponse>;
+  getPayslipPdf(id: string): Promise<Blob>;
+  validateData(data: Partial<PayslipGenerationRequest>): Promise<ValidationResult>;
+}
+
+export interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
+export interface PremiumFeature {
+  id: string;
+  label: string;
+  description: string;
+  icon: string;
+}
