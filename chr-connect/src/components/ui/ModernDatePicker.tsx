@@ -125,18 +125,18 @@ export default function ModernDatePicker({
 
   return (
     <div className={`relative ${className}`} ref={containerRef}>
-      {label && <label className="block text-sm font-medium text-gray-300 mb-1">{label}</label>}
+      {label && <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{label}</label>}
       
       <div 
         onClick={() => !disabled && setIsOpen(!isOpen)}
         className={`
-          w-full bg-[#0a0a0a] border rounded-xl px-4 py-2.5 flex items-center gap-3 cursor-pointer transition-all
-          ${isOpen ? 'border-blue-500 ring-1 ring-blue-500/50' : 'border-white/10 hover:border-white/20'}
+          w-full bg-[var(--bg-input)] border rounded-xl px-4 py-2.5 flex items-center gap-3 cursor-pointer transition-all
+          ${isOpen ? 'border-blue-500 ring-1 ring-blue-500/50' : 'border-[var(--border)] hover:border-[var(--border-strong)]'}
           ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
         `}
       >
-        <CalendarIcon className={`w-4 h-4 ${value ? 'text-blue-400' : 'text-gray-500'}`} />
-        <span className={`text-sm ${value ? 'text-white' : 'text-gray-500'}`}>
+        <CalendarIcon className={`w-4 h-4 ${value ? 'text-blue-400' : 'text-[var(--text-muted)]'}`} />
+        <span className={`text-sm ${value ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>
           {value ? formatDateDisplay(value) : placeholder}
         </span>
       </div>
@@ -147,13 +147,13 @@ export default function ModernDatePicker({
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute z-[100] mt-2 w-72 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl overflow-hidden"
+            className="absolute z-[100] mt-2 w-72 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-2xl overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-white/10 bg-white/5">
+            <div className="flex items-center justify-between p-4 border-b border-[var(--border)] bg-[var(--bg-hover)]">
               <button 
                 onClick={(e) => { e.stopPropagation(); handleYearChange(-1); }}
-                className="p-1 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors"
+                className="p-1 hover:bg-[var(--bg-active)] rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -161,7 +161,7 @@ export default function ModernDatePicker({
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setView('months')}
-                  className="font-bold text-white hover:text-blue-400 transition-colors"
+                  className="font-bold text-[var(--text-primary)] hover:text-blue-400 transition-colors"
                 >
                   {MONTHS[currentDate.getMonth()]}
                 </button>
@@ -169,13 +169,13 @@ export default function ModernDatePicker({
                   type="number"
                   value={yearInput}
                   onChange={handleYearInput}
-                  className="w-16 bg-transparent text-center font-bold text-white border-none focus:ring-0 outline-none p-0 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  className="w-16 bg-transparent text-center font-bold text-[var(--text-primary)] border-none focus:ring-0 outline-none p-0 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
               </div>
 
               <button 
                 onClick={(e) => { e.stopPropagation(); handleYearChange(1); }}
-                className="p-1 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors"
+                className="p-1 hover:bg-[var(--bg-active)] rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -196,11 +196,11 @@ export default function ModernDatePicker({
                         onClick={(e) => { e.stopPropagation(); handleMonthSelect(index); }}
                         className={`
                           p-2 rounded-lg text-sm font-medium transition-colors
-                          ${isSelected 
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
-                            : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                          ${isSelected
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
+                            : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
                           }
-                          ${index === currentDate.getMonth() ? 'bg-white/5 text-white' : ''}
+                          ${index === currentDate.getMonth() ? 'bg-[var(--bg-hover)] text-[var(--text-primary)]' : ''}
                         `}
                       >
                         {month.slice(0, 3)}.
@@ -212,7 +212,7 @@ export default function ModernDatePicker({
                 <>
                           <div className="grid grid-cols-7 mb-2 text-center">
                             {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((d, i) => (
-                              <span key={`${d}-${i}`} className="text-xs font-medium text-gray-500">{d}</span>
+                              <span key={`${d}-${i}`} className="text-xs font-medium text-[var(--text-muted)]">{d}</span>
                             ))}
                           </div>
                           <div className="grid grid-cols-7 gap-1">
@@ -232,9 +232,9 @@ export default function ModernDatePicker({
                           onClick={(e) => { e.stopPropagation(); handleDaySelect(day); }}
                           className={`
                             w-8 h-8 rounded-lg text-sm font-medium transition-colors flex items-center justify-center mx-auto
-                            ${isSelected 
-                              ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
-                              : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                            ${isSelected
+                              ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
+                              : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
                             }
                           `}
                         >

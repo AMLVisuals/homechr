@@ -121,11 +121,11 @@ export function FloatingActionButton({ onAction }: FloatingActionButtonProps) {
                   className="flex items-center gap-3 group"
                 >
                   {/* Label */}
-                  <div className="px-4 py-2 bg-[#1a1a1a] rounded-xl border border-white/10 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity">
-                    <p className="text-white text-sm font-medium whitespace-nowrap">
+                  <div className="px-4 py-2 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] shadow-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                    <p className="text-[var(--text-primary)] text-sm font-medium whitespace-nowrap">
                       {action.label}
                     </p>
-                    <p className="text-white/50 text-xs">
+                    <p className="text-[var(--text-muted)] text-xs">
                       {action.description}
                     </p>
                   </div>
@@ -133,7 +133,7 @@ export function FloatingActionButton({ onAction }: FloatingActionButtonProps) {
                   {/* Icon Button */}
                   <div
                     className={cn(
-                      'w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg transition-transform hover:scale-110',
+                      'w-12 h-12 rounded-full flex items-center justify-center text-[var(--text-primary)] shadow-lg transition-transform hover:scale-110',
                       `bg-gradient-to-r ${action.color}`
                     )}
                   >
@@ -151,9 +151,9 @@ export function FloatingActionButton({ onAction }: FloatingActionButtonProps) {
           animate={{ rotate: isOpen ? 45 : 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 20 }}
           className={cn(
-            'w-14 h-14 rounded-full flex items-center justify-center text-white shadow-2xl transition-colors',
+            'w-14 h-14 rounded-full flex items-center justify-center text-[var(--text-primary)] shadow-2xl transition-colors',
             isOpen
-              ? 'bg-white/20'
+              ? 'bg-[var(--bg-active)]'
               : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
           )}
         >

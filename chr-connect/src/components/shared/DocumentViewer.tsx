@@ -428,23 +428,23 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
           onClick={onClose}
         >
           <div 
-            className="relative w-full h-full max-w-[98vw] bg-[#0a0a0a] rounded-2xl overflow-hidden shadow-2xl border border-white/10 flex flex-col ring-1 ring-white/10"
+            className="relative w-full h-full max-w-[98vw] bg-[var(--bg-card)] rounded-2xl overflow-hidden shadow-2xl border border-[var(--border)] flex flex-col ring-1 ring-[var(--border)]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div 
               className={cn(
-                "flex-none p-4 flex items-center justify-between border-b border-white/10 bg-[#0a0a0a]/90 backdrop-blur-md z-10 transition-transform duration-300 absolute top-0 left-0 right-0",
+                "flex-none p-4 flex items-center justify-between border-b border-[var(--border)] bg-[var(--bg-card)]/90 backdrop-blur-md z-10 transition-transform duration-300 absolute top-0 left-0 right-0",
                 !showControls && "translate-y-[-100%]"
               )} 
             >
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-lg bg-[var(--bg-active)] flex items-center justify-center">
                   <FileText className="w-5 h-5 text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold">{viewingDocument.name}</h3>
-                  <p className="text-white/40 text-sm flex items-center gap-2">
+                  <h3 className="text-[var(--text-primary)] font-semibold">{viewingDocument.name}</h3>
+                  <p className="text-[var(--text-muted)] text-sm flex items-center gap-2">
                     {getTypeLabel(viewingDocument.type)}
                     {viewingDocument.pages && viewingDocument.pages.length > 1 && (
                       <>
@@ -457,35 +457,35 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
               </div>
               
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 bg-white/5 rounded-lg p-1 mr-2 border border-white/10">
+                <div className="flex items-center gap-1 bg-[var(--bg-hover)] rounded-lg p-1 mr-2 border border-[var(--border)]">
                   <button
                     onClick={handleZoomOut}
-                    className="p-2 hover:bg-white/10 rounded-md text-white/60 hover:text-white transition-colors"
+                    className="p-2 hover:bg-[var(--bg-active)] rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                     title="Zoom arrière (-)"
                   >
                     <ZoomOut className="w-4 h-4" />
                   </button>
-                  <span className="text-xs font-mono text-white/40 w-12 text-center">
+                  <span className="text-xs font-mono text-[var(--text-muted)] w-12 text-center">
                     {zoomDisplay}%
                   </span>
                   <button
                     onClick={handleZoomIn}
-                    className="p-2 hover:bg-white/10 rounded-md text-white/60 hover:text-white transition-colors"
+                    className="p-2 hover:bg-[var(--bg-active)] rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                     title="Zoom avant (+)"
                   >
                     <ZoomIn className="w-4 h-4" />
                   </button>
                 </div>
 
-                <div className="h-8 w-[1px] bg-white/10 mx-1" />
+                <div className="h-8 w-[1px] bg-[var(--bg-active)] mx-1" />
 
                 {/* Mode Toggles */}
-                <div className="flex items-center gap-1 bg-white/5 rounded-lg p-1 border border-white/10">
+                <div className="flex items-center gap-1 bg-[var(--bg-hover)] rounded-lg p-1 border border-[var(--border)]">
                   <button
                     onClick={() => setInteractionMode('PAN')}
                     className={cn(
                       "p-2 rounded-md transition-colors",
-                      interactionMode === 'PAN' ? "bg-blue-500/20 text-blue-400" : "text-white/60 hover:text-white hover:bg-white/10"
+                      interactionMode === 'PAN' ? "bg-blue-500/20 text-blue-400" : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-active)]"
                     )}
                     title="Mode Déplacement (Grab)"
                   >
@@ -497,7 +497,7 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
                         onClick={() => setInteractionMode('POINT')}
                         className={cn(
                           "p-2 rounded-md transition-colors",
-                          interactionMode === 'POINT' ? "bg-blue-500/20 text-blue-400" : "text-white/60 hover:text-white hover:bg-white/10"
+                          interactionMode === 'POINT' ? "bg-blue-500/20 text-blue-400" : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-active)]"
                         )}
                         title="Ajouter une note (Point)"
                       >
@@ -507,7 +507,7 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
                         onClick={() => setInteractionMode('LINE')}
                         className={cn(
                           "p-2 rounded-md transition-colors",
-                          interactionMode === 'LINE' ? "bg-blue-500/20 text-blue-400" : "text-white/60 hover:text-white hover:bg-white/10"
+                          interactionMode === 'LINE' ? "bg-blue-500/20 text-blue-400" : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-active)]"
                         )}
                         title="Dessiner une ligne"
                       >
@@ -519,7 +519,7 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
                     onClick={() => setInteractionMode('ROTATE')}
                     className={cn(
                       "p-2 rounded-md transition-colors",
-                      interactionMode === 'ROTATE' ? "bg-blue-500/20 text-blue-400" : "text-white/60 hover:text-white hover:bg-white/10"
+                      interactionMode === 'ROTATE' ? "bg-blue-500/20 text-blue-400" : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-active)]"
                     )}
                     title="Mode Rotation Libre"
                   >
@@ -539,7 +539,7 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
 
                 <button
                   onClick={rotate90}
-                  className="p-2 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-colors"
+                  className="p-2 hover:bg-[var(--bg-active)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                   title="Pivoter 90° (R)"
                 >
                   <RotateCw className="w-5 h-5" />
@@ -549,7 +549,7 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
                   onClick={toggleContrast}
                   className={cn(
                     "p-2 rounded-lg transition-colors",
-                    isHighContrast ? "bg-white text-black" : "hover:bg-white/10 text-white/60 hover:text-white"
+                    isHighContrast ? "bg-white text-black" : "hover:bg-[var(--bg-active)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                   )}
                   title="Contraste élevé"
                 >
@@ -558,18 +558,18 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
 
                 <button
                   onClick={toggleFullscreen}
-                  className="p-2 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-colors hidden sm:block"
+                  className="p-2 hover:bg-[var(--bg-active)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors hidden sm:block"
                   title={isFullscreen ? "Quitter plein écran (F)" : "Plein écran (F)"}
                 >
                   {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
                 </button>
 
-                <div className="h-8 w-[1px] bg-white/10 mx-1" />
+                <div className="h-8 w-[1px] bg-[var(--bg-active)] mx-1" />
 
                 <a 
                   href={viewingDocument.url} 
                   download={viewingDocument.name}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/60 hover:text-white"
+                  className="p-2 hover:bg-[var(--bg-active)] rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                   title="Télécharger"
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -577,7 +577,7 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
                 </a>
                 <button
                   onClick={onClose}
-                  className="p-2 hover:bg-red-500/20 hover:text-red-400 rounded-full transition-colors text-white/60"
+                  className="p-2 hover:bg-red-500/20 hover:text-red-400 rounded-full transition-colors text-[var(--text-muted)]"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -587,7 +587,7 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
             {/* Viewer Content */}
             <div 
               className={cn(
-                "flex-1 relative overflow-hidden bg-[#0a0a0a]",
+                "flex-1 relative overflow-hidden bg-[var(--bg-card)]",
                 !isAudio && "touch-none"
               )}
               onPointerDown={isAudio ? undefined : handlePointerDown}
@@ -721,10 +721,10 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
                     name={viewingDocument.name} 
                   />
                 ) : (
-                  <div className="text-center p-12 bg-white/5 rounded-2xl border border-white/10 z-10 relative">
-                    <FileText className="w-24 h-24 text-white/20 mx-auto mb-6" />
-                    <p className="text-xl text-white font-medium mb-2">Aperçu non disponible</p>
-                    <p className="text-white/40 mb-6">Ce type de fichier ne peut pas être prévisualisé ici.</p>
+                  <div className="text-center p-12 bg-[var(--bg-hover)] rounded-2xl border border-[var(--border)] z-10 relative">
+                    <FileText className="w-24 h-24 text-[var(--text-muted)] mx-auto mb-6" />
+                    <p className="text-xl text-[var(--text-primary)] font-medium mb-2">Aperçu non disponible</p>
+                    <p className="text-[var(--text-muted)] mb-6">Ce type de fichier ne peut pas être prévisualisé ici.</p>
                     <a 
                       href={viewingDocument.url} 
                       download={viewingDocument.name}
@@ -745,7 +745,7 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
                     onClick={prevViewerPage}
                     disabled={viewerPage === 0}
                     className={cn(
-                      "absolute left-4 top-1/2 -translate-y-1/2 p-4 rounded-full bg-black/50 border border-white/10 text-white disabled:opacity-0 disabled:pointer-events-none hover:bg-white/10 transition-all backdrop-blur-sm z-20",
+                      "absolute left-4 top-1/2 -translate-y-1/2 p-4 rounded-full bg-black/50 border border-[var(--border)] text-white disabled:opacity-0 disabled:pointer-events-none hover:bg-[var(--bg-active)] transition-all backdrop-blur-sm z-20",
                       !showControls && "opacity-0 hover:opacity-100"
                     )}
                   >
@@ -755,7 +755,7 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
                     onClick={nextViewerPage}
                     disabled={viewerPage === viewingDocument.pages.length - 1}
                     className={cn(
-                      "absolute right-4 top-1/2 -translate-y-1/2 p-4 rounded-full bg-black/50 border border-white/10 text-white disabled:opacity-0 disabled:pointer-events-none hover:bg-white/10 transition-all backdrop-blur-sm z-20",
+                      "absolute right-4 top-1/2 -translate-y-1/2 p-4 rounded-full bg-black/50 border border-[var(--border)] text-white disabled:opacity-0 disabled:pointer-events-none hover:bg-[var(--bg-active)] transition-all backdrop-blur-sm z-20",
                       !showControls && "opacity-0 hover:opacity-100"
                     )}
                   >
@@ -769,7 +769,7 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
             {viewingDocument.pages && viewingDocument.pages.length > 1 && (
               <div 
                 className={cn(
-                  "flex-none p-4 bg-[#0a0a0a]/90 backdrop-blur-md border-t border-white/10 overflow-x-auto z-10 transition-transform duration-300 absolute bottom-0 left-0 right-0",
+                  "flex-none p-4 bg-[var(--bg-card)]/90 backdrop-blur-md border-t border-[var(--border)] overflow-x-auto z-10 transition-transform duration-300 absolute bottom-0 left-0 right-0",
                   !showControls && "translate-y-[100%]"
                 )}
                 onClick={(e) => e.stopPropagation()}
@@ -795,7 +795,7 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-center pb-1">
-                        <span className="text-[10px] text-white font-medium">{idx + 1}</span>
+                        <span className="text-[10px] text-[var(--text-primary)] font-medium">{idx + 1}</span>
                       </div>
                     </button>
                   ))}
@@ -809,15 +809,15 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
-                  className="absolute bottom-24 left-1/2 -translate-x-1/2 w-full max-w-md p-4 bg-[#121212] border border-white/10 rounded-2xl shadow-2xl z-50 flex flex-col gap-3"
+                  className="absolute bottom-24 left-1/2 -translate-x-1/2 w-full max-w-md p-4 bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-2xl shadow-2xl z-50 flex flex-col gap-3"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-white font-medium flex items-center gap-2">
+                    <span className="text-[var(--text-primary)] font-medium flex items-center gap-2">
                       {(viewingDocument.annotations || []).find(a => a.id === selectedAnnotationId)?.type === 'POINT' ? <MapPin className="w-4 h-4 text-blue-400" /> : <PenTool className="w-4 h-4 text-blue-400" />}
                       Modifier la note
                     </span>
-                    <button onClick={() => setSelectedAnnotationId(null)} className="text-white/40 hover:text-white">
+                    <button onClick={() => setSelectedAnnotationId(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -830,7 +830,7 @@ export function DocumentViewer({ document: initialDoc, isOpen, onClose, onSave, 
                       adjustTextareaHeight();
                     }}
                     placeholder="Ajouter une note ou une observation..."
-                    className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-blue-500/50 min-h-[80px] resize-none overflow-hidden"
+                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 text-[var(--text-primary)] text-sm focus:outline-none focus:border-blue-500/50 min-h-[80px] resize-none overflow-hidden"
                     autoFocus
                   />
                   

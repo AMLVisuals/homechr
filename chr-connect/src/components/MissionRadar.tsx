@@ -27,9 +27,9 @@ export default function MissionRadar() {
       {/* Top Bar */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Mission Radar</h1>
-          <div className="flex items-center gap-2 text-sm text-gray-400">
-            <Wifi className={clsx("w-4 h-4", isOnAir ? "text-green-500" : "text-gray-600")} />
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Mission Radar</h1>
+          <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+            <Wifi className={clsx("w-4 h-4", isOnAir ? "text-green-500" : "text-[var(--text-muted)]")} />
             {isOnAir ? "En ligne - Recherche..." : "Hors ligne"}
           </div>
         </div>
@@ -49,7 +49,7 @@ export default function MissionRadar() {
       </div>
 
       {!isOnAir ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
+        <div className="flex-1 flex flex-col items-center justify-center text-[var(--text-muted)]">
           <Radio className="w-16 h-16 mb-4 opacity-20" />
           <p>Passez en ligne pour recevoir des missions</p>
         </div>
@@ -74,7 +74,7 @@ export default function MissionRadar() {
               );
             })}
             {activeMissionIndex >= MOCK_MISSIONS.length && (
-              <div className="text-center text-gray-400 mt-20">
+              <div className="text-center text-[var(--text-secondary)] mt-20">
                 <p>Aucune mission à proximité...</p>
               </div>
             )}
@@ -107,7 +107,7 @@ function MissionCard({ mission, isTop, onSwipe }: { mission: any, isTop: boolean
       exit={{ scale: 0.9, opacity: 0 }}
       className="absolute inset-0 w-full h-full"
     >
-      <div className="w-full h-full glass-strong rounded-3xl p-6 border border-white/10 flex flex-col relative overflow-hidden">
+      <div className="w-full h-full glass-strong rounded-3xl p-6 border border-[var(--border)] flex flex-col relative overflow-hidden">
         {/* Background Map Placeholder */}
         <div className="absolute inset-0 bg-gray-900 opacity-50 z-0">
            {/* Simulate Map */}
@@ -117,16 +117,16 @@ function MissionCard({ mission, isTop, onSwipe }: { mission: any, isTop: boolean
         <div className="relative z-10 flex flex-col h-full">
           <div className="bg-black/60 backdrop-blur-md p-4 rounded-2xl mb-auto">
             <div className="flex justify-between items-start mb-2">
-              <h2 className="text-xl font-bold text-white leading-tight">{mission.title}</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] leading-tight">{mission.title}</h2>
               {mission.urgent && (
                 <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">URGENT</span>
               )}
             </div>
-            <div className="flex items-center gap-2 text-gray-300 text-sm mb-2">
+            <div className="flex items-center gap-2 text-[var(--text-secondary)] text-sm mb-2">
               <MapPin className="w-4 h-4 text-blue-400" />
               {mission.location} ({mission.dist})
             </div>
-             <div className="flex items-center gap-2 text-gray-400 text-xs">
+             <div className="flex items-center gap-2 text-[var(--text-secondary)] text-xs">
               <Briefcase className="w-3 h-3" />
               {mission.details}
             </div>
@@ -135,24 +135,24 @@ function MissionCard({ mission, isTop, onSwipe }: { mission: any, isTop: boolean
           <div className="mt-auto">
              <div className="flex items-center justify-between mb-4 px-2">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{mission.price}</div>
-                  <div className="text-xs text-gray-400">{mission.type}</div>
+                  <div className="text-2xl font-bold text-[var(--text-primary)]">{mission.price}</div>
+                  <div className="text-xs text-[var(--text-secondary)]">{mission.type}</div>
                 </div>
                  <div className="text-center">
-                  <div className="text-2xl font-bold text-white">15</div>
-                  <div className="text-xs text-gray-400">Min</div>
+                  <div className="text-2xl font-bold text-[var(--text-primary)]">15</div>
+                  <div className="text-xs text-[var(--text-secondary)]">Min</div>
                 </div>
              </div>
 
              <div className="relative h-14 bg-gradient-to-r from-green-600 to-emerald-500 rounded-xl flex items-center justify-center overflow-hidden">
                 <motion.div 
-                   className="absolute left-4 text-white/50 text-sm"
+                   className="absolute left-4 text-[var(--text-muted)] text-sm"
                    animate={{ x: [0, 10, 0] }}
                    transition={{ repeat: Infinity, duration: 1.5 }}
                 >
                   <ChevronRightDouble />
                 </motion.div>
-                <span className="font-bold text-white ml-8">Glisser pour Accepter</span>
+                <span className="font-bold text-[var(--text-primary)] ml-8">Glisser pour Accepter</span>
              </div>
           </div>
         </div>

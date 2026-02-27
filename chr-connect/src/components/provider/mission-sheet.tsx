@@ -80,7 +80,7 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
 
           {/* Sheet */}
           <motion.div
-            className="absolute bottom-0 left-0 right-0 z-[600] bg-[#0A0A0A] border-t border-white/10 rounded-t-[32px] overflow-hidden shadow-2xl"
+            className="absolute bottom-0 left-0 right-0 z-[600] bg-[var(--bg-card)] border-t border-[var(--border)] rounded-t-[32px] overflow-hidden shadow-2xl"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -93,8 +93,8 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
             }}
           >
             {/* Handle */}
-            <div className="flex justify-center py-3 bg-gradient-to-b from-white/5 to-transparent">
-              <div className="w-12 h-1.5 bg-white/20 rounded-full" />
+            <div className="flex justify-center py-3 bg-gradient-to-b from-[var(--bg-hover)] to-transparent">
+              <div className="w-12 h-1.5 bg-[var(--bg-active)] rounded-full" />
             </div>
             
             <div className="px-6 pb-8 pt-2 max-h-[80vh] overflow-y-auto custom-scrollbar">
@@ -125,9 +125,9 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
                        </span>
                     )}
                   </div>
-                  <h2 className="text-2xl font-bold text-white leading-tight mb-1">{mission.title}</h2>
-                  <div className="flex items-center text-gray-400 text-sm">
-                    <MapPin className="h-4 w-4 mr-1 text-gray-500" />
+                  <h2 className="text-2xl font-bold text-[var(--text-primary)] leading-tight mb-1">{mission.title}</h2>
+                  <div className="flex items-center text-[var(--text-secondary)] text-sm">
+                    <MapPin className="h-4 w-4 mr-1 text-[var(--text-muted)]" />
                     <span>{mission.venue || 'Client'}</span>
                     <span className="mx-2">•</span>
                     <span>{mission.distance || 0} km</span>
@@ -135,7 +135,7 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
                 </div>
                 <button
                   onClick={onClose}
-                  className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/70 hover:text-white transition-colors"
+                  className="p-2 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-full text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -143,27 +143,27 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
               
               {/* Stats Grid */}
               <div className="grid grid-cols-3 gap-3 mb-6">
-                <div className="bg-white/5 rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center">
+                <div className="bg-[var(--bg-hover)] rounded-2xl p-3 border border-[var(--border)] flex flex-col items-center justify-center text-center">
                   <DollarSign className="h-5 w-5 text-green-400 mb-1" />
-                  <span className="text-lg font-bold text-white">{mission.price}€</span>
-                  <span className="text-[10px] text-gray-500 uppercase">Net Est.</span>
+                  <span className="text-lg font-bold text-[var(--text-primary)]">{mission.price}€</span>
+                  <span className="text-[10px] text-[var(--text-muted)] uppercase">Net Est.</span>
                 </div>
-                <div className="bg-white/5 rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center">
+                <div className="bg-[var(--bg-hover)] rounded-2xl p-3 border border-[var(--border)] flex flex-col items-center justify-center text-center">
                   <Clock className="h-5 w-5 text-blue-400 mb-1" />
-                  <span className="text-lg font-bold text-white">{estimatedTime}</span>
-                  <span className="text-[10px] text-gray-500 uppercase">Minutes</span>
+                  <span className="text-lg font-bold text-[var(--text-primary)]">{estimatedTime}</span>
+                  <span className="text-[10px] text-[var(--text-muted)] uppercase">Minutes</span>
                 </div>
-                <div className="bg-white/5 rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center">
+                <div className="bg-[var(--bg-hover)] rounded-2xl p-3 border border-[var(--border)] flex flex-col items-center justify-center text-center">
                   <Navigation className="h-5 w-5 text-purple-400 mb-1" />
-                  <span className="text-lg font-bold text-white">~15</span>
-                  <span className="text-[10px] text-gray-500 uppercase">Min Trajet</span>
+                  <span className="text-lg font-bold text-[var(--text-primary)]">~15</span>
+                  <span className="text-[10px] text-[var(--text-muted)] uppercase">Min Trajet</span>
                 </div>
               </div>
 
               {/* Photos Gallery */}
               {mission.photos && mission.photos.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-300 mb-3 uppercase tracking-wide flex items-center gap-2">
+                  <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-3 uppercase tracking-wide flex items-center gap-2">
                     <ImageIcon className="w-4 h-4" />
                     Photos de la mission
                   </h3>
@@ -181,7 +181,7 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
                             date: new Date().toISOString(),
                             size: '0 MB'
                           })}
-                          className="flex-shrink-0 w-40 h-28 rounded-xl overflow-hidden border border-white/10 relative group cursor-zoom-in"
+                          className="flex-shrink-0 w-40 h-28 rounded-xl overflow-hidden border border-[var(--border)] relative group cursor-zoom-in"
                         >
                           <img 
                             src={url} 
@@ -198,14 +198,14 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
               
               {/* Description */}
               <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-300 mb-2 uppercase tracking-wide">Détails de la mission</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">{mission.description}</p>
+                <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wide">Détails de la mission</h3>
+                <p className="text-[var(--text-secondary)] leading-relaxed text-sm">{mission.description}</p>
               </div>
 
               {/* Equipment Info (if linked) */}
               {linkedEquipment && (
                 <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-300 mb-3 uppercase tracking-wide flex items-center gap-2">
+                  <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-3 uppercase tracking-wide flex items-center gap-2">
                     <Wrench className="w-4 h-4" />
                     Équipement concerné
                   </h3>
@@ -213,7 +213,7 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
                     onClick={() => setIsEquipmentOpen(true)}
                     className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-xl p-4 border border-blue-500/30 flex items-start gap-4 hover:border-blue-500/50 transition-colors cursor-pointer group"
                   >
-                    <div className="w-14 h-14 rounded-xl overflow-hidden bg-white/10 flex-shrink-0">
+                    <div className="w-14 h-14 rounded-xl overflow-hidden bg-[var(--bg-active)] flex-shrink-0">
                       {linkedEquipment.photos.length > 0 ? (
                         <img
                           src={linkedEquipment.photos[0].url}
@@ -222,19 +222,19 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <QrCode className="w-6 h-6 text-white/40" />
+                          <QrCode className="w-6 h-6 text-[var(--text-muted)]" />
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-white group-hover:text-blue-400 transition-colors">
+                      <h4 className="font-bold text-[var(--text-primary)] group-hover:text-blue-400 transition-colors">
                         {linkedEquipment.brand} {linkedEquipment.model}
                       </h4>
-                      <p className="text-xs text-gray-400 mb-1">
+                      <p className="text-xs text-[var(--text-secondary)] mb-1">
                         {linkedEquipment.nickname || linkedEquipment.location}
                       </p>
                       {linkedEquipment.serialNumber && (
-                        <p className="text-xs text-gray-500 font-mono">
+                        <p className="text-xs text-[var(--text-muted)] font-mono">
                           S/N: {linkedEquipment.serialNumber}
                         </p>
                       )}
@@ -242,7 +242,7 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
                         <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-red-500/20 text-red-400 border border-red-500/30">
                           En panne
                         </span>
-                        <span className="text-[10px] text-gray-500">
+                        <span className="text-[10px] text-[var(--text-muted)]">
                           Voir fiche technique complète →
                         </span>
                       </div>
@@ -253,25 +253,25 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
 
               {/* Establishment Sheet Preview */}
               <div className="mb-6">
-                 <h3 className="text-sm font-medium text-gray-300 mb-3 uppercase tracking-wide flex items-center gap-2">
+                 <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-3 uppercase tracking-wide flex items-center gap-2">
                     <Building2 className="w-4 h-4" />
                     L'Établissement
                   </h3>
                   <div 
                     onClick={() => setIsEstablishmentOpen(true)}
-                    className="bg-white/5 rounded-xl p-4 border border-white/10 flex items-start gap-4 hover:bg-white/10 transition-colors cursor-pointer group"
+                    className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)] flex items-start gap-4 hover:bg-[var(--bg-active)] transition-colors cursor-pointer group"
                   >
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-lg font-bold text-white shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-lg font-bold text-[var(--text-primary)] shrink-0">
                       {(mission.venue || 'C').charAt(0)}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-bold text-white group-hover:text-blue-400 transition-colors">
+                      <h4 className="font-bold text-[var(--text-primary)] group-hover:text-blue-400 transition-colors">
                         {venueDetails ? venueDetails.name : (mission.venue || 'Client')}
                       </h4>
-                      <p className="text-xs text-gray-400 mb-2">
+                      <p className="text-xs text-[var(--text-secondary)] mb-2">
                         {venueDetails ? venueDetails.category : "Restaurant Gastronomique"} • {venueDetails?.rating || "4.8"}/5 ({venueDetails?.reviewCount || "24"} avis)
                       </p>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
                         <span className="flex items-center gap-1">
                           <MapPin className="w-3 h-3" /> 
                           {venueDetails ? venueDetails.city : "Paris"}
@@ -280,16 +280,16 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
                         <span className="text-green-400">Ouvert maintenant</span>
                       </div>
                     </div>
-                    <ArrowRight className="w-5 h-5 text-gray-500 group-hover:text-white transition-colors self-center" />
+                    <ArrowRight className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors self-center" />
                   </div>
               </div>
               
               {/* Skills */}
               <div className="mb-8">
-                <h3 className="text-sm font-medium text-gray-300 mb-3 uppercase tracking-wide">Compétences Requises</h3>
+                <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-3 uppercase tracking-wide">Compétences Requises</h3>
                 <div className="flex flex-wrap gap-2">
                   {mission.skills?.map((skill, index) => (
-                    <span key={index} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 text-xs font-medium">
+                    <span key={index} className="px-3 py-1.5 rounded-lg bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-secondary)] text-xs font-medium">
                       {skill}
                     </span>
                   ))}
@@ -300,10 +300,10 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
               <div className="grid grid-cols-4 gap-3">
                 <button 
                   onClick={handleShare}
-                  className="col-span-1 flex flex-col items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors relative"
+                  className="col-span-1 flex flex-col items-center justify-center bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-xl transition-colors relative"
                 >
-                  <Share2 className="w-5 h-5 text-white mb-1" />
-                  <span className="text-[10px] text-gray-400">Partager</span>
+                  <Share2 className="w-5 h-5 text-[var(--text-primary)] mb-1" />
+                  <span className="text-[10px] text-[var(--text-secondary)]">Partager</span>
                   {showShareTooltip && (
                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-black text-white text-xs rounded shadow-lg whitespace-nowrap">
                       Lien copié !

@@ -88,12 +88,12 @@ export function EquipmentCard({ equipment, onClick, compact = false }: Equipment
         whileTap={{ scale: 0.98 }}
         className={cn(
           'w-full p-4 rounded-xl border text-left transition-all',
-          'bg-white/5 hover:bg-white/10',
+          'bg-[var(--bg-hover)] hover:bg-[var(--bg-active)]',
           equipment.status === 'FAULT'
             ? 'border-red-500/30'
             : equipment.status === 'WARNING'
               ? 'border-yellow-500/30'
-              : 'border-white/10'
+              : 'border-[var(--border)]'
         )}
       >
         <div className="flex items-center gap-3">
@@ -106,12 +106,12 @@ export function EquipmentCard({ equipment, onClick, compact = false }: Equipment
             <Icon className={cn('w-5 h-5', statusInfo.color)} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white font-medium truncate">{displayName}</p>
-            <p className="text-white/50 text-sm truncate">{equipment.location}</p>
+            <p className="text-[var(--text-primary)] font-medium truncate">{displayName}</p>
+            <p className="text-[var(--text-muted)] text-sm truncate">{equipment.location}</p>
           </div>
           <div className="flex items-center gap-2">
             <StatusIconComponent className={cn('w-4 h-4', statusInfo.color)} />
-            <ChevronRight className="w-4 h-4 text-white/30" />
+            <ChevronRight className="w-4 h-4 text-[var(--text-muted)]" />
           </div>
         </div>
       </motion.button>
@@ -126,12 +126,12 @@ export function EquipmentCard({ equipment, onClick, compact = false }: Equipment
       className={cn(
         'relative w-full rounded-2xl overflow-hidden text-left transition-all group',
         'bg-gradient-to-br from-white/[0.08] to-white/[0.02]',
-        'border hover:border-white/20',
+        'border hover:border-[var(--border-strong)]',
         equipment.status === 'FAULT'
           ? 'border-red-500/40'
           : equipment.status === 'WARNING'
             ? 'border-yellow-500/40'
-            : 'border-white/10'
+            : 'border-[var(--border)]'
       )}
     >
       {/* Image or Placeholder */}
@@ -144,7 +144,7 @@ export function EquipmentCard({ equipment, onClick, compact = false }: Equipment
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <Icon className="w-16 h-16 text-white/20" />
+            <Icon className="w-16 h-16 text-[var(--text-muted)]" />
           </div>
         )}
 
@@ -161,7 +161,7 @@ export function EquipmentCard({ equipment, onClick, compact = false }: Equipment
         </div>
 
         {/* Category Badge */}
-        <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md text-xs text-white/80">
+        <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md text-xs text-[var(--text-secondary)]">
           {EQUIPMENT_CATEGORIES_DETAILS.find(c => c.id === equipment.category)?.label || equipment.category}
         </div>
       </div>
@@ -170,26 +170,26 @@ export function EquipmentCard({ equipment, onClick, compact = false }: Equipment
       <div className="p-4">
         {/* Title & Brand */}
         <div className="mb-3">
-          <h3 className="text-white font-semibold text-lg truncate group-hover:text-blue-300 transition-colors">
+          <h3 className="text-[var(--text-primary)] font-semibold text-lg truncate group-hover:text-blue-300 transition-colors">
             {displayName}
           </h3>
-          <p className="text-white/50 text-sm">
+          <p className="text-[var(--text-muted)] text-sm">
             {equipment.brand} {equipment.model}
           </p>
         </div>
 
         {/* Location */}
-        <div className="flex items-center gap-2 text-white/60 text-sm mb-3">
+        <div className="flex items-center gap-2 text-[var(--text-muted)] text-sm mb-3">
           <MapPin className="w-4 h-4" />
           <span>{equipment.location}</span>
         </div>
 
         {/* Footer Stats */}
-        <div className="flex items-center justify-between pt-3 border-t border-white/10">
+        <div className="flex items-center justify-between pt-3 border-t border-[var(--border)]">
           {warrantyInfo ? (
             <>
               <div className="flex items-center gap-2">
-                <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div className="w-16 h-1.5 bg-[var(--bg-active)] rounded-full overflow-hidden">
                   <div
                     className={cn(
                       'h-full rounded-full transition-all',
@@ -202,7 +202,7 @@ export function EquipmentCard({ equipment, onClick, compact = false }: Equipment
                     style={{ width: `${warrantyInfo.progress}%` }}
                   />
                 </div>
-                <span className="text-xs text-white/40">{Math.round(warrantyInfo.progress)}%</span>
+                <span className="text-xs text-[var(--text-muted)]">{Math.round(warrantyInfo.progress)}%</span>
               </div>
 
               <span
@@ -224,7 +224,7 @@ export function EquipmentCard({ equipment, onClick, compact = false }: Equipment
             </>
           ) : equipment.healthScore !== undefined ? (
             <div className="flex items-center gap-2">
-              <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <div className="w-16 h-1.5 bg-[var(--bg-active)] rounded-full overflow-hidden">
                 <div
                   className={cn(
                     'h-full rounded-full transition-all',
@@ -237,16 +237,16 @@ export function EquipmentCard({ equipment, onClick, compact = false }: Equipment
                   style={{ width: `${equipment.healthScore}%` }}
                 />
               </div>
-              <span className="text-xs text-white/40">{equipment.healthScore}%</span>
+              <span className="text-xs text-[var(--text-muted)]">{equipment.healthScore}%</span>
             </div>
           ) : (
-            <span className="text-xs text-white/30">Aucune garantie</span>
+            <span className="text-xs text-[var(--text-muted)]">Aucune garantie</span>
           )}
         </div>
 
         {/* Serial Number (subtle) */}
         {equipment.serialNumber && (
-          <p className="text-white/30 text-xs font-mono mt-2 truncate">
+          <p className="text-[var(--text-muted)] text-xs font-mono mt-2 truncate">
             S/N: {equipment.serialNumber}
           </p>
         )}
@@ -272,12 +272,12 @@ export function EquipmentCard({ equipment, onClick, compact = false }: Equipment
 export function EquipmentCardSkeleton({ compact = false }: { compact?: boolean }) {
   if (compact) {
     return (
-      <div className="w-full p-4 rounded-xl border border-white/10 bg-white/5">
+      <div className="w-full p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-hover)]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-white/10 animate-pulse" />
+          <div className="w-10 h-10 rounded-lg bg-[var(--bg-active)] animate-pulse" />
           <div className="flex-1">
-            <div className="h-4 w-32 bg-white/10 rounded animate-pulse mb-2" />
-            <div className="h-3 w-24 bg-white/10 rounded animate-pulse" />
+            <div className="h-4 w-32 bg-[var(--bg-active)] rounded animate-pulse mb-2" />
+            <div className="h-3 w-24 bg-[var(--bg-active)] rounded animate-pulse" />
           </div>
         </div>
       </div>
@@ -285,15 +285,15 @@ export function EquipmentCardSkeleton({ compact = false }: { compact?: boolean }
   }
 
   return (
-    <div className="rounded-2xl overflow-hidden border border-white/10 bg-white/5">
-      <div className="aspect-[4/3] bg-white/10 animate-pulse" />
+    <div className="rounded-2xl overflow-hidden border border-[var(--border)] bg-[var(--bg-hover)]">
+      <div className="aspect-[4/3] bg-[var(--bg-active)] animate-pulse" />
       <div className="p-4">
-        <div className="h-5 w-40 bg-white/10 rounded animate-pulse mb-2" />
-        <div className="h-4 w-32 bg-white/10 rounded animate-pulse mb-3" />
-        <div className="h-4 w-24 bg-white/10 rounded animate-pulse mb-3" />
-        <div className="pt-3 border-t border-white/10 flex justify-between">
-          <div className="h-3 w-20 bg-white/10 rounded animate-pulse" />
-          <div className="h-5 w-24 bg-white/10 rounded-full animate-pulse" />
+        <div className="h-5 w-40 bg-[var(--bg-active)] rounded animate-pulse mb-2" />
+        <div className="h-4 w-32 bg-[var(--bg-active)] rounded animate-pulse mb-3" />
+        <div className="h-4 w-24 bg-[var(--bg-active)] rounded animate-pulse mb-3" />
+        <div className="pt-3 border-t border-[var(--border)] flex justify-between">
+          <div className="h-3 w-20 bg-[var(--bg-active)] rounded animate-pulse" />
+          <div className="h-5 w-24 bg-[var(--bg-active)] rounded-full animate-pulse" />
         </div>
       </div>
     </div>

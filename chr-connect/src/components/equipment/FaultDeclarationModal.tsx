@@ -194,33 +194,33 @@ export function FaultDeclarationModal({
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-[#121212] border border-white/10 rounded-3xl overflow-hidden max-w-lg w-full max-h-[90vh] flex flex-col"
+          className="bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl overflow-hidden max-w-lg w-full max-h-[90vh] flex flex-col"
         >
           {/* Header */}
-          <div className="p-6 border-b border-white/10 flex items-center justify-between">
+          <div className="p-6 border-b border-[var(--border)] flex items-center justify-between">
             <div className="flex items-center gap-3">
               {step !== 'select' && step !== 'success' && (
                 <button
                   onClick={handleBack}
-                  className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                  className="w-8 h-8 rounded-full bg-[var(--bg-hover)] flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
                 >
-                  <ChevronRight className="w-4 h-4 text-white rotate-180" />
+                  <ChevronRight className="w-4 h-4 text-[var(--text-primary)] rotate-180" />
                 </button>
               )}
               <div>
-                <h2 className="text-xl font-semibold text-white">
+                <h2 className="text-xl font-semibold text-[var(--text-primary)]">
                   {step === 'success' ? 'Demande envoyée' : 'Déclarer une panne'}
                 </h2>
-                <p className="text-white/50 text-sm">
+                <p className="text-[var(--text-muted)] text-sm">
                   {equipment.brand} {equipment.model}
                 </p>
               </div>
             </div>
             <button
               onClick={handleClose}
-              className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+              className="w-10 h-10 rounded-full bg-[var(--bg-hover)] flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
             >
-              <X className="w-5 h-5 text-white/60" />
+              <X className="w-5 h-5 text-[var(--text-muted)]" />
             </button>
           </div>
 
@@ -236,7 +236,7 @@ export function FaultDeclarationModal({
                   exit={{ opacity: 0, x: 20 }}
                   className="p-6"
                 >
-                  <p className="text-white/60 text-sm mb-4">
+                  <p className="text-[var(--text-muted)] text-sm mb-4">
                     Quel est le problème ?
                   </p>
                   <div className="space-y-3">
@@ -244,7 +244,7 @@ export function FaultDeclarationModal({
                       <button
                         key={fault.id}
                         onClick={() => handleFaultSelect(fault)}
-                        className="w-full p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-left transition-colors group"
+                        className="w-full p-4 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-left transition-colors group"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -270,11 +270,11 @@ export function FaultDeclarationModal({
                               />
                             </div>
                             <div>
-                              <p className="text-white font-medium">{fault.label}</p>
+                              <p className="text-[var(--text-primary)] font-medium">{fault.label}</p>
                               <SeverityBadge severity={fault.severity} />
                             </div>
                           </div>
-                          <ChevronRight className="w-5 h-5 text-white/30 group-hover:text-white/60 transition-colors" />
+                          <ChevronRight className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--text-muted)] transition-colors" />
                         </div>
                       </button>
                     ))}
@@ -292,7 +292,7 @@ export function FaultDeclarationModal({
                   className="p-6 space-y-6"
                 >
                   {/* Selected Fault Summary */}
-                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                  <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
                     <div className="flex items-center gap-3">
                       <AlertTriangle
                         className={cn(
@@ -305,7 +305,7 @@ export function FaultDeclarationModal({
                         )}
                       />
                       <div>
-                        <p className="text-white font-medium">{selectedFault.label}</p>
+                        <p className="text-[var(--text-primary)] font-medium">{selectedFault.label}</p>
                         <SeverityBadge severity={selectedFault.severity} />
                       </div>
                     </div>
@@ -313,7 +313,7 @@ export function FaultDeclarationModal({
 
                   {/* Description */}
                   <div>
-                    <label className="text-sm text-white/60 mb-2 block">
+                    <label className="text-sm text-[var(--text-muted)] mb-2 block">
                       Description du problème (optionnel)
                     </label>
                     <textarea
@@ -321,20 +321,20 @@ export function FaultDeclarationModal({
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Décrivez le problème plus en détail..."
                       rows={4}
-                      className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-blue-500/50"
+                      className="w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none focus:outline-none focus:border-blue-500/50"
                     />
                   </div>
 
                   {/* Photos */}
                   <div>
-                    <label className="text-sm text-white/60 mb-2 block">
+                    <label className="text-sm text-[var(--text-muted)] mb-2 block">
                       Photos du problème (optionnel)
                     </label>
                     <div className="grid grid-cols-4 gap-3">
                       {photos.map((photo) => (
                         <div
                           key={photo.id}
-                          className="relative aspect-square rounded-xl overflow-hidden bg-white/5"
+                          className="relative aspect-square rounded-xl overflow-hidden bg-[var(--bg-hover)]"
                         >
                           <img
                             src={photo.url}
@@ -345,14 +345,14 @@ export function FaultDeclarationModal({
                             onClick={() => removePhoto(photo.id)}
                             className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 flex items-center justify-center"
                           >
-                            <Trash2 className="w-3 h-3 text-white" />
+                            <Trash2 className="w-3 h-3 text-[var(--text-primary)]" />
                           </button>
                         </div>
                       ))}
 
                       {photos.length < 4 && (
-                        <label className="aspect-square rounded-xl border-2 border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 transition-colors">
-                          <Camera className="w-6 h-6 text-white/40" />
+                        <label className="aspect-square rounded-xl border-2 border-dashed border-[var(--border-strong)] flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 transition-colors">
+                          <Camera className="w-6 h-6 text-[var(--text-muted)]" />
                           <input
                             type="file"
                             accept="image/*"
@@ -367,7 +367,7 @@ export function FaultDeclarationModal({
 
                   {/* Urgency */}
                   <div>
-                    <label className="text-sm text-white/60 mb-3 block">
+                    <label className="text-sm text-[var(--text-muted)] mb-3 block">
                       Niveau d&apos;urgence
                     </label>
                     <div className="grid grid-cols-2 gap-3">
@@ -377,24 +377,24 @@ export function FaultDeclarationModal({
                           'p-4 rounded-xl border text-left transition-colors',
                           urgency === 'normal'
                             ? 'bg-blue-500/20 border-blue-500/50'
-                            : 'bg-white/5 border-white/10 hover:bg-white/10'
+                            : 'bg-[var(--bg-hover)] border-[var(--border)] hover:bg-[var(--bg-active)]'
                         )}
                       >
                         <Clock
                           className={cn(
                             'w-6 h-6 mb-2',
-                            urgency === 'normal' ? 'text-blue-400' : 'text-white/40'
+                            urgency === 'normal' ? 'text-blue-400' : 'text-[var(--text-muted)]'
                           )}
                         />
                         <p
                           className={cn(
                             'font-medium',
-                            urgency === 'normal' ? 'text-blue-300' : 'text-white'
+                            urgency === 'normal' ? 'text-blue-300' : 'text-[var(--text-primary)]'
                           )}
                         >
                           Normal
                         </p>
-                        <p className="text-white/50 text-xs mt-1">
+                        <p className="text-[var(--text-muted)] text-xs mt-1">
                           Intervention sous 24-48h
                         </p>
                       </button>
@@ -405,24 +405,24 @@ export function FaultDeclarationModal({
                           'p-4 rounded-xl border text-left transition-colors',
                           urgency === 'urgent'
                             ? 'bg-red-500/20 border-red-500/50'
-                            : 'bg-white/5 border-white/10 hover:bg-white/10'
+                            : 'bg-[var(--bg-hover)] border-[var(--border)] hover:bg-[var(--bg-active)]'
                         )}
                       >
                         <Zap
                           className={cn(
                             'w-6 h-6 mb-2',
-                            urgency === 'urgent' ? 'text-red-400' : 'text-white/40'
+                            urgency === 'urgent' ? 'text-red-400' : 'text-[var(--text-muted)]'
                           )}
                         />
                         <p
                           className={cn(
                             'font-medium',
-                            urgency === 'urgent' ? 'text-red-300' : 'text-white'
+                            urgency === 'urgent' ? 'text-red-300' : 'text-[var(--text-primary)]'
                           )}
                         >
                           Urgent
                         </p>
-                        <p className="text-white/50 text-xs mt-1">
+                        <p className="text-[var(--text-muted)] text-xs mt-1">
                           Intervention dans l&apos;heure
                         </p>
                       </button>
@@ -442,23 +442,23 @@ export function FaultDeclarationModal({
                   <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
                     <Check className="w-10 h-10 text-green-400" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">
+                  <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
                     Demande envoyée !
                   </h3>
-                  <p className="text-white/60 mb-6">
+                  <p className="text-[var(--text-muted)] mb-6">
                     Nous recherchons un technicien disponible pour intervenir sur votre{' '}
                     {equipment.brand} {equipment.model}.
                   </p>
 
-                  <div className="bg-white/5 rounded-xl p-4 border border-white/10 mb-6">
+                  <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)] mb-6">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-white/60 text-sm">Problème</span>
-                      <span className="text-white font-medium">
+                      <span className="text-[var(--text-muted)] text-sm">Problème</span>
+                      <span className="text-[var(--text-primary)] font-medium">
                         {selectedFault?.label}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-white/60 text-sm">Urgence</span>
+                      <span className="text-[var(--text-muted)] text-sm">Urgence</span>
                       <span
                         className={cn(
                           'font-medium',
@@ -470,7 +470,7 @@ export function FaultDeclarationModal({
                     </div>
                   </div>
 
-                  <p className="text-white/40 text-sm">
+                  <p className="text-[var(--text-muted)] text-sm">
                     Vous recevrez une notification dès qu&apos;un technicien acceptera la mission.
                   </p>
                 </motion.div>
@@ -480,7 +480,7 @@ export function FaultDeclarationModal({
 
           {/* Footer */}
           {step === 'details' && (
-            <div className="p-6 border-t border-white/10">
+            <div className="p-6 border-t border-[var(--border)]">
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
@@ -488,7 +488,7 @@ export function FaultDeclarationModal({
                   'w-full py-4 px-6 rounded-xl font-medium flex items-center justify-center gap-2 transition-all',
                   !isSubmitting
                     ? 'bg-gradient-to-r from-red-600 to-orange-600 text-white hover:from-red-700 hover:to-orange-700'
-                    : 'bg-white/10 text-white/40 cursor-not-allowed'
+                    : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
                 )}
               >
                 {isSubmitting ? (
@@ -496,7 +496,7 @@ export function FaultDeclarationModal({
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                      className="w-5 h-5 border-2 border-[var(--border-strong)] border-t-white rounded-full"
                     />
                     Envoi en cours...
                   </>
@@ -511,7 +511,7 @@ export function FaultDeclarationModal({
           )}
 
           {step === 'success' && (
-            <div className="p-6 border-t border-white/10">
+            <div className="p-6 border-t border-[var(--border)]">
               <button
                 onClick={() => {
                   handleClose();

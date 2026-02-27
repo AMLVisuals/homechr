@@ -24,13 +24,13 @@ export default function VenueSheet({ venue, isOpen, onClose, readOnly = false }:
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-4xl max-h-[90vh] bg-[#1a1a1a] rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col"
+        className="relative w-full max-w-4xl max-h-[90vh] bg-[var(--bg-card)] rounded-3xl border border-[var(--border)] shadow-2xl overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Close Button Overlay */}
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/70 transition-colors border border-white/10"
+          className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/70 transition-colors border border-[var(--border)]"
         >
           <X className="w-5 h-5" />
         </button>

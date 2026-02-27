@@ -43,7 +43,7 @@ export function FilterPills({ activeFilter, setActiveFilter, authorizedCategorie
               'flex items-center space-x-2 whitespace-nowrap backdrop-blur-md px-3 py-1.5 rounded-full text-sm font-medium transition-all border',
               activeFilter === filter.id
                 ? 'bg-white/20 text-white border-white/40 shadow-lg shadow-white/10'
-                : 'bg-black/40 text-white/70 border-white/10 hover:bg-black/60 hover:text-white'
+                : 'bg-black/40 text-[var(--text-muted)] border-[var(--border)] hover:bg-black/60 hover:text-[var(--text-primary)]'
             )}
           >
             {filter.icon}

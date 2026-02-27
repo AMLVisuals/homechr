@@ -54,17 +54,17 @@ export default function VenueDashboard({ onClose, initialView = 'LIST' }: VenueD
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-7xl h-[90vh] bg-[#121212] border border-white/10 rounded-3xl overflow-hidden flex shadow-2xl"
+        className="w-full max-w-7xl h-[90vh] bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl overflow-hidden flex shadow-2xl"
       >
         {/* Sidebar List (Desktop) */}
-        <div className="hidden md:flex w-80 border-r border-white/10 flex-col bg-[#1a1a1a] h-full shrink-0">
-          <div className="p-6 border-b border-white/10 flex items-center justify-between shrink-0">
+        <div className="hidden md:flex w-80 border-r border-[var(--border)] flex-col bg-[var(--bg-card)] h-full shrink-0">
+          <div className="p-6 border-b border-[var(--border)] flex items-center justify-between shrink-0">
             <h2 className="font-bold text-xl">Mes lieux</h2>
             <button 
               onClick={() => setView('SEARCH')} 
               className="p-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
             >
-              <Plus className="w-5 h-5 text-white" />
+              <Plus className="w-5 h-5 text-[var(--text-primary)]" />
             </button>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0 custom-scrollbar">
@@ -85,7 +85,7 @@ export default function VenueDashboard({ onClose, initialView = 'LIST' }: VenueD
           {view === 'LIST' && (
             <div className="flex-1 flex flex-col h-full min-h-0">
                {/* Mobile Header */}
-               <div className="md:hidden p-4 border-b border-white/10 flex items-center gap-4 shrink-0">
+               <div className="md:hidden p-4 border-b border-[var(--border)] flex items-center gap-4 shrink-0">
                  <button onClick={onClose}><ArrowLeft /></button>
                  <h2 className="font-bold text-lg">Mes Établissements</h2>
                  <button onClick={() => setView('SEARCH')} className="ml-auto"><Plus /></button>
@@ -107,15 +107,15 @@ export default function VenueDashboard({ onClose, initialView = 'LIST' }: VenueD
                       }}
                     />
                   ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-gray-500 p-6 md:p-8">
+                    <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)] p-6 md:p-8">
                       <p>Sélectionnez un établissement</p>
                     </div>
                   )}
                </div>
 
                {/* Close Button (Desktop) */}
-               <div className="hidden md:flex p-6 border-t border-white/10 justify-end">
-                 <button onClick={onClose} className="px-6 py-2 rounded-xl bg-white/10 hover:bg-white/20 font-bold transition-colors">
+               <div className="hidden md:flex p-6 border-t border-[var(--border)] justify-end">
+                 <button onClick={onClose} className="px-6 py-2 rounded-xl bg-[var(--bg-active)] hover:bg-[var(--bg-active)] font-bold transition-colors">
                    Fermer
                  </button>
                </div>

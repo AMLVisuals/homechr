@@ -99,10 +99,10 @@ function TrustScoreBadge({
       className={`relative ${s.container} rounded-full ${config.bg} ring-2 ${config.ring} flex items-center justify-center`}
     >
       <div className="text-center">
-        <span className={`${s.text} font-bold text-white`}>{score}</span>
-        <span className="text-[10px] text-gray-400 block">/100</span>
+        <span className={`${s.text} font-bold text-[var(--text-primary)]`}>{score}</span>
+        <span className="text-[10px] text-[var(--text-secondary)] block">/100</span>
       </div>
-      <div className="absolute -bottom-1 -right-1 p-1 rounded-full bg-slate-800">
+      <div className="absolute -bottom-1 -right-1 p-1 rounded-full bg-[var(--bg-hover)]">
         <Icon className={`${s.icon} ${level === 'SUSPICIOUS' ? 'text-red-400' : level === 'HIGH' ? 'text-orange-400' : 'text-green-400'}`} />
       </div>
     </motion.div>
@@ -117,7 +117,7 @@ function AnalysisSummaryCard({ analysis }: { analysis: QuoteAnalysisResult }) {
   const { summary, globalScore } = analysis;
 
   return (
-    <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
+    <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
       <div className="flex items-start gap-4">
         {/* Trust Score */}
         <TrustScoreBadge
@@ -133,14 +133,14 @@ function AnalysisSummaryCard({ analysis }: { analysis: QuoteAnalysisResult }) {
               {globalScore.emoji} {globalScore.label}
             </span>
           </div>
-          <p className="text-sm text-gray-400 mb-3">
+          <p className="text-sm text-[var(--text-secondary)] mb-3">
             {globalScore.detailedMessage}
           </p>
 
           {/* Key Insights */}
           <div className="space-y-1">
             {summary.keyInsights.map((insight, i) => (
-              <div key={i} className="text-sm text-gray-300">
+              <div key={i} className="text-sm text-[var(--text-secondary)]">
                 {insight}
               </div>
             ))}
@@ -149,16 +149,16 @@ function AnalysisSummaryCard({ analysis }: { analysis: QuoteAnalysisResult }) {
       </div>
 
       {/* Price Comparison Bar */}
-      <div className="mt-4 pt-4 border-t border-white/10">
+      <div className="mt-4 pt-4 border-t border-[var(--border)]">
         <div className="flex justify-between text-sm mb-2">
-          <span className="text-gray-400">Votre devis</span>
-          <span className="text-white font-semibold">
+          <span className="text-[var(--text-secondary)]">Votre devis</span>
+          <span className="text-[var(--text-primary)] font-semibold">
             {summary.quotedTotal.toFixed(0)}€ HT
           </span>
         </div>
         <div className="flex justify-between text-sm mb-2">
-          <span className="text-gray-400">Estimation marché</span>
-          <span className="text-gray-300">
+          <span className="text-[var(--text-secondary)]">Estimation marché</span>
+          <span className="text-[var(--text-secondary)]">
             {summary.estimatedMarketTotal.min.toFixed(0)}€ - {summary.estimatedMarketTotal.max.toFixed(0)}€
           </span>
         </div>
@@ -215,11 +215,11 @@ function ItemAnalysisRow({
   const VerdictIcon = verdictConfig.icon;
 
   return (
-    <div className="border border-white/10 rounded-lg overflow-hidden">
+    <div className="border border-[var(--border)] rounded-lg overflow-hidden">
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center gap-3 p-3 hover:bg-white/5 transition-colors"
+        className="w-full flex items-center gap-3 p-3 hover:bg-[var(--bg-hover)] transition-colors"
       >
         {/* Type Icon */}
         <div className={`p-2 rounded-lg ${verdictConfig.bg}`}>
@@ -229,7 +229,7 @@ function ItemAnalysisRow({
         {/* Info */}
         <div className="flex-1 text-left">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-white">
+            <span className="text-sm font-medium text-[var(--text-primary)]">
               {item.identifiedPart?.fullName || item.laborAnalysis?.description || `Item ${item.itemId}`}
             </span>
             {item.identifiedPart?.source === 'OCR' && (
@@ -239,7 +239,7 @@ function ItemAnalysisRow({
             )}
           </div>
           {item.identifiedPart?.reference && (
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-[var(--text-muted)]">
               Réf: {item.identifiedPart.reference}
             </span>
           )}
@@ -247,7 +247,7 @@ function ItemAnalysisRow({
 
         {/* Price Comparison */}
         <div className="text-right">
-          <div className="text-sm font-semibold text-white">
+          <div className="text-sm font-semibold text-[var(--text-primary)]">
             {item.quotedPrice.toFixed(0)}€
           </div>
           {item.marketPrice.average > 0 && (
@@ -264,9 +264,9 @@ function ItemAnalysisRow({
 
         {/* Expand Icon */}
         {isExpanded ? (
-          <ChevronUp className="w-4 h-4 text-gray-500" />
+          <ChevronUp className="w-4 h-4 text-[var(--text-muted)]" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-gray-500" />
+          <ChevronDown className="w-4 h-4 text-[var(--text-muted)]" />
         )}
       </button>
 
@@ -282,13 +282,13 @@ function ItemAnalysisRow({
             <div className="p-3 pt-0 space-y-3">
               {/* Market Price Range */}
               {item.marketPrice.average > 0 && (
-                <div className="bg-slate-800/50 rounded-lg p-3">
-                  <div className="text-xs text-gray-500 mb-2">Prix marché constaté</div>
+                <div className="bg-[var(--bg-hover)] rounded-lg p-3">
+                  <div className="text-xs text-[var(--text-muted)] mb-2">Prix marché constaté</div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm text-[var(--text-secondary)]">
                       {item.marketPrice.min.toFixed(0)}€
                     </span>
-                    <div className="flex-1 h-2 bg-slate-700 rounded-full relative">
+                    <div className="flex-1 h-2 bg-[var(--bg-active)] rounded-full relative">
                       <div
                         className="absolute inset-y-0 bg-gradient-to-r from-green-500 to-yellow-500 rounded-full"
                         style={{
@@ -304,11 +304,11 @@ function ItemAnalysisRow({
                         }}
                       />
                     </div>
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm text-[var(--text-secondary)]">
                       {item.marketPrice.max.toFixed(0)}€
                     </span>
                   </div>
-                  <div className="text-center text-xs text-gray-500 mt-1">
+                  <div className="text-center text-xs text-[var(--text-muted)] mt-1">
                     Moyenne: {item.marketPrice.average.toFixed(0)}€
                   </div>
                 </div>
@@ -316,26 +316,26 @@ function ItemAnalysisRow({
 
               {/* Labor Analysis */}
               {item.laborAnalysis && (
-                <div className="bg-slate-800/50 rounded-lg p-3">
-                  <div className="text-xs text-gray-500 mb-2">Analyse main d&apos;œuvre</div>
+                <div className="bg-[var(--bg-hover)] rounded-lg p-3">
+                  <div className="text-xs text-[var(--text-muted)] mb-2">Analyse main d&apos;œuvre</div>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
-                      <span className="text-gray-500">Temps facturé:</span>
-                      <span className="text-white ml-2">{item.laborAnalysis.quotedHours}h</span>
+                      <span className="text-[var(--text-muted)]">Temps facturé:</span>
+                      <span className="text-[var(--text-primary)] ml-2">{item.laborAnalysis.quotedHours}h</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Standard:</span>
-                      <span className="text-gray-300 ml-2">
+                      <span className="text-[var(--text-muted)]">Standard:</span>
+                      <span className="text-[var(--text-secondary)] ml-2">
                         {item.laborAnalysis.marketHours.min}-{item.laborAnalysis.marketHours.max}h
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Taux horaire:</span>
-                      <span className="text-white ml-2">{item.laborAnalysis.quotedHourlyRate}€/h</span>
+                      <span className="text-[var(--text-muted)]">Taux horaire:</span>
+                      <span className="text-[var(--text-primary)] ml-2">{item.laborAnalysis.quotedHourlyRate}€/h</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Moyenne région:</span>
-                      <span className="text-gray-300 ml-2">
+                      <span className="text-[var(--text-muted)]">Moyenne région:</span>
+                      <span className="text-[var(--text-secondary)] ml-2">
                         {item.laborAnalysis.marketHourlyRate.average}€/h
                       </span>
                     </div>
@@ -367,9 +367,9 @@ function ItemAnalysisRow({
                         }`}
                       />
                       <div className="flex-1">
-                        <p className="text-sm text-white">{flag.message}</p>
+                        <p className="text-sm text-[var(--text-primary)]">{flag.message}</p>
                         {flag.suggestion && (
-                          <p className="text-xs text-gray-400 mt-1">{flag.suggestion}</p>
+                          <p className="text-xs text-[var(--text-secondary)] mt-1">{flag.suggestion}</p>
                         )}
                       </div>
                     </div>
@@ -425,10 +425,10 @@ function RecommendationsCard({ recommendations }: { recommendations: Recommendat
   };
 
   return (
-    <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
+    <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
       <div className="flex items-center gap-2 mb-3">
         <Lightbulb className="w-5 h-5 text-yellow-400" />
-        <h3 className="font-semibold text-white">Recommandations</h3>
+        <h3 className="font-semibold text-[var(--text-primary)]">Recommandations</h3>
       </div>
 
       <div className="space-y-2">
@@ -442,17 +442,17 @@ function RecommendationsCard({ recommendations }: { recommendations: Recommendat
               <Icon className="w-5 h-5 shrink-0 mt-0.5" />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-white">{rec.title}</span>
+                  <span className="font-medium text-[var(--text-primary)]">{rec.title}</span>
                   {rec.potentialImpact && rec.potentialImpact > 0 && (
                     <span className="text-xs px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full">
                       -{rec.potentialImpact}€
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-400 mt-1">{rec.description}</p>
+                <p className="text-sm text-[var(--text-secondary)] mt-1">{rec.description}</p>
               </div>
               {rec.actionable && (
-                <ArrowRight className="w-4 h-4 text-gray-500 shrink-0" />
+                <ArrowRight className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
               )}
             </div>
           );
@@ -481,10 +481,10 @@ function BreakdownChart({ breakdown }: { breakdown: QuoteAnalysisResult['breakdo
   };
 
   return (
-    <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
+    <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
       <div className="flex items-center gap-2 mb-4">
         <BarChart3 className="w-5 h-5 text-blue-400" />
-        <h3 className="font-semibold text-white">Analyse par catégorie</h3>
+        <h3 className="font-semibold text-[var(--text-primary)]">Analyse par catégorie</h3>
       </div>
 
       <div className="space-y-3">
@@ -492,9 +492,9 @@ function BreakdownChart({ breakdown }: { breakdown: QuoteAnalysisResult['breakdo
           const Icon = item.icon;
           return (
             <div key={item.label} className="flex items-center gap-3">
-              <Icon className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-400 w-28">{item.label}</span>
-              <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+              <Icon className="w-4 h-4 text-[var(--text-muted)]" />
+              <span className="text-sm text-[var(--text-secondary)] w-28">{item.label}</span>
+              <div className="flex-1 h-2 bg-[var(--bg-active)] rounded-full overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${item.score}%` }}
@@ -502,7 +502,7 @@ function BreakdownChart({ breakdown }: { breakdown: QuoteAnalysisResult['breakdo
                   className={`h-full rounded-full ${getScoreColor(item.score)}`}
                 />
               </div>
-              <span className="text-sm font-medium text-white w-10 text-right">
+              <span className="text-sm font-medium text-[var(--text-primary)] w-10 text-right">
                 {item.score}
               </span>
             </div>
@@ -545,10 +545,10 @@ export function PartScanner({ onScan, isLoading }: PartScannerProps) {
   };
 
   return (
-    <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
+    <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
       <div className="flex items-center gap-2 mb-4">
         <Sparkles className="w-5 h-5 text-purple-400" />
-        <h3 className="font-semibold text-white">Identifier une pièce</h3>
+        <h3 className="font-semibold text-[var(--text-primary)]">Identifier une pièce</h3>
       </div>
 
       {/* Mode Toggle */}
@@ -558,7 +558,7 @@ export function PartScanner({ onScan, isLoading }: PartScannerProps) {
           className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm transition-colors ${
             mode === 'camera'
               ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-              : 'bg-white/5 text-gray-400 hover:bg-white/10'
+              : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)]'
           }`}
         >
           <Camera className="w-4 h-4" />
@@ -569,7 +569,7 @@ export function PartScanner({ onScan, isLoading }: PartScannerProps) {
           className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm transition-colors ${
             mode === 'manual'
               ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-              : 'bg-white/5 text-gray-400 hover:bg-white/10'
+              : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)]'
           }`}
         >
           <Search className="w-4 h-4" />
@@ -578,8 +578,8 @@ export function PartScanner({ onScan, isLoading }: PartScannerProps) {
       </div>
 
       {mode === 'camera' ? (
-        <div className="aspect-video bg-black/50 rounded-lg flex items-center justify-center border border-dashed border-white/20">
-          <div className="text-center text-gray-500">
+        <div className="aspect-video bg-black/50 rounded-lg flex items-center justify-center border border-dashed border-[var(--border-strong)]">
+          <div className="text-center text-[var(--text-muted)]">
             <Camera className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">Photographiez l&apos;étiquette</p>
           </div>
@@ -591,7 +591,7 @@ export function PartScanner({ onScan, isLoading }: PartScannerProps) {
             value={reference}
             onChange={(e) => setReference(e.target.value)}
             placeholder="Ex: Danfoss SC15G"
-            className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500"
+            className="flex-1 bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text-primary)] text-sm focus:outline-none focus:border-purple-500"
             onKeyDown={(e) => e.key === 'Enter' && handleManualSearch()}
           />
           <button
@@ -630,8 +630,8 @@ export function SmartQuoteAnalyzer({
           <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
           <Sparkles className="w-6 h-6 text-purple-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         </div>
-        <p className="text-gray-400 mt-4">Analyse en cours...</p>
-        <p className="text-gray-500 text-sm">Vérification des prix marché</p>
+        <p className="text-[var(--text-secondary)] mt-4">Analyse en cours...</p>
+        <p className="text-[var(--text-muted)] text-sm">Vérification des prix marché</p>
       </div>
     );
   }
@@ -640,11 +640,11 @@ export function SmartQuoteAnalyzer({
   if (!analysis) {
     return (
       <div className="text-center py-8">
-        <ShieldCheck className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-white mb-2">
+        <ShieldCheck className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
+        <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
           Protégez-vous des arnaques
         </h3>
-        <p className="text-gray-400 text-sm mb-4 max-w-xs mx-auto">
+        <p className="text-[var(--text-secondary)] text-sm mb-4 max-w-xs mx-auto">
           Notre IA analyse chaque ligne du devis et compare avec les prix du marché
         </p>
         {onRequestAnalysis && (
@@ -672,7 +672,7 @@ export function SmartQuoteAnalyzer({
           <span className={`text-sm font-semibold ${analysis.globalScore.color}`}>
             {analysis.globalScore.label}
           </span>
-          <p className="text-xs text-gray-500">{analysis.globalScore.shortMessage}</p>
+          <p className="text-xs text-[var(--text-muted)]">{analysis.globalScore.shortMessage}</p>
         </div>
       </div>
     );
@@ -688,10 +688,10 @@ export function SmartQuoteAnalyzer({
       <BreakdownChart breakdown={analysis.breakdown} />
 
       {/* Item Analysis */}
-      <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
+      <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
         <div className="flex items-center gap-2 mb-3">
           <Package className="w-5 h-5 text-blue-400" />
-          <h3 className="font-semibold text-white">
+          <h3 className="font-semibold text-[var(--text-primary)]">
             Analyse détaillée ({analysis.itemAnalysis.length} postes)
           </h3>
         </div>
@@ -711,14 +711,14 @@ export function SmartQuoteAnalyzer({
 
       {/* Historical Comparison */}
       {analysis.historicalComparison && analysis.historicalComparison.previousPurchases.length > 0 && (
-        <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
+        <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
           <div className="flex items-center gap-2 mb-3">
             <History className="w-5 h-5 text-blue-400" />
-            <h3 className="font-semibold text-white">Historique des prix</h3>
+            <h3 className="font-semibold text-[var(--text-primary)]">Historique des prix</h3>
             <span className={`ml-auto text-sm ${
               analysis.historicalComparison.priceTrend === 'INCREASING' ? 'text-red-400' :
               analysis.historicalComparison.priceTrend === 'DECREASING' ? 'text-green-400' :
-              'text-gray-400'
+              'text-[var(--text-secondary)]'
             }`}>
               {analysis.historicalComparison.priceTrend === 'INCREASING' && (
                 <><TrendingUp className="w-4 h-4 inline mr-1" /> En hausse</>
@@ -731,7 +731,7 @@ export function SmartQuoteAnalyzer({
               )}
             </span>
           </div>
-          <div className="text-sm text-gray-400">
+          <div className="text-sm text-[var(--text-secondary)]">
             {analysis.historicalComparison.previousPurchases.length} achat(s) précédent(s) •
             Moyenne: {analysis.historicalComparison.averageHistoricalPrice}€
           </div>

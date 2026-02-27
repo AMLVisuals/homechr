@@ -57,22 +57,22 @@ export default function SmartPricingCard({ subCategoryId, onOptionsChange }: Sma
   }, [totalHT, isUrgent, isNightWeekend, hours, pricing.model, onOptionsChange]);
 
   return (
-    <div className="w-full bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-colors">
+    <div className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl overflow-hidden transition-colors">
       
       {/* PROJECT BANNER */}
       {pricing.model === 'PROJECT_VISIT' && (
         <div className="bg-blue-500/20 border-b border-blue-500/30 p-3 flex gap-3 items-start">
           <Ruler className="w-5 h-5 text-blue-300 flex-shrink-0 mt-0.5" />
           <p className="text-xs text-blue-100 leading-relaxed">
-            Ce montant correspond à une <strong className="text-white">Visite Conseil & Chiffrage</strong>. 
+            Ce montant correspond à une <strong className="text-[var(--text-primary)]">Visite Conseil & Chiffrage</strong>. 
             Le projet complet fera l'objet d'un devis ultérieur.
           </p>
         </div>
       )}
 
-      <div className="p-5 border-b border-white/5">
+      <div className="p-5 border-b border-[var(--border)]">
         <div className="flex justify-between items-start mb-2">
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+          <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-2">
             <div className={clsx("w-2 h-2 rounded-full animate-pulse", 
               pricing.model === 'STAFFING_HOURLY' ? "bg-green-500" :
               pricing.model === 'PROJECT_VISIT' ? "bg-purple-500" : "bg-blue-500"
@@ -89,7 +89,7 @@ export default function SmartPricingCard({ subCategoryId, onOptionsChange }: Sma
                  onClick={() => setIsNightWeekend(!isNightWeekend)}
                  className={clsx(
                    "p-2 rounded-lg transition-all",
-                   isNightWeekend ? "bg-purple-500/20 text-purple-300 border border-purple-500/50" : "bg-white/5 text-gray-500 hover:text-gray-300"
+                   isNightWeekend ? "bg-purple-500/20 text-purple-300 border border-purple-500/50" : "bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
                  )}
                  title="Mode Nuit / Week-end"
                >
@@ -99,7 +99,7 @@ export default function SmartPricingCard({ subCategoryId, onOptionsChange }: Sma
                  onClick={() => setIsUrgent(!isUrgent)}
                  className={clsx(
                    "p-2 rounded-lg transition-all",
-                   isUrgent ? "bg-orange-500/20 text-orange-300 border border-orange-500/50" : "bg-white/5 text-gray-500 hover:text-gray-300"
+                   isUrgent ? "bg-orange-500/20 text-orange-300 border border-orange-500/50" : "bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
                  )}
                  title="Urgence Prioritaire"
                >
@@ -112,7 +112,7 @@ export default function SmartPricingCard({ subCategoryId, onOptionsChange }: Sma
         {/* MAIN PRICE DISPLAY */}
         <div className="flex items-baseline gap-2">
           <CountUp value={totalHT} />
-          <span className="text-xl text-gray-400 font-medium">€ HT</span>
+          <span className="text-xl text-[var(--text-secondary)] font-medium">€ HT</span>
         </div>
 
         {/* DYNAMIC SUBTEXT / CONTROLS */}
@@ -120,10 +120,10 @@ export default function SmartPricingCard({ subCategoryId, onOptionsChange }: Sma
           
           {/* STAFFING SLIDER */}
           {pricing.model === 'STAFFING_HOURLY' && (
-            <div className="bg-black/20 rounded-lg p-3 border border-white/5">
-              <div className="flex justify-between text-sm mb-2 text-gray-300">
+            <div className="bg-[var(--bg-input)] rounded-lg p-3 border border-[var(--border)]">
+              <div className="flex justify-between text-sm mb-2 text-[var(--text-secondary)]">
                 <span>Durée du service</span>
-                <span className="font-bold text-white">{hours}h</span>
+                <span className="font-bold text-[var(--text-primary)]">{hours}h</span>
               </div>
               <input 
                 type="range" 
@@ -134,7 +134,7 @@ export default function SmartPricingCard({ subCategoryId, onOptionsChange }: Sma
                 onChange={(e) => setHours(parseInt(e.target.value))}
                 className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-white"
               />
-              <p className="text-[10px] text-gray-500 mt-1">Minimum {pricing.minHours}h requis pour ce poste.</p>
+              <p className="text-[10px] text-[var(--text-muted)] mt-1">Minimum {pricing.minHours}h requis pour ce poste.</p>
             </div>
           )}
 
@@ -168,7 +168,7 @@ export default function SmartPricingCard({ subCategoryId, onOptionsChange }: Sma
       <div>
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex items-center justify-between p-4 text-sm text-gray-400 hover:bg-white/5 transition-colors"
+          className="w-full flex items-center justify-between p-4 text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors"
         >
           <span className="flex items-center gap-2">
             <Info className="w-4 h-4" /> Détail de l'estimation
@@ -182,18 +182,18 @@ export default function SmartPricingCard({ subCategoryId, onOptionsChange }: Sma
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden bg-black/20"
+              className="overflow-hidden bg-[var(--bg-input)]"
             >
-              <div className="p-4 pt-0 space-y-3 text-sm border-t border-white/5 mt-2 pt-4">
+              <div className="p-4 pt-0 space-y-3 text-sm border-t border-[var(--border)] mt-2 pt-4">
                 
                 {/* STAFFING RECEIPT */}
                 {pricing.model === 'STAFFING_HOURLY' && (
                   <>
-                    <div className="flex justify-between text-gray-300">
+                    <div className="flex justify-between text-[var(--text-secondary)]">
                       <span>Prestation ({hours}h x {pricing.baseRate}€)</span>
                       <span>{hours * pricing.baseRate}€</span>
                     </div>
-                    <div className="flex justify-between text-gray-400">
+                    <div className="flex justify-between text-[var(--text-secondary)]">
                       <span>Frais de gestion & Assurance</span>
                       <span className="text-green-400">Inclus</span>
                     </div>
@@ -203,11 +203,11 @@ export default function SmartPricingCard({ subCategoryId, onOptionsChange }: Sma
                 {/* MAINTENANCE RECEIPT */}
                 {pricing.model === 'MAINTENANCE_FIXED' && (
                   <>
-                    <div className="flex justify-between text-gray-400">
+                    <div className="flex justify-between text-[var(--text-secondary)]">
                       <span>Déplacement & Véhicule</span>
                       <span>50€</span>
                     </div>
-                    <div className="flex justify-between text-gray-300">
+                    <div className="flex justify-between text-[var(--text-secondary)]">
                       <span>Diagnostic & 1h Main d'œuvre</span>
                       <span>{Math.round(pricing.baseRate - 50)}€</span>
                     </div>
@@ -229,27 +229,27 @@ export default function SmartPricingCard({ subCategoryId, onOptionsChange }: Sma
                 {/* PROJECT RECEIPT */}
                 {pricing.model === 'PROJECT_VISIT' && (
                   <>
-                    <div className="flex justify-between text-gray-300">
+                    <div className="flex justify-between text-[var(--text-secondary)]">
                       <span>Visite Expert (2h approx)</span>
                       <span>{pricing.baseRate}€</span>
                     </div>
-                    <div className="flex justify-between text-gray-400">
+                    <div className="flex justify-between text-[var(--text-secondary)]">
                       <span>Rapport & Chiffrage travaux</span>
                       <span className="text-green-400">Inclus</span>
                     </div>
-                    <div className="flex justify-between text-gray-400">
+                    <div className="flex justify-between text-[var(--text-secondary)]">
                       <span>Déplacement</span>
                       <span className="text-green-400">Inclus</span>
                     </div>
                   </>
                 )}
 
-                <div className="border-t border-white/10 pt-2 mt-2 flex justify-between font-bold text-white">
+                <div className="border-t border-[var(--border)] pt-2 mt-2 flex justify-between font-bold text-[var(--text-primary)]">
                   <span>Total HT</span>
                   <span>{totalHT}€</span>
                 </div>
                 
-                <p className="text-[10px] text-gray-600 mt-2 leading-tight">
+                <p className="text-[10px] text-[var(--text-muted)] mt-2 leading-tight">
                   *TVA 20% ou 10% applicable selon éligibilité de l'entreprise.
                 </p>
               </div>
@@ -267,7 +267,7 @@ function CountUp({ value }: { value: number }) {
       key={value}
       initial={{ opacity: 0.5, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="text-4xl font-bold text-white tracking-tight"
+      className="text-4xl font-bold text-[var(--text-primary)] tracking-tight"
     >
       {value}
     </motion.span>

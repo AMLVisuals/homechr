@@ -319,10 +319,10 @@ export default function ImageAnnotator({
           !showControls && !selectedAnnotationId && "-translate-y-full"
         )}>
           <div className="flex items-center gap-4">
-             <div className="bg-white/10 rounded-lg p-1 flex items-center gap-1 border border-white/10 backdrop-blur-md">
+             <div className="bg-[var(--bg-active)] rounded-lg p-1 flex items-center gap-1 border border-[var(--border)] backdrop-blur-md">
                 <button
                   onClick={() => setMode('PAN')}
-                  className={cn("p-2 rounded-md transition-colors", mode === 'PAN' ? "bg-blue-500 text-white" : "text-white/60 hover:text-white")}
+                  className={cn("p-2 rounded-md transition-colors", mode === 'PAN' ? "bg-blue-500 text-white" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]")}
                   title="Déplacer"
                 >
                   <Move className="w-5 h-5" />
@@ -331,14 +331,14 @@ export default function ImageAnnotator({
                   <>
                     <button
                       onClick={() => setMode('POINT')}
-                      className={cn("p-2 rounded-md transition-colors", mode === 'POINT' ? "bg-blue-500 text-white" : "text-white/60 hover:text-white")}
+                      className={cn("p-2 rounded-md transition-colors", mode === 'POINT' ? "bg-blue-500 text-white" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]")}
                       title="Ajouter une note (Point)"
                     >
                       <MapPin className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => setMode('LINE')}
-                      className={cn("p-2 rounded-md transition-colors", mode === 'LINE' ? "bg-blue-500 text-white" : "text-white/60 hover:text-white")}
+                      className={cn("p-2 rounded-md transition-colors", mode === 'LINE' ? "bg-blue-500 text-white" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]")}
                       title="Dessiner une ligne"
                     >
                       <PenTool className="w-5 h-5" />
@@ -347,12 +347,12 @@ export default function ImageAnnotator({
                 )}
              </div>
              
-             <div className="bg-white/10 rounded-lg p-1 flex items-center gap-1 border border-white/10 backdrop-blur-md">
-                <button onClick={handleZoomOut} className="p-2 hover:bg-white/10 rounded-md text-white/60 hover:text-white">
+             <div className="bg-[var(--bg-active)] rounded-lg p-1 flex items-center gap-1 border border-[var(--border)] backdrop-blur-md">
+                <button onClick={handleZoomOut} className="p-2 hover:bg-[var(--bg-active)] rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)]">
                   <ZoomOut className="w-5 h-5" />
                 </button>
-                <span className="text-xs font-mono text-white/60 w-12 text-center">{zoomDisplay}%</span>
-                <button onClick={handleZoomIn} className="p-2 hover:bg-white/10 rounded-md text-white/60 hover:text-white">
+                <span className="text-xs font-mono text-[var(--text-muted)] w-12 text-center">{zoomDisplay}%</span>
+                <button onClick={handleZoomIn} className="p-2 hover:bg-[var(--bg-active)] rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)]">
                   <ZoomIn className="w-5 h-5" />
                 </button>
              </div>
@@ -370,7 +370,7 @@ export default function ImageAnnotator({
             )}
             <button
               onClick={onClose}
-              className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+              className="p-2 bg-[var(--bg-active)] hover:bg-[var(--bg-active)] text-[var(--text-primary)] rounded-full transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
@@ -483,15 +483,15 @@ export default function ImageAnnotator({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-md p-4 bg-[#121212] border border-white/10 rounded-2xl shadow-2xl z-50 flex flex-col gap-3"
+              className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-md p-4 bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-2xl shadow-2xl z-50 flex flex-col gap-3"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between">
-                <span className="text-white font-medium flex items-center gap-2">
+                <span className="text-[var(--text-primary)] font-medium flex items-center gap-2">
                   {annotations.find(a => a.id === selectedAnnotationId)?.type === 'POINT' ? <MapPin className="w-4 h-4 text-blue-400" /> : <PenTool className="w-4 h-4 text-blue-400" />}
                   Modifier la note
                 </span>
-                <button onClick={() => setSelectedAnnotationId(null)} className="text-white/40 hover:text-white">
+                <button onClick={() => setSelectedAnnotationId(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -500,7 +500,7 @@ export default function ImageAnnotator({
                 value={annotations.find(a => a.id === selectedAnnotationId)?.text || ''}
                 onChange={(e) => updateAnnotationText(selectedAnnotationId, e.target.value)}
                 placeholder="Ajouter une note ou une observation..."
-                className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-blue-500/50 min-h-[80px] resize-none"
+                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 text-[var(--text-primary)] text-sm focus:outline-none focus:border-blue-500/50 min-h-[80px] resize-none"
                 autoFocus
               />
               

@@ -106,16 +106,16 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
         initial={{ scale: 0.95, y: 20, opacity: 0 }}
         animate={{ scale: 1, y: 0, opacity: 1 }}
         exit={{ scale: 0.95, y: 20, opacity: 0 }}
-        className="relative w-full max-w-lg bg-[#121212] border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="relative w-full max-w-lg bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Success Overlay */}
         {showSuccess && (
-          <div className="absolute inset-0 z-50 bg-[#121212] flex flex-col items-center justify-center p-6 text-center animate-fadeIn">
+          <div className="absolute inset-0 z-50 bg-[var(--bg-sidebar)] flex flex-col items-center justify-center p-6 text-center animate-fadeIn">
             <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mb-6">
               <CheckCircle className="w-10 h-10 text-green-500" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2">Demande envoyée !</h3>
-            <p className="text-gray-400">
+            <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2">Demande envoyée !</h3>
+            <p className="text-[var(--text-secondary)]">
               Votre demande a été transmise à {provider.firstName}.<br/>
               Vous recevrez une réponse rapidement.
             </p>
@@ -123,13 +123,13 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
         )}
 
         {/* Header */}
-        <div className="p-6 border-b border-white/10 flex items-center justify-between bg-[#1a1a1a]">
+        <div className="p-6 border-b border-[var(--border)] flex items-center justify-between bg-[var(--bg-card)]">
           <div>
-            <h2 className="text-xl font-bold text-white">Solliciter {provider.firstName}</h2>
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">Solliciter {provider.firstName}</h2>
             <p className="text-sm text-blue-400">{provider.title}</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-            <X className="w-6 h-6 text-gray-400" />
+          <button onClick={onClose} className="p-2 hover:bg-[var(--bg-active)] rounded-full transition-colors">
+            <X className="w-6 h-6 text-[var(--text-secondary)]" />
           </button>
         </div>
 
@@ -139,21 +139,21 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
             
             {/* Title */}
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-400 uppercase">Titre de la mission</label>
+              <label className="text-sm font-bold text-[var(--text-secondary)] uppercase">Titre de la mission</label>
               <input
                 required
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ex: Dépannage four, Extra service..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl p-4 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 transition-colors"
               />
             </div>
 
             {/* Date & Time */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 uppercase flex items-center gap-2">
+                <label className="text-sm font-bold text-[var(--text-secondary)] uppercase flex items-center gap-2">
                   <Calendar className="w-4 h-4" /> Date
                 </label>
                 <input
@@ -161,11 +161,11 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-blue-500 transition-colors [color-scheme:dark]"
+                  className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl p-4 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 transition-colors [color-scheme:dark]"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 uppercase flex items-center gap-2">
+                <label className="text-sm font-bold text-[var(--text-secondary)] uppercase flex items-center gap-2">
                   <Clock className="w-4 h-4" /> Heure
                 </label>
                 <input
@@ -173,14 +173,14 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
                   type="time"
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-blue-500 transition-colors [color-scheme:dark]"
+                  className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl p-4 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 transition-colors [color-scheme:dark]"
                 />
               </div>
             </div>
 
             {/* Venue Selector */}
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-400 uppercase flex items-center gap-2">
+              <label className="text-sm font-bold text-[var(--text-secondary)] uppercase flex items-center gap-2">
                 <Building2 className="w-4 h-4" /> Établissement
               </label>
               <div className="relative">
@@ -188,21 +188,21 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
                   required
                   value={selectedVenueId}
                   onChange={(e) => setSelectedVenueId(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-blue-500 transition-colors appearance-none cursor-pointer"
+                  className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl p-4 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 transition-colors appearance-none cursor-pointer"
                 >
                   <option value="" disabled>Choisir un établissement</option>
                   {venues.map((venue) => (
-                    <option key={venue.id} value={venue.id} className="bg-[#1a1a1a] text-white">
+                    <option key={venue.id} value={venue.id} className="bg-[var(--bg-card)] text-[var(--text-primary)]">
                       {venue.name} - {venue.city}
                     </option>
                   ))}
                 </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--text-secondary)]">
                   <MapPin className="w-4 h-4" />
                 </div>
               </div>
               {selectedVenueId && (
-                <p className="text-xs text-gray-500 ml-1">
+                <p className="text-xs text-[var(--text-muted)] ml-1">
                   {venues.find(v => v.id === selectedVenueId)?.address}, {venues.find(v => v.id === selectedVenueId)?.zipCode} {venues.find(v => v.id === selectedVenueId)?.city}
                 </p>
               )}
@@ -210,7 +210,7 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
 
             {/* Description */}
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-400 uppercase flex items-center gap-2">
+              <label className="text-sm font-bold text-[var(--text-secondary)] uppercase flex items-center gap-2">
                 <FileText className="w-4 h-4" /> Description
               </label>
               <textarea
@@ -219,7 +219,7 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Détaillez votre besoin..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl p-4 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 transition-colors resize-none"
               />
             </div>
 
@@ -230,18 +230,18 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
                 "flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all",
                 isUrgent 
                   ? "bg-red-500/10 border-red-500/50" 
-                  : "bg-white/5 border-white/10 hover:border-white/20"
+                  : "bg-[var(--bg-hover)] border-[var(--border)] hover:border-[var(--border-strong)]"
               )}
             >
               <div className={clsx(
                 "w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors",
-                isUrgent ? "bg-red-500 text-white" : "bg-gray-700 text-gray-400"
+                isUrgent ? "bg-red-500 text-white" : "bg-[var(--bg-active)] text-[var(--text-secondary)]"
               )}>
                 <AlertCircle className="w-5 h-5" />
               </div>
               <div className="flex-1">
-                <div className={clsx("font-bold", isUrgent ? "text-red-400" : "text-white")}>Urgence</div>
-                <div className="text-xs text-gray-400">Cette mission nécessite une intervention immédiate (+20%)</div>
+                <div className={clsx("font-bold", isUrgent ? "text-red-400" : "text-[var(--text-primary)]")}>Urgence</div>
+                <div className="text-xs text-[var(--text-secondary)]">Cette mission nécessite une intervention immédiate (+20%)</div>
               </div>
               <div className={clsx(
                 "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors",
@@ -255,7 +255,7 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-white/10 bg-[#1a1a1a]">
+        <div className="p-6 border-t border-[var(--border)] bg-[var(--bg-card)]">
           <button
             form="request-form"
             type="submit"

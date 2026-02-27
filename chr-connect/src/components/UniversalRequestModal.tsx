@@ -170,7 +170,7 @@ export default function UniversalRequestModal() {
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         {step > 0 && (
-          <button onClick={() => setStep(step - 1)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+          <button onClick={() => setStep(step - 1)} className="p-2 hover:bg-[var(--bg-active)] rounded-full transition-colors">
             <ArrowLeft className="w-6 h-6" />
           </button>
         )}
@@ -204,16 +204,16 @@ export default function UniversalRequestModal() {
               <button
                 key={cat.id}
                 onClick={() => handleCategorySelect(cat)}
-                className="glass p-6 rounded-2xl flex items-start gap-4 text-left hover:bg-white/10 transition-colors group"
+                className="glass p-6 rounded-2xl flex items-start gap-4 text-left hover:bg-[var(--bg-active)] transition-colors group"
               >
-                <div className="p-3 rounded-xl bg-white/5 group-hover:bg-white/20 transition-colors">
-                  <cat.icon className="w-8 h-8 text-white" />
+                <div className="p-3 rounded-xl bg-[var(--bg-hover)] group-hover:bg-[var(--bg-active)] transition-colors">
+                  <cat.icon className="w-8 h-8 text-[var(--text-primary)]" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-1">{cat.label}</h3>
-                  <p className="text-sm text-gray-400">{cat.description}</p>
+                  <h3 className="text-xl font-bold text-[var(--text-primary)] mb-1">{cat.label}</h3>
+                  <p className="text-sm text-[var(--text-secondary)]">{cat.description}</p>
                 </div>
-                <ChevronRight className="w-5 h-5 ml-auto self-center text-gray-600 group-hover:text-white" />
+                <ChevronRight className="w-5 h-5 ml-auto self-center text-[var(--text-muted)] group-hover:text-[var(--text-primary)]" />
               </button>
             ))}
           </motion.div>
@@ -229,9 +229,9 @@ export default function UniversalRequestModal() {
               <button
                 key={sub.id}
                 onClick={() => handleSubSelect(sub)}
-                className="glass p-4 rounded-xl flex flex-col items-center justify-center text-center gap-3 hover:bg-white/10 transition-colors h-32"
+                className="glass p-4 rounded-xl flex flex-col items-center justify-center text-center gap-3 hover:bg-[var(--bg-active)] transition-colors h-32"
               >
-                <sub.icon className="w-8 h-8 text-white" />
+                <sub.icon className="w-8 h-8 text-[var(--text-primary)]" />
                 <span className="font-medium">{sub.label}</span>
               </button>
             ))}
@@ -246,7 +246,7 @@ export default function UniversalRequestModal() {
           >
             {/* Media Hub */}
             <section>
-               <h3 className="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">Preuves & Symptômes</h3>
+               <h3 className="text-sm font-bold text-[var(--text-secondary)] mb-3 uppercase tracking-wider">Preuves & Symptômes</h3>
                <MediaHub onMediaAdd={(type, data) => console.log(type, data)} />
             </section>
 
@@ -261,7 +261,7 @@ export default function UniversalRequestModal() {
                  </div>
                )}
 
-               <h3 className="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">Tags & Précisions</h3>
+               <h3 className="text-sm font-bold text-[var(--text-secondary)] mb-3 uppercase tracking-wider">Tags & Précisions</h3>
                <SmartTags 
                  tags={currentTags} 
                  selectedTags={formValues.tags || []}
@@ -279,14 +279,14 @@ export default function UniversalRequestModal() {
                    value={description}
                    onChange={(e) => setDescription(e.target.value)}
                    placeholder="Précisions supplémentaires ou dictée vocale..."
-                   className="w-full bg-black/20 border border-white/10 rounded-xl p-4 pr-12 text-white placeholder-gray-500 focus:ring-1 focus:ring-blue-500 resize-none min-h-[80px]"
+                   className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-4 pr-12 text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:ring-1 focus:ring-blue-500 resize-none min-h-[80px]"
                  />
                  
                  <button 
                    onClick={handleVoiceInput}
                    className={clsx(
                      "absolute right-3 top-3 p-2 rounded-full transition-all",
-                     isRecording ? "bg-red-500 text-white animate-pulse" : "bg-white/10 text-gray-400 hover:text-white"
+                     isRecording ? "bg-red-500 text-white animate-pulse" : "bg-[var(--bg-active)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                    )}
                    title="Dictée vocale"
                  >
@@ -335,10 +335,10 @@ export default function UniversalRequestModal() {
             {requestStatus === 'SENT' ? (
                <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
                  <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-green-500/30">
-                   <CheckCircle className="w-10 h-10 text-white" />
+                   <CheckCircle className="w-10 h-10 text-[var(--text-primary)]" />
                  </div>
-                 <h2 className="text-2xl font-bold text-white mb-2">Demande Envoyée !</h2>
-                 <p className="text-gray-400 mb-8">
+                 <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">Demande Envoyée !</h2>
+                 <p className="text-[var(--text-secondary)] mb-8">
                    Votre demande a été transmise aux experts concernés. Vous recevrez une notification dès qu'un expert acceptera la mission.
                  </p>
                  <button 
@@ -351,7 +351,7 @@ export default function UniversalRequestModal() {
             ) : requestStatus === 'SENDING' ? (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
                 <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-6" />
-                <h2 className="text-xl font-bold text-white">Envoi en cours...</h2>
+                <h2 className="text-xl font-bold text-[var(--text-primary)]">Envoi en cours...</h2>
               </div>
             ) : (
               <>
@@ -360,7 +360,7 @@ export default function UniversalRequestModal() {
                     <div 
                       key={provider.id} 
                       onClick={() => setSelectedProvider(provider)}
-                      className="glass p-4 rounded-xl flex items-center gap-4 hover:bg-white/5 transition-colors cursor-pointer group"
+                      className="glass p-4 rounded-xl flex items-center gap-4 hover:bg-[var(--bg-hover)] transition-colors cursor-pointer group"
                     >
                       <div className="w-16 h-16 rounded-full bg-gray-700 overflow-hidden border-2 border-transparent group-hover:border-blue-500 transition-colors">
                         <img src={provider.avatarUrl} alt={provider.firstName} className="w-full h-full object-cover" />
@@ -373,15 +373,15 @@ export default function UniversalRequestModal() {
                           )}
                         </div>
                         <div className="text-sm text-blue-400 font-medium mb-1">{provider.title}</div>
-                        <div className="flex items-center gap-4 text-sm text-gray-400 mt-1">
+                        <div className="flex items-center gap-4 text-sm text-[var(--text-secondary)] mt-1">
                           <span className="flex items-center gap-1"><Star className="w-3 h-3 text-yellow-500 fill-yellow-500" /> {provider.stats.rating}</span>
                           <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {provider.location.city}</span>
                           <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {provider.availability.nextSlot}</span>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-xl font-bold text-white">{estimatedPrice}€</div>
-                        <div className="text-xs text-gray-400">Forfait</div>
+                        <div className="text-xl font-bold text-[var(--text-primary)]">{estimatedPrice}€</div>
+                        <div className="text-xs text-[var(--text-secondary)]">Forfait</div>
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
@@ -395,8 +395,8 @@ export default function UniversalRequestModal() {
                     </div>
                   ))}
                   
-                  <div className="p-4 rounded-xl border border-dashed border-white/20 text-center space-y-2">
-                    <p className="text-gray-400">Aucun de ces experts ne vous convient ?</p>
+                  <div className="p-4 rounded-xl border border-dashed border-[var(--border-strong)] text-center space-y-2">
+                    <p className="text-[var(--text-secondary)]">Aucun de ces experts ne vous convient ?</p>
                     <button 
                       onClick={() => handleBook()}
                       className="text-blue-400 hover:text-blue-300 font-bold text-sm hover:underline"

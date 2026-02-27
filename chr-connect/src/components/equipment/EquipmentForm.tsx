@@ -81,12 +81,12 @@ function PhotoUploader({ photos, onAdd, onRemove, maxPhotos = 5 }: PhotoUploader
 
   return (
     <div className="space-y-3">
-      <label className="text-sm text-white/60">Photos de l&apos;équipement</label>
+      <label className="text-sm text-[var(--text-muted)]">Photos de l&apos;équipement</label>
       <div className="grid grid-cols-3 gap-3">
         {photos.map((photo) => (
           <div
             key={photo.id}
-            className="relative aspect-square rounded-xl overflow-hidden bg-white/5 group"
+            className="relative aspect-square rounded-xl overflow-hidden bg-[var(--bg-hover)] group"
           >
             <img
               src={photo.url}
@@ -97,18 +97,18 @@ function PhotoUploader({ photos, onAdd, onRemove, maxPhotos = 5 }: PhotoUploader
               onClick={() => onRemove(photo.id)}
               className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              <Trash2 className="w-4 h-4 text-white" />
+              <Trash2 className="w-4 h-4 text-[var(--text-primary)]" />
             </button>
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-              <span className="text-xs text-white/80">{photo.type}</span>
+              <span className="text-xs text-[var(--text-secondary)]">{photo.type}</span>
             </div>
           </div>
         ))}
 
         {photos.length < maxPhotos && (
-          <label className="aspect-square rounded-xl border-2 border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 hover:bg-blue-500/5 transition-colors">
-            <Upload className="w-6 h-6 text-white/40 mb-2" />
-            <span className="text-xs text-white/40">Ajouter</span>
+          <label className="aspect-square rounded-xl border-2 border-dashed border-[var(--border-strong)] flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 hover:bg-blue-500/5 transition-colors">
+            <Upload className="w-6 h-6 text-[var(--text-muted)] mb-2" />
+            <span className="text-xs text-[var(--text-muted)]">Ajouter</span>
             <input
               type="file"
               accept="image/*"
@@ -384,15 +384,15 @@ export function EquipmentForm({
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-[#121212] border border-white/10 rounded-3xl overflow-hidden max-w-lg w-full max-h-[90vh] flex flex-col"
+          className="bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl overflow-hidden max-w-lg w-full max-h-[90vh] flex flex-col"
         >
           {/* Header */}
-          <div className="p-6 border-b border-white/10 flex items-center justify-between">
+          <div className="p-6 border-b border-[var(--border)] flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-white">
+              <h2 className="text-xl font-semibold text-[var(--text-primary)]">
                 {editingEquipment ? 'Modifier l\'équipement' : 'Nouvel équipement'}
               </h2>
-              <p className="text-white/50 text-sm mt-1">
+              <p className="text-[var(--text-muted)] text-sm mt-1">
                 {editingEquipment
                   ? 'Mettez à jour les informations'
                   : 'Complétez les informations de la machine'}
@@ -400,9 +400,9 @@ export function EquipmentForm({
             </div>
             <button
               onClick={onClose}
-              className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+              className="w-10 h-10 rounded-full bg-[var(--bg-hover)] flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
             >
-              <X className="w-5 h-5 text-white/60" />
+              <X className="w-5 h-5 text-[var(--text-muted)]" />
             </button>
           </div>
 
@@ -412,10 +412,10 @@ export function EquipmentForm({
               <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
                 <Check className="w-10 h-10 text-green-400" />
               </div>
-              <h3 className="text-white text-xl font-semibold mb-2">
+              <h3 className="text-[var(--text-primary)] text-xl font-semibold mb-2">
                 Équipement enregistré !
               </h3>
-              <p className="text-white/60 text-center mb-8">
+              <p className="text-[var(--text-muted)] text-center mb-8">
                 Imprimez ce QR code et collez-le sur la machine pour un accès rapide
               </p>
 
@@ -427,7 +427,7 @@ export function EquipmentForm({
                 />
               </div>
 
-              <p className="text-white/40 text-sm text-center mb-8">
+              <p className="text-[var(--text-muted)] text-sm text-center mb-8">
                 Scannez ce code pour accéder directement à la fiche de cet équipement
               </p>
 
@@ -455,10 +455,10 @@ export function EquipmentForm({
                       <RotateCcw className="w-5 h-5 text-orange-400" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-white font-medium mb-1">
+                      <h3 className="text-[var(--text-primary)] font-medium mb-1">
                         Équipement similaire trouvé dans la corbeille
                       </h3>
-                      <p className="text-white/60 text-sm mb-3">
+                      <p className="text-[var(--text-muted)] text-sm mb-3">
                         Un équipement correspondant à <strong>{duplicateMatch.brand} {duplicateMatch.model}</strong> a été supprimé le {duplicateMatch.deletedAt ? new Date(duplicateMatch.deletedAt).toLocaleDateString('fr-FR') : 'récemment'}.
                         Souhaitez-vous le restaurer plutôt que d'en créer un nouveau ?
                       </p>
@@ -484,19 +484,19 @@ export function EquipmentForm({
 
                 {/* Category Selector */}
                 <div className="relative">
-                  <label className="text-sm text-white/60 mb-2 block">
+                  <label className="text-sm text-[var(--text-muted)] mb-2 block">
                     Type d&apos;équipement *
                   </label>
                   <button
                     onClick={() => !editingEquipment && setShowCategoryDropdown(!showCategoryDropdown)}
                     disabled={!!editingEquipment}
                     className={cn(
-                      "w-full p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between text-left transition-colors",
-                      !editingEquipment && "hover:bg-white/10",
+                      "w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl flex items-center justify-between text-left transition-colors",
+                      !editingEquipment && "hover:bg-[var(--bg-active)]",
                       editingEquipment && "opacity-50 cursor-not-allowed"
                     )}
                   >
-                    <span className="text-white flex items-center gap-3">
+                    <span className="text-[var(--text-primary)] flex items-center gap-3">
                       {/* Show icon if available */}
                       {(() => {
                         const cat = EQUIPMENT_CATEGORIES_DETAILS.find(c => c.id === category);
@@ -511,7 +511,7 @@ export function EquipmentForm({
                     {!editingEquipment && (
                       <ChevronDown
                         className={cn(
-                          'w-5 h-5 text-white/40 transition-transform',
+                          'w-5 h-5 text-[var(--text-muted)] transition-transform',
                           showCategoryDropdown && 'rotate-180'
                         )}
                       />
@@ -519,7 +519,7 @@ export function EquipmentForm({
                   </button>
 
                   {editingEquipment && (
-                    <p className="text-xs text-white/30 mt-1 flex items-center gap-1">
+                    <p className="text-xs text-[var(--text-muted)] mt-1 flex items-center gap-1">
                       <Info className="w-3 h-3" />
                       Le type d&apos;équipement ne peut pas être modifié
                     </p>
@@ -531,7 +531,7 @@ export function EquipmentForm({
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute z-20 top-full left-0 right-0 mt-2 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden shadow-xl"
+                        className="absolute z-20 top-full left-0 right-0 mt-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl overflow-hidden shadow-xl"
                       >
                         <div className="max-h-64 overflow-y-auto custom-scrollbar">
                           {EQUIPMENT_CATEGORIES_DETAILS.map((cat) => (
@@ -542,12 +542,12 @@ export function EquipmentForm({
                                 setShowCategoryDropdown(false);
                               }}
                               className={cn(
-                                'w-full p-3 text-left hover:bg-white/5 flex items-center gap-3 transition-colors',
+                                'w-full p-3 text-left hover:bg-[var(--bg-hover)] flex items-center gap-3 transition-colors',
                                 category === cat.id && 'bg-blue-500/20'
                               )}
                             >
-                              <cat.iconComponent className="w-5 h-5 text-white/60" />
-                              <span className="text-white">{cat.label}</span>
+                              <cat.iconComponent className="w-5 h-5 text-[var(--text-muted)]" />
+                              <span className="text-[var(--text-primary)]">{cat.label}</span>
                             </button>
                           ))}
                         </div>
@@ -559,7 +559,7 @@ export function EquipmentForm({
                 {/* Brand & Model */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-white/60 mb-2 block">
+                    <label className="text-sm text-[var(--text-muted)] mb-2 block">
                       Marque *
                     </label>
                     <input
@@ -569,13 +569,13 @@ export function EquipmentForm({
                       disabled={!!editingEquipment}
                       placeholder="ex: Hoshizaki"
                       className={cn(
-                        "w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-blue-500/50",
+                        "w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50",
                         editingEquipment && "opacity-50 cursor-not-allowed"
                       )}
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-white/60 mb-2 block">
+                    <label className="text-sm text-[var(--text-muted)] mb-2 block">
                       Modèle *
                     </label>
                     <input
@@ -585,14 +585,14 @@ export function EquipmentForm({
                       disabled={!!editingEquipment}
                       placeholder="ex: IM-240"
                       className={cn(
-                        "w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-blue-500/50",
+                        "w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50",
                         editingEquipment && "opacity-50 cursor-not-allowed"
                       )}
                     />
                   </div>
                 </div>
                 {editingEquipment && (
-                  <p className="text-xs text-white/30 -mt-2 flex items-center gap-1">
+                  <p className="text-xs text-[var(--text-muted)] -mt-2 flex items-center gap-1">
                     <Info className="w-3 h-3" />
                     Identifiants verrouillés pour préserver l&apos;historique
                   </p>
@@ -600,7 +600,7 @@ export function EquipmentForm({
 
                 {/* Serial Number */}
                 <div>
-                  <label className="text-sm text-white/60 mb-2 block">
+                  <label className="text-sm text-[var(--text-muted)] mb-2 block">
                     N° de Série
                   </label>
                   <input
@@ -610,7 +610,7 @@ export function EquipmentForm({
                     disabled={!!editingEquipment}
                     placeholder="ex: L098765"
                     className={cn(
-                      "w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white font-mono placeholder:text-white/30 focus:outline-none focus:border-blue-500/50",
+                      "w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] font-mono placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50",
                       editingEquipment && "opacity-50 cursor-not-allowed"
                     )}
                   />
@@ -618,7 +618,7 @@ export function EquipmentForm({
 
                 {/* Nickname */}
                 <div>
-                  <label className="text-sm text-white/60 mb-2 flex items-center gap-2">
+                  <label className="text-sm text-[var(--text-muted)] mb-2 flex items-center gap-2">
                     <Tag className="w-4 h-4" />
                     Surnom (optionnel)
                   </label>
@@ -627,13 +627,13 @@ export function EquipmentForm({
                     value={nickname}
                     onChange={(e) => setNickname(e.target.value)}
                     placeholder="ex: Frigo Bar Principal"
-                    className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-blue-500/50"
+                    className="w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50"
                   />
                 </div>
 
                 {/* Location */}
                 <div>
-                  <label className="text-sm text-white/60 mb-2 flex items-center gap-2">
+                  <label className="text-sm text-[var(--text-muted)] mb-2 flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
                     Emplacement *
                   </label>
@@ -642,7 +642,7 @@ export function EquipmentForm({
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder="ex: Cuisine Principale"
-                    className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-blue-500/50"
+                    className="w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50"
                   />
                   <div className="flex flex-wrap gap-2 mt-2">
                     {commonLocations.map((loc) => (
@@ -653,7 +653,7 @@ export function EquipmentForm({
                           'px-3 py-1.5 text-xs rounded-full transition-colors',
                           location === loc
                             ? 'bg-blue-500/30 text-blue-300 border border-blue-500/50'
-                            : 'bg-white/5 text-white/60 hover:bg-white/10'
+                            : 'bg-[var(--bg-hover)] text-[var(--text-muted)] hover:bg-[var(--bg-active)]'
                         )}
                       >
                         {loc}
@@ -664,7 +664,7 @@ export function EquipmentForm({
 
                 {/* Technical Specs */}
                 <div>
-                  <label className="text-sm text-white/60 mb-3 flex items-center gap-2">
+                  <label className="text-sm text-[var(--text-muted)] mb-3 flex items-center gap-2">
                     <Zap className="w-4 h-4" />
                     Spécifications techniques
                   </label>
@@ -675,7 +675,7 @@ export function EquipmentForm({
                         value={voltage}
                         onChange={(e) => setVoltage(e.target.value)}
                         placeholder="Tension (ex: 230V)"
-                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-blue-500/50"
+                        className="w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50"
                       />
                     </div>
                     <div>
@@ -684,7 +684,7 @@ export function EquipmentForm({
                         value={power}
                         onChange={(e) => setPower(e.target.value)}
                         placeholder="Puissance (ex: 2.5kW)"
-                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-blue-500/50"
+                        className="w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50"
                       />
                     </div>
                   </div>
@@ -692,43 +692,43 @@ export function EquipmentForm({
 
                 {/* Dates */}
                 <div>
-                  <label className="text-sm text-white/60 mb-3 flex items-center gap-2">
+                  <label className="text-sm text-[var(--text-muted)] mb-3 flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     Dates importantes
                   </label>
                   <div className="space-y-3">
                     <div>
-                      <span className="text-xs text-white/40 block mb-1">
+                      <span className="text-xs text-[var(--text-muted)] block mb-1">
                         Date d&apos;installation
                       </span>
                       <input
                         type="date"
                         value={installationDate}
                         onChange={(e) => setInstallationDate(e.target.value)}
-                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500/50"
+                        className="w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-blue-500/50"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <span className="text-xs text-white/40 block mb-1">
+                        <span className="text-xs text-[var(--text-muted)] block mb-1">
                           Date d&apos;achat
                         </span>
                         <input
                           type="date"
                           value={purchaseDate}
                           onChange={(e) => setPurchaseDate(e.target.value)}
-                          className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500/50"
+                          className="w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-blue-500/50"
                         />
                       </div>
                       <div>
-                        <span className="text-xs text-white/40 block mb-1">
+                        <span className="text-xs text-[var(--text-muted)] block mb-1">
                           Fin de garantie
                         </span>
                         <input
                           type="date"
                           value={warrantyExpiry}
                           onChange={(e) => setWarrantyExpiry(e.target.value)}
-                          className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500/50"
+                          className="w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-blue-500/50"
                         />
                       </div>
                     </div>
@@ -761,7 +761,7 @@ export function EquipmentForm({
               </div>
 
               {/* Footer */}
-              <div className="p-6 border-t border-white/10">
+              <div className="p-6 border-t border-[var(--border)]">
                 <button
                   onClick={handleSubmit}
                   disabled={!isValid || isSubmitting}
@@ -769,7 +769,7 @@ export function EquipmentForm({
                     'w-full py-4 px-6 rounded-xl font-medium flex items-center justify-center gap-2 transition-all',
                     isValid && !isSubmitting
                       ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
-                      : 'bg-white/10 text-white/40 cursor-not-allowed'
+                      : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
                   )}
                 >
                   {isSubmitting ? (
@@ -777,7 +777,7 @@ export function EquipmentForm({
                       <motion.div
                         animate={{ rotate: 360 }}
                         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                        className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                        className="w-5 h-5 border-2 border-[var(--border-strong)] border-t-white rounded-full"
                       />
                       Enregistrement...
                     </>

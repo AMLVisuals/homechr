@@ -39,7 +39,7 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
   const venueEquipment = equipment.filter(e => e.venueId === venue.id);
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar bg-[#1a1a1a]">
+    <div className="h-full overflow-y-auto custom-scrollbar bg-[var(--bg-card)]">
       {/* Header Image */}
       <div className="h-64 md:h-80 relative group">
         <img 
@@ -54,7 +54,7 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
             {onEdit && (
               <button 
                 onClick={(e) => { e.stopPropagation(); onEdit(); }}
-                className="p-2 bg-black/50 backdrop-blur rounded-xl hover:bg-white/20 text-white transition-colors border border-white/10"
+                className="p-2 bg-black/50 backdrop-blur rounded-xl hover:bg-[var(--bg-active)] text-white transition-colors border border-[var(--border)]"
                 title="Modifier l'établissement"
               >
                 <Pencil className="w-5 h-5" />
@@ -63,7 +63,7 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
             {onDelete && (
               <button 
                 onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                className="p-2 bg-red-500/20 text-red-400 backdrop-blur rounded-xl hover:bg-red-500 hover:text-white transition-colors border border-red-500/30"
+                className="p-2 bg-red-500/20 text-red-400 backdrop-blur rounded-xl hover:bg-red-500 hover:text-[var(--text-primary)] transition-colors border border-red-500/30"
                 title="Supprimer l'établissement"
               >
                 <Trash2 className="w-5 h-5" />
@@ -85,8 +85,8 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
                   </span>
                 )}
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-2">{venue.name}</h2>
-              <div className="flex items-center gap-2 text-white/60">
+              <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] mb-2">{venue.name}</h2>
+              <div className="flex items-center gap-2 text-[var(--text-muted)]">
                 <MapPin className="w-4 h-4" />
                 <span>{venue.address}, {venue.zipCode} {venue.city}</span>
               </div>
@@ -98,7 +98,7 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
                   <Star className="w-5 h-5 fill-current" />
                   <span className="text-xl font-bold">{venue.rating}</span>
                 </div>
-                <span className="text-xs text-white/40 mt-1">{venue.reviewCount} avis</span>
+                <span className="text-xs text-[var(--text-muted)] mt-1">{venue.reviewCount} avis</span>
               </div>
             )}
           </div>
@@ -106,12 +106,12 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 p-2 bg-[#1a1a1a]/95 border-b border-white/5 overflow-x-auto sticky top-0 z-30 backdrop-blur-md">
+      <div className="flex items-center gap-1 p-2 bg-[var(--bg-card)]/95 border-b border-[var(--border)] overflow-x-auto sticky top-0 z-30 backdrop-blur-md">
         <button
           onClick={() => setActiveTab('info')}
           className={clsx(
             "px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2",
-            activeTab === 'info' ? "bg-white/10 text-white" : "text-white/40 hover:text-white hover:bg-white/5"
+            activeTab === 'info' ? "bg-[var(--bg-active)] text-[var(--text-primary)]" : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
           )}
         >
           <MapPin className="w-4 h-4" /> Informations
@@ -120,21 +120,21 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
           onClick={() => setActiveTab('team')}
           className={clsx(
             "px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2",
-            activeTab === 'team' ? "bg-white/10 text-white" : "text-white/40 hover:text-white hover:bg-white/5"
+            activeTab === 'team' ? "bg-[var(--bg-active)] text-[var(--text-primary)]" : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
           )}
         >
           <Users className="w-4 h-4" /> Équipe 
-          <span className="bg-white/10 px-1.5 py-0.5 rounded-md text-xs">{venueTeam.length}</span>
+          <span className="bg-[var(--bg-active)] px-1.5 py-0.5 rounded-md text-xs">{venueTeam.length}</span>
         </button>
         <button
           onClick={() => setActiveTab('equipment')}
           className={clsx(
             "px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2",
-            activeTab === 'equipment' ? "bg-white/10 text-white" : "text-white/40 hover:text-white hover:bg-white/5"
+            activeTab === 'equipment' ? "bg-[var(--bg-active)] text-[var(--text-primary)]" : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
           )}
         >
           <Monitor className="w-4 h-4" /> Équipements
-          <span className="bg-white/10 px-1.5 py-0.5 rounded-md text-xs">{venueEquipment.length}</span>
+          <span className="bg-[var(--bg-active)] px-1.5 py-0.5 rounded-md text-xs">{venueEquipment.length}</span>
         </button>
       </div>
 
@@ -146,16 +146,16 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-20">
             {/* Access Info */}
             <div className="space-y-6">
-              <h3 className="text-lg font-bold text-white mb-4">Accès & Contact</h3>
-              <div className="bg-white/5 rounded-2xl p-6 border border-white/10 space-y-4">
+              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">Accès & Contact</h3>
+              <div className="bg-[var(--bg-hover)] rounded-2xl p-6 border border-[var(--border)] space-y-4">
                 {venue.access?.contactName && (
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
                       <Users className="w-5 h-5 text-blue-400" />
                     </div>
                     <div>
-                      <p className="text-xs text-white/40 uppercase font-bold">Responsable sur site</p>
-                      <p className="text-white font-medium">{venue.access.contactName}</p>
+                      <p className="text-xs text-[var(--text-muted)] uppercase font-bold">Responsable sur site</p>
+                      <p className="text-[var(--text-primary)] font-medium">{venue.access.contactName}</p>
                     </div>
                   </div>
                 )}
@@ -165,8 +165,8 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
                       <Key className="w-5 h-5 text-purple-400" />
                     </div>
                     <div>
-                      <p className="text-xs text-white/40 uppercase font-bold">Digicode</p>
-                      <p className="text-white font-medium tracking-widest">{venue.access.digicode}</p>
+                      <p className="text-xs text-[var(--text-muted)] uppercase font-bold">Digicode</p>
+                      <p className="text-[var(--text-primary)] font-medium tracking-widest">{venue.access.digicode}</p>
                     </div>
                   </div>
                 )}
@@ -176,19 +176,19 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
                       <Wifi className="w-5 h-5 text-cyan-400" />
                     </div>
                     <div>
-                      <p className="text-xs text-white/40 uppercase font-bold">WiFi Invité</p>
-                      <p className="text-white font-medium">{venue.access.wifiSSID}</p>
-                      <p className="text-white/40 text-sm font-mono">{venue.access.wifiPassword}</p>
+                      <p className="text-xs text-[var(--text-muted)] uppercase font-bold">WiFi Invité</p>
+                      <p className="text-[var(--text-primary)] font-medium">{venue.access.wifiSSID}</p>
+                      <p className="text-[var(--text-muted)] text-sm font-mono">{venue.access.wifiPassword}</p>
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+              <div className="bg-[var(--bg-hover)] rounded-2xl p-6 border border-[var(--border)]">
+                <h4 className="text-sm font-bold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                   <Truck className="w-4 h-4 text-orange-400" /> Instructions Livraison
                 </h4>
-                <p className="text-white/70 text-sm leading-relaxed">
+                <p className="text-[var(--text-muted)] text-sm leading-relaxed">
                   {venue.access?.instructions || "Aucune instruction spécifique."}
                 </p>
               </div>
@@ -196,27 +196,27 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
 
             {/* Technical Info */}
             <div className="space-y-6">
-              <h3 className="text-lg font-bold text-white mb-4">Caractéristiques Techniques</h3>
+              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">Caractéristiques Techniques</h3>
               <div className="grid grid-cols-2 gap-4">
-                 <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-                    <p className="text-xs text-white/40 mb-1">Électricité</p>
-                    <p className="text-white font-bold">{venue.technical?.elecType || 'Standard'}</p>
+                 <div className="bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border)]">
+                    <p className="text-xs text-[var(--text-muted)] mb-1">Électricité</p>
+                    <p className="text-[var(--text-primary)] font-bold">{venue.technical?.elecType || 'Standard'}</p>
                  </div>
-                 <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-                    <p className="text-xs text-white/40 mb-1">Gaz</p>
-                    <p className="text-white font-bold">{venue.technical?.gasType || 'Standard'}</p>
+                 <div className="bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border)]">
+                    <p className="text-xs text-[var(--text-muted)] mb-1">Gaz</p>
+                    <p className="text-[var(--text-primary)] font-bold">{venue.technical?.gasType || 'Standard'}</p>
                  </div>
-                 <div className="bg-white/5 p-4 rounded-xl border border-white/10 col-span-2 flex items-center justify-between">
-                    <span className="text-white/60 text-sm flex items-center gap-2">
+                 <div className="bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border)] col-span-2 flex items-center justify-between">
+                    <span className="text-[var(--text-muted)] text-sm flex items-center gap-2">
                       <Wind className="w-4 h-4" /> Ventilation / Extraction
                     </span>
                     <div className={clsx("w-3 h-3 rounded-full", venue.technical?.hasVentilation ? "bg-green-500" : "bg-red-500")} />
                  </div>
-                 <div className="bg-white/5 p-4 rounded-xl border border-white/10 col-span-2 flex items-center justify-between">
-                    <span className="text-white/60 text-sm flex items-center gap-2">
+                 <div className="bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border)] col-span-2 flex items-center justify-between">
+                    <span className="text-[var(--text-muted)] text-sm flex items-center gap-2">
                       <Flame className="w-4 h-4" /> Cuisine
                     </span>
-                    <span className="text-white font-medium">{venue.technical?.kitchenType === 'OPEN' ? 'Ouverte' : 'Fermée'}</span>
+                    <span className="text-[var(--text-primary)] font-medium">{venue.technical?.kitchenType === 'OPEN' ? 'Ouverte' : 'Fermée'}</span>
                  </div>
               </div>
             </div>
@@ -243,22 +243,22 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
                   <div 
                     key={member.id} 
                     onClick={() => setEditingMember(member)}
-                    className="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-4 relative group cursor-pointer hover:bg-white/10 transition-colors"
+                    className="bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border)] flex items-center gap-4 relative group cursor-pointer hover:bg-[var(--bg-active)] transition-colors"
                   >
                     <img src={member.avatar} alt={member.name} className="w-12 h-12 rounded-full object-cover" />
                     <div>
-                      <h4 className="font-bold text-white">{member.name}</h4>
+                      <h4 className="font-bold text-[var(--text-primary)]">{member.name}</h4>
                       <p className="text-blue-400 text-sm">{member.role}</p>
                       <div className="flex gap-1 mt-1">
                         {member.tags.slice(0, 2).map(tag => (
-                          <span key={tag} className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-white/60">{tag}</span>
+                          <span key={tag} className="text-[10px] bg-[var(--bg-active)] px-1.5 py-0.5 rounded text-[var(--text-muted)]">{tag}</span>
                         ))}
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="col-span-full py-12 text-center text-white/40 italic">
+                <div className="col-span-full py-12 text-center text-[var(--text-muted)] italic">
                   Aucun membre d'équipe assigné à cet établissement.
                 </div>
               )}
@@ -286,10 +286,10 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
                   <div 
                     key={item.id} 
                     onClick={() => setSelectedEquipment(item)}
-                    className="bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-colors cursor-pointer group"
+                    className="bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border)] hover:bg-[var(--bg-active)] transition-colors cursor-pointer group"
                   >
                     <div className="flex items-start justify-between mb-2">
-                       <span className="text-[10px] uppercase tracking-wider font-bold text-white/40 bg-white/5 px-2 py-1 rounded-md">
+                       <span className="text-[10px] uppercase tracking-wider font-bold text-[var(--text-muted)] bg-[var(--bg-hover)] px-2 py-1 rounded-md">
                          {item.category}
                        </span>
                        <div className={clsx(
@@ -297,15 +297,15 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
                          item.status === 'OPERATIONAL' ? "bg-green-500" : "bg-red-500"
                        )} />
                     </div>
-                    <h4 className="font-bold text-white mb-1 group-hover:text-blue-400 transition-colors">{item.nickname || item.brand}</h4>
-                    <p className="text-white/60 text-sm mb-2">{item.brand} {item.model}</p>
-                    <p className="text-white/40 text-xs flex items-center gap-1">
+                    <h4 className="font-bold text-[var(--text-primary)] mb-1 group-hover:text-blue-400 transition-colors">{item.nickname || item.brand}</h4>
+                    <p className="text-[var(--text-muted)] text-sm mb-2">{item.brand} {item.model}</p>
+                    <p className="text-[var(--text-muted)] text-xs flex items-center gap-1">
                       <MapPin className="w-3 h-3" /> {item.location}
                     </p>
                   </div>
                 ))
               ) : (
-                <div className="col-span-full py-12 text-center text-white/40 italic">
+                <div className="col-span-full py-12 text-center text-[var(--text-muted)] italic">
                   Aucun équipement répertorié pour cet établissement.
                 </div>
               )}

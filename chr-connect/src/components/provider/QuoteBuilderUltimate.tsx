@@ -333,7 +333,7 @@ function StepIndicator({
   const currentIndex = steps.findIndex((s) => s.id === currentStep);
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-slate-800/50 border-b border-white/10">
+    <div className="flex items-center justify-between px-4 py-3 bg-[var(--bg-hover)] border-b border-[var(--border)]">
       {steps.map((step, index) => {
         const Icon = step.icon;
         const isActive = step.id === currentStep;
@@ -349,8 +349,8 @@ function StepIndicator({
                 'flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all',
                 isActive && 'bg-blue-500/20 text-blue-400',
                 isCompleted && 'text-green-400',
-                !isActive && !isCompleted && 'text-gray-500',
-                isClickable && 'cursor-pointer hover:bg-white/5',
+                !isActive && !isCompleted && 'text-[var(--text-muted)]',
+                isClickable && 'cursor-pointer hover:bg-[var(--bg-hover)]',
                 !isClickable && 'cursor-default'
               )}
             >
@@ -359,7 +359,7 @@ function StepIndicator({
                   'w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold',
                   isActive && 'bg-blue-500 text-white',
                   isCompleted && 'bg-green-500 text-white',
-                  !isActive && !isCompleted && 'bg-gray-700 text-gray-400'
+                  !isActive && !isCompleted && 'bg-[var(--text-muted)] text-[var(--text-secondary)]'
                 )}
               >
                 {isCompleted ? <Check className="w-3 h-3" /> : index + 1}
@@ -370,7 +370,7 @@ function StepIndicator({
               <div
                 className={clsx(
                   'flex-1 h-0.5 mx-2',
-                  index < currentIndex ? 'bg-green-500' : 'bg-gray-700'
+                  index < currentIndex ? 'bg-green-500' : 'bg-[var(--text-muted)]'
                 )}
               />
             )}
@@ -410,14 +410,14 @@ function TrustScoreBadge({
         </div>
         <div>
           <p className="text-purple-400 font-medium">Analyse IA en cours...</p>
-          <p className="text-xs text-gray-500">Vérification des prix marché</p>
+          <p className="text-xs text-[var(--text-muted)]">Vérification des prix marché</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`flex items-center gap-3 p-4 ${config.bg} rounded-xl border border-white/10`}>
+    <div className={`flex items-center gap-3 p-4 ${config.bg} rounded-xl border border-[var(--border)]`}>
       <div className={`w-12 h-12 rounded-full ${config.bg} flex items-center justify-center relative`}>
         <span className={`text-xl font-bold ${config.color}`}>{score}</span>
         <div className="absolute -bottom-1 -right-1">
@@ -426,7 +426,7 @@ function TrustScoreBadge({
       </div>
       <div>
         <p className={`font-semibold ${config.color}`}>Trust Score: {config.label}</p>
-        <p className="text-xs text-gray-400">Confiance basée sur l'analyse marché</p>
+        <p className="text-xs text-[var(--text-secondary)]">Confiance basée sur l'analyse marché</p>
       </div>
     </div>
   );
@@ -510,21 +510,21 @@ function PartScannerModal({
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-slate-900 rounded-2xl w-full max-w-lg border border-white/10 overflow-hidden"
+        className="bg-[var(--bg-card)] rounded-2xl w-full max-w-lg border border-[var(--border)] overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-purple-400" />
             </div>
             <div>
-              <h3 className="font-bold text-white">Identifier une pièce</h3>
-              <p className="text-xs text-gray-500">OCR + Recherche IA</p>
+              <h3 className="font-bold text-[var(--text-primary)]">Identifier une pièce</h3>
+              <p className="text-xs text-[var(--text-muted)]">OCR + Recherche IA</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-            <X className="w-5 h-5 text-gray-400" />
+          <button onClick={onClose} className="p-2 hover:bg-[var(--bg-active)] rounded-lg transition-colors">
+            <X className="w-5 h-5 text-[var(--text-secondary)]" />
           </button>
         </div>
 
@@ -538,7 +538,7 @@ function PartScannerModal({
                 'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors',
                 mode === 'camera'
                   ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                  : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                  : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)]'
               )}
             >
               <Camera className="w-4 h-4" />
@@ -550,7 +550,7 @@ function PartScannerModal({
                 'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors',
                 mode === 'manual'
                   ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                  : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                  : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)]'
               )}
             >
               <Search className="w-4 h-4" />
@@ -588,7 +588,7 @@ function PartScannerModal({
               {!capturedImage && (
                 <button
                   onClick={captureImage}
-                  className="w-full py-3 bg-purple-500 hover:bg-purple-600 rounded-xl text-white font-medium transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-purple-500 hover:bg-purple-600 rounded-xl text-[var(--text-primary)] font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   <Camera className="w-5 h-5" />
                   Capturer
@@ -598,45 +598,45 @@ function PartScannerModal({
           ) : (
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Référence complète</label>
+                <label className="block text-xs text-[var(--text-muted)] mb-1">Référence complète</label>
                 <input
                   type="text"
                   value={reference}
                   onChange={(e) => setReference(e.target.value)}
                   placeholder="Ex: Danfoss SC15G"
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-purple-500"
+                  className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-purple-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Marque</label>
+                  <label className="block text-xs text-[var(--text-muted)] mb-1">Marque</label>
                   <input
                     type="text"
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
                     placeholder="Ex: Danfoss"
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-purple-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Modèle</label>
+                  <label className="block text-xs text-[var(--text-muted)] mb-1">Modèle</label>
                   <input
                     type="text"
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
                     placeholder="Ex: SC15G"
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-purple-500"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">N° de série (optionnel)</label>
+                <label className="block text-xs text-[var(--text-muted)] mb-1">N° de série (optionnel)</label>
                 <input
                   type="text"
                   value={serialNumber}
                   onChange={(e) => setSerialNumber(e.target.value)}
                   placeholder="Numéro de série"
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-purple-500"
+                  className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-purple-500"
                 />
               </div>
             </div>
@@ -657,7 +657,7 @@ function PartScannerModal({
             className={clsx(
               'w-full py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2',
               isLoading || (!reference && !brand && !model && !capturedImage)
-                ? 'bg-gray-500/20 text-gray-500 cursor-not-allowed'
+                ? 'bg-gray-500/20 text-[var(--text-muted)] cursor-not-allowed'
                 : 'bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white'
             )}
           >
@@ -700,7 +700,7 @@ function QuoteItemRow({
       PART: { icon: Package, color: 'text-cyan-400', bg: 'bg-cyan-500/20', label: 'Pièce' },
       LABOR: { icon: Clock, color: 'text-orange-400', bg: 'bg-orange-500/20', label: 'MO' },
       TRAVEL: { icon: Truck, color: 'text-green-400', bg: 'bg-green-500/20', label: 'Dépl.' },
-      OTHER: { icon: Wrench, color: 'text-gray-400', bg: 'bg-gray-500/20', label: 'Autre' },
+      OTHER: { icon: Wrench, color: 'text-[var(--text-secondary)]', bg: 'bg-gray-500/20', label: 'Autre' },
       CUSTOM: { icon: FileText, color: 'text-slate-400', bg: 'bg-slate-500/20', label: 'Libre' },
     };
     return configs[type];
@@ -716,14 +716,14 @@ function QuoteItemRow({
       value={item}
       className={clsx(
         'rounded-xl border overflow-hidden transition-colors',
-        hasPartError ? 'bg-red-500/5 border-red-500/30' : 'bg-slate-800/30 border-white/5'
+        hasPartError ? 'bg-red-500/5 border-red-500/30' : 'bg-[var(--bg-hover)] border-[var(--border)]'
       )}
     >
       {/* Main Row - Structure en grille fixe pour alignement */}
       <div className="grid grid-cols-[auto_auto_1fr_auto_80px_100px_100px_auto_auto] items-center gap-2 p-3">
         {/* 1. Drag Handle */}
-        <div className="cursor-grab active:cursor-grabbing p-1 hover:bg-white/10 rounded">
-          <GripVertical className="w-4 h-4 text-gray-600" />
+        <div className="cursor-grab active:cursor-grabbing p-1 hover:bg-[var(--bg-active)] rounded">
+          <GripVertical className="w-4 h-4 text-[var(--text-muted)]" />
         </div>
 
         {/* 2. Type Badge */}
@@ -738,19 +738,19 @@ function QuoteItemRow({
             type="text"
             value={item.description}
             onChange={(e) => onUpdate({ description: e.target.value })}
-            className="w-full bg-transparent text-white text-sm font-medium focus:outline-none placeholder:text-gray-600"
+            className="w-full bg-transparent text-[var(--text-primary)] text-sm font-medium focus:outline-none placeholder:text-[var(--text-muted)]"
             placeholder={item.type === 'PART' ? 'Nom de la pièce...' : 'Description...'}
           />
           {/* Afficher marque/modèle si c'est une pièce */}
           {item.type === 'PART' && (item.brand || item.model) && (
-            <p className="text-[11px] text-gray-500 truncate">
+            <p className="text-[11px] text-[var(--text-muted)] truncate">
               {item.brand && <span className="text-cyan-400/70">{item.brand}</span>}
               {item.brand && item.model && <span className="mx-1">•</span>}
               {item.model && <span>{item.model}</span>}
             </p>
           )}
           {item.type !== 'PART' && item.reference && (
-            <p className="text-[11px] text-gray-500">Réf: {item.reference}</p>
+            <p className="text-[11px] text-[var(--text-muted)]">Réf: {item.reference}</p>
           )}
         </div>
 
@@ -788,12 +788,12 @@ function QuoteItemRow({
             onChange={(e) => onUpdate({ quantity: parseFloat(e.target.value) || 0 })}
             min="0"
             step="0.5"
-            className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-white text-sm text-center focus:outline-none focus:border-blue-500"
+            className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded px-2 py-1.5 text-[var(--text-primary)] text-sm text-center focus:outline-none focus:border-blue-500"
           />
           <select
             value={item.unit}
             onChange={(e) => onUpdate({ unit: e.target.value })}
-            className="w-full bg-transparent text-[10px] text-gray-500 text-center focus:outline-none cursor-pointer"
+            className="w-full bg-transparent text-[10px] text-[var(--text-muted)] text-center focus:outline-none cursor-pointer"
           >
             {ITEM_UNITS[item.type].map((u) => (
               <option key={u} value={u}>{u}</option>
@@ -809,16 +809,16 @@ function QuoteItemRow({
             onChange={(e) => onUpdate({ unitPriceHT: parseFloat(e.target.value) || 0 })}
             min="0"
             step="0.01"
-            className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-white text-sm text-right pr-5 focus:outline-none focus:border-blue-500"
+            className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded px-2 py-1.5 text-[var(--text-primary)] text-sm text-right pr-5 focus:outline-none focus:border-blue-500"
           />
-          <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-500">€</span>
-          <p className="text-[10px] text-gray-600 text-center">HT/unité</p>
+          <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-[var(--text-muted)]">€</span>
+          <p className="text-[10px] text-[var(--text-muted)] text-center">HT/unité</p>
         </div>
 
         {/* 7. Total */}
         <div className="text-right">
-          <p className="text-white font-bold text-sm">{formatPrice(totalHT)}</p>
-          <p className="text-[10px] text-gray-500">Total HT</p>
+          <p className="text-[var(--text-primary)] font-bold text-sm">{formatPrice(totalHT)}</p>
+          <p className="text-[10px] text-[var(--text-muted)]">Total HT</p>
         </div>
 
         {/* 8. Expand button */}
@@ -826,7 +826,7 @@ function QuoteItemRow({
           onClick={() => setIsExpanded(!isExpanded)}
           className={clsx(
             'p-1.5 rounded-lg transition-colors',
-            isExpanded ? 'bg-blue-500/20 text-blue-400' : 'hover:bg-white/10 text-gray-500'
+            isExpanded ? 'bg-blue-500/20 text-blue-400' : 'hover:bg-[var(--bg-active)] text-[var(--text-muted)]'
           )}
         >
           <ChevronRight className={clsx('w-4 h-4 transition-transform', isExpanded && 'rotate-90')} />
@@ -835,7 +835,7 @@ function QuoteItemRow({
         {/* 9. Delete button */}
         <button
           onClick={onDelete}
-          className="p-1.5 hover:bg-red-500/20 rounded-lg transition-colors text-gray-500 hover:text-red-400"
+          className="p-1.5 hover:bg-red-500/20 rounded-lg transition-colors text-[var(--text-muted)] hover:text-red-400"
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -848,27 +848,27 @@ function QuoteItemRow({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-t border-white/5"
+            className="overflow-hidden border-t border-[var(--border)]"
           >
             <div className="p-4 space-y-4">
               {/* Part-specific fields: Brand, Model (required), Photo */}
               {item.type === 'PART' && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4 border-b border-white/10">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4 border-b border-[var(--border)]">
                   {/* Brand */}
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Marque</label>
+                    <label className="block text-xs text-[var(--text-muted)] mb-1">Marque</label>
                     <input
                       type="text"
                       value={item.brand || ''}
                       onChange={(e) => onUpdate({ brand: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500"
+                      className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded px-2 py-1.5 text-[var(--text-primary)] text-sm focus:outline-none focus:border-blue-500"
                       placeholder="Ex: Danfoss"
                     />
                   </div>
 
                   {/* Model (Required) */}
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">
+                    <label className="block text-xs text-[var(--text-muted)] mb-1">
                       Modèle <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -876,8 +876,8 @@ function QuoteItemRow({
                       value={item.model || ''}
                       onChange={(e) => onUpdate({ model: e.target.value })}
                       className={clsx(
-                        'w-full bg-white/5 border rounded px-2 py-1.5 text-white text-sm focus:outline-none',
-                        !item.model ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-blue-500'
+                        'w-full bg-[var(--bg-hover)] border rounded px-2 py-1.5 text-[var(--text-primary)] text-sm focus:outline-none',
+                        !item.model ? 'border-red-500/50 focus:border-red-500' : 'border-[var(--border)] focus:border-blue-500'
                       )}
                       placeholder="Ex: SC15G (obligatoire)"
                     />
@@ -888,25 +888,25 @@ function QuoteItemRow({
 
                   {/* Serial Number */}
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">N° de série</label>
+                    <label className="block text-xs text-[var(--text-muted)] mb-1">N° de série</label>
                     <input
                       type="text"
                       value={item.serialNumber || ''}
                       onChange={(e) => onUpdate({ serialNumber: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500"
+                      className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded px-2 py-1.5 text-[var(--text-primary)] text-sm focus:outline-none focus:border-blue-500"
                       placeholder="Optionnel"
                     />
                   </div>
 
                   {/* Photo Upload */}
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Photo (optionnel)</label>
+                    <label className="block text-xs text-[var(--text-muted)] mb-1">Photo (optionnel)</label>
                     {item.photoBase64 ? (
                       <div className="relative group">
                         <img
                           src={item.photoBase64}
                           alt="Photo pièce"
-                          className="w-full h-16 object-cover rounded border border-white/10"
+                          className="w-full h-16 object-cover rounded border border-[var(--border)]"
                         />
                         <button
                           onClick={() => onUpdate({ photoBase64: undefined, photoUrl: undefined })}
@@ -916,9 +916,9 @@ function QuoteItemRow({
                         </button>
                       </div>
                     ) : (
-                      <label className="flex items-center justify-center gap-2 h-[34px] bg-white/5 border border-dashed border-white/20 rounded cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all">
-                        <Camera className="w-4 h-4 text-gray-500" />
-                        <span className="text-xs text-gray-500">Ajouter photo</span>
+                      <label className="flex items-center justify-center gap-2 h-[34px] bg-[var(--bg-hover)] border border-dashed border-[var(--border-strong)] rounded cursor-pointer hover:border-[var(--border-strong)] hover:bg-[var(--bg-active)] transition-all">
+                        <Camera className="w-4 h-4 text-[var(--text-muted)]" />
+                        <span className="text-xs text-[var(--text-muted)]">Ajouter photo</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -943,8 +943,8 @@ function QuoteItemRow({
 
               {/* Custom line text editor */}
               {item.type === 'CUSTOM' && (
-                <div className="pb-4 border-b border-white/10">
-                  <label className="block text-xs text-gray-500 mb-1">Texte personnalisé</label>
+                <div className="pb-4 border-b border-[var(--border)]">
+                  <label className="block text-xs text-[var(--text-muted)] mb-1">Texte personnalisé</label>
                   <textarea
                     value={item.customText || item.description}
                     onChange={(e) => onUpdate({
@@ -952,7 +952,7 @@ function QuoteItemRow({
                       description: e.target.value
                     })}
                     rows={3}
-                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500 resize-none"
+                    className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded px-3 py-2 text-[var(--text-primary)] text-sm focus:outline-none focus:border-purple-500 resize-none"
                     placeholder="Entrez votre texte personnalisé ici..."
                   />
                 </div>
@@ -962,23 +962,23 @@ function QuoteItemRow({
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {/* Reference */}
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Référence</label>
+                  <label className="block text-xs text-[var(--text-muted)] mb-1">Référence</label>
                   <input
                     type="text"
                     value={item.reference || ''}
                     onChange={(e) => onUpdate({ reference: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500"
+                    className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded px-2 py-1.5 text-[var(--text-primary)] text-sm focus:outline-none focus:border-blue-500"
                     placeholder="Réf..."
                   />
                 </div>
 
                 {/* TVA */}
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">TVA</label>
+                  <label className="block text-xs text-[var(--text-muted)] mb-1">TVA</label>
                   <select
                     value={item.tvaRate}
                     onChange={(e) => onUpdate({ tvaRate: parseFloat(e.target.value) })}
-                    className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500"
+                    className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded px-2 py-1.5 text-[var(--text-primary)] text-sm focus:outline-none focus:border-blue-500"
                   >
                     {TVA_RATES.map((rate) => (
                       <option key={rate.value} value={rate.value}>
@@ -990,11 +990,11 @@ function QuoteItemRow({
 
                 {/* Unit */}
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Unité</label>
+                  <label className="block text-xs text-[var(--text-muted)] mb-1">Unité</label>
                   <select
                     value={item.unit}
                     onChange={(e) => onUpdate({ unit: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500"
+                    className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded px-2 py-1.5 text-[var(--text-primary)] text-sm focus:outline-none focus:border-blue-500"
                   >
                     {ITEM_UNITS[item.type].map((unit) => (
                       <option key={unit} value={unit}>
@@ -1006,14 +1006,14 @@ function QuoteItemRow({
 
                 {/* Discount */}
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Remise %</label>
+                  <label className="block text-xs text-[var(--text-muted)] mb-1">Remise %</label>
                   <input
                     type="number"
                     value={item.discount || 0}
                     onChange={(e) => onUpdate({ discount: parseFloat(e.target.value) || 0 })}
                     min="0"
                     max="100"
-                    className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500"
+                    className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded px-2 py-1.5 text-[var(--text-primary)] text-sm focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -1026,14 +1026,14 @@ function QuoteItemRow({
                     <span className="text-sm font-medium text-blue-400">Prix marché</span>
                   </div>
                   <div className="flex items-center gap-4 text-sm">
-                    <span className="text-gray-400">
-                      Min: <span className="text-white">{formatPrice(item.marketPrice.min)}</span>
+                    <span className="text-[var(--text-secondary)]">
+                      Min: <span className="text-[var(--text-primary)]">{formatPrice(item.marketPrice.min)}</span>
                     </span>
-                    <span className="text-gray-400">
-                      Moy: <span className="text-white">{formatPrice(item.marketPrice.average)}</span>
+                    <span className="text-[var(--text-secondary)]">
+                      Moy: <span className="text-[var(--text-primary)]">{formatPrice(item.marketPrice.average)}</span>
                     </span>
-                    <span className="text-gray-400">
-                      Max: <span className="text-white">{formatPrice(item.marketPrice.max)}</span>
+                    <span className="text-[var(--text-secondary)]">
+                      Max: <span className="text-[var(--text-primary)]">{formatPrice(item.marketPrice.max)}</span>
                     </span>
                   </div>
                 </div>
@@ -1152,13 +1152,13 @@ function SignaturePad({
           onTouchMove={draw}
           onTouchEnd={stopDrawing}
           className={clsx(
-            'w-full bg-slate-800 rounded-xl border-2 border-dashed cursor-crosshair',
-            disabled ? 'border-gray-700 opacity-50' : 'border-white/20'
+            'w-full bg-[var(--bg-hover)] rounded-xl border-2 border-dashed cursor-crosshair',
+            disabled ? 'border-[var(--border)] opacity-50' : 'border-[var(--border-strong)]'
           )}
         />
         {!hasSignature && !disabled && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <p className="text-gray-600 text-sm">Signez ici</p>
+            <p className="text-[var(--text-muted)] text-sm">Signez ici</p>
           </div>
         )}
       </div>
@@ -1166,7 +1166,7 @@ function SignaturePad({
         <button
           onClick={clear}
           disabled={disabled || !hasSignature}
-          className="flex-1 py-2 bg-white/5 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-gray-400 text-sm transition-colors"
+          className="flex-1 py-2 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-[var(--text-secondary)] text-sm transition-colors"
         >
           Effacer
         </button>
@@ -1236,7 +1236,7 @@ function PhoneVerification({
       {!codeSent ? (
         <>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Numéro de téléphone</label>
+            <label className="block text-xs text-[var(--text-muted)] mb-1">Numéro de téléphone</label>
             <div className="flex gap-2">
               <input
                 type="tel"
@@ -1244,12 +1244,12 @@ function PhoneVerification({
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="06 12 34 56 78"
                 disabled={disabled}
-                className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-blue-500 disabled:opacity-50"
+                className="flex-1 bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 disabled:opacity-50"
               />
               <button
                 onClick={sendCode}
                 disabled={disabled || isVerifying || !phone}
-                className="px-4 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-medium transition-colors flex items-center gap-2"
+                className="px-4 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-[var(--text-primary)] font-medium transition-colors flex items-center gap-2"
               >
                 {isVerifying ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -1268,7 +1268,7 @@ function PhoneVerification({
             <span className="text-sm text-green-400">Code envoyé au {phone}</span>
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Code de vérification (6 chiffres)</label>
+            <label className="block text-xs text-[var(--text-muted)] mb-1">Code de vérification (6 chiffres)</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -1277,12 +1277,12 @@ function PhoneVerification({
                 placeholder="000000"
                 maxLength={6}
                 disabled={disabled}
-                className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-center text-xl tracking-widest font-mono focus:outline-none focus:border-blue-500 disabled:opacity-50"
+                className="flex-1 bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-[var(--text-primary)] text-center text-xl tracking-widest font-mono focus:outline-none focus:border-blue-500 disabled:opacity-50"
               />
               <button
                 onClick={verifyCode}
                 disabled={disabled || isVerifying || code.length !== 6}
-                className="px-4 py-2.5 bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-medium transition-colors flex items-center gap-2"
+                className="px-4 py-2.5 bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-[var(--text-primary)] font-medium transition-colors flex items-center gap-2"
               >
                 {isVerifying ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 Vérifier
@@ -1294,7 +1294,7 @@ function PhoneVerification({
               setCodeSent(false);
               setCode('');
             }}
-            className="text-sm text-gray-500 hover:text-gray-400"
+            className="text-sm text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
           >
             Renvoyer le code
           </button>
@@ -1677,17 +1677,17 @@ export function QuoteBuilderUltimate({
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-slate-900 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col border border-white/10 overflow-hidden"
+        className="bg-[var(--bg-card)] rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col border border-[var(--border)] overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10 shrink-0">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--border)] shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
               <Zap className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="font-bold text-white">Créateur de Devis Intelligent</h2>
-              <p className="text-xs text-gray-500">{quoteReference} • {establishmentName}</p>
+              <h2 className="font-bold text-[var(--text-primary)]">Créateur de Devis Intelligent</h2>
+              <p className="text-xs text-[var(--text-muted)]">{quoteReference} • {establishmentName}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -1705,14 +1705,14 @@ export function QuoteBuilderUltimate({
                   trustLevel === 'FAIR' ? 'text-yellow-400' :
                   trustLevel === 'HIGH' ? 'text-orange-400' : 'text-red-400'
                 )} />
-                <span className="text-sm font-medium text-white">{trustScore}/100</span>
+                <span className="text-sm font-medium text-[var(--text-primary)]">{trustScore}/100</span>
               </div>
             )}
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              className="p-2 hover:bg-[var(--bg-active)] rounded-lg transition-colors"
             >
-              <X className="w-5 h-5 text-gray-400" />
+              <X className="w-5 h-5 text-[var(--text-secondary)]" />
             </button>
           </div>
         </div>
@@ -1771,7 +1771,7 @@ export function QuoteBuilderUltimate({
                   </button>
                   <button
                     onClick={() => addItem('OTHER')}
-                    className="flex flex-col items-center gap-1.5 p-3 bg-gray-500/10 hover:bg-gray-500/20 border border-gray-500/30 rounded-xl text-gray-400 transition-colors"
+                    className="flex flex-col items-center gap-1.5 p-3 bg-gray-500/10 hover:bg-gray-500/20 border border-[var(--text-muted)]/30 rounded-xl text-[var(--text-secondary)] transition-colors"
                   >
                     <Wrench className="w-5 h-5" />
                     <span className="text-xs font-medium">Autre</span>
@@ -1787,10 +1787,10 @@ export function QuoteBuilderUltimate({
 
                 {/* Items List */}
                 {items.length === 0 ? (
-                  <div className="text-center py-12 bg-slate-800/30 rounded-xl border border-dashed border-white/10">
-                    <Package className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                    <p className="text-gray-400">Aucune ligne dans le devis</p>
-                    <p className="text-sm text-gray-600 mt-1">
+                  <div className="text-center py-12 bg-[var(--bg-hover)] rounded-xl border border-dashed border-[var(--border)]">
+                    <Package className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-3" />
+                    <p className="text-[var(--text-secondary)]">Aucune ligne dans le devis</p>
+                    <p className="text-sm text-[var(--text-muted)] mt-1">
                       Utilisez les boutons ci-dessus pour ajouter des éléments
                     </p>
                   </div>
@@ -1819,19 +1819,19 @@ export function QuoteBuilderUltimate({
 
                 {/* Totals */}
                 {items.length > 0 && (
-                  <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
+                  <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
                     <div className="grid grid-cols-2 gap-4">
                       {/* Left: Global Discount */}
                       <div className="space-y-3">
                         <div>
-                          <label className="block text-xs text-gray-500 mb-1">Remise globale (%)</label>
+                          <label className="block text-xs text-[var(--text-muted)] mb-1">Remise globale (%)</label>
                           <input
                             type="number"
                             value={globalDiscount}
                             onChange={(e) => setGlobalDiscount(parseFloat(e.target.value) || 0)}
                             min="0"
                             max="100"
-                            className="w-32 bg-white/5 border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                            className="w-32 bg-[var(--bg-hover)] border border-[var(--border)] rounded px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-blue-500"
                           />
                         </div>
                         <div className="flex items-center gap-3">
@@ -1844,14 +1844,14 @@ export function QuoteBuilderUltimate({
                             />
                             <div className={clsx(
                               'w-10 h-6 rounded-full transition-colors',
-                              depositEnabled ? 'bg-blue-500' : 'bg-gray-700'
+                              depositEnabled ? 'bg-blue-500' : 'bg-[var(--text-muted)]'
                             )}>
                               <div className={clsx(
                                 'w-4 h-4 rounded-full bg-white transition-transform mt-1',
                                 depositEnabled ? 'translate-x-5' : 'translate-x-1'
                               )} />
                             </div>
-                            <span className="text-sm text-gray-400">Acompte</span>
+                            <span className="text-sm text-[var(--text-secondary)]">Acompte</span>
                           </label>
                           {depositEnabled && (
                             <input
@@ -1860,7 +1860,7 @@ export function QuoteBuilderUltimate({
                               onChange={(e) => setDepositPercent(parseFloat(e.target.value) || 0)}
                               min="0"
                               max="100"
-                              className="w-20 bg-white/5 border border-white/10 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-blue-500"
+                              className="w-20 bg-[var(--bg-hover)] border border-[var(--border)] rounded px-2 py-1 text-[var(--text-primary)] text-sm focus:outline-none focus:border-blue-500"
                             />
                           )}
                         </div>
@@ -1869,26 +1869,26 @@ export function QuoteBuilderUltimate({
                       {/* Right: Totals */}
                       <div className="space-y-2 text-right">
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Sous-total HT</span>
-                          <span className="text-white">{formatPrice(subtotalHT)}</span>
+                          <span className="text-[var(--text-muted)]">Sous-total HT</span>
+                          <span className="text-[var(--text-primary)]">{formatPrice(subtotalHT)}</span>
                         </div>
                         {globalDiscount > 0 && (
                           <div className="flex justify-between">
-                            <span className="text-gray-500">Remise ({globalDiscount}%)</span>
+                            <span className="text-[var(--text-muted)]">Remise ({globalDiscount}%)</span>
                             <span className="text-red-400">-{formatPrice(subtotalHT - subtotalAfterDiscount)}</span>
                           </div>
                         )}
                         <div className="flex justify-between">
-                          <span className="text-gray-500">TVA</span>
-                          <span className="text-white">{formatPrice(totalTVA)}</span>
+                          <span className="text-[var(--text-muted)]">TVA</span>
+                          <span className="text-[var(--text-primary)]">{formatPrice(totalTVA)}</span>
                         </div>
-                        <div className="flex justify-between pt-2 border-t border-white/10">
-                          <span className="text-white font-semibold">Total TTC</span>
+                        <div className="flex justify-between pt-2 border-t border-[var(--border)]">
+                          <span className="text-[var(--text-primary)] font-semibold">Total TTC</span>
                           <span className="text-xl font-bold text-blue-400">{formatPrice(totalTTC)}</span>
                         </div>
                         {depositEnabled && (
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-500">Acompte ({depositPercent}%)</span>
+                            <span className="text-[var(--text-muted)]">Acompte ({depositPercent}%)</span>
                             <span className="text-green-400">{formatPrice(depositAmount)}</span>
                           </div>
                         )}
@@ -1918,29 +1918,29 @@ export function QuoteBuilderUltimate({
                 {!isAnalyzing && analysis && (
                   <>
                     {/* Summary */}
-                    <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                      <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                    <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                      <h3 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                         <BarChart3 className="w-5 h-5 text-blue-400" />
                         Résumé de l'analyse
                       </h3>
                       <div className="grid grid-cols-3 gap-4 text-center">
                         <div>
-                          <p className="text-2xl font-bold text-white">
+                          <p className="text-2xl font-bold text-[var(--text-primary)]">
                             {analysis.summary.itemsAnalyzed}
                           </p>
-                          <p className="text-xs text-gray-500">Postes analysés</p>
+                          <p className="text-xs text-[var(--text-muted)]">Postes analysés</p>
                         </div>
                         <div>
                           <p className="text-2xl font-bold text-green-400">
                             {analysis.summary.fairlyPriced}
                           </p>
-                          <p className="text-xs text-gray-500">Prix conformes</p>
+                          <p className="text-xs text-[var(--text-muted)]">Prix conformes</p>
                         </div>
                         <div>
                           <p className="text-2xl font-bold text-orange-400">
                             {analysis.summary.partsOverpriced + analysis.summary.laborOverpriced}
                           </p>
-                          <p className="text-xs text-gray-500">À vérifier</p>
+                          <p className="text-xs text-[var(--text-muted)]">À vérifier</p>
                         </div>
                       </div>
 
@@ -1954,8 +1954,8 @@ export function QuoteBuilderUltimate({
                     </div>
 
                     {/* Item Analysis */}
-                    <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                      <h3 className="font-semibold text-white mb-3">Analyse par poste</h3>
+                    <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                      <h3 className="font-semibold text-[var(--text-primary)] mb-3">Analyse par poste</h3>
                       <div className="space-y-2">
                         {analysis.itemAnalysis.map((itemAnalysis) => {
                           const item = items.find((i) => i.id === itemAnalysis.itemId);
@@ -1964,7 +1964,7 @@ export function QuoteBuilderUltimate({
                           return (
                             <div
                               key={itemAnalysis.itemId}
-                              className="flex items-center gap-3 p-3 bg-white/5 rounded-lg"
+                              className="flex items-center gap-3 p-3 bg-[var(--bg-hover)] rounded-lg"
                             >
                               <div className={clsx(
                                 'w-8 h-8 rounded-lg flex items-center justify-center',
@@ -1981,8 +1981,8 @@ export function QuoteBuilderUltimate({
                                 )}
                               </div>
                               <div className="flex-1">
-                                <p className="text-sm text-white">{item.description}</p>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-sm text-[var(--text-primary)]">{item.description}</p>
+                                <p className="text-xs text-[var(--text-muted)]">
                                   {formatPrice(itemAnalysis.quotedPrice)} • Marché: {formatPrice(itemAnalysis.marketPrice.average)}
                                 </p>
                               </div>
@@ -2002,8 +2002,8 @@ export function QuoteBuilderUltimate({
 
                     {/* Recommendations - Adaptées pour le prestataire */}
                     {analysis.recommendations.length > 0 && (
-                      <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                        <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                      <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                        <h3 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                           <Sparkles className="w-5 h-5 text-purple-400" />
                           Analyse de compétitivité
                         </h3>
@@ -2031,8 +2031,8 @@ export function QuoteBuilderUltimate({
                                   'bg-green-500/10 border-green-500/30'
                                 )}
                               >
-                                <p className="font-medium text-white text-sm">{title}</p>
-                                <p className="text-xs text-gray-400 mt-1">{description}</p>
+                                <p className="font-medium text-[var(--text-primary)] text-sm">{title}</p>
+                                <p className="text-xs text-[var(--text-secondary)] mt-1">{description}</p>
                               </div>
                             );
                           })}
@@ -2043,7 +2043,7 @@ export function QuoteBuilderUltimate({
                     {/* Re-analyze button */}
                     <button
                       onClick={runAnalysis}
-                      className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-400 text-sm transition-colors flex items-center justify-center gap-2"
+                      className="w-full py-3 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-[var(--text-secondary)] text-sm transition-colors flex items-center justify-center gap-2"
                     >
                       <RefreshCw className="w-4 h-4" />
                       Relancer l'analyse
@@ -2053,11 +2053,11 @@ export function QuoteBuilderUltimate({
 
                 {!isAnalyzing && !analysis && (
                   <div className="text-center py-12">
-                    <Sparkles className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                    <p className="text-gray-400">Aucune analyse disponible</p>
+                    <Sparkles className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-3" />
+                    <p className="text-[var(--text-secondary)]">Aucune analyse disponible</p>
                     <button
                       onClick={runAnalysis}
-                      className="mt-4 px-6 py-2 bg-purple-500 hover:bg-purple-600 rounded-lg text-white font-medium transition-colors"
+                      className="mt-4 px-6 py-2 bg-purple-500 hover:bg-purple-600 rounded-lg text-[var(--text-primary)] font-medium transition-colors"
                     >
                       Lancer l'analyse
                     </button>
@@ -2077,15 +2077,15 @@ export function QuoteBuilderUltimate({
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Payment Terms */}
-                  <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                    <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                  <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                    <h3 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                       <Euro className="w-5 h-5 text-green-400" />
                       Conditions de paiement
                     </h3>
                     <select
                       value={paymentTerms}
                       onChange={(e) => setPaymentTerms(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-blue-500"
+                      className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-blue-500"
                     >
                       {PAYMENT_TERMS.map((term) => (
                         <option key={term.value} value={term.value}>
@@ -2096,8 +2096,8 @@ export function QuoteBuilderUltimate({
                   </div>
 
                   {/* Validity */}
-                  <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                    <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                  <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                    <h3 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                       <Calendar className="w-5 h-5 text-blue-400" />
                       Validité du devis
                     </h3>
@@ -2110,7 +2110,7 @@ export function QuoteBuilderUltimate({
                             'flex-1 py-2 rounded-lg text-sm font-medium transition-colors',
                             validityDays === days
                               ? 'bg-blue-500 text-white'
-                              : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                              : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)]'
                           )}
                         >
                           {days} jours
@@ -2121,29 +2121,29 @@ export function QuoteBuilderUltimate({
                 </div>
 
                 {/* Notes */}
-                <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                  <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                  <h3 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                     <MessageSquare className="w-5 h-5 text-purple-400" />
                     Notes
                   </h3>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Notes publiques (visibles par le client)</label>
+                      <label className="block text-xs text-[var(--text-muted)] mb-1">Notes publiques (visibles par le client)</label>
                       <textarea
                         value={publicNotes}
                         onChange={(e) => setPublicNotes(e.target.value)}
                         rows={3}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 resize-none"
+                        className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text-primary)] text-sm focus:outline-none focus:border-blue-500 resize-none"
                         placeholder="Informations complémentaires pour le client..."
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Notes privées (internes)</label>
+                      <label className="block text-xs text-[var(--text-muted)] mb-1">Notes privées (internes)</label>
                       <textarea
                         value={privateNotes}
                         onChange={(e) => setPrivateNotes(e.target.value)}
                         rows={2}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 resize-none"
+                        className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text-primary)] text-sm focus:outline-none focus:border-blue-500 resize-none"
                         placeholder="Notes internes..."
                       />
                     </div>
@@ -2151,12 +2151,12 @@ export function QuoteBuilderUltimate({
                 </div>
 
                 {/* Terms Acceptance */}
-                <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                  <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                  <h3 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                     <FileText className="w-5 h-5 text-yellow-400" />
                     Conditions générales
                   </h3>
-                  <div className="text-xs text-gray-400 bg-white/5 rounded-lg p-3 max-h-32 overflow-y-auto mb-3">
+                  <div className="text-xs text-[var(--text-secondary)] bg-[var(--bg-hover)] rounded-lg p-3 max-h-32 overflow-y-auto mb-3">
                     <p className="mb-2"><strong>Article 1 - Objet</strong></p>
                     <p className="mb-2">Le présent devis a pour objet de définir les conditions de réalisation des prestations de services décrites ci-dessus.</p>
                     <p className="mb-2"><strong>Article 2 - Prix</strong></p>
@@ -2173,7 +2173,7 @@ export function QuoteBuilderUltimate({
                       onChange={(e) => setTermsAccepted(e.target.checked)}
                       className="mt-1"
                     />
-                    <span className="text-sm text-gray-300">
+                    <span className="text-sm text-[var(--text-secondary)]">
                       J'accepte les conditions générales de vente et certifie l'exactitude des informations fournies.
                     </span>
                   </label>
@@ -2191,8 +2191,8 @@ export function QuoteBuilderUltimate({
                 className="space-y-6"
               >
                 {/* Case "Lu et approuvé" OBLIGATOIRE avant signature */}
-                <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                  <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                  <h3 className="font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
                     <FileText className="w-5 h-5 text-purple-400" />
                     Validation du devis
                   </h3>
@@ -2201,7 +2201,7 @@ export function QuoteBuilderUltimate({
                     'flex items-start gap-3 p-4 rounded-xl cursor-pointer transition-all border-2',
                     termsAccepted
                       ? 'bg-green-500/10 border-green-500/50'
-                      : 'bg-white/5 border-white/10 hover:border-white/20'
+                      : 'bg-[var(--bg-hover)] border-[var(--border)] hover:border-[var(--border-strong)]'
                   )}>
                     <input
                       type="checkbox"
@@ -2213,15 +2213,15 @@ export function QuoteBuilderUltimate({
                       'w-6 h-6 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors',
                       termsAccepted
                         ? 'bg-green-500 border-green-500'
-                        : 'border-gray-500'
+                        : 'border-[var(--text-muted)]'
                     )}>
                       {termsAccepted && <Check className="w-4 h-4 text-white" />}
                     </div>
                     <div>
-                      <p className="font-medium text-white">
+                      <p className="font-medium text-[var(--text-primary)]">
                         Je certifie l'exactitude des informations
                       </p>
-                      <p className="text-sm text-gray-400 mt-1">
+                      <p className="text-sm text-[var(--text-secondary)] mt-1">
                         En cochant cette case, je certifie que toutes les informations contenues dans ce devis sont exactes
                         et que les prix indiqués sont conformes à mes tarifs. Je m'engage à respecter les conditions mentionnées.
                       </p>
@@ -2239,13 +2239,13 @@ export function QuoteBuilderUltimate({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Signature */}
                   <div className={clsx(
-                    'bg-slate-800/50 rounded-xl p-4 border transition-opacity',
-                    termsAccepted ? 'border-white/10' : 'border-white/5 opacity-50 pointer-events-none'
+                    'bg-[var(--bg-hover)] rounded-xl p-4 border transition-opacity',
+                    termsAccepted ? 'border-[var(--border)]' : 'border-[var(--border)] opacity-50 pointer-events-none'
                   )}>
-                    <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                    <h3 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                       <PenTool className="w-5 h-5 text-blue-400" />
                       Signature électronique
-                      {!termsAccepted && <span className="text-xs text-gray-500 ml-auto">(Validez d'abord ci-dessus)</span>}
+                      {!termsAccepted && <span className="text-xs text-[var(--text-muted)] ml-auto">(Validez d'abord ci-dessus)</span>}
                     </h3>
                     {signatureImage ? (
                       <div className="space-y-3">
@@ -2258,7 +2258,7 @@ export function QuoteBuilderUltimate({
                         </div>
                         <button
                           onClick={() => setSignatureImage(null)}
-                          className="text-sm text-gray-500 hover:text-gray-400"
+                          className="text-sm text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
                         >
                           Modifier la signature
                         </button>
@@ -2272,8 +2272,8 @@ export function QuoteBuilderUltimate({
                   </div>
 
                   {/* Phone Verification */}
-                  <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                    <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                  <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                    <h3 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                       <Smartphone className="w-5 h-5 text-green-400" />
                       Vérification par SMS
                       {phoneVerified && (
@@ -2306,7 +2306,7 @@ export function QuoteBuilderUltimate({
                     <Lock className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
                     <div>
                       <p className="font-medium text-blue-400">Signature sécurisée</p>
-                      <p className="text-sm text-gray-400 mt-1">
+                      <p className="text-sm text-[var(--text-secondary)] mt-1">
                         Votre signature est horodatée et associée à votre numéro de téléphone vérifié.
                         Elle a valeur légale conformément au règlement eIDAS.
                       </p>
@@ -2345,15 +2345,15 @@ export function QuoteBuilderUltimate({
                   <div className="p-6 border-b">
                     <div className="grid grid-cols-2 gap-6">
                       <div>
-                        <p className="text-xs text-gray-500 uppercase mb-1">Client</p>
+                        <p className="text-xs text-[var(--text-muted)] uppercase mb-1">Client</p>
                         <p className="font-bold">{establishmentName}</p>
-                        <p className="text-sm text-gray-600">{clientName}</p>
-                        {establishmentAddress && <p className="text-sm text-gray-500">{establishmentAddress}</p>}
+                        <p className="text-sm text-[var(--text-muted)]">{clientName}</p>
+                        {establishmentAddress && <p className="text-sm text-[var(--text-muted)]">{establishmentAddress}</p>}
                       </div>
                       <div className="text-right">
-                        <p className="text-xs text-gray-500 uppercase mb-1">Date</p>
+                        <p className="text-xs text-[var(--text-muted)] uppercase mb-1">Date</p>
                         <p>{new Date().toLocaleDateString('fr-FR')}</p>
-                        <p className="text-xs text-gray-500 mt-2">Validité: {validityDays} jours</p>
+                        <p className="text-xs text-[var(--text-muted)] mt-2">Validité: {validityDays} jours</p>
                       </div>
                     </div>
                   </div>
@@ -2379,7 +2379,7 @@ export function QuoteBuilderUltimate({
                         )}>
                           Trust Score: {trustScore}/100
                         </p>
-                        <p className="text-xs text-gray-600">Devis vérifié par Intelligence Artificielle</p>
+                        <p className="text-xs text-[var(--text-muted)]">Devis vérifié par Intelligence Artificielle</p>
                       </div>
                     </div>
                   )}
@@ -2389,10 +2389,10 @@ export function QuoteBuilderUltimate({
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b">
-                          <th className="text-left py-2 text-gray-500">Description</th>
-                          <th className="text-center py-2 text-gray-500">Qté</th>
-                          <th className="text-right py-2 text-gray-500">P.U. HT</th>
-                          <th className="text-right py-2 text-gray-500">Total HT</th>
+                          <th className="text-left py-2 text-[var(--text-muted)]">Description</th>
+                          <th className="text-center py-2 text-[var(--text-muted)]">Qté</th>
+                          <th className="text-right py-2 text-[var(--text-muted)]">P.U. HT</th>
+                          <th className="text-right py-2 text-[var(--text-muted)]">Total HT</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -2401,7 +2401,7 @@ export function QuoteBuilderUltimate({
                             <td className="py-2">
                               <p className="font-medium">{item.description}</p>
                               {item.reference && (
-                                <p className="text-xs text-gray-500">Réf: {item.reference}</p>
+                                <p className="text-xs text-[var(--text-muted)]">Réf: {item.reference}</p>
                               )}
                             </td>
                             <td className="text-center py-2">{item.quantity} {item.unit}</td>
@@ -2420,7 +2420,7 @@ export function QuoteBuilderUltimate({
                     <div className="bg-gray-50 rounded-lg p-4">
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Sous-total HT</span>
+                          <span className="text-[var(--text-muted)]">Sous-total HT</span>
                           <span>{formatPrice(subtotalHT)}</span>
                         </div>
                         {globalDiscount > 0 && (
@@ -2430,7 +2430,7 @@ export function QuoteBuilderUltimate({
                           </div>
                         )}
                         <div className="flex justify-between">
-                          <span className="text-gray-600">TVA</span>
+                          <span className="text-[var(--text-muted)]">TVA</span>
                           <span>{formatPrice(totalTVA)}</span>
                         </div>
                         <div className="flex justify-between pt-2 border-t text-lg font-bold">
@@ -2451,9 +2451,9 @@ export function QuoteBuilderUltimate({
                   {signatureImage && (
                     <div className="px-6 pb-6">
                       <div className="border-t pt-4">
-                        <p className="text-xs text-gray-500 mb-2">Signature du prestataire</p>
+                        <p className="text-xs text-[var(--text-muted)] mb-2">Signature du prestataire</p>
                         <img src={signatureImage} alt="Signature" className="h-16" />
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-[var(--text-secondary)] mt-1">
                           Signé le {new Date().toLocaleDateString('fr-FR')} à {new Date().toLocaleTimeString('fr-FR')}
                           {phoneVerified && ' • Identité vérifiée par SMS'}
                         </p>
@@ -2467,7 +2467,7 @@ export function QuoteBuilderUltimate({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-white/10 bg-slate-800/50 shrink-0">
+        <div className="border-t border-[var(--border)] bg-[var(--bg-hover)] shrink-0">
           {/* Validation Errors */}
           {validationErrors.length > 0 && (
             <div className="px-4 py-2 bg-red-500/10 border-b border-red-500/30">
@@ -2484,7 +2484,7 @@ export function QuoteBuilderUltimate({
             <button
               onClick={goToPrevStep}
               disabled={currentStep === 'items'}
-              className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
               Retour
@@ -2495,7 +2495,7 @@ export function QuoteBuilderUltimate({
                 <button
                   onClick={handleSubmit}
                   disabled={items.length === 0}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white font-medium transition-all"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-[var(--text-primary)] font-medium transition-all"
                 >
                   <Send className="w-4 h-4" />
                   Envoyer le devis
@@ -2504,7 +2504,7 @@ export function QuoteBuilderUltimate({
                 <button
                   onClick={goToNextStep}
                   disabled={currentStep === 'items' && items.length === 0}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white font-medium transition-colors"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-[var(--text-primary)] font-medium transition-colors"
                 >
                   Suivant
                   <ChevronRight className="w-4 h-4" />

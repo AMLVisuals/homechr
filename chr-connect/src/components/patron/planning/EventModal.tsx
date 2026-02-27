@@ -189,14 +189,14 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
         initial={{ scale: 0.95, y: 20, opacity: 0 }}
         animate={{ scale: 1, y: 0, opacity: 1 }}
         exit={{ scale: 0.95, y: 20, opacity: 0 }}
-        className="relative w-full max-w-lg bg-[#1a1a1a] border border-white/10 rounded-3xl shadow-2xl flex flex-col max-h-[90vh]"
+        className="relative w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl shadow-2xl flex flex-col max-h-[90vh]"
       >
-        <div className="p-6 border-b border-white/10 flex items-center justify-between shrink-0">
-          <h2 className="text-xl font-bold text-white">
+        <div className="p-6 border-b border-[var(--border)] flex items-center justify-between shrink-0">
+          <h2 className="text-xl font-bold text-[var(--text-primary)]">
             {existingEvent ? 'Modifier l\'événement' : 'Nouvel événement'}
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-            <X className="w-5 h-5 text-gray-400" />
+          <button onClick={onClose} className="p-2 hover:bg-[var(--bg-active)] rounded-full transition-colors">
+            <X className="w-5 h-5 text-[var(--text-secondary)]" />
           </button>
         </div>
 
@@ -205,20 +205,20 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
             
             {/* Title */}
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Titre</label>
+              <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">Titre</label>
               <input 
                 type="text" 
                 required
                 value={formData.title}
                 onChange={e => setFormData({...formData, title: e.target.value})}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 transition-colors"
                 placeholder="Ex: Maintenance Clim..."
               />
             </div>
 
             {/* Type Selection */}
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Type</label>
+              <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">Type</label>
               <div className="flex flex-wrap gap-2">
                 {EVENT_TYPES.map(type => (
                   <button
@@ -229,7 +229,7 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
                       "px-3 py-1.5 rounded-lg text-xs font-bold transition-all border",
                       formData.type === type.id 
                         ? "bg-white text-black border-white" 
-                        : "bg-transparent text-gray-400 border-white/10 hover:border-white/30"
+                        : "bg-transparent text-[var(--text-secondary)] border-[var(--border)] hover:border-[var(--border-strong)]"
                     )}
                   >
                     <span className={clsx("inline-block w-2 h-2 rounded-full mr-2", type.color)} />
@@ -242,7 +242,7 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
             {/* Date & Time */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-2">
+                <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2 flex items-center gap-2">
                   <Calendar className="w-3 h-3" /> Date
                 </label>
                 <input 
@@ -250,12 +250,12 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
                   required
                   value={formData.date}
                   onChange={e => setFormData({...formData, date: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500 text-sm"
+                  className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl px-4 py-2 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 text-sm"
                 />
               </div>
               <div className="flex gap-2">
                 <div className="flex-1">
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-2">
+                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2 flex items-center gap-2">
                     <Clock className="w-3 h-3" /> Début
                   </label>
                   <input 
@@ -263,16 +263,16 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
                     required
                     value={formData.time}
                     onChange={e => setFormData({...formData, time: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-2 text-white focus:outline-none focus:border-blue-500 text-sm text-center"
+                    className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl px-2 py-2 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 text-sm text-center"
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Fin</label>
+                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">Fin</label>
                   <input 
                     type="time" 
                     value={formData.endTime}
                     onChange={e => setFormData({...formData, endTime: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-2 text-white focus:outline-none focus:border-blue-500 text-sm text-center"
+                    className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl px-2 py-2 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 text-sm text-center"
                   />
                 </div>
               </div>
@@ -280,17 +280,17 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
 
             {/* Venue Selection */}
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-2">
+              <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2 flex items-center gap-2">
                 <Building2 className="w-3 h-3" /> Établissement
               </label>
               <select
                 value={formData.venueId || 'GLOBAL'}
                 onChange={e => setFormData({...formData, venueId: e.target.value === 'GLOBAL' ? '' : e.target.value})}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500 text-sm cursor-pointer"
+                className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl px-4 py-2 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 text-sm cursor-pointer"
               >
-                <option value="GLOBAL" className="bg-[#1a1a1a] font-bold text-blue-400">🌍 Global (Tous les établissements)</option>
+                <option value="GLOBAL" className="bg-[var(--bg-card)] font-bold text-blue-400">🌍 Global (Tous les établissements)</option>
                 {venues.map(venue => (
-                  <option key={venue.id} value={venue.id} className="bg-[#1a1a1a]">
+                  <option key={venue.id} value={venue.id} className="bg-[var(--bg-card)]">
                     {venue.name} - {venue.city}
                   </option>
                 ))}
@@ -299,55 +299,55 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
 
             {/* Location Details */}
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-2">
+              <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2 flex items-center gap-2">
                 <MapPin className="w-3 h-3" /> Lieu / Équipement
               </label>
               <input 
                 type="text" 
                 value={formData.location}
                 onChange={e => setFormData({...formData, location: e.target.value})}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500 text-sm"
+                className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl px-4 py-2 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 text-sm"
                 placeholder="Ex: Chambre Froide, Four, Salle..."
               />
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-2">
+              <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2 flex items-center gap-2">
                 <AlignLeft className="w-3 h-3" /> Description
               </label>
               <textarea 
                 rows={3}
                 value={formData.description}
                 onChange={e => setFormData({...formData, description: e.target.value})}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500 text-sm resize-none"
+                className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl px-4 py-2 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 text-sm resize-none"
                 placeholder="Détails supplémentaires..."
               />
             </div>
 
             {/* Media Attachments */}
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-2">
+              <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2 flex items-center gap-2">
                 <Paperclip className="w-3 h-3" /> Pièces Jointes
               </label>
               
               <div className="flex gap-2 mb-4">
-                <label className="flex-1 cursor-pointer flex flex-col items-center justify-center p-3 rounded-xl border border-dashed border-white/20 hover:bg-white/5 transition-all group">
+                <label className="flex-1 cursor-pointer flex flex-col items-center justify-center p-3 rounded-xl border border-dashed border-[var(--border-strong)] hover:bg-[var(--bg-hover)] transition-all group">
                   <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'image')} />
-                  <Camera className="w-5 h-5 text-gray-400 group-hover:text-blue-400 mb-1" />
-                  <span className="text-[10px] font-bold text-gray-500 group-hover:text-white">Photo</span>
+                  <Camera className="w-5 h-5 text-[var(--text-secondary)] group-hover:text-blue-400 mb-1" />
+                  <span className="text-[10px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text-primary)]">Photo</span>
                 </label>
-                <label className="flex-1 cursor-pointer flex flex-col items-center justify-center p-3 rounded-xl border border-dashed border-white/20 hover:bg-white/5 transition-all group">
+                <label className="flex-1 cursor-pointer flex flex-col items-center justify-center p-3 rounded-xl border border-dashed border-[var(--border-strong)] hover:bg-[var(--bg-hover)] transition-all group">
                   <input type="file" accept="video/*" className="hidden" onChange={(e) => handleFileUpload(e, 'video')} />
-                  <Video className="w-5 h-5 text-gray-400 group-hover:text-purple-400 mb-1" />
-                  <span className="text-[10px] font-bold text-gray-500 group-hover:text-white">Vidéo</span>
+                  <Video className="w-5 h-5 text-[var(--text-secondary)] group-hover:text-purple-400 mb-1" />
+                  <span className="text-[10px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text-primary)]">Vidéo</span>
                 </label>
                 <button
                   type="button"
                   onClick={isRecording ? stopRecording : startRecording}
                   className={clsx(
                     "flex-1 flex flex-col items-center justify-center p-3 rounded-xl border border-dashed transition-all group relative overflow-hidden",
-                    isRecording ? "border-red-500 bg-red-500/10" : "border-white/20 hover:bg-white/5"
+                    isRecording ? "border-red-500 bg-red-500/10" : "border-[var(--border-strong)] hover:bg-[var(--bg-hover)]"
                   )}
                 >
                   {isRecording ? (
@@ -362,8 +362,8 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
                     </>
                   ) : (
                     <>
-                      <Mic className="w-5 h-5 text-gray-400 group-hover:text-red-400 mb-1" />
-                      <span className="text-[10px] font-bold text-gray-500 group-hover:text-white">Vocal</span>
+                      <Mic className="w-5 h-5 text-[var(--text-secondary)] group-hover:text-red-400 mb-1" />
+                      <span className="text-[10px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text-primary)]">Vocal</span>
                     </>
                   )}
                 </button>
@@ -374,7 +374,7 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
                   {formData.media.map(media => (
                     <div 
                       key={media.id} 
-                      className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/10 group/item hover:bg-white/10 transition-colors cursor-pointer"
+                      className="flex items-center justify-between p-2 rounded-lg bg-[var(--bg-hover)] border border-[var(--border)] group/item hover:bg-[var(--bg-active)] transition-colors cursor-pointer"
                       onClick={() => handleViewMedia(media)}
                     >
                       <div className="flex items-center gap-3 overflow-hidden">
@@ -387,7 +387,7 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
                           {media.type === 'video' && <Video className="w-4 h-4" />}
                           {media.type === 'audio' && <Mic className="w-4 h-4" />}
                         </div>
-                        <span className="text-xs text-gray-300 truncate group-hover/item:text-white transition-colors">{media.name}</span>
+                        <span className="text-xs text-[var(--text-secondary)] truncate group-hover/item:text-[var(--text-primary)] transition-colors">{media.name}</span>
                       </div>
                       <button 
                         type="button"
@@ -395,7 +395,7 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
                           e.stopPropagation();
                           removeMedia(media.id);
                         }}
-                        className="p-1 hover:bg-white/10 rounded text-gray-500 hover:text-white transition-colors"
+                        className="p-1 hover:bg-[var(--bg-active)] rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -406,7 +406,7 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3 pt-4 border-t border-white/10">
+            <div className="flex gap-3 pt-4 border-t border-[var(--border)]">
               {existingEvent && (
                 <button 
                   type="button"

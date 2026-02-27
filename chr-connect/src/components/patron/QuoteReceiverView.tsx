@@ -208,7 +208,7 @@ function getTrustLevelInfo(level: TrustLevel): { label: string; color: string; b
     default:
       return {
         label: 'Non évalué',
-        color: 'text-gray-400',
+        color: 'text-[var(--text-secondary)]',
         bgColor: 'bg-gray-500/20',
         description: 'Ce devis n\'a pas encore été analysé.',
       };
@@ -345,7 +345,7 @@ function SignaturePad({
         />
         {!hasSignature && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <p className="text-gray-400 text-sm">Signez ici avec votre souris ou votre doigt</p>
+            <p className="text-[var(--text-secondary)] text-sm">Signez ici avec votre souris ou votre doigt</p>
           </div>
         )}
       </div>
@@ -354,7 +354,7 @@ function SignaturePad({
           type="button"
           onClick={clearSignature}
           disabled={disabled}
-          className="text-sm text-gray-500 hover:text-gray-400 transition-colors"
+          className="text-sm text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
         >
           Effacer la signature
         </button>
@@ -428,14 +428,14 @@ function PhoneVerification({
       {!codeSent ? (
         <>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Numéro de téléphone mobile</label>
+            <label className="block text-xs text-[var(--text-muted)] mb-1">Numéro de téléphone mobile</label>
             <input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="06 12 34 56 78"
               disabled={disabled}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-blue-500 disabled:opacity-50"
+              className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 disabled:opacity-50"
             />
           </div>
           <button
@@ -468,14 +468,14 @@ function PhoneVerification({
             <span className="text-sm text-green-400">Code envoyé au {phone}</span>
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Code de vérification (6 chiffres)</label>
+            <label className="block text-xs text-[var(--text-muted)] mb-1">Code de vérification (6 chiffres)</label>
             <input
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="000000"
               disabled={disabled}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-center text-2xl tracking-widest focus:outline-none focus:border-blue-500 disabled:opacity-50"
+              className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-[var(--text-primary)] text-center text-2xl tracking-widest focus:outline-none focus:border-blue-500 disabled:opacity-50"
               maxLength={6}
             />
           </div>
@@ -502,7 +502,7 @@ function PhoneVerification({
             )}
           </button>
           {countdown > 0 ? (
-            <p className="text-xs text-gray-500 text-center">
+            <p className="text-xs text-[var(--text-muted)] text-center">
               Renvoyer le code dans {countdown}s
             </p>
           ) : (
@@ -572,7 +572,7 @@ function WorkflowSteps({
                 isActive && 'bg-blue-500 border-blue-500 text-white scale-110',
                 isCompleted && !isActive && 'bg-green-500 border-green-500 text-white',
                 !isActive && !isCompleted && isPast && 'bg-blue-500/20 border-blue-500/50 text-blue-400',
-                !isActive && !isCompleted && !isPast && 'bg-white/5 border-white/20 text-gray-500'
+                !isActive && !isCompleted && !isPast && 'bg-[var(--bg-hover)] border-[var(--border-strong)] text-[var(--text-muted)]'
               )}>
                 {isCompleted && !isActive ? (
                   <CheckCheck className="w-5 h-5" />
@@ -584,7 +584,7 @@ function WorkflowSteps({
                 'text-xs font-medium',
                 isActive && 'text-blue-400',
                 isCompleted && !isActive && 'text-green-400',
-                !isActive && !isCompleted && 'text-gray-500'
+                !isActive && !isCompleted && 'text-[var(--text-muted)]'
               )}>
                 {step.label}
               </span>
@@ -592,7 +592,7 @@ function WorkflowSteps({
             {index < steps.length - 1 && (
               <div className={clsx(
                 'flex-1 h-0.5 mx-2',
-                index < currentIndex ? 'bg-blue-500' : 'bg-white/10'
+                index < currentIndex ? 'bg-blue-500' : 'bg-[var(--bg-active)]'
               )} />
             )}
           </React.Fragment>
@@ -621,13 +621,13 @@ function QuestionBubble({
       <div className={clsx(
         'max-w-[80%] rounded-2xl px-4 py-2.5',
         isProviderAnswer
-          ? 'bg-slate-700 rounded-tl-sm'
+          ? 'bg-[var(--bg-active)] rounded-tl-sm'
           : 'bg-blue-500/20 text-blue-100 rounded-tr-sm'
       )}>
         {isProviderAnswer ? (
           <>
-            <p className="text-sm text-gray-300">{question.answer}</p>
-            <p className="text-[10px] text-gray-500 mt-1">
+            <p className="text-sm text-[var(--text-secondary)]">{question.answer}</p>
+            <p className="text-[10px] text-[var(--text-muted)] mt-1">
               {question.answeredAt ? formatDate(question.answeredAt) : ''}
             </p>
           </>
@@ -687,15 +687,15 @@ function ItemQuestionModal({
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.95, y: 20 }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-slate-900 rounded-2xl w-full max-w-md border border-white/10 overflow-hidden"
+        className="bg-[var(--bg-sidebar)] rounded-2xl w-full max-w-md border border-[var(--border)] overflow-hidden"
       >
-        <div className="p-4 border-b border-white/10">
-          <h3 className="font-semibold text-white flex items-center gap-2">
+        <div className="p-4 border-b border-[var(--border)]">
+          <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
             <HelpCircle className="w-5 h-5 text-blue-400" />
             Poser une question
           </h3>
-          <p className="text-sm text-gray-400 mt-1">
-            Concernant : <span className="text-white">{item.description}</span>
+          <p className="text-sm text-[var(--text-secondary)] mt-1">
+            Concernant : <span className="text-[var(--text-primary)]">{item.description}</span>
           </p>
         </div>
 
@@ -706,7 +706,7 @@ function ItemQuestionModal({
             placeholder="Votre question au prestataire..."
             rows={3}
             autoFocus
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
+            className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-blue-500 resize-none"
           />
 
           {/* Suggestions rapides */}
@@ -720,7 +720,7 @@ function ItemQuestionModal({
               <button
                 key={suggestion}
                 onClick={() => setQuestion(suggestion)}
-                className="px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-xs text-gray-400 hover:text-white transition-colors"
+                className="px-3 py-1 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-full text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               >
                 {suggestion}
               </button>
@@ -728,10 +728,10 @@ function ItemQuestionModal({
           </div>
         </div>
 
-        <div className="p-4 border-t border-white/10 flex gap-3">
+        <div className="p-4 border-t border-[var(--border)] flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-colors"
+            className="flex-1 py-2.5 bg-[var(--bg-active)] hover:bg-[var(--bg-hover)] rounded-xl text-[var(--text-primary)] transition-colors"
           >
             Annuler
           </button>
@@ -776,22 +776,22 @@ function PaymentSection({
     <div className="space-y-6">
       {/* Récapitulatif à payer */}
       <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl p-5 border border-blue-500/30">
-        <h3 className="text-lg font-semibold text-white mb-4">Récapitulatif</h3>
+        <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Récapitulatif</h3>
         <div className="space-y-3">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-400">Total du devis TTC</span>
-            <span className="text-white font-medium">{formatPrice(quote.totalTTC)}</span>
+            <span className="text-[var(--text-secondary)]">Total du devis TTC</span>
+            <span className="text-[var(--text-primary)] font-medium">{formatPrice(quote.totalTTC)}</span>
           </div>
           {quote.deposit && (
             <>
-              <div className="h-px bg-white/10" />
+              <div className="h-px bg-[var(--border)]" />
               <div className="flex justify-between">
-                <span className="text-gray-400">Acompte à verser ({quote.depositPercent}%)</span>
+                <span className="text-[var(--text-secondary)]">Acompte à verser ({quote.depositPercent}%)</span>
                 <span className="text-xl font-bold text-blue-400">{formatPrice(quote.deposit)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Solde après travaux</span>
-                <span className="text-white">{formatPrice(quote.totalTTC - quote.deposit)}</span>
+                <span className="text-[var(--text-secondary)]">Solde après travaux</span>
+                <span className="text-[var(--text-primary)]">{formatPrice(quote.totalTTC - quote.deposit)}</span>
               </div>
             </>
           )}
@@ -800,7 +800,7 @@ function PaymentSection({
 
       {/* Choix du mode de paiement */}
       <div>
-        <h3 className="font-semibold text-white mb-3">Mode de paiement</h3>
+        <h3 className="font-semibold text-[var(--text-primary)] mb-3">Mode de paiement</h3>
         <div className="space-y-2">
           {paymentMethods.map((method) => {
             const Icon = method.icon;
@@ -813,20 +813,20 @@ function PaymentSection({
                   'w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left',
                   isSelected
                     ? 'bg-blue-500/10 border-blue-500'
-                    : 'bg-white/5 border-white/10 hover:border-white/30'
+                    : 'bg-[var(--bg-hover)] border-[var(--border)] hover:border-[var(--border-strong)]'
                 )}
               >
                 <div className={clsx(
                   'w-12 h-12 rounded-xl flex items-center justify-center',
-                  isSelected ? 'bg-blue-500/20 text-blue-400' : 'bg-white/10 text-gray-400'
+                  isSelected ? 'bg-blue-500/20 text-blue-400' : 'bg-[var(--bg-active)] text-[var(--text-secondary)]'
                 )}>
                   <Icon className="w-6 h-6" />
                 </div>
                 <div className="flex-1">
-                  <p className={clsx('font-medium', isSelected ? 'text-blue-400' : 'text-white')}>
+                  <p className={clsx('font-medium', isSelected ? 'text-blue-400' : 'text-[var(--text-primary)]')}>
                     {method.label}
                   </p>
-                  <p className="text-sm text-gray-500">{method.description}</p>
+                  <p className="text-sm text-[var(--text-muted)]">{method.description}</p>
                 </div>
                 <div className={clsx(
                   'w-5 h-5 rounded-full border-2 flex items-center justify-center',
@@ -848,20 +848,20 @@ function PaymentSection({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="bg-slate-800/50 rounded-xl p-4 border border-white/10"
+            className="bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]"
           >
             <div className="flex items-start gap-3">
               <Lock className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-white">Paiement sécurisé Stripe</p>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="font-medium text-[var(--text-primary)]">Paiement sécurisé Stripe</p>
+                <p className="text-sm text-[var(--text-secondary)] mt-1">
                   Vous serez redirigé vers une page de paiement sécurisée.
                   Vos données bancaires ne sont jamais stockées sur nos serveurs.
                 </p>
                 <div className="flex items-center gap-2 mt-3">
                   <img src="/visa.svg" alt="Visa" className="h-6 opacity-70" onError={(e) => e.currentTarget.style.display = 'none'} />
                   <img src="/mastercard.svg" alt="Mastercard" className="h-6 opacity-70" onError={(e) => e.currentTarget.style.display = 'none'} />
-                  <span className="text-xs text-gray-500">CB, Visa, Mastercard</span>
+                  <span className="text-xs text-[var(--text-muted)]">CB, Visa, Mastercard</span>
                 </div>
               </div>
             </div>
@@ -874,13 +874,13 @@ function PaymentSection({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="bg-slate-800/50 rounded-xl p-4 border border-white/10"
+            className="bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]"
           >
             <div className="flex items-start gap-3">
               <Building className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-white">Virement bancaire</p>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="font-medium text-[var(--text-primary)]">Virement bancaire</p>
+                <p className="text-sm text-[var(--text-secondary)] mt-1">
                   Les coordonnées bancaires vous seront communiquées après validation.
                   Le devis sera confirmé dès réception du virement (2-3 jours ouvrés).
                 </p>
@@ -895,16 +895,16 @@ function PaymentSection({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="bg-slate-800/50 rounded-xl p-4 border border-white/10"
+            className="bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]"
           >
             <div className="flex items-start gap-3">
               <Receipt className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-white">Paiement par chèque</p>
-                <p className="text-sm text-gray-400 mt-1">
-                  Chèque à l'ordre de : <span className="text-white">{quote.provider.name}</span>
+                <p className="font-medium text-[var(--text-primary)]">Paiement par chèque</p>
+                <p className="text-sm text-[var(--text-secondary)] mt-1">
+                  Chèque à l'ordre de : <span className="text-[var(--text-primary)]">{quote.provider.name}</span>
                 </p>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-[var(--text-secondary)]">
                   À remettre au prestataire lors de l'intervention ou à envoyer à l'adresse indiquée.
                 </p>
               </div>
@@ -1067,9 +1067,9 @@ export function QuoteReceiverView({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-primary)]">
       {/* Header avec workflow */}
-      <header className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm border-b border-white/10">
+      <header className="sticky top-0 z-50 bg-[var(--bg-sidebar)]/95 backdrop-blur-sm border-b border-[var(--border)]">
         <div className="max-w-4xl mx-auto px-4 py-4">
           {/* Titre et score */}
           <div className="flex items-center justify-between mb-4">
@@ -1079,7 +1079,7 @@ export function QuoteReceiverView({
               </div>
               <div>
                 <h1 className="font-bold text-lg">Devis {quote.reference}</h1>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-[var(--text-secondary)]">
                   De {quote.provider.name}
                 </p>
               </div>
@@ -1137,7 +1137,7 @@ export function QuoteReceiverView({
                     <p className={clsx('font-semibold', trustInfo.color)}>
                       Score de confiance: {quote.trustScore}/100 ({trustInfo.label})
                     </p>
-                    <p className="text-sm text-gray-400 mt-1">{trustInfo.description}</p>
+                    <p className="text-sm text-[var(--text-secondary)] mt-1">{trustInfo.description}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-purple-400" />
@@ -1149,27 +1149,27 @@ export function QuoteReceiverView({
               {/* Parties Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Provider */}
-                <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                  <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-3">Prestataire</h3>
+                <div className="bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
+                  <h3 className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-3">Prestataire</h3>
                   <div className="space-y-2">
-                    <p className="font-semibold text-white">{quote.provider.name}</p>
+                    <p className="font-semibold text-[var(--text-primary)]">{quote.provider.name}</p>
                     {quote.provider.siret && (
-                      <p className="text-sm text-gray-400">SIRET: {quote.provider.siret}</p>
+                      <p className="text-sm text-[var(--text-secondary)]">SIRET: {quote.provider.siret}</p>
                     )}
                     {quote.provider.address && (
-                      <p className="text-sm text-gray-400 flex items-start gap-2">
+                      <p className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
                         <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
                         {quote.provider.address}
                       </p>
                     )}
                     {quote.provider.phone && (
-                      <p className="text-sm text-gray-400 flex items-center gap-2">
+                      <p className="text-sm text-[var(--text-secondary)] flex items-center gap-2">
                         <Phone className="w-4 h-4" />
                         {quote.provider.phone}
                       </p>
                     )}
                     {quote.provider.email && (
-                      <p className="text-sm text-gray-400 flex items-center gap-2">
+                      <p className="text-sm text-[var(--text-secondary)] flex items-center gap-2">
                         <Mail className="w-4 h-4" />
                         {quote.provider.email}
                       </p>
@@ -1178,16 +1178,16 @@ export function QuoteReceiverView({
                 </div>
 
                 {/* Client (Patron) */}
-                <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                  <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-3">Client</h3>
+                <div className="bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
+                  <h3 className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-3">Client</h3>
                   <div className="space-y-2">
-                    <p className="font-semibold text-white">{quote.client.establishmentName}</p>
-                    <p className="text-sm text-gray-400">{quote.client.name}</p>
+                    <p className="font-semibold text-[var(--text-primary)]">{quote.client.establishmentName}</p>
+                    <p className="text-sm text-[var(--text-secondary)]">{quote.client.name}</p>
                     {quote.client.siret && (
-                      <p className="text-sm text-gray-400">SIRET: {quote.client.siret}</p>
+                      <p className="text-sm text-[var(--text-secondary)]">SIRET: {quote.client.siret}</p>
                     )}
                     {quote.client.establishmentAddress && (
-                      <p className="text-sm text-gray-400 flex items-start gap-2">
+                      <p className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
                         <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
                         {quote.client.establishmentAddress}
                       </p>
@@ -1197,10 +1197,10 @@ export function QuoteReceiverView({
               </div>
 
               {/* Quote Details with Question buttons */}
-              <div className="bg-slate-800/50 rounded-xl border border-white/10 overflow-hidden">
-                <div className="p-4 border-b border-white/10 flex items-center justify-between flex-wrap gap-2">
-                  <h3 className="font-semibold text-white">Détail des prestations</h3>
-                  <div className="flex items-center gap-4 text-sm text-gray-400">
+              <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
+                <div className="p-4 border-b border-[var(--border)] flex items-center justify-between flex-wrap gap-2">
+                  <h3 className="font-semibold text-[var(--text-primary)]">Détail des prestations</h3>
+                  <div className="flex items-center gap-4 text-sm text-[var(--text-secondary)]">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
                       {formatDate(quote.createdAt)}
@@ -1213,14 +1213,14 @@ export function QuoteReceiverView({
                 </div>
 
                 {/* Items Table with Question button per item */}
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-[var(--border)]">
                   {quote.items.map((item) => {
                     const ItemIcon = item.type === 'PART' ? Package : item.type === 'LABOR' ? Wrench : Truck;
                     const lineTotal = item.quantity * item.unitPriceHT * (1 - (item.discount || 0) / 100);
                     const itemQuestions = questions.filter(q => q.itemId === item.id);
 
                     return (
-                      <div key={item.id} className="p-4 hover:bg-white/5 transition-colors group">
+                      <div key={item.id} className="p-4 hover:bg-[var(--bg-hover)] transition-colors group">
                         <div className="flex items-start gap-3">
                           <div className={clsx(
                             'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
@@ -1234,9 +1234,9 @@ export function QuoteReceiverView({
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-4">
                               <div>
-                                <p className="font-medium text-white">{item.description}</p>
+                                <p className="font-medium text-[var(--text-primary)]">{item.description}</p>
                                 {item.reference && (
-                                  <p className="text-xs text-gray-500 mt-0.5">
+                                  <p className="text-xs text-[var(--text-muted)] mt-0.5">
                                     Réf: {item.reference}
                                     {item.brand && ` • ${item.brand}`}
                                     {item.model && ` ${item.model}`}
@@ -1244,8 +1244,8 @@ export function QuoteReceiverView({
                                 )}
                               </div>
                               <div className="text-right shrink-0">
-                                <p className="font-semibold text-white">{formatPrice(lineTotal)}</p>
-                                <p className="text-xs text-gray-500">
+                                <p className="font-semibold text-[var(--text-primary)]">{formatPrice(lineTotal)}</p>
+                                <p className="text-xs text-[var(--text-muted)]">
                                   {item.quantity} {item.unit} × {formatPrice(item.unitPriceHT)}
                                 </p>
                               </div>
@@ -1285,7 +1285,7 @@ export function QuoteReceiverView({
                                   <div key={q.id} className="text-xs">
                                     <p className="text-blue-400">Vous: {q.question}</p>
                                     {q.answer ? (
-                                      <p className="text-gray-400 flex items-center gap-1 mt-1">
+                                      <p className="text-[var(--text-secondary)] flex items-center gap-1 mt-1">
                                         <CornerDownRight className="w-3 h-3" />
                                         {q.answer}
                                       </p>
@@ -1307,11 +1307,11 @@ export function QuoteReceiverView({
                 </div>
 
                 {/* Totals */}
-                <div className="p-4 bg-slate-900/50 border-t border-white/10">
+                <div className="p-4 bg-[var(--bg-sidebar)]/50 border-t border-[var(--border)]">
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Sous-total HT</span>
-                      <span className="text-white">{formatPrice(quote.subtotalHT)}</span>
+                      <span className="text-[var(--text-secondary)]">Sous-total HT</span>
+                      <span className="text-[var(--text-primary)]">{formatPrice(quote.subtotalHT)}</span>
                     </div>
                     {quote.globalDiscount > 0 && (
                       <div className="flex justify-between text-sm text-green-400">
@@ -1320,11 +1320,11 @@ export function QuoteReceiverView({
                       </div>
                     )}
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">TVA</span>
-                      <span className="text-white">{formatPrice(quote.totalTVA)}</span>
+                      <span className="text-[var(--text-secondary)]">TVA</span>
+                      <span className="text-[var(--text-primary)]">{formatPrice(quote.totalTVA)}</span>
                     </div>
-                    <div className="flex justify-between text-lg font-bold pt-2 border-t border-white/10">
-                      <span className="text-white">Total TTC</span>
+                    <div className="flex justify-between text-lg font-bold pt-2 border-t border-[var(--border)]">
+                      <span className="text-[var(--text-primary)]">Total TTC</span>
                       <span className="text-blue-400">{formatPrice(quote.totalTTC)}</span>
                     </div>
                     {quote.deposit && (
@@ -1339,12 +1339,12 @@ export function QuoteReceiverView({
 
               {/* Public Notes */}
               {quote.publicNotes && (
-                <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                  <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
+                <div className="bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
+                  <h3 className="font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
                     <Info className="w-4 h-4 text-blue-400" />
                     Notes du prestataire
                   </h3>
-                  <p className="text-sm text-gray-400">{quote.publicNotes}</p>
+                  <p className="text-sm text-[var(--text-secondary)]">{quote.publicNotes}</p>
                 </div>
               )}
 
@@ -1376,17 +1376,17 @@ export function QuoteReceiverView({
               className="space-y-6"
             >
               <div className="text-center py-4">
-                <h2 className="text-xl font-bold text-white">Des questions sur ce devis ?</h2>
-                <p className="text-gray-400 mt-1">
+                <h2 className="text-xl font-bold text-[var(--text-primary)]">Des questions sur ce devis ?</h2>
+                <p className="text-[var(--text-secondary)] mt-1">
                   Posez vos questions au prestataire avant de vous engager
                 </p>
               </div>
 
               {/* Questions list */}
               {questions.length > 0 && (
-                <div className="bg-slate-800/50 rounded-xl border border-white/10 overflow-hidden">
-                  <div className="p-4 border-b border-white/10">
-                    <h3 className="font-semibold text-white flex items-center gap-2">
+                <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
+                  <div className="p-4 border-b border-[var(--border)]">
+                    <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
                       <MessageCircle className="w-5 h-5 text-blue-400" />
                       Vos questions ({questions.length})
                     </h3>
@@ -1405,15 +1405,15 @@ export function QuoteReceiverView({
               )}
 
               {/* New question input */}
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                <h3 className="font-semibold text-white mb-3">Nouvelle question</h3>
+              <div className="bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
+                <h3 className="font-semibold text-[var(--text-primary)] mb-3">Nouvelle question</h3>
                 <div className="flex gap-2">
                   <textarea
                     value={generalQuestion}
                     onChange={(e) => setGeneralQuestion(e.target.value)}
                     placeholder="Tapez votre question ici..."
                     rows={2}
-                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
+                    className="flex-1 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-blue-500 resize-none"
                   />
                   <button
                     onClick={handleSendGeneralQuestion}
@@ -1435,7 +1435,7 @@ export function QuoteReceiverView({
                     <button
                       key={q}
                       onClick={() => setGeneralQuestion(q)}
-                      className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-xs text-gray-400 hover:text-white transition-colors"
+                      className="px-3 py-1.5 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-full text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                     >
                       {q}
                     </button>
@@ -1450,7 +1450,7 @@ export function QuoteReceiverView({
                     <Clock className="w-5 h-5 text-yellow-400" />
                     <div>
                       <p className="font-medium text-yellow-400">Questions en attente</p>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-[var(--text-secondary)]">
                         Vous avez {questions.filter(q => q.status === 'pending').length} question(s) sans réponse.
                         Vous pouvez continuer ou attendre les réponses.
                       </p>
@@ -1463,7 +1463,7 @@ export function QuoteReceiverView({
               <div className="flex justify-between">
                 <button
                   onClick={() => goToStep('study')}
-                  className="px-4 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-colors"
+                  className="px-4 py-2.5 bg-[var(--bg-active)] hover:bg-[var(--bg-hover)] rounded-xl text-[var(--text-primary)] transition-colors"
                 >
                   Retour au devis
                 </button>
@@ -1493,28 +1493,28 @@ export function QuoteReceiverView({
               className="space-y-6"
             >
               {/* Payment Terms */}
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+              <div className="bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
+                <h3 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                   <Euro className="w-5 h-5 text-green-400" />
                   Conditions de paiement
                 </h3>
-                <p className="text-gray-300">{quote.paymentTerms}</p>
+                <p className="text-[var(--text-secondary)]">{quote.paymentTerms}</p>
               </div>
 
               {/* Full CGV */}
-              <div className="bg-slate-800/50 rounded-xl border border-white/10 overflow-hidden">
+              <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
                 <button
                   onClick={() => setShowFullCGV(!showFullCGV)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+                  className="w-full p-4 flex items-center justify-between hover:bg-[var(--bg-hover)] transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <FileText className="w-5 h-5 text-yellow-400" />
-                    <span className="font-semibold text-white">Conditions Générales de Vente</span>
+                    <span className="font-semibold text-[var(--text-primary)]">Conditions Générales de Vente</span>
                   </div>
                   {showFullCGV ? (
-                    <ChevronUp className="w-5 h-5 text-gray-400" />
+                    <ChevronUp className="w-5 h-5 text-[var(--text-secondary)]" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                    <ChevronDown className="w-5 h-5 text-[var(--text-secondary)]" />
                   )}
                 </button>
 
@@ -1526,8 +1526,8 @@ export function QuoteReceiverView({
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="p-4 border-t border-white/10 max-h-96 overflow-y-auto">
-                        <pre className="text-xs text-gray-400 whitespace-pre-wrap font-sans leading-relaxed">
+                      <div className="p-4 border-t border-[var(--border)] max-h-96 overflow-y-auto">
+                        <pre className="text-xs text-[var(--text-secondary)] whitespace-pre-wrap font-sans leading-relaxed">
                           {FULL_CGV_TEXT}
                         </pre>
                       </div>
@@ -1541,7 +1541,7 @@ export function QuoteReceiverView({
                 'flex items-start gap-3 p-4 rounded-xl cursor-pointer transition-all border-2',
                 termsAccepted
                   ? 'bg-green-500/10 border-green-500/50'
-                  : 'bg-white/5 border-white/10 hover:border-white/20'
+                  : 'bg-[var(--bg-hover)] border-[var(--border)] hover:border-[var(--border-strong)]'
               )}>
                 <div className={clsx(
                   'w-6 h-6 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all',
@@ -1551,7 +1551,7 @@ export function QuoteReceiverView({
                 )}>
                   {termsAccepted && <Check className="w-4 h-4 text-white" />}
                 </div>
-                <span className="text-sm text-gray-300">
+                <span className="text-sm text-[var(--text-secondary)]">
                   J'ai lu et j'accepte les Conditions Générales de Vente. Je reconnais avoir pris connaissance de l'ensemble des informations relatives aux prestations proposées et aux prix indiqués.
                 </span>
               </label>
@@ -1560,7 +1560,7 @@ export function QuoteReceiverView({
               <div className="flex justify-between">
                 <button
                   onClick={() => goToStep('questions')}
-                  className="px-4 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-colors"
+                  className="px-4 py-2.5 bg-[var(--bg-active)] hover:bg-[var(--bg-hover)] rounded-xl text-[var(--text-primary)] transition-colors"
                 >
                   Retour
                 </button>
@@ -1604,7 +1604,7 @@ export function QuoteReceiverView({
                     <AlertTriangle className="w-5 h-5 text-yellow-400 shrink-0" />
                     <div>
                       <p className="font-medium text-yellow-400">Acceptation requise</p>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-[var(--text-secondary)]">
                         Vous devez d'abord accepter les Conditions Générales de Vente.
                       </p>
                       <button
@@ -1619,10 +1619,10 @@ export function QuoteReceiverView({
               )}
 
               {/* Approval Text Selection */}
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                <h3 className="font-semibold text-white mb-3">Mention d'approbation</h3>
+              <div className="bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
+                <h3 className="font-semibold text-[var(--text-primary)] mb-3">Mention d'approbation</h3>
                 <div className="space-y-2">
-                  <label className="flex items-center gap-3 p-3 rounded-lg border border-white/10 cursor-pointer hover:bg-white/5 transition-colors">
+                  <label className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border)] cursor-pointer hover:bg-[var(--bg-hover)] transition-colors">
                     <input
                       type="radio"
                       name="approval"
@@ -1631,11 +1631,11 @@ export function QuoteReceiverView({
                       className="w-4 h-4 text-blue-500 focus:ring-blue-500"
                     />
                     <div>
-                      <p className="font-medium text-white">Bon pour travaux</p>
-                      <p className="text-xs text-gray-500">J'accepte l'exécution des travaux selon ce devis</p>
+                      <p className="font-medium text-[var(--text-primary)]">Bon pour travaux</p>
+                      <p className="text-xs text-[var(--text-muted)]">J'accepte l'exécution des travaux selon ce devis</p>
                     </div>
                   </label>
-                  <label className="flex items-center gap-3 p-3 rounded-lg border border-white/10 cursor-pointer hover:bg-white/5 transition-colors">
+                  <label className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border)] cursor-pointer hover:bg-[var(--bg-hover)] transition-colors">
                     <input
                       type="radio"
                       name="approval"
@@ -1644,16 +1644,16 @@ export function QuoteReceiverView({
                       className="w-4 h-4 text-blue-500 focus:ring-blue-500"
                     />
                     <div>
-                      <p className="font-medium text-white">Lu et approuvé</p>
-                      <p className="text-xs text-gray-500">J'ai lu et j'approuve le contenu de ce devis</p>
+                      <p className="font-medium text-[var(--text-primary)]">Lu et approuvé</p>
+                      <p className="text-xs text-[var(--text-muted)]">J'ai lu et j'approuve le contenu de ce devis</p>
                     </div>
                   </label>
                 </div>
               </div>
 
               {/* Signature Pad */}
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+              <div className="bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
+                <h3 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                   <PenTool className="w-5 h-5 text-blue-400" />
                   Signature électronique
                 </h3>
@@ -1670,8 +1670,8 @@ export function QuoteReceiverView({
               </div>
 
               {/* Phone Verification */}
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-white/10">
-                <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+              <div className="bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
+                <h3 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                   <Phone className="w-5 h-5 text-green-400" />
                   Vérification d'identité par SMS
                   {phoneVerified && (
@@ -1703,7 +1703,7 @@ export function QuoteReceiverView({
                   <Lock className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-medium text-blue-400">Signature électronique sécurisée</p>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <p className="text-sm text-[var(--text-secondary)] mt-1">
                       Votre signature est horodatée et associée à votre numéro de téléphone vérifié.
                       Elle a valeur légale conformément au règlement européen eIDAS (UE) n°910/2014.
                     </p>
@@ -1715,7 +1715,7 @@ export function QuoteReceiverView({
               <div className="flex justify-between">
                 <button
                   onClick={() => goToStep('terms')}
-                  className="px-4 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-colors"
+                  className="px-4 py-2.5 bg-[var(--bg-active)] hover:bg-[var(--bg-hover)] rounded-xl text-[var(--text-primary)] transition-colors"
                 >
                   Retour
                 </button>
@@ -1756,8 +1756,8 @@ export function QuoteReceiverView({
                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle2 className="w-8 h-8 text-green-400" />
                 </div>
-                <h2 className="text-xl font-bold text-white">Devis signé avec succès !</h2>
-                <p className="text-gray-400 mt-1">
+                <h2 className="text-xl font-bold text-[var(--text-primary)]">Devis signé avec succès !</h2>
+                <p className="text-[var(--text-secondary)] mt-1">
                   Finalisez en réglant l'acompte pour confirmer l'intervention
                 </p>
               </div>
@@ -1774,7 +1774,7 @@ export function QuoteReceiverView({
               <div className="flex justify-start">
                 <button
                   onClick={() => goToStep('sign')}
-                  className="px-4 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-colors"
+                  className="px-4 py-2.5 bg-[var(--bg-active)] hover:bg-[var(--bg-hover)] rounded-xl text-[var(--text-primary)] transition-colors"
                 >
                   Retour à la signature
                 </button>
@@ -1786,7 +1786,7 @@ export function QuoteReceiverView({
 
       {/* Footer Actions - Contextuel selon l'étape */}
       {currentStep !== 'pay' && (
-        <footer className="sticky bottom-0 bg-slate-900/95 backdrop-blur-sm border-t border-white/10 p-4">
+        <footer className="sticky bottom-0 bg-[var(--bg-sidebar)]/95 backdrop-blur-sm border-t border-[var(--border)] p-4">
           <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
             {/* Left: Reject/Modify - visible sauf sur pay */}
             <div className="flex items-center gap-2">
@@ -1808,7 +1808,7 @@ export function QuoteReceiverView({
 
             {/* Right: Prix total */}
             <div className="text-right">
-              <p className="text-xs text-gray-500">Total TTC</p>
+              <p className="text-xs text-[var(--text-muted)]">Total TTC</p>
               <p className="text-lg font-bold text-blue-400">{formatPrice(quote.totalTTC)}</p>
             </div>
           </div>
@@ -1830,20 +1830,20 @@ export function QuoteReceiverView({
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-slate-900 rounded-2xl w-full max-w-md border border-white/10 p-6"
+              className="bg-[var(--bg-sidebar)] rounded-2xl w-full max-w-md border border-[var(--border)] p-6"
             >
-              <h3 className="text-lg font-bold text-white mb-4">Refuser le devis</h3>
+              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">Refuser le devis</h3>
               <textarea
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="Veuillez indiquer la raison du refus..."
                 rows={4}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500 resize-none mb-4"
+                className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-red-500 resize-none mb-4"
               />
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowRejectModal(false)}
-                  className="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                  className="flex-1 py-2 bg-[var(--bg-active)] hover:bg-[var(--bg-hover)] rounded-lg text-[var(--text-primary)] transition-colors"
                 >
                   Annuler
                 </button>
@@ -1875,20 +1875,20 @@ export function QuoteReceiverView({
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-slate-900 rounded-2xl w-full max-w-md border border-white/10 p-6"
+              className="bg-[var(--bg-sidebar)] rounded-2xl w-full max-w-md border border-[var(--border)] p-6"
             >
-              <h3 className="text-lg font-bold text-white mb-4">Demander une modification</h3>
+              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">Demander une modification</h3>
               <textarea
                 value={modificationMessage}
                 onChange={(e) => setModificationMessage(e.target.value)}
                 placeholder="Décrivez les modifications souhaitées..."
                 rows={4}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-500 resize-none mb-4"
+                className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-yellow-500 resize-none mb-4"
               />
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowModifyModal(false)}
-                  className="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                  className="flex-1 py-2 bg-[var(--bg-active)] hover:bg-[var(--bg-hover)] rounded-lg text-[var(--text-primary)] transition-colors"
                 >
                   Annuler
                 </button>

@@ -73,7 +73,7 @@ interface StatCardProps {
 
 function StatCard({ icon, label, value, trend, color }: StatCardProps) {
   return (
-    <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
+    <div className="bg-[var(--bg-hover)] backdrop-blur-sm rounded-2xl p-4 border border-[var(--border)]">
       <div className="flex items-start justify-between">
         <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', color)}>
           {icon}
@@ -87,8 +87,8 @@ function StatCard({ icon, label, value, trend, color }: StatCardProps) {
           </span>
         )}
       </div>
-      <p className="text-2xl font-bold text-white mt-3">{value}</p>
-      <p className="text-white/50 text-sm">{label}</p>
+      <p className="text-2xl font-bold text-[var(--text-primary)] mt-3">{value}</p>
+      <p className="text-[var(--text-muted)] text-sm">{label}</p>
     </div>
   );
 }
@@ -119,7 +119,7 @@ function ActiveMissionCard({ mission, onClick }: ActiveMissionCardProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 text-left transition-colors group"
+      className="w-full p-4 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-xl border border-[var(--border)] text-left transition-colors group"
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -130,14 +130,14 @@ function ActiveMissionCard({ mission, onClick }: ActiveMissionCardProps) {
             )}
           </div>
           <div>
-            <p className="text-white font-medium">{mission.title}</p>
-            <p className="text-white/50 text-sm">
+            <p className="text-[var(--text-primary)] font-medium">{mission.title}</p>
+            <p className="text-[var(--text-muted)] text-sm">
               {mission.providerName || 'Recherche en cours...'}
               {mission.eta && ` • ETA ${mission.eta} min`}
             </p>
           </div>
         </div>
-        <ChevronRight className="w-5 h-5 text-white/30 group-hover:text-white/60 transition-colors" />
+        <ChevronRight className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--text-muted)] transition-colors" />
       </div>
       <div className="mt-2">
         <span className={cn(
@@ -259,13 +259,13 @@ export function EstablishmentDashboard() {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center max-w-md">
-          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">
-            <MapPin className="w-10 h-10 text-white/20" />
+          <div className="w-20 h-20 rounded-full bg-[var(--bg-hover)] flex items-center justify-center mx-auto mb-6">
+            <MapPin className="w-10 h-10 text-[var(--text-muted)]" />
           </div>
-          <h2 className="text-xl font-semibold text-white mb-2">
+          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
             Sélectionnez un établissement
           </h2>
-          <p className="text-white/50 mb-6">
+          <p className="text-[var(--text-muted)] mb-6">
             Choisissez un établissement pour voir son garage et ses missions.
           </p>
           <EstablishmentSelector />
@@ -277,17 +277,17 @@ export function EstablishmentDashboard() {
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <header className="flex-shrink-0 px-6 py-4 border-b border-white/10 bg-[#0a0a0a]/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="flex-shrink-0 px-6 py-4 border-b border-[var(--border)] bg-[var(--bg-card)]/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <EstablishmentSelector />
           </div>
           <div className="flex items-center gap-3">
-            <button className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
-              <Bell className="w-5 h-5 text-white/60" />
+            <button className="p-2 rounded-xl bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] transition-colors">
+              <Bell className="w-5 h-5 text-[var(--text-muted)]" />
             </button>
-            <button className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
-              <Settings className="w-5 h-5 text-white/60" />
+            <button className="p-2 rounded-xl bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] transition-colors">
+              <Settings className="w-5 h-5 text-[var(--text-muted)]" />
             </button>
           </div>
         </div>
@@ -304,7 +304,7 @@ export function EstablishmentDashboard() {
               exit={{ opacity: 0 }}
               className="flex items-center justify-center py-20"
             >
-              <div className="w-8 h-8 border-2 border-white/20 border-t-blue-500 rounded-full animate-spin" />
+              <div className="w-8 h-8 border-2 border-[var(--border-strong)] border-t-blue-500 rounded-full animate-spin" />
             </motion.div>
           ) : (
             <motion.div
@@ -324,20 +324,20 @@ export function EstablishmentDashboard() {
                   />
                 ) : (
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
-                    <MapPin className="w-8 h-8 text-white/40" />
+                    <MapPin className="w-8 h-8 text-[var(--text-muted)]" />
                   </div>
                 )}
                 <div className="flex-1">
-                  <h1 className="text-2xl font-bold text-white">{currentEstablishment.name}</h1>
-                  <p className="text-white/50 flex items-center gap-2 mt-1">
+                  <h1 className="text-2xl font-bold text-[var(--text-primary)]">{currentEstablishment.name}</h1>
+                  <p className="text-[var(--text-muted)] flex items-center gap-2 mt-1">
                     <MapPin className="w-4 h-4" />
                     {currentEstablishment.address}, {currentEstablishment.city}
                   </p>
                   {currentEstablishment.rating && (
                     <div className="flex items-center gap-2 mt-2">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-white font-medium">{currentEstablishment.rating}</span>
-                      <span className="text-white/40 text-sm">
+                      <span className="text-[var(--text-primary)] font-medium">{currentEstablishment.rating}</span>
+                      <span className="text-[var(--text-muted)] text-sm">
                         ({currentEstablishment.reviewCount} avis)
                       </span>
                     </div>
@@ -377,7 +377,7 @@ export function EstablishmentDashboard() {
               {(activeMissions.length > 0 || pendingMissions.length > 0) && (
                 <section>
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <h2 className="text-lg font-semibold text-[var(--text-primary)] flex items-center gap-2">
                       <Clock className="w-5 h-5 text-blue-400" />
                       Missions en cours
                     </h2>
@@ -405,32 +405,32 @@ export function EstablishmentDashboard() {
 
               {/* Garage Section */}
               <section>
-                <div className="sticky top-[71px] z-40 bg-[#050505]/95 backdrop-blur-xl pt-4 pb-2 -mx-6 px-6 mb-4 border-b border-white/5 shadow-lg shadow-black/20 transition-all duration-300">
+                <div className="sticky top-[71px] z-40 bg-[var(--bg-app)] backdrop-blur-xl pt-4 pb-2 -mx-6 px-6 mb-4 border-b border-[var(--border)] shadow-lg shadow-black/20 transition-all duration-300">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <h2 className="text-lg font-semibold text-[var(--text-primary)] flex items-center gap-2">
                       <QrCode className="w-5 h-5 text-green-400" />
                       Mon Garage
                     </h2>
                     <div className="flex items-center gap-2">
                       {/* Search */}
                       <div className="relative">
-                        <Search className="w-4 h-4 text-white/40 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                           type="text"
                           placeholder="Rechercher..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-blue-500/50 w-48"
+                          className="pl-9 pr-4 py-2 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 w-48"
                         />
                       </div>
 
                       {/* View Toggle */}
-                      <div className="flex bg-white/5 rounded-lg p-1">
+                      <div className="flex bg-[var(--bg-hover)] rounded-lg p-1">
                         <button
                           onClick={() => setViewMode('grid')}
                           className={cn(
                             'p-1.5 rounded-md transition-colors',
-                            viewMode === 'grid' ? 'bg-white/10 text-white' : 'text-white/40'
+                            viewMode === 'grid' ? 'bg-[var(--bg-active)] text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
                           )}
                         >
                           <LayoutGrid className="w-4 h-4" />
@@ -439,7 +439,7 @@ export function EstablishmentDashboard() {
                           onClick={() => setViewMode('list')}
                           className={cn(
                             'p-1.5 rounded-md transition-colors',
-                            viewMode === 'list' ? 'bg-white/10 text-white' : 'text-white/40'
+                            viewMode === 'list' ? 'bg-[var(--bg-active)] text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
                           )}
                         >
                           <List className="w-4 h-4" />
@@ -458,7 +458,7 @@ export function EstablishmentDashboard() {
                           'px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
                           categoryFilter === filter
                             ? 'bg-blue-500 text-white'
-                            : 'bg-white/5 text-white/60 hover:bg-white/10'
+                            : 'bg-[var(--bg-hover)] text-[var(--text-muted)] hover:bg-[var(--bg-active)]'
                         )}
                       >
                         {CATEGORY_LABELS[filter]}
@@ -480,8 +480,8 @@ export function EstablishmentDashboard() {
                         className={cn(
                           'px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2',
                           garageFilter === filter.id
-                            ? 'bg-white/20 text-white'
-                            : 'bg-white/5 text-white/60 hover:bg-white/10'
+                            ? 'bg-[var(--bg-active)] text-[var(--text-primary)]'
+                            : 'bg-[var(--bg-hover)] text-[var(--text-muted)] hover:bg-[var(--bg-active)]'
                         )}
                       >
                         {filter.color && (
@@ -493,7 +493,7 @@ export function EstablishmentDashboard() {
                           )} />
                         )}
                         {filter.label}
-                        <span className="text-white/40">({filter.count})</span>
+                        <span className="text-[var(--text-muted)]">({filter.count})</span>
                       </button>
                     ))}
                   </div>
@@ -501,10 +501,10 @@ export function EstablishmentDashboard() {
 
                 {/* Equipment Grid */}
                 {filteredEquipment.length === 0 ? (
-                  <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/10">
-                    <Wrench className="w-12 h-12 text-white/20 mx-auto mb-4" />
-                    <p className="text-white/60">Aucun équipement trouvé</p>
-                    <p className="text-white/40 text-sm mt-1">
+                  <div className="text-center py-12 bg-[var(--bg-hover)] rounded-2xl border border-[var(--border)]">
+                    <Wrench className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
+                    <p className="text-[var(--text-muted)]">Aucun équipement trouvé</p>
+                    <p className="text-[var(--text-muted)] text-sm mt-1">
                       {searchQuery ? 'Essayez une autre recherche' : 'Ajoutez votre premier équipement'}
                     </p>
                   </div>

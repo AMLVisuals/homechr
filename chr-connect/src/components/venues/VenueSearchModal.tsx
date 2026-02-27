@@ -61,17 +61,17 @@ export default function VenueSearchModal({ onSelect, onCancel }: VenueSearchModa
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#1a1a1a] text-white">
-      <div className="p-6 border-b border-white/10">
+    <div className="flex flex-col h-full bg-[var(--bg-card)] text-[var(--text-primary)]">
+      <div className="p-6 border-b border-[var(--border)]">
         <h2 className="text-xl font-bold mb-4">Rechercher votre établissement</h2>
         <div className="relative">
-          <Search className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-4 top-3.5 w-5 h-5 text-[var(--text-secondary)]" />
           <input 
             type="text" 
             value={query}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Nom, adresse..."
-            className="w-full bg-black/20 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder-gray-500 focus:ring-1 focus:ring-blue-500"
+            className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl pl-12 pr-4 py-3 text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:ring-1 focus:ring-blue-500"
             autoFocus
           />
         </div>
@@ -97,17 +97,17 @@ export default function VenueSearchModal({ onSelect, onCancel }: VenueSearchModa
                   rating: place.rating,
                   reviewCount: place.reviews
                 })}
-                className="w-full flex items-start gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-left group"
+                className="w-full flex items-start gap-4 p-4 rounded-xl bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] transition-all text-left group"
               >
                 <div className="w-16 h-16 rounded-lg bg-gray-800 overflow-hidden flex-shrink-0">
                   <img src={place.photo} alt={place.name} className="w-full h-full object-cover" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white group-hover:text-blue-400 transition-colors">{place.name}</h3>
-                  <p className="text-sm text-gray-400 flex items-center gap-1 mt-1">
+                  <h3 className="font-bold text-[var(--text-primary)] group-hover:text-blue-400 transition-colors">{place.name}</h3>
+                  <p className="text-sm text-[var(--text-secondary)] flex items-center gap-1 mt-1">
                     <MapPin className="w-3 h-3" /> {place.address}
                   </p>
-                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                  <div className="flex items-center gap-3 mt-2 text-xs text-[var(--text-muted)]">
                     <span className="flex items-center gap-1 text-yellow-500">
                       <Star className="w-3 h-3 fill-current" /> {place.rating} ({place.reviews})
                     </span>
@@ -118,7 +118,7 @@ export default function VenueSearchModal({ onSelect, onCancel }: VenueSearchModa
             ))}
             
             {query.length > 2 && results.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-[var(--text-muted)]">
                 Aucun résultat trouvé. <br/>
                 <button 
                   onClick={() => onSelect({ name: query, address: '', city: '', zipCode: '', category: 'Restaurant' })}
@@ -132,10 +132,10 @@ export default function VenueSearchModal({ onSelect, onCancel }: VenueSearchModa
         )}
       </div>
 
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-[var(--border)]">
         <button 
           onClick={onCancel}
-          className="w-full py-3 rounded-xl font-bold text-gray-400 hover:bg-white/5 transition-colors"
+          className="w-full py-3 rounded-xl font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors"
         >
           Annuler
         </button>

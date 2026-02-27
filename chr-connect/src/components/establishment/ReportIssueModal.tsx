@@ -70,21 +70,21 @@ function EquipmentGrid({ equipment, selectedId, onSelect, searchQuery, onSearchC
     <div className="space-y-4">
       {/* Search */}
       <div className="relative">
-        <Search className="w-4 h-4 text-white/40 absolute left-3 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           placeholder="Rechercher un équipement..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full pl-9 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-blue-500/50"
+          className="w-full pl-9 pr-4 py-3 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50"
         />
       </div>
 
       {/* Grid */}
       {filteredEquipment.length === 0 ? (
         <div className="text-center py-8">
-          <Wrench className="w-12 h-12 text-white/20 mx-auto mb-3" />
-          <p className="text-white/50">Aucun équipement trouvé</p>
+          <Wrench className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-3" />
+          <p className="text-[var(--text-muted)]">Aucun équipement trouvé</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3 max-h-80 overflow-y-auto custom-scrollbar pr-2">
@@ -100,7 +100,7 @@ function EquipmentGrid({ equipment, selectedId, onSelect, searchQuery, onSearchC
                   'p-3 rounded-xl border text-left transition-all',
                   isSelected
                     ? 'bg-blue-500/20 border-blue-500/50 ring-2 ring-blue-500/30'
-                    : 'bg-white/5 border-white/10 hover:bg-white/10'
+                    : 'bg-[var(--bg-hover)] border-[var(--border)] hover:bg-[var(--bg-active)]'
                 )}
               >
                 <div className="flex items-start gap-2">
@@ -111,15 +111,15 @@ function EquipmentGrid({ equipment, selectedId, onSelect, searchQuery, onSearchC
                       className="w-10 h-10 rounded-lg object-cover"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                      <Wrench className="w-5 h-5 text-white/40" />
+                    <div className="w-10 h-10 rounded-lg bg-[var(--bg-active)] flex items-center justify-center">
+                      <Wrench className="w-5 h-5 text-[var(--text-muted)]" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-white text-sm font-medium truncate">
+                    <p className="text-[var(--text-primary)] text-sm font-medium truncate">
                       {eq.nickname || `${eq.brand} ${eq.model}`}
                     </p>
-                    <p className="text-white/50 text-xs truncate">{eq.location}</p>
+                    <p className="text-[var(--text-muted)] text-xs truncate">{eq.location}</p>
                     <span className={cn(
                       'inline-block mt-1 text-xs px-1.5 py-0.5 rounded',
                       statusInfo.bgColor,
@@ -166,7 +166,7 @@ function ProblemGrid({ problems, selectedId, onSelect }: ProblemGridProps) {
               'w-full p-4 rounded-xl border text-left transition-all',
               isSelected
                 ? `${severityConfig.bgColor} ${severityConfig.borderColor} ring-2 ring-offset-2 ring-offset-[#121212]`
-                : 'bg-white/5 border-white/10 hover:bg-white/10'
+                : 'bg-[var(--bg-hover)] border-[var(--border)] hover:bg-[var(--bg-active)]'
             )}
             style={isSelected ? { '--tw-ring-color': severityConfig.color.replace('text-', 'rgb(var(--') } as React.CSSProperties : undefined}
           >
@@ -179,8 +179,8 @@ function ProblemGrid({ problems, selectedId, onSelect }: ProblemGridProps) {
                   <AlertTriangle className={cn('w-5 h-5', severityConfig.color)} />
                 </div>
                 <div>
-                  <p className="text-white font-medium">{problem.label}</p>
-                  <p className="text-white/50 text-sm mt-0.5">{problem.description}</p>
+                  <p className="text-[var(--text-primary)] font-medium">{problem.label}</p>
+                  <p className="text-[var(--text-muted)] text-sm mt-0.5">{problem.description}</p>
                   <div className="flex items-center gap-3 mt-2">
                     <span className={cn(
                       'text-xs px-2 py-0.5 rounded-full border',
@@ -190,7 +190,7 @@ function ProblemGrid({ problems, selectedId, onSelect }: ProblemGridProps) {
                     )}>
                       {severityConfig.label}
                     </span>
-                    <span className="text-white/40 text-xs flex items-center gap-1">
+                    <span className="text-[var(--text-muted)] text-xs flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {problem.estimatedResponseTime}
                     </span>
@@ -350,24 +350,24 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-[#121212] border border-white/10 rounded-3xl overflow-hidden max-w-lg w-full max-h-[90vh] flex flex-col"
+          className="bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl overflow-hidden max-w-lg w-full max-h-[90vh] flex flex-col"
         >
           {/* Header */}
-          <div className="p-6 border-b border-white/10">
+          <div className="p-6 border-b border-[var(--border)]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {step !== 'select-equipment' && step !== 'success' && (
                   <button
                     onClick={handleBack}
-                    className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                    className="w-8 h-8 rounded-full bg-[var(--bg-hover)] flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
                   >
-                    <ChevronLeft className="w-4 h-4 text-white" />
+                    <ChevronLeft className="w-4 h-4 text-[var(--text-primary)]" />
                   </button>
                 )}
                 <div>
-                  <h2 className="text-xl font-semibold text-white">{stepInfo.title}</h2>
+                  <h2 className="text-xl font-semibold text-[var(--text-primary)]">{stepInfo.title}</h2>
                   {selectedEquipment && step !== 'select-equipment' && step !== 'success' && (
-                    <p className="text-white/50 text-sm">
+                    <p className="text-[var(--text-muted)] text-sm">
                       {selectedEquipment.brand} {selectedEquipment.model}
                     </p>
                   )}
@@ -375,9 +375,9 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
               </div>
               <button
                 onClick={handleClose}
-                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                className="w-10 h-10 rounded-full bg-[var(--bg-hover)] flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
               >
-                <X className="w-5 h-5 text-white/60" />
+                <X className="w-5 h-5 text-[var(--text-muted)]" />
               </button>
             </div>
 
@@ -389,7 +389,7 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
                     key={i}
                     className={cn(
                       'h-1 flex-1 rounded-full transition-colors',
-                      i <= stepInfo.progress ? 'bg-blue-500' : 'bg-white/10'
+                      i <= stepInfo.progress ? 'bg-blue-500' : 'bg-[var(--bg-active)]'
                     )}
                   />
                 ))}
@@ -427,7 +427,7 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
                   exit={{ opacity: 0, x: -20 }}
                 >
                   {/* Equipment Summary */}
-                  <div className="bg-white/5 rounded-xl p-3 mb-4 flex items-center gap-3">
+                  <div className="bg-[var(--bg-hover)] rounded-xl p-3 mb-4 flex items-center gap-3">
                     {selectedEquipment.photos.length > 0 ? (
                       <img
                         src={selectedEquipment.photos[0].url}
@@ -435,21 +435,21 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
                         className="w-12 h-12 rounded-lg object-cover"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
-                        <Wrench className="w-6 h-6 text-white/40" />
+                      <div className="w-12 h-12 rounded-lg bg-[var(--bg-active)] flex items-center justify-center">
+                        <Wrench className="w-6 h-6 text-[var(--text-muted)]" />
                       </div>
                     )}
                     <div>
-                      <p className="text-white font-medium">
+                      <p className="text-[var(--text-primary)] font-medium">
                         {selectedEquipment.nickname || `${selectedEquipment.brand} ${selectedEquipment.model}`}
                       </p>
-                      <p className="text-white/50 text-sm">
+                      <p className="text-[var(--text-muted)] text-sm">
                         {EQUIPMENT_CATEGORY_LABELS[selectedEquipment.category]} • {selectedEquipment.location}
                       </p>
                     </div>
                   </div>
 
-                  <p className="text-white/60 text-sm mb-4">
+                  <p className="text-[var(--text-muted)] text-sm mb-4">
                     Sélectionnez le problème rencontré :
                   </p>
 
@@ -479,7 +479,7 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
                     <div className="flex items-center gap-3">
                       <AlertTriangle className={cn('w-6 h-6', SEVERITY_CONFIG[selectedProblem.severity].color)} />
                       <div>
-                        <p className="text-white font-medium">{selectedProblem.label}</p>
+                        <p className="text-[var(--text-primary)] font-medium">{selectedProblem.label}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className={cn(
                             'text-xs px-2 py-0.5 rounded-full border',
@@ -489,7 +489,7 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
                           )}>
                             {SEVERITY_CONFIG[selectedProblem.severity].label}
                           </span>
-                          <span className="text-white/50 text-xs">
+                          <span className="text-[var(--text-muted)] text-xs">
                             Intervention {selectedProblem.estimatedResponseTime}
                           </span>
                         </div>
@@ -499,7 +499,7 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
 
                   {/* Description */}
                   <div>
-                    <label className="text-sm text-white/60 mb-2 block">
+                    <label className="text-sm text-[var(--text-muted)] mb-2 block">
                       Description (optionnel)
                     </label>
                     <textarea
@@ -507,20 +507,20 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Décrivez le problème plus en détail..."
                       rows={3}
-                      className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-blue-500/50"
+                      className="w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none focus:outline-none focus:border-blue-500/50"
                     />
                   </div>
 
                   {/* Photos */}
                   <div>
-                    <label className="text-sm text-white/60 mb-2 block">
+                    <label className="text-sm text-[var(--text-muted)] mb-2 block">
                       Photos (optionnel)
                     </label>
                     <div className="grid grid-cols-4 gap-3">
                       {photos.map((photo) => (
                         <div
                           key={photo.id}
-                          className="relative aspect-square rounded-xl overflow-hidden bg-white/5"
+                          className="relative aspect-square rounded-xl overflow-hidden bg-[var(--bg-hover)]"
                         >
                           <img
                             src={photo.url}
@@ -531,14 +531,14 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
                             onClick={() => removePhoto(photo.id)}
                             className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 flex items-center justify-center"
                           >
-                            <Trash2 className="w-3 h-3 text-white" />
+                            <Trash2 className="w-3 h-3 text-[var(--text-primary)]" />
                           </button>
                         </div>
                       ))}
 
                       {photos.length < 4 && (
-                        <label className="aspect-square rounded-xl border-2 border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 transition-colors">
-                          <Camera className="w-6 h-6 text-white/40" />
+                        <label className="aspect-square rounded-xl border-2 border-dashed border-[var(--border-strong)] flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 transition-colors">
+                          <Camera className="w-6 h-6 text-[var(--text-muted)]" />
                           <input
                             type="file"
                             accept="image/*"
@@ -552,10 +552,10 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
                   </div>
 
                   {/* Estimated Price */}
-                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                  <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
                     <div className="flex items-center justify-between">
-                      <span className="text-white/60">Estimation</span>
-                      <span className="text-white font-semibold">
+                      <span className="text-[var(--text-muted)]">Estimation</span>
+                      <span className="text-[var(--text-primary)] font-semibold">
                         {selectedProblem.priceRange.min}€ - {selectedProblem.priceRange.max}€
                       </span>
                     </div>
@@ -574,33 +574,33 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
                   <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
                     <Check className="w-10 h-10 text-green-400" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">
+                  <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
                     Demande envoyée !
                   </h3>
-                  <p className="text-white/60 mb-6">
+                  <p className="text-[var(--text-muted)] mb-6">
                     Nous recherchons un technicien disponible pour intervenir.
                   </p>
 
                   {selectedProblem && (
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/10 text-left">
+                    <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)] text-left">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-white/60 text-sm">Problème</span>
-                        <span className="text-white font-medium">{selectedProblem.label}</span>
+                        <span className="text-[var(--text-muted)] text-sm">Problème</span>
+                        <span className="text-[var(--text-primary)] font-medium">{selectedProblem.label}</span>
                       </div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-white/60 text-sm">Délai estimé</span>
-                        <span className="text-white">{selectedProblem.estimatedResponseTime}</span>
+                        <span className="text-[var(--text-muted)] text-sm">Délai estimé</span>
+                        <span className="text-[var(--text-primary)]">{selectedProblem.estimatedResponseTime}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-white/60 text-sm">Estimation</span>
-                        <span className="text-white">
+                        <span className="text-[var(--text-muted)] text-sm">Estimation</span>
+                        <span className="text-[var(--text-primary)]">
                           {selectedProblem.priceRange.min}€ - {selectedProblem.priceRange.max}€
                         </span>
                       </div>
                     </div>
                   )}
 
-                  <p className="text-white/40 text-sm mt-6">
+                  <p className="text-[var(--text-muted)] text-sm mt-6">
                     Vous recevrez une notification dès qu'un technicien acceptera la mission.
                   </p>
                 </motion.div>
@@ -610,7 +610,7 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
 
           {/* Footer */}
           {step === 'details' && (
-            <div className="p-6 border-t border-white/10">
+            <div className="p-6 border-t border-[var(--border)]">
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
@@ -618,7 +618,7 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
                   'w-full py-4 px-6 rounded-xl font-medium flex items-center justify-center gap-2 transition-all',
                   !isSubmitting
                     ? 'bg-gradient-to-r from-red-600 to-orange-600 text-white hover:from-red-700 hover:to-orange-700'
-                    : 'bg-white/10 text-white/40 cursor-not-allowed'
+                    : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
                 )}
               >
                 {isSubmitting ? (
@@ -626,7 +626,7 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                      className="w-5 h-5 border-2 border-[var(--border-strong)] border-t-white rounded-full"
                     />
                     Envoi en cours...
                   </>
@@ -641,7 +641,7 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
           )}
 
           {step === 'success' && (
-            <div className="p-6 border-t border-white/10">
+            <div className="p-6 border-t border-[var(--border)]">
               <button
                 onClick={handleClose}
                 className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-colors"

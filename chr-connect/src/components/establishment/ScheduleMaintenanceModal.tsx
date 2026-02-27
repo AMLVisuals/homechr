@@ -293,26 +293,26 @@ export function ScheduleMaintenanceModal({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-2xl max-h-[90vh] bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+            className="relative w-full max-w-2xl max-h-[90vh] bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl shadow-2xl overflow-hidden flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10">
+            <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                  <Calendar className="w-5 h-5 text-white" />
+                  <Calendar className="w-5 h-5 text-[var(--text-primary)]" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-white">Planifier maintenance</h2>
-                  <p className="text-white/50 text-sm">
+                  <h2 className="text-lg font-bold text-[var(--text-primary)]">Planifier maintenance</h2>
+                  <p className="text-[var(--text-muted)] text-sm">
                     Étape {step} sur {totalSteps}
                   </p>
                 </div>
               </div>
               <button
                 onClick={handleClose}
-                className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+                className="p-2 hover:bg-[var(--bg-active)] rounded-xl transition-colors"
               >
-                <X className="w-5 h-5 text-white/60" />
+                <X className="w-5 h-5 text-[var(--text-muted)]" />
               </button>
             </div>
 
@@ -324,7 +324,7 @@ export function ScheduleMaintenanceModal({
                     key={i}
                     className={cn(
                       'h-1 flex-1 rounded-full transition-colors',
-                      i < step ? 'bg-blue-500' : 'bg-white/10'
+                      i < step ? 'bg-blue-500' : 'bg-[var(--bg-active)]'
                     )}
                   />
                 ))}
@@ -345,7 +345,7 @@ export function ScheduleMaintenanceModal({
                   >
                     {/* Equipment Selection */}
                     <div>
-                      <h3 className="text-white font-semibold mb-3">
+                      <h3 className="text-[var(--text-primary)] font-semibold mb-3">
                         Sélectionner l'équipement
                       </h3>
                       <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto">
@@ -357,17 +357,17 @@ export function ScheduleMaintenanceModal({
                               'flex items-center gap-3 p-3 rounded-xl border transition-all text-left',
                               selectedEquipment?.id === eq.id
                                 ? 'bg-blue-500/20 border-blue-500/50'
-                                : 'bg-white/5 border-white/10 hover:bg-white/10'
+                                : 'bg-[var(--bg-hover)] border-[var(--border)] hover:bg-[var(--bg-active)]'
                             )}
                           >
-                            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white/60">
+                            <div className="w-10 h-10 rounded-lg bg-[var(--bg-active)] flex items-center justify-center text-[var(--text-muted)]">
                               {CATEGORY_ICONS[eq.category] || CATEGORY_ICONS.default}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-white text-sm font-medium truncate">
+                              <p className="text-[var(--text-primary)] text-sm font-medium truncate">
                                 {eq.nickname || `${eq.brand} ${eq.model}`}
                               </p>
-                              <p className="text-white/50 text-xs truncate">
+                              <p className="text-[var(--text-muted)] text-xs truncate">
                                 {eq.brand} {eq.model}
                               </p>
                             </div>
@@ -381,7 +381,7 @@ export function ScheduleMaintenanceModal({
 
                     {/* Maintenance Type Selection */}
                     <div>
-                      <h3 className="text-white font-semibold mb-3">
+                      <h3 className="text-[var(--text-primary)] font-semibold mb-3">
                         Type de maintenance
                       </h3>
                       <div className="space-y-2">
@@ -392,25 +392,25 @@ export function ScheduleMaintenanceModal({
                             className={cn(
                               'w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left',
                               maintenanceType === type.id
-                                ? 'bg-white/10 border-white/20'
-                                : 'bg-white/5 border-white/10 hover:bg-white/10'
+                                ? 'bg-[var(--bg-active)] border-[var(--border-strong)]'
+                                : 'bg-[var(--bg-hover)] border-[var(--border)] hover:bg-[var(--bg-active)]'
                             )}
                           >
                             <div
                               className={cn(
-                                'w-12 h-12 rounded-xl flex items-center justify-center text-white',
+                                'w-12 h-12 rounded-xl flex items-center justify-center text-[var(--text-primary)]',
                                 `bg-gradient-to-br ${type.color}`
                               )}
                             >
                               {type.icon}
                             </div>
                             <div className="flex-1">
-                              <p className="text-white font-medium">{type.label}</p>
-                              <p className="text-white/50 text-sm">{type.description}</p>
+                              <p className="text-[var(--text-primary)] font-medium">{type.label}</p>
+                              <p className="text-[var(--text-muted)] text-sm">{type.description}</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-white/40 text-xs">Durée estimée</p>
-                              <p className="text-white/60 text-sm">{type.estimatedDuration}</p>
+                              <p className="text-[var(--text-muted)] text-xs">Durée estimée</p>
+                              <p className="text-[var(--text-muted)] text-sm">{type.estimatedDuration}</p>
                             </div>
                             {maintenanceType === type.id && (
                               <Check className="w-5 h-5 text-blue-400" />
@@ -434,7 +434,7 @@ export function ScheduleMaintenanceModal({
                     {/* Calendar */}
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-white font-semibold">
+                        <h3 className="text-[var(--text-primary)] font-semibold">
                           Choisir la date
                         </h3>
                         <div className="flex items-center gap-2">
@@ -444,11 +444,11 @@ export function ScheduleMaintenanceModal({
                                 new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
                               )
                             }
-                            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                            className="p-2 hover:bg-[var(--bg-active)] rounded-lg transition-colors"
                           >
-                            <ChevronLeft className="w-4 h-4 text-white/60" />
+                            <ChevronLeft className="w-4 h-4 text-[var(--text-muted)]" />
                           </button>
-                          <span className="text-white font-medium min-w-[140px] text-center">
+                          <span className="text-[var(--text-primary)] font-medium min-w-[140px] text-center">
                             {currentMonth.toLocaleDateString('fr-FR', {
                               month: 'long',
                               year: 'numeric',
@@ -460,9 +460,9 @@ export function ScheduleMaintenanceModal({
                                 new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
                               )
                             }
-                            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                            className="p-2 hover:bg-[var(--bg-active)] rounded-lg transition-colors"
                           >
-                            <ChevronRight className="w-4 h-4 text-white/60" />
+                            <ChevronRight className="w-4 h-4 text-[var(--text-muted)]" />
                           </button>
                         </div>
                       </div>
@@ -472,7 +472,7 @@ export function ScheduleMaintenanceModal({
                         {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map((day) => (
                           <div
                             key={day}
-                            className="h-8 flex items-center justify-center text-white/40 text-xs font-medium"
+                            className="h-8 flex items-center justify-center text-[var(--text-muted)] text-xs font-medium"
                           >
                             {day}
                           </div>
@@ -493,8 +493,8 @@ export function ScheduleMaintenanceModal({
                               className={cn(
                                 'h-10 rounded-lg text-sm font-medium transition-all',
                                 day.isPast && 'opacity-30 cursor-not-allowed',
-                                !day.isCurrentMonth && 'text-white/20',
-                                day.isCurrentMonth && !isSelected && 'text-white hover:bg-white/10',
+                                !day.isCurrentMonth && 'text-[var(--text-muted)]',
+                                day.isCurrentMonth && !isSelected && 'text-[var(--text-primary)] hover:bg-[var(--bg-active)]',
                                 day.isToday && !isSelected && 'ring-1 ring-blue-500/50',
                                 isSelected && 'bg-blue-500 text-white'
                               )}
@@ -508,7 +508,7 @@ export function ScheduleMaintenanceModal({
 
                     {/* Time slots */}
                     <div>
-                      <h3 className="text-white font-semibold mb-3">
+                      <h3 className="text-[var(--text-primary)] font-semibold mb-3">
                         Choisir l'heure
                       </h3>
                       <div className="grid grid-cols-3 gap-2">
@@ -520,7 +520,7 @@ export function ScheduleMaintenanceModal({
                               'px-4 py-3 rounded-xl border text-sm font-medium transition-all',
                               selectedTime === time
                                 ? 'bg-blue-500/20 border-blue-500/50 text-blue-400'
-                                : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                                : 'bg-[var(--bg-hover)] border-[var(--border)] text-[var(--text-muted)] hover:bg-[var(--bg-active)]'
                             )}
                           >
                             {time}
@@ -531,7 +531,7 @@ export function ScheduleMaintenanceModal({
 
                     {/* Recurrence */}
                     <div>
-                      <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                      <h3 className="text-[var(--text-primary)] font-semibold mb-3 flex items-center gap-2">
                         <Repeat className="w-4 h-4" />
                         Récurrence
                       </h3>
@@ -544,11 +544,11 @@ export function ScheduleMaintenanceModal({
                               'px-4 py-3 rounded-xl border text-left transition-all',
                               recurrence === option.id
                                 ? 'bg-blue-500/20 border-blue-500/50'
-                                : 'bg-white/5 border-white/10 hover:bg-white/10'
+                                : 'bg-[var(--bg-hover)] border-[var(--border)] hover:bg-[var(--bg-active)]'
                             )}
                           >
-                            <p className="text-white text-sm font-medium">{option.label}</p>
-                            <p className="text-white/50 text-xs">{option.description}</p>
+                            <p className="text-[var(--text-primary)] text-sm font-medium">{option.label}</p>
+                            <p className="text-[var(--text-muted)] text-xs">{option.description}</p>
                           </button>
                         ))}
                       </div>
@@ -566,20 +566,20 @@ export function ScheduleMaintenanceModal({
                     className="space-y-6"
                   >
                     {/* Summary */}
-                    <div className="bg-white/5 rounded-2xl p-4 space-y-4">
-                      <h3 className="text-white font-semibold">Récapitulatif</h3>
+                    <div className="bg-[var(--bg-hover)] rounded-2xl p-4 space-y-4">
+                      <h3 className="text-[var(--text-primary)] font-semibold">Récapitulatif</h3>
 
                       {/* Equipment */}
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white/60">
+                        <div className="w-10 h-10 rounded-lg bg-[var(--bg-active)] flex items-center justify-center text-[var(--text-muted)]">
                           {selectedEquipment &&
                             (CATEGORY_ICONS[selectedEquipment.category] || CATEGORY_ICONS.default)}
                         </div>
                         <div>
-                          <p className="text-white font-medium">
+                          <p className="text-[var(--text-primary)] font-medium">
                             {selectedEquipment?.nickname || `${selectedEquipment?.brand} ${selectedEquipment?.model}`}
                           </p>
-                          <p className="text-white/50 text-sm">
+                          <p className="text-[var(--text-muted)] text-sm">
                             {selectedEquipment?.brand} {selectedEquipment?.model}
                           </p>
                         </div>
@@ -590,17 +590,17 @@ export function ScheduleMaintenanceModal({
                         <div className="flex items-center gap-3">
                           <div
                             className={cn(
-                              'w-10 h-10 rounded-lg flex items-center justify-center text-white',
+                              'w-10 h-10 rounded-lg flex items-center justify-center text-[var(--text-primary)]',
                               `bg-gradient-to-br ${selectedMaintenanceType.color}`
                             )}
                           >
                             {selectedMaintenanceType.icon}
                           </div>
                           <div>
-                            <p className="text-white font-medium">
+                            <p className="text-[var(--text-primary)] font-medium">
                               {selectedMaintenanceType.label}
                             </p>
-                            <p className="text-white/50 text-sm">
+                            <p className="text-[var(--text-muted)] text-sm">
                               Durée: {selectedMaintenanceType.estimatedDuration}
                             </p>
                           </div>
@@ -609,11 +609,11 @@ export function ScheduleMaintenanceModal({
 
                       {/* Date & Time */}
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white/60">
+                        <div className="w-10 h-10 rounded-lg bg-[var(--bg-active)] flex items-center justify-center text-[var(--text-muted)]">
                           <CalendarDays className="w-5 h-5" />
                         </div>
                         <div>
-                          <p className="text-white font-medium">
+                          <p className="text-[var(--text-primary)] font-medium">
                             {selectedDate &&
                               new Date(selectedDate).toLocaleDateString('fr-FR', {
                                 weekday: 'long',
@@ -621,21 +621,21 @@ export function ScheduleMaintenanceModal({
                                 month: 'long',
                               })}
                           </p>
-                          <p className="text-white/50 text-sm">à {selectedTime}</p>
+                          <p className="text-[var(--text-muted)] text-sm">à {selectedTime}</p>
                         </div>
                       </div>
 
                       {/* Recurrence */}
                       {recurrence !== 'ONCE' && (
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white/60">
+                          <div className="w-10 h-10 rounded-lg bg-[var(--bg-active)] flex items-center justify-center text-[var(--text-muted)]">
                             <Repeat className="w-5 h-5" />
                           </div>
                           <div>
-                            <p className="text-white font-medium">
+                            <p className="text-[var(--text-primary)] font-medium">
                               {RECURRENCE_OPTIONS.find((r) => r.id === recurrence)?.label}
                             </p>
-                            <p className="text-white/50 text-sm">Récurrence automatique</p>
+                            <p className="text-[var(--text-muted)] text-sm">Récurrence automatique</p>
                           </div>
                         </div>
                       )}
@@ -643,24 +643,24 @@ export function ScheduleMaintenanceModal({
 
                     {/* Notes */}
                     <div>
-                      <label className="block text-white font-semibold mb-2">
+                      <label className="block text-[var(--text-primary)] font-semibold mb-2">
                         Notes (optionnel)
                       </label>
                       <textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Ajoutez des instructions particulières..."
-                        className="w-full h-24 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-blue-500/50"
+                        className="w-full h-24 px-4 py-3 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none focus:outline-none focus:border-blue-500/50"
                       />
                     </div>
 
                     {/* Notification toggle */}
-                    <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                    <div className="flex items-center justify-between p-4 bg-[var(--bg-hover)] rounded-xl">
                       <div className="flex items-center gap-3">
-                        <Bell className="w-5 h-5 text-white/60" />
+                        <Bell className="w-5 h-5 text-[var(--text-muted)]" />
                         <div>
-                          <p className="text-white font-medium">Rappel</p>
-                          <p className="text-white/50 text-sm">
+                          <p className="text-[var(--text-primary)] font-medium">Rappel</p>
+                          <p className="text-[var(--text-muted)] text-sm">
                             Notification 24h avant l'intervention
                           </p>
                         </div>
@@ -669,7 +669,7 @@ export function ScheduleMaintenanceModal({
                         onClick={() => setNotifyBefore(!notifyBefore)}
                         className={cn(
                           'w-12 h-6 rounded-full transition-colors relative',
-                          notifyBefore ? 'bg-blue-500' : 'bg-white/20'
+                          notifyBefore ? 'bg-blue-500' : 'bg-[var(--bg-active)]'
                         )}
                       >
                         <motion.div
@@ -684,15 +684,15 @@ export function ScheduleMaintenanceModal({
             </div>
 
             {/* Footer */}
-            <div className="p-6 border-t border-white/10 flex items-center justify-between">
+            <div className="p-6 border-t border-[var(--border)] flex items-center justify-between">
               <button
                 onClick={() => step > 1 && setStep(step - 1)}
                 disabled={step === 1}
                 className={cn(
                   'flex items-center gap-2 px-4 py-2 rounded-xl transition-colors',
                   step === 1
-                    ? 'text-white/20 cursor-not-allowed'
-                    : 'text-white/60 hover:text-white hover:bg-white/10'
+                    ? 'text-[var(--text-muted)] cursor-not-allowed'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-active)]'
                 )}
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -707,7 +707,7 @@ export function ScheduleMaintenanceModal({
                     'flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all',
                     canProceed()
                       ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:shadow-lg hover:shadow-blue-500/25'
-                      : 'bg-white/10 text-white/30 cursor-not-allowed'
+                      : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
                   )}
                 >
                   Continuer
@@ -724,7 +724,7 @@ export function ScheduleMaintenanceModal({
                       <motion.div
                         animate={{ rotate: 360 }}
                         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                        className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                        className="w-4 h-4 border-2 border-[var(--border-strong)] border-t-white rounded-full"
                       />
                       Planification...
                     </>

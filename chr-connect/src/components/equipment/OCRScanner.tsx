@@ -170,21 +170,21 @@ export function OCRScanner({
         <div className="relative z-10 p-4 flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent">
           <button
             onClick={handleClose}
-            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center"
+            className="w-10 h-10 rounded-full bg-[var(--bg-active)] backdrop-blur-md flex items-center justify-center"
           >
-            <X className="w-5 h-5 text-white" />
+            <X className="w-5 h-5 text-[var(--text-primary)]" />
           </button>
 
           <div className="text-center">
-            <h2 className="text-white font-semibold">Scanner la plaque</h2>
-            <p className="text-white/60 text-sm">Plaque signalétique</p>
+            <h2 className="text-[var(--text-primary)] font-semibold">Scanner la plaque</h2>
+            <p className="text-[var(--text-muted)] text-sm">Plaque signalétique</p>
           </div>
 
           <button
             onClick={handleManualEntry}
-            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center"
+            className="w-10 h-10 rounded-full bg-[var(--bg-active)] backdrop-blur-md flex items-center justify-center"
           >
-            <Keyboard className="w-5 h-5 text-white" />
+            <Keyboard className="w-5 h-5 text-[var(--text-primary)]" />
           </button>
         </div>
 
@@ -232,11 +232,11 @@ export function OCRScanner({
                 <div className="bg-black/60 backdrop-blur-md rounded-2xl p-4 text-center">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Scan className="w-5 h-5 text-blue-400" />
-                    <span className="text-white font-medium">
+                    <span className="text-[var(--text-primary)] font-medium">
                       Visez la plaque signalétique
                     </span>
                   </div>
-                  <p className="text-white/60 text-sm">
+                  <p className="text-[var(--text-muted)] text-sm">
                     L&apos;étiquette argentée avec les informations techniques de la machine
                   </p>
                 </div>
@@ -267,22 +267,22 @@ export function OCRScanner({
                   <div className="w-full h-full rounded-full border-4 border-blue-500/30 border-t-blue-500" />
                 </motion.div>
 
-                <h3 className="text-white text-xl font-semibold mb-2">
+                <h3 className="text-[var(--text-primary)] text-xl font-semibold mb-2">
                   Analyse en cours...
                 </h3>
-                <p className="text-white/60 mb-6">
+                <p className="text-[var(--text-muted)] mb-6">
                   Notre IA lit les informations de la plaque
                 </p>
 
                 {/* Progress bar */}
-                <div className="w-64 mx-auto h-2 bg-white/10 rounded-full overflow-hidden">
+                <div className="w-64 mx-auto h-2 bg-[var(--bg-active)] rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: '0%' }}
                     animate={{ width: `${scanState.progress}%` }}
                     className="h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-full"
                   />
                 </div>
-                <p className="text-white/40 text-sm mt-2">{scanState.progress}%</p>
+                <p className="text-[var(--text-muted)] text-sm mt-2">{scanState.progress}%</p>
               </div>
             </div>
           )}
@@ -309,7 +309,7 @@ export function OCRScanner({
                     <Check className="w-6 h-6 text-green-400" />
                   </div>
                   <div>
-                    <h3 className="text-white text-lg font-semibold">
+                    <h3 className="text-[var(--text-primary)] text-lg font-semibold">
                       Informations extraites
                     </h3>
                     <div className="flex items-center gap-2">
@@ -342,27 +342,27 @@ export function OCRScanner({
                 {/* Extracted Data */}
                 <div className="space-y-4">
                   {scanState.result.brand && (
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                      <p className="text-white/50 text-sm mb-1">Marque</p>
-                      <p className="text-white text-lg font-semibold">
+                    <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                      <p className="text-[var(--text-muted)] text-sm mb-1">Marque</p>
+                      <p className="text-[var(--text-primary)] text-lg font-semibold">
                         {scanState.result.brand}
                       </p>
                     </div>
                   )}
 
                   {scanState.result.model && (
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                      <p className="text-white/50 text-sm mb-1">Modèle</p>
-                      <p className="text-white text-lg font-semibold">
+                    <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                      <p className="text-[var(--text-muted)] text-sm mb-1">Modèle</p>
+                      <p className="text-[var(--text-primary)] text-lg font-semibold">
                         {scanState.result.model}
                       </p>
                     </div>
                   )}
 
                   {scanState.result.serialNumber && (
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                      <p className="text-white/50 text-sm mb-1">N° de Série</p>
-                      <p className="text-white text-lg font-mono">
+                    <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                      <p className="text-[var(--text-muted)] text-sm mb-1">N° de Série</p>
+                      <p className="text-[var(--text-primary)] text-lg font-mono">
                         {scanState.result.serialNumber}
                       </p>
                     </div>
@@ -370,18 +370,18 @@ export function OCRScanner({
 
                   <div className="grid grid-cols-2 gap-4">
                     {scanState.result.voltage && (
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                        <p className="text-white/50 text-sm mb-1">Tension</p>
-                        <p className="text-white font-semibold">
+                      <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                        <p className="text-[var(--text-muted)] text-sm mb-1">Tension</p>
+                        <p className="text-[var(--text-primary)] font-semibold">
                           {scanState.result.voltage}
                         </p>
                       </div>
                     )}
 
                     {scanState.result.power && (
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                        <p className="text-white/50 text-sm mb-1">Puissance</p>
-                        <p className="text-white font-semibold">
+                      <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                        <p className="text-[var(--text-muted)] text-sm mb-1">Puissance</p>
+                        <p className="text-[var(--text-primary)] font-semibold">
                           {scanState.result.power}
                         </p>
                       </div>
@@ -399,10 +399,10 @@ export function OCRScanner({
                 <AlertCircle className="w-10 h-10 text-red-400" />
               </div>
 
-              <h3 className="text-white text-xl font-semibold mb-2 text-center">
+              <h3 className="text-[var(--text-primary)] text-xl font-semibold mb-2 text-center">
                 Impossible de lire la plaque
               </h3>
-              <p className="text-white/60 text-center mb-8">
+              <p className="text-[var(--text-muted)] text-center mb-8">
                 {scanState.error || 'Assurez-vous que la plaque est bien visible et essayez à nouveau.'}
               </p>
 
@@ -417,7 +417,7 @@ export function OCRScanner({
 
                 <button
                   onClick={handleManualEntry}
-                  className="w-full py-3 px-6 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
+                  className="w-full py-3 px-6 bg-[var(--bg-active)] hover:bg-[var(--bg-active)] text-[var(--text-primary)] rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
                 >
                   <Keyboard className="w-5 h-5" />
                   Saisir manuellement
@@ -434,9 +434,9 @@ export function OCRScanner({
               {/* Upload Button */}
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-colors"
+                className="w-14 h-14 rounded-full bg-[var(--bg-active)] backdrop-blur-md flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
               >
-                <Upload className="w-6 h-6 text-white" />
+                <Upload className="w-6 h-6 text-[var(--text-primary)]" />
               </button>
               <input
                 ref={fileInputRef}
@@ -469,7 +469,7 @@ export function OCRScanner({
             <div className="flex gap-4">
               <button
                 onClick={handleRetry}
-                className="flex-1 py-4 px-6 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
+                className="flex-1 py-4 px-6 bg-[var(--bg-active)] hover:bg-[var(--bg-active)] text-[var(--text-primary)] rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
               >
                 <RefreshCw className="w-5 h-5" />
                 Réessayer

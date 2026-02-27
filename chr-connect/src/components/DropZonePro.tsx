@@ -46,7 +46,7 @@ export default function DropZonePro({ label, description, type, status, onStatus
   return (
     <div className="w-full mb-4">
       <div className="flex justify-between items-end mb-2">
-         <label className="block text-sm font-medium text-gray-400">{label}</label>
+         <label className="block text-sm font-medium text-[var(--text-secondary)]">{label}</label>
          {status === 'verified' && <span className="text-xs text-green-500 font-bold flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Validé</span>}
       </div>
       
@@ -56,7 +56,7 @@ export default function DropZonePro({ label, description, type, status, onStatus
             onDrop={handleDrop}
             className={clsx(
             "relative h-32 rounded-xl border border-dashed transition-all flex items-center justify-center overflow-hidden",
-            status === 'idle' && "border-gray-700 hover:border-gray-500 bg-white/5",
+            status === 'idle' && "border-gray-700 hover:border-gray-500 bg-[var(--bg-hover)]",
             status === 'uploading' && "border-blue-500 bg-blue-500/10",
             status === 'pending' && "border-yellow-500 bg-yellow-500/10",
             status === 'verified' && "border-green-500 bg-green-500/10"
@@ -73,9 +73,9 @@ export default function DropZonePro({ label, description, type, status, onStatus
                         <div className="flex gap-4 mb-2">
                             <button 
                                 onClick={() => document.getElementById(`file-${label}`)?.click()}
-                                className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors"
+                                className="flex flex-col items-center gap-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                             >
-                                <div className="p-3 rounded-full bg-white/5 hover:bg-white/10">
+                                <div className="p-3 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--bg-active)]">
                                     <Upload className="w-5 h-5" />
                                 </div>
                                 <span className="text-xs">Upload</span>
@@ -83,15 +83,15 @@ export default function DropZonePro({ label, description, type, status, onStatus
                             <div className="w-px h-12 bg-gray-700" />
                             <button 
                                 onClick={() => setIsScannerOpen(true)}
-                                className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors"
+                                className="flex flex-col items-center gap-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                             >
-                                <div className="p-3 rounded-full bg-white/5 hover:bg-white/10">
+                                <div className="p-3 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--bg-active)]">
                                     <Camera className="w-5 h-5" />
                                 </div>
                                 <span className="text-xs">Scan</span>
                             </button>
                         </div>
-                        <span className="text-xs text-gray-600">{description || "Glisser ou choisir une option"}</span>
+                        <span className="text-xs text-[var(--text-muted)]">{description || "Glisser ou choisir une option"}</span>
                     </>
                  )}
 

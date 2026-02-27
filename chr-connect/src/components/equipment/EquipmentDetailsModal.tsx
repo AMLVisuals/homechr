@@ -129,7 +129,7 @@ export function EquipmentDetailsModal({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             onClick={(e) => e.stopPropagation()}
-            className="absolute inset-x-4 top-4 bottom-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:max-w-2xl md:w-full bg-[#121212] border border-white/10 rounded-3xl overflow-hidden flex flex-col"
+            className="absolute inset-x-4 top-4 bottom-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:max-w-2xl md:w-full bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl overflow-hidden flex flex-col"
           >
             {/* Fixed Header with close button */}
             <div className="absolute top-4 right-4 z-20">
@@ -137,7 +137,7 @@ export function EquipmentDetailsModal({
                 onClick={onClose}
                 className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center hover:bg-black/70 transition-colors"
               >
-                <X className="w-5 h-5 text-white" />
+                <X className="w-5 h-5 text-[var(--text-primary)]" />
               </button>
             </div>
 
@@ -154,7 +154,7 @@ export function EquipmentDetailsModal({
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500/10 to-purple-500/10">
-                      <Wrench className="w-20 h-20 text-white/20" />
+                      <Wrench className="w-20 h-20 text-[var(--text-muted)]" />
                     </div>
                   )}
                 </div>
@@ -175,21 +175,21 @@ export function EquipmentDetailsModal({
                   onClick={() => setShowQRCode(true)}
                   className="absolute bottom-4 right-4 px-3 py-2 rounded-xl bg-black/50 backdrop-blur-md flex items-center gap-2 hover:bg-black/70 transition-colors"
                 >
-                  <QrCode className="w-4 h-4 text-white" />
-                  <span className="text-white text-sm">QR Code</span>
+                  <QrCode className="w-4 h-4 text-[var(--text-primary)]" />
+                  <span className="text-[var(--text-primary)] text-sm">QR Code</span>
                 </button>
               </div>
 
               {/* Title Section */}
-              <div className="px-6 py-5 border-b border-white/10">
-                <h2 className="text-2xl font-semibold text-white">{displayName}</h2>
-                <p className="text-white/50 mt-1">
+              <div className="px-6 py-5 border-b border-[var(--border)]">
+                <h2 className="text-2xl font-semibold text-[var(--text-primary)]">{displayName}</h2>
+                <p className="text-[var(--text-muted)] mt-1">
                   {EQUIPMENT_CATEGORIES_DETAILS.find(c => c.id === equipment.category)?.label || equipment.category} • {equipment.brand} {equipment.model}
                 </p>
               </div>
 
               {/* Tabs */}
-              <div className="px-6 border-b border-white/10 sticky top-0 bg-[#121212] z-10">
+              <div className="px-6 border-b border-[var(--border)] sticky top-0 bg-[var(--bg-sidebar)] z-10">
                 <div className="flex gap-6">
                   {[
                     { id: 'overview', label: 'Aperçu' },
@@ -202,8 +202,8 @@ export function EquipmentDetailsModal({
                       className={cn(
                         'py-4 text-sm font-medium border-b-2 -mb-px transition-colors',
                         activeTab === tab.id
-                          ? 'border-blue-500 text-white'
-                          : 'border-transparent text-white/50 hover:text-white/80'
+                          ? 'border-blue-500 text-[var(--text-primary)]'
+                          : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
                       )}
                     >
                       {tab.label}
@@ -249,32 +249,32 @@ export function EquipmentDetailsModal({
 
                     {/* Main Info Grid */}
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                        <p className="text-white/50 text-sm mb-1">Marque</p>
-                        <p className="text-white font-medium text-lg">{equipment.brand}</p>
+                      <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                        <p className="text-[var(--text-muted)] text-sm mb-1">Marque</p>
+                        <p className="text-[var(--text-primary)] font-medium text-lg">{equipment.brand}</p>
                       </div>
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                        <p className="text-white/50 text-sm mb-1">Modèle</p>
-                        <p className="text-white font-medium text-lg">{equipment.model}</p>
+                      <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                        <p className="text-[var(--text-muted)] text-sm mb-1">Modèle</p>
+                        <p className="text-[var(--text-primary)] font-medium text-lg">{equipment.model}</p>
                       </div>
                     </div>
 
                     {/* Serial Number */}
                     {equipment.serialNumber && (
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                      <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-white/50 text-sm mb-1">Numéro de série</p>
-                            <p className="text-white font-mono text-lg">{equipment.serialNumber}</p>
+                            <p className="text-[var(--text-muted)] text-sm mb-1">Numéro de série</p>
+                            <p className="text-[var(--text-primary)] font-mono text-lg">{equipment.serialNumber}</p>
                           </div>
                           <button
                             onClick={copySerial}
-                            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                            className="p-2 rounded-lg bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] transition-colors"
                           >
                             {copiedSerial ? (
                               <Check className="w-5 h-5 text-green-400" />
                             ) : (
-                              <Copy className="w-5 h-5 text-white/40" />
+                              <Copy className="w-5 h-5 text-[var(--text-muted)]" />
                             )}
                           </button>
                         </div>
@@ -282,12 +282,12 @@ export function EquipmentDetailsModal({
                     )}
 
                     {/* Location */}
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
                       <div className="flex items-center gap-3">
                         <MapPin className="w-5 h-5 text-blue-400" />
                         <div>
-                          <p className="text-white/50 text-sm">Emplacement</p>
-                          <p className="text-white font-medium">{equipment.location}</p>
+                          <p className="text-[var(--text-muted)] text-sm">Emplacement</p>
+                          <p className="text-[var(--text-primary)] font-medium">{equipment.location}</p>
                         </div>
                       </div>
                     </div>
@@ -300,33 +300,33 @@ export function EquipmentDetailsModal({
                       equipment.specifications.gasType
                     ) && (
                       <div>
-                        <h4 className="text-white/60 text-sm font-medium mb-3 flex items-center gap-2">
+                        <h4 className="text-[var(--text-muted)] text-sm font-medium mb-3 flex items-center gap-2">
                           <Zap className="w-4 h-4" />
                           Spécifications techniques
                         </h4>
                         <div className="grid grid-cols-2 gap-3">
                           {equipment.specifications.voltage && (
-                            <div className="bg-white/5 rounded-xl p-3 border border-white/10">
-                              <p className="text-white/50 text-xs">Tension</p>
-                              <p className="text-white font-medium">{equipment.specifications.voltage}</p>
+                            <div className="bg-[var(--bg-hover)] rounded-xl p-3 border border-[var(--border)]">
+                              <p className="text-[var(--text-muted)] text-xs">Tension</p>
+                              <p className="text-[var(--text-primary)] font-medium">{equipment.specifications.voltage}</p>
                             </div>
                           )}
                           {equipment.specifications.power && (
-                            <div className="bg-white/5 rounded-xl p-3 border border-white/10">
-                              <p className="text-white/50 text-xs">Puissance</p>
-                              <p className="text-white font-medium">{equipment.specifications.power}</p>
+                            <div className="bg-[var(--bg-hover)] rounded-xl p-3 border border-[var(--border)]">
+                              <p className="text-[var(--text-muted)] text-xs">Puissance</p>
+                              <p className="text-[var(--text-primary)] font-medium">{equipment.specifications.power}</p>
                             </div>
                           )}
                           {equipment.specifications.capacity && (
-                            <div className="bg-white/5 rounded-xl p-3 border border-white/10">
-                              <p className="text-white/50 text-xs">Capacité</p>
-                              <p className="text-white font-medium">{equipment.specifications.capacity}</p>
+                            <div className="bg-[var(--bg-hover)] rounded-xl p-3 border border-[var(--border)]">
+                              <p className="text-[var(--text-muted)] text-xs">Capacité</p>
+                              <p className="text-[var(--text-primary)] font-medium">{equipment.specifications.capacity}</p>
                             </div>
                           )}
                           {equipment.specifications.gasType && (
-                            <div className="bg-white/5 rounded-xl p-3 border border-white/10">
-                              <p className="text-white/50 text-xs">Gaz frigorigène</p>
-                              <p className="text-white font-medium">{equipment.specifications.gasType}</p>
+                            <div className="bg-[var(--bg-hover)] rounded-xl p-3 border border-[var(--border)]">
+                              <p className="text-[var(--text-muted)] text-xs">Gaz frigorigène</p>
+                              <p className="text-[var(--text-primary)] font-medium">{equipment.specifications.gasType}</p>
                             </div>
                           )}
                         </div>
@@ -336,30 +336,30 @@ export function EquipmentDetailsModal({
                     {/* Dates */}
                     {(equipment.installationDate || equipment.lastServiceDate || equipment.nextServiceDue) && (
                       <div>
-                        <h4 className="text-white/60 text-sm font-medium mb-3 flex items-center gap-2">
+                        <h4 className="text-[var(--text-muted)] text-sm font-medium mb-3 flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
                           Dates importantes
                         </h4>
                         <div className="space-y-3">
                           {equipment.installationDate && (
-                            <div className="flex items-center justify-between py-2 border-b border-white/10">
-                              <span className="text-white/60">Installation</span>
-                              <span className="text-white">
+                            <div className="flex items-center justify-between py-2 border-b border-[var(--border)]">
+                              <span className="text-[var(--text-muted)]">Installation</span>
+                              <span className="text-[var(--text-primary)]">
                                 {new Date(equipment.installationDate).toLocaleDateString('fr-FR')}
                               </span>
                             </div>
                           )}
                           {equipment.lastServiceDate && (
-                            <div className="flex items-center justify-between py-2 border-b border-white/10">
-                              <span className="text-white/60">Dernière maintenance</span>
-                              <span className="text-white">
+                            <div className="flex items-center justify-between py-2 border-b border-[var(--border)]">
+                              <span className="text-[var(--text-muted)]">Dernière maintenance</span>
+                              <span className="text-[var(--text-primary)]">
                                 {new Date(equipment.lastServiceDate).toLocaleDateString('fr-FR')}
                               </span>
                             </div>
                           )}
                           {equipment.nextServiceDue && (
-                            <div className="flex items-center justify-between py-2 border-b border-white/10">
-                              <span className="text-white/60">Prochaine maintenance</span>
+                            <div className="flex items-center justify-between py-2 border-b border-[var(--border)]">
+                              <span className="text-[var(--text-muted)]">Prochaine maintenance</span>
                               <span className="text-blue-400 font-medium">
                                 {new Date(equipment.nextServiceDue).toLocaleDateString('fr-FR')}
                               </span>
@@ -411,15 +411,15 @@ export function EquipmentDetailsModal({
                                       ? 'Garantie expire bientôt'
                                       : 'Garantie expirée'}
                                 </p>
-                                <p className="text-white/50 text-sm">
+                                <p className="text-[var(--text-muted)] text-sm">
                                   {warrantyStatus.status === 'expired'
                                     ? `Expirée depuis ${warrantyStatus.days} jours`
                                     : `${warrantyStatus.days} jours restants`}
                                 </p>
                               </div>
                               <div className="text-right">
-                                <p className="text-white/40 text-xs">Fin de garantie</p>
-                                <p className="text-white/80 text-sm font-mono">
+                                <p className="text-[var(--text-muted)] text-xs">Fin de garantie</p>
+                                <p className="text-[var(--text-secondary)] text-sm font-mono">
                                   {new Date(equipment.warrantyExpiry!).toLocaleDateString('fr-FR')}
                                 </p>
                               </div>
@@ -440,7 +440,7 @@ export function EquipmentDetailsModal({
                               />
                             </div>
                             
-                            <div className="flex justify-between items-center text-[10px] text-white/30">
+                            <div className="flex justify-between items-center text-[10px] text-[var(--text-muted)]">
                               <span>
                                 {equipment.purchaseDate || equipment.installationDate
                                   ? new Date(equipment.purchaseDate || equipment.installationDate!).toLocaleDateString('fr-FR')
@@ -473,9 +473,9 @@ export function EquipmentDetailsModal({
                   <div>
                     {history.length === 0 ? (
                       <div className="text-center py-12">
-                        <History className="w-12 h-12 text-white/20 mx-auto mb-4" />
-                        <p className="text-white/60">Aucun historique de maintenance</p>
-                        <p className="text-white/40 text-sm mt-2">
+                        <History className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
+                        <p className="text-[var(--text-muted)]">Aucun historique de maintenance</p>
+                        <p className="text-[var(--text-muted)] text-sm mt-2">
                           Les interventions apparaîtront ici
                         </p>
                       </div>
@@ -484,7 +484,7 @@ export function EquipmentDetailsModal({
                         {history.map((record) => (
                           <div
                             key={record.id}
-                            className="bg-white/5 rounded-xl p-4 border border-white/10"
+                            className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]"
                           >
                             <div className="flex items-start justify-between mb-3">
                               <div className="flex items-center gap-3">
@@ -510,8 +510,8 @@ export function EquipmentDetailsModal({
                                   />
                                 </div>
                                 <div>
-                                  <p className="text-white font-medium">{record.description}</p>
-                                  <p className="text-white/50 text-sm">
+                                  <p className="text-[var(--text-primary)] font-medium">{record.description}</p>
+                                  <p className="text-[var(--text-muted)] text-sm">
                                     {new Date(record.date).toLocaleDateString('fr-FR', {
                                       day: 'numeric',
                                       month: 'long',
@@ -539,13 +539,13 @@ export function EquipmentDetailsModal({
                             </div>
 
                             {record.resolution && (
-                              <p className="text-white/70 text-sm mb-3">{record.resolution}</p>
+                              <p className="text-[var(--text-muted)] text-sm mb-3">{record.resolution}</p>
                             )}
 
                             {record.technicianName && (
-                              <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                              <div className="flex items-center justify-between pt-3 border-t border-[var(--border)]">
                                 <div className="flex items-center gap-2">
-                                  <span className="text-white/50 text-sm">{record.technicianName}</span>
+                                  <span className="text-[var(--text-muted)] text-sm">{record.technicianName}</span>
                                   {record.technicianRating && (
                                     <span className="flex items-center gap-1 text-yellow-400 text-sm">
                                       <Star className="w-3.5 h-3.5 fill-current" />
@@ -554,19 +554,19 @@ export function EquipmentDetailsModal({
                                   )}
                                 </div>
                                 {record.cost && (
-                                  <span className="text-white font-medium">{record.cost}€</span>
+                                  <span className="text-[var(--text-primary)] font-medium">{record.cost}€</span>
                                 )}
                               </div>
                             )}
 
                             {record.partsReplaced && record.partsReplaced.length > 0 && (
-                              <div className="mt-3 pt-3 border-t border-white/10">
-                                <p className="text-white/50 text-xs mb-2">Pièces remplacées</p>
+                              <div className="mt-3 pt-3 border-t border-[var(--border)]">
+                                <p className="text-[var(--text-muted)] text-xs mb-2">Pièces remplacées</p>
                                 <div className="flex flex-wrap gap-2">
                                   {record.partsReplaced.map((part, idx) => (
                                     <span
                                       key={idx}
-                                      className="px-2 py-1 bg-white/5 rounded text-xs text-white/70"
+                                      className="px-2 py-1 bg-[var(--bg-hover)] rounded text-xs text-[var(--text-muted)]"
                                     >
                                       {part}
                                     </span>
@@ -624,7 +624,7 @@ export function EquipmentDetailsModal({
                     {onEdit && (
                       <button
                         onClick={onEdit}
-                        className="flex-1 py-3 px-6 bg-white/10 hover:bg-white/15 border border-white/10 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
+                        className="flex-1 py-3 px-6 bg-[var(--bg-active)] hover:bg-[var(--bg-active)] border border-[var(--border)] text-[var(--text-primary)] rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
                       >
                         <Edit2 className="w-4 h-4" />
                         Modifier
@@ -668,23 +668,23 @@ export function EquipmentDetailsModal({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 max-w-sm w-full"
+              className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-6 max-w-sm w-full"
             >
               <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-4">
                 <Trash2 className="w-6 h-6 text-red-400" />
               </div>
               
-              <h3 className="text-xl font-semibold text-white mb-2">
+              <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
                 Supprimer cet équipement ?
               </h3>
-              <p className="text-white/60 text-sm mb-6">
+              <p className="text-[var(--text-muted)] text-sm mb-6">
                 L'équipement sera déplacé vers la corbeille. Vous pourrez le restaurer plus tard si besoin.
               </p>
 
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-medium transition-colors"
+                  className="flex-1 py-3 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] text-[var(--text-primary)] rounded-xl font-medium transition-colors"
                 >
                   Annuler
                 </button>
@@ -723,7 +723,7 @@ export function EquipmentDetailsModal({
               <h3 className="text-gray-900 text-xl font-semibold mb-2">
                 QR Code HorecaLink
               </h3>
-              <p className="text-gray-500 text-sm mb-6">
+              <p className="text-[var(--text-muted)] text-sm mb-6">
                 Collez ce QR code sur votre équipement pour un accès rapide
               </p>
 
@@ -735,11 +735,11 @@ export function EquipmentDetailsModal({
                 />
               ) : (
                 <div className="w-48 h-48 mx-auto mb-6 bg-gray-100 rounded-xl flex items-center justify-center">
-                  <QrCode className="w-16 h-16 text-gray-300" />
+                  <QrCode className="w-16 h-16 text-[var(--text-secondary)]" />
                 </div>
               )}
 
-              <p className="text-gray-400 text-xs mb-6">
+              <p className="text-[var(--text-secondary)] text-xs mb-6">
                 {displayName} • {equipment.serialNumber || 'N/A'}
               </p>
 

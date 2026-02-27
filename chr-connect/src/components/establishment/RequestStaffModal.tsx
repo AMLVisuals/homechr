@@ -53,20 +53,20 @@ function RoleGrid({ roles, selectedId, onSelect }: RoleGridProps) {
               'p-4 rounded-xl border text-left transition-all',
               isSelected
                 ? 'bg-purple-500/20 border-purple-500/50 ring-2 ring-purple-500/30'
-                : 'bg-white/5 border-white/10 hover:bg-white/10'
+                : 'bg-[var(--bg-hover)] border-[var(--border)] hover:bg-[var(--bg-active)]'
             )}
           >
             <div className="flex items-start gap-3">
               <div className={cn(
                 'w-10 h-10 rounded-xl flex items-center justify-center',
-                isSelected ? 'bg-purple-500/30' : 'bg-white/10'
+                isSelected ? 'bg-purple-500/30' : 'bg-[var(--bg-active)]'
               )}>
-                <Users className={cn('w-5 h-5', isSelected ? 'text-purple-400' : 'text-white/40')} />
+                <Users className={cn('w-5 h-5', isSelected ? 'text-purple-400' : 'text-[var(--text-muted)]')} />
               </div>
               <div className="flex-1">
-                <p className="text-white font-medium">{role.role}</p>
-                <p className="text-white/50 text-xs mt-0.5">{role.description}</p>
-                <p className="text-white/40 text-xs mt-2">
+                <p className="text-[var(--text-primary)] font-medium">{role.role}</p>
+                <p className="text-[var(--text-muted)] text-xs mt-0.5">{role.description}</p>
+                <p className="text-[var(--text-muted)] text-xs mt-2">
                   ~{role.hourlyRate.min}€ - {role.hourlyRate.max}€/h
                 </p>
               </div>
@@ -199,32 +199,32 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-[#121212] border border-white/10 rounded-3xl overflow-hidden max-w-lg w-full max-h-[90vh] flex flex-col"
+          className="bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl overflow-hidden max-w-lg w-full max-h-[90vh] flex flex-col"
         >
           {/* Header */}
-          <div className="p-6 border-b border-white/10">
+          <div className="p-6 border-b border-[var(--border)]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {step === 'details' && (
                   <button
                     onClick={handleBack}
-                    className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                    className="w-8 h-8 rounded-full bg-[var(--bg-hover)] flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
                   >
-                    <ChevronLeft className="w-4 h-4 text-white" />
+                    <ChevronLeft className="w-4 h-4 text-[var(--text-primary)]" />
                   </button>
                 )}
                 <div>
-                  <h2 className="text-xl font-semibold text-white">{stepInfo.title}</h2>
+                  <h2 className="text-xl font-semibold text-[var(--text-primary)]">{stepInfo.title}</h2>
                   {selectedRole && step !== 'select-role' && step !== 'success' && (
-                    <p className="text-white/50 text-sm">{selectedRole.role}</p>
+                    <p className="text-[var(--text-muted)] text-sm">{selectedRole.role}</p>
                   )}
                 </div>
               </div>
               <button
                 onClick={handleClose}
-                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                className="w-10 h-10 rounded-full bg-[var(--bg-hover)] flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
               >
-                <X className="w-5 h-5 text-white/60" />
+                <X className="w-5 h-5 text-[var(--text-muted)]" />
               </button>
             </div>
 
@@ -236,7 +236,7 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
                     key={i}
                     className={cn(
                       'h-1 flex-1 rounded-full transition-colors',
-                      i <= stepInfo.progress ? 'bg-purple-500' : 'bg-white/10'
+                      i <= stepInfo.progress ? 'bg-purple-500' : 'bg-[var(--bg-active)]'
                     )}
                   />
                 ))}
@@ -277,7 +277,7 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
                     <div className="flex items-center gap-3">
                       <Users className="w-6 h-6 text-purple-400" />
                       <div>
-                        <p className="text-white font-medium">{selectedRole.role}</p>
+                        <p className="text-[var(--text-primary)] font-medium">{selectedRole.role}</p>
                         <p className="text-purple-300/70 text-sm">{selectedRole.description}</p>
                       </div>
                     </div>
@@ -285,7 +285,7 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
 
                   {/* Date */}
                   <div>
-                    <label className="text-sm text-white/60 mb-2 block flex items-center gap-2">
+                    <label className="text-sm text-[var(--text-muted)] mb-2 block flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
                       Date
                     </label>
@@ -294,14 +294,14 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
-                      className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50"
+                      className="w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-purple-500/50"
                     />
                   </div>
 
                   {/* Time */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm text-white/60 mb-2 block flex items-center gap-2">
+                      <label className="text-sm text-[var(--text-muted)] mb-2 block flex items-center gap-2">
                         <Clock className="w-4 h-4" />
                         Début
                       </label>
@@ -309,11 +309,11 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
                         type="time"
                         value={startTime}
                         onChange={(e) => setStartTime(e.target.value)}
-                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50"
+                        className="w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-purple-500/50"
                       />
                     </div>
                     <div>
-                      <label className="text-sm text-white/60 mb-2 block flex items-center gap-2">
+                      <label className="text-sm text-[var(--text-muted)] mb-2 block flex items-center gap-2">
                         <Clock className="w-4 h-4" />
                         Fin
                       </label>
@@ -321,39 +321,39 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
                         type="time"
                         value={endTime}
                         onChange={(e) => setEndTime(e.target.value)}
-                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500/50"
+                        className="w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-purple-500/50"
                       />
                     </div>
                   </div>
 
                   {/* Number of People */}
                   <div>
-                    <label className="text-sm text-white/60 mb-2 block flex items-center gap-2">
+                    <label className="text-sm text-[var(--text-muted)] mb-2 block flex items-center gap-2">
                       <Users className="w-4 h-4" />
                       Nombre de personnes
                     </label>
                     <div className="flex items-center gap-4">
                       <button
                         onClick={() => setNumberOfPeople(Math.max(1, numberOfPeople - 1))}
-                        className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+                        className="w-12 h-12 rounded-xl bg-[var(--bg-hover)] border border-[var(--border)] flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
                       >
-                        <Minus className="w-5 h-5 text-white/60" />
+                        <Minus className="w-5 h-5 text-[var(--text-muted)]" />
                       </button>
-                      <span className="text-3xl font-bold text-white w-16 text-center">
+                      <span className="text-3xl font-bold text-[var(--text-primary)] w-16 text-center">
                         {numberOfPeople}
                       </span>
                       <button
                         onClick={() => setNumberOfPeople(Math.min(10, numberOfPeople + 1))}
-                        className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+                        className="w-12 h-12 rounded-xl bg-[var(--bg-hover)] border border-[var(--border)] flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
                       >
-                        <Plus className="w-5 h-5 text-white/60" />
+                        <Plus className="w-5 h-5 text-[var(--text-muted)]" />
                       </button>
                     </div>
                   </div>
 
                   {/* Notes */}
                   <div>
-                    <label className="text-sm text-white/60 mb-2 block">
+                    <label className="text-sm text-[var(--text-muted)] mb-2 block">
                       Instructions particulières (optionnel)
                     </label>
                     <textarea
@@ -361,20 +361,20 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder="Dress code, expérience requise, etc."
                       rows={3}
-                      className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-purple-500/50"
+                      className="w-full p-4 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none focus:outline-none focus:border-purple-500/50"
                     />
                   </div>
 
                   {/* Estimated Cost */}
                   {estimatedCost && (
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-white/60">Durée</span>
-                        <span className="text-white">{estimatedCost.hours}h × {numberOfPeople} pers.</span>
+                        <span className="text-[var(--text-muted)]">Durée</span>
+                        <span className="text-[var(--text-primary)]">{estimatedCost.hours}h × {numberOfPeople} pers.</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-white/60">Estimation</span>
-                        <span className="text-white font-semibold text-lg">
+                        <span className="text-[var(--text-muted)]">Estimation</span>
+                        <span className="text-[var(--text-primary)] font-semibold text-lg">
                           {estimatedCost.min}€ - {estimatedCost.max}€
                         </span>
                       </div>
@@ -394,37 +394,37 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
                   <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
                     <Check className="w-10 h-10 text-green-400" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">
+                  <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
                     Demande envoyée !
                   </h3>
-                  <p className="text-white/60 mb-6">
+                  <p className="text-[var(--text-muted)] mb-6">
                     Nous recherchons les meilleurs profils pour votre service.
                   </p>
 
                   {selectedRole && estimatedCost && (
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/10 text-left">
+                    <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)] text-left">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-white/60 text-sm">Poste</span>
-                        <span className="text-white font-medium">{selectedRole.role} (x{numberOfPeople})</span>
+                        <span className="text-[var(--text-muted)] text-sm">Poste</span>
+                        <span className="text-[var(--text-primary)] font-medium">{selectedRole.role} (x{numberOfPeople})</span>
                       </div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-white/60 text-sm">Date</span>
-                        <span className="text-white">{date}</span>
+                        <span className="text-[var(--text-muted)] text-sm">Date</span>
+                        <span className="text-[var(--text-primary)]">{date}</span>
                       </div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-white/60 text-sm">Horaires</span>
-                        <span className="text-white">{startTime} - {endTime}</span>
+                        <span className="text-[var(--text-muted)] text-sm">Horaires</span>
+                        <span className="text-[var(--text-primary)]">{startTime} - {endTime}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-white/60 text-sm">Estimation</span>
-                        <span className="text-white">
+                        <span className="text-[var(--text-muted)] text-sm">Estimation</span>
+                        <span className="text-[var(--text-primary)]">
                           {estimatedCost.min}€ - {estimatedCost.max}€
                         </span>
                       </div>
                     </div>
                   )}
 
-                  <p className="text-white/40 text-sm mt-6">
+                  <p className="text-[var(--text-muted)] text-sm mt-6">
                     Vous recevrez des candidatures dans les prochaines minutes.
                   </p>
                 </motion.div>
@@ -434,7 +434,7 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
 
           {/* Footer */}
           {step === 'details' && (
-            <div className="p-6 border-t border-white/10">
+            <div className="p-6 border-t border-[var(--border)]">
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting || !isFormValid}
@@ -442,7 +442,7 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
                   'w-full py-4 px-6 rounded-xl font-medium flex items-center justify-center gap-2 transition-all',
                   isFormValid && !isSubmitting
                     ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700'
-                    : 'bg-white/10 text-white/40 cursor-not-allowed'
+                    : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
                 )}
               >
                 {isSubmitting ? (
@@ -450,7 +450,7 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                      className="w-5 h-5 border-2 border-[var(--border-strong)] border-t-white rounded-full"
                     />
                     Envoi en cours...
                   </>
@@ -465,7 +465,7 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
           )}
 
           {step === 'success' && (
-            <div className="p-6 border-t border-white/10">
+            <div className="p-6 border-t border-[var(--border)]">
               <button
                 onClick={handleClose}
                 className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-colors"

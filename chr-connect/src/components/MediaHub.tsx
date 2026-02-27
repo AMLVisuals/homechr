@@ -55,12 +55,12 @@ export default function MediaHub({ onMediaAdd }: MediaHubProps) {
       <div className="grid grid-cols-2 gap-3">
         <button 
           onClick={() => setIsScannerOpen(true)}
-          className="glass p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-white/10 transition-all active:scale-95 group"
+          className="glass p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-[var(--bg-active)] transition-all active:scale-95 group"
         >
           <div className="p-3 bg-blue-500/20 rounded-full text-blue-400 group-hover:bg-blue-500/30 group-hover:text-blue-300 transition-colors">
             <Camera className="w-6 h-6" />
           </div>
-          <span className="text-sm font-medium text-gray-300">Photo / Vidéo</span>
+          <span className="text-sm font-medium text-[var(--text-secondary)]">Photo / Vidéo</span>
         </button>
 
         <button 
@@ -86,16 +86,16 @@ export default function MediaHub({ onMediaAdd }: MediaHubProps) {
               <Mic className="w-6 h-6" />
             </div>
           )}
-          <span className={clsx("text-sm font-medium", isRecording ? "text-red-400" : "text-gray-300")}>
+          <span className={clsx("text-sm font-medium", isRecording ? "text-red-400" : "text-[var(--text-secondary)]")}>
             {isRecording ? "Arrêter" : "Note Vocale"}
           </span>
         </button>
 
         <button 
           onClick={() => fileInputRef.current?.click()}
-          className="glass p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-white/10 transition-all active:scale-95 group col-span-2"
+          className="glass p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-[var(--bg-active)] transition-all active:scale-95 group col-span-2"
         >
-          <div className="flex items-center gap-2 text-gray-400 group-hover:text-white transition-colors">
+          <div className="flex items-center gap-2 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">
             <ImageIcon className="w-5 h-5" />
             <span className="text-sm font-medium">Ouvrir la Galerie</span>
           </div>
@@ -114,7 +114,7 @@ export default function MediaHub({ onMediaAdd }: MediaHubProps) {
               <motion.div 
                 key={idx}
                 initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-                className="relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/40 group"
+                className="relative aspect-video rounded-xl overflow-hidden border border-[var(--border)] bg-black/40 group"
               >
                 {item.type === 'image' ? (
                   <>
@@ -134,7 +134,7 @@ export default function MediaHub({ onMediaAdd }: MediaHubProps) {
                            const val = e.target.value;
                            setMediaItems(prev => prev.map((p, i) => i === idx ? { ...p, caption: val } : p));
                          }}
-                         className="w-full bg-black/60 backdrop-blur-sm border border-white/20 rounded-md px-2 py-1 text-[10px] text-white placeholder-gray-400 focus:outline-none focus:border-white/50 transition-colors"
+                         className="w-full bg-black/60 backdrop-blur-sm border border-[var(--border-strong)] rounded-md px-2 py-1 text-[10px] text-white placeholder-gray-400 focus:outline-none focus:border-[var(--border)]0 transition-colors"
                          onClick={(e) => e.stopPropagation()}
                        />
                     </div>
@@ -153,7 +153,7 @@ export default function MediaHub({ onMediaAdd }: MediaHubProps) {
                     ) : (
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                     )}
-                    <span className="text-xs font-medium text-white truncate">{item.label}</span>
+                    <span className="text-xs font-medium text-[var(--text-primary)] truncate">{item.label}</span>
                   </div>
                 </div>
 

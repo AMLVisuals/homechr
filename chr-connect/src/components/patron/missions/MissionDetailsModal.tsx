@@ -218,13 +218,13 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
         initial={{ scale: 0.95, y: 20, opacity: 0 }}
         animate={{ scale: 1, y: 0, opacity: 1 }}
         exit={{ scale: 0.95, y: 20, opacity: 0 }}
-        className="relative w-full max-w-4xl bg-[#121212] border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="relative w-full max-w-4xl bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header */}
-        <div className="p-6 border-b border-white/10 flex items-center justify-between bg-[#1a1a1a]">
+        <div className="p-6 border-b border-[var(--border)] flex items-center justify-between bg-[var(--bg-card)]">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h2 className="text-2xl font-bold text-white">{mission.title}</h2>
+              <h2 className="text-2xl font-bold text-[var(--text-primary)]">{mission.title}</h2>
               <span className={clsx(
                 "px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider",
                 statusInfo.color
@@ -232,25 +232,25 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                 {statusInfo.label}
               </span>
             </div>
-            <p className="text-gray-400 text-sm flex items-center gap-2">
+            <p className="text-[var(--text-secondary)] text-sm flex items-center gap-2">
               <Clock className="w-3 h-3" /> {mission.date || "Date non définie"}
-              <span className="w-1 h-1 bg-gray-600 rounded-full" />
+              <span className="w-1 h-1 bg-[var(--text-muted)] rounded-full" />
               <MapPin className="w-3 h-3" /> {mission.location?.address || 'Adresse inconnue'}
             </p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-            <X className="w-6 h-6 text-gray-400" />
+          <button onClick={onClose} className="p-2 hover:bg-[var(--bg-active)] rounded-full transition-colors">
+            <X className="w-6 h-6 text-[var(--text-secondary)]" />
           </button>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           <div className="flex flex-col lg:flex-row h-full">
-            
+
             {/* Left Column: Map & Status */}
-            <div className="lg:w-1/3 bg-[#1a1a1a]/50 border-r border-white/5 p-6 space-y-6">
+            <div className="lg:w-1/3 bg-[var(--bg-card)]/50 border-r border-[var(--border)] p-6 space-y-6">
               {/* Map Placeholder */}
-              <div className="aspect-square rounded-2xl overflow-hidden relative bg-[#2a2a2a] group">
+              <div className="aspect-square rounded-2xl overflow-hidden relative bg-[var(--bg-active)] group">
                 {/* Mock Map UI */}
                 <div 
                   className="absolute inset-0 opacity-50 bg-cover bg-center"
@@ -265,7 +265,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                 {/* Technician Marker (Simulated Movement if available) */}
                 {mission.technicianLocation && (
                   <div 
-                    className="absolute p-2 bg-[#1a1a1a] rounded-lg border border-white/10 shadow-xl transition-all duration-1000 ease-in-out"
+                    className="absolute p-2 bg-[var(--bg-card)] rounded-lg border border-[var(--border)] shadow-xl transition-all duration-1000 ease-in-out"
                     style={{
                       // This is a rough approximation for demo visualization on static map image
                       // In a real map, you'd use markers with lat/lng
@@ -279,9 +279,9 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                 )}
                 
                 {(mission.status === 'ON_WAY' || mission.status === 'ON_SITE' || mission.status === 'IN_PROGRESS') && (
-                  <div className="absolute bottom-4 left-4 right-4 bg-[#1a1a1a]/90 backdrop-blur border border-white/10 p-3 rounded-xl">
+                  <div className="absolute bottom-4 left-4 right-4 bg-[var(--bg-card)]/90 backdrop-blur border border-[var(--border)] p-3 rounded-xl">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-gray-400 uppercase">
+                      <span className="text-xs font-bold text-[var(--text-secondary)] uppercase">
                         {mission.status === 'ON_WAY' ? 'En route' : 
                          mission.status === 'ON_SITE' ? 'Sur Place' : 'En Intervention'}
                       </span>
@@ -290,7 +290,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                       )}
                     </div>
                     {mission.status === 'ON_WAY' && (
-                      <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-1 bg-[var(--bg-active)] rounded-full overflow-hidden">
                         <div 
                           className="h-full bg-blue-500 rounded-full transition-all duration-1000" 
                           style={{ width: `${Math.max(10, 100 - (mission.eta || 15) * 5)}%` }} 
@@ -303,8 +303,8 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
 
               {/* Provider Card */}
               {mission.status === 'SEARCHING' && (
-                <div className="bg-[#1a1a1a] rounded-2xl p-4 border border-white/5 space-y-3">
-                  <p className="text-sm text-gray-400 text-center">
+                <div className="bg-[var(--bg-card)] rounded-2xl p-4 border border-[var(--border)] space-y-3">
+                  <p className="text-sm text-[var(--text-secondary)] text-center">
                     Votre mission est en cours de diffusion auprès des prestataires qualifiés.
                   </p>
                   <button
@@ -325,18 +325,18 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
               {mission.provider && mission.status !== 'SEARCHING' && (
                 <div 
                   onClick={handleOpenProviderProfile}
-                  className="bg-[#1a1a1a] rounded-2xl p-4 border border-white/5 cursor-pointer hover:border-white/20 transition-all group/card"
+                  className="bg-[var(--bg-card)] rounded-2xl p-4 border border-[var(--border)] cursor-pointer hover:border-[var(--border-strong)] transition-all group/card"
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white group-hover/card:scale-105 transition-transform">
                       {mission.provider.name.charAt(0)}
                     </div>
                     <div>
-                      <h4 className="font-bold text-white group-hover/card:text-blue-400 transition-colors">{mission.provider.name}</h4>
+                      <h4 className="font-bold text-[var(--text-primary)] group-hover/card:text-blue-400 transition-colors">{mission.provider.name}</h4>
                       <div className="flex items-center gap-1 text-xs text-yellow-500">
                         <Star className="w-3 h-3 fill-current" />
                         <span>{mission.provider.rating}</span>
-                        <span className="text-gray-500">({mission.provider.completedMissions} missions)</span>
+                        <span className="text-[var(--text-muted)]">({mission.provider.completedMissions} missions)</span>
                       </div>
                     </div>
                   </div>
@@ -344,13 +344,13 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                   <div className="flex gap-2">
                     <button 
                       onClick={(e) => { e.stopPropagation(); }}
-                      className="flex-1 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold text-white transition-colors flex items-center justify-center gap-2"
+                      className="flex-1 py-2 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-xl text-xs font-bold text-[var(--text-primary)] transition-colors flex items-center justify-center gap-2"
                     >
                       <Phone className="w-3 h-3" /> Appeler
                     </button>
                     <button 
                       onClick={(e) => { e.stopPropagation(); }}
-                      className="flex-1 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold text-white transition-colors flex items-center justify-center gap-2"
+                      className="flex-1 py-2 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-xl text-xs font-bold text-[var(--text-primary)] transition-colors flex items-center justify-center gap-2"
                     >
                       <MessageSquare className="w-3 h-3" /> Message
                     </button>
@@ -381,10 +381,10 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                     className="h-full flex flex-col"
                   >
                     <div className="flex items-center gap-3 mb-6">
-                      <button onClick={() => setShowRating(false)} className="p-2 hover:bg-white/10 rounded-full">
-                        <X className="w-5 h-5 text-gray-400" />
+                      <button onClick={() => setShowRating(false)} className="p-2 hover:bg-[var(--bg-active)] rounded-full">
+                        <X className="w-5 h-5 text-[var(--text-secondary)]" />
                       </button>
-                      <h3 className="text-xl font-bold text-white">Noter la prestation</h3>
+                      <h3 className="text-xl font-bold text-[var(--text-primary)]">Noter la prestation</h3>
                     </div>
 
                     <form onSubmit={handleRatingSubmit} className="space-y-6 flex-1 flex flex-col">
@@ -411,7 +411,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                           value={reviewText}
                           onChange={(e) => setReviewText(e.target.value)}
                           placeholder="Décrivez votre expérience..."
-                          className="w-full h-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-blue-500 resize-none"
+                          className="w-full h-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl p-4 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 resize-none"
                         />
                         <button 
                           type="button"
@@ -438,22 +438,22 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                           <button 
                             type="button" 
                             onClick={triggerFileUpload}
-                            className="flex flex-col items-center justify-center w-24 h-24 bg-white/5 border border-white/10 border-dashed rounded-xl hover:bg-white/10 transition-colors shrink-0"
+                            className="flex flex-col items-center justify-center w-24 h-24 bg-[var(--bg-hover)] border border-[var(--border)] border-dashed rounded-xl hover:bg-[var(--bg-active)] transition-colors shrink-0"
                           >
-                            <Camera className="w-6 h-6 text-gray-400 mb-2" />
-                            <span className="text-[10px] text-gray-500 font-bold uppercase">Photo</span>
+                            <Camera className="w-6 h-6 text-[var(--text-secondary)] mb-2" />
+                            <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase">Photo</span>
                           </button>
                           <button 
                             type="button" 
                             onClick={triggerFileUpload}
-                            className="flex flex-col items-center justify-center w-24 h-24 bg-white/5 border border-white/10 border-dashed rounded-xl hover:bg-white/10 transition-colors shrink-0"
+                            className="flex flex-col items-center justify-center w-24 h-24 bg-[var(--bg-hover)] border border-[var(--border)] border-dashed rounded-xl hover:bg-[var(--bg-active)] transition-colors shrink-0"
                           >
-                            <Video className="w-6 h-6 text-gray-400 mb-2" />
-                            <span className="text-[10px] text-gray-500 font-bold uppercase">Vidéo</span>
+                            <Video className="w-6 h-6 text-[var(--text-secondary)] mb-2" />
+                            <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase">Vidéo</span>
                           </button>
                           {/* Mocked uploaded media */}
                           {reviewMedia.map((url, i) => (
-                            <div key={i} className="w-24 h-24 bg-gray-800 rounded-xl border border-white/10 shrink-0 overflow-hidden relative group">
+                            <div key={i} className="w-24 h-24 bg-[var(--bg-active)] rounded-xl border border-[var(--border)] shrink-0 overflow-hidden relative group">
                               <img src={url} alt="Upload" className="w-full h-full object-cover" />
                               <button 
                                 type="button" 
@@ -485,12 +485,12 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                     className="h-full flex flex-col"
                   >
                     {/* Tab Navigation */}
-                    <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl mb-6 shrink-0">
+                    <div className="flex items-center gap-1 bg-[var(--bg-hover)] p-1 rounded-xl mb-6 shrink-0">
                       <button
                         onClick={() => setActiveTab('DETAILS')}
                         className={clsx(
                           "flex-1 py-2 rounded-lg text-sm font-bold transition-all",
-                          activeTab === 'DETAILS' ? "bg-white text-black shadow-lg" : "text-gray-400 hover:text-white hover:bg-white/5"
+                          activeTab === 'DETAILS' ? "bg-white text-black shadow-lg" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                         )}
                       >
                         Détails
@@ -499,7 +499,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                         onClick={() => setActiveTab('EVIDENCE')}
                         className={clsx(
                           "flex-1 py-2 rounded-lg text-sm font-bold transition-all",
-                          activeTab === 'EVIDENCE' ? "bg-white text-black shadow-lg" : "text-gray-400 hover:text-white hover:bg-white/5"
+                          activeTab === 'EVIDENCE' ? "bg-white text-black shadow-lg" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                         )}
                       >
                         Preuves
@@ -512,7 +512,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                           }}
                           className={clsx(
                             "flex-1 py-2 rounded-lg text-sm font-bold transition-all",
-                            activeTab === 'INVOICE' ? "bg-white text-black shadow-lg" : "text-gray-400 hover:text-white hover:bg-white/5"
+                            activeTab === 'INVOICE' ? "bg-white text-black shadow-lg" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                           )}
                         >
                           Facture
@@ -524,47 +524,47 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                       {activeTab === 'DETAILS' && (
                         <>
                           {mission.description && (
-                            <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                              <h3 className="text-sm font-bold text-gray-500 uppercase mb-2">Description</h3>
-                              <p className="text-white text-sm">{mission.description}</p>
+                            <div className="bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border)]">
+                              <h3 className="text-sm font-bold text-[var(--text-muted)] uppercase mb-2">Description</h3>
+                              <p className="text-[var(--text-primary)] text-sm">{mission.description}</p>
                             </div>
                           )}
 
                           <div>
-                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <h3 className="text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-2">
                               <MessageSquare className="w-4 h-4" /> Notes de l'intervenant
                             </h3>
                             <div className="space-y-3">
                               {mission.notes && mission.notes.length > 0 ? (
                                 mission.notes.map((note, idx) => (
-                                  <div key={idx} className="bg-white/5 p-4 rounded-xl border border-white/5 text-sm text-gray-300">
+                                  <div key={idx} className="bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border)] text-sm text-[var(--text-secondary)]">
                                     "{note}"
                                   </div>
                                 ))
                               ) : (
-                                <p className="text-gray-500 italic text-sm">Aucune note pour le moment.</p>
+                                <p className="text-[var(--text-muted)] italic text-sm">Aucune note pour le moment.</p>
                               )}
                             </div>
                           </div>
 
                           <div>
-                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <h3 className="text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-2">
                               <Navigation className="w-4 h-4" /> Suivi
                             </h3>
-                            <div className="space-y-4 pl-2 border-l-2 border-white/10">
+                            <div className="space-y-4 pl-2 border-l-2 border-[var(--border)]">
                               {/* Creation Step - Always Visible */}
                               <div className="relative pl-6">
                                 <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-gray-500 ring-4 ring-black" />
-                                <p className="text-sm text-white font-medium">Mission créée</p>
-                                <p className="text-xs text-gray-500">{mission.date || "Date inconnue"}</p>
+                                <p className="text-sm text-[var(--text-primary)] font-medium">Mission créée</p>
+                                <p className="text-xs text-[var(--text-muted)]">{mission.date || "Date inconnue"}</p>
                               </div>
 
                               {/* Search Step */}
                               {mission.status === 'SEARCHING' && (
                                 <div className="relative pl-6">
                                   <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-yellow-500 ring-4 ring-black animate-pulse" />
-                                  <p className="text-sm text-white font-medium">Recherche en cours...</p>
-                                  <p className="text-xs text-gray-500">Diffusion aux prestataires</p>
+                                  <p className="text-sm text-[var(--text-primary)] font-medium">Recherche en cours...</p>
+                                  <p className="text-xs text-[var(--text-muted)]">Diffusion aux prestataires</p>
                                 </div>
                               )}
 
@@ -572,8 +572,8 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                               {mission.status !== 'SEARCHING' && mission.status !== 'CANCELLED' && (
                                 <div className="relative pl-6">
                                   <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-blue-500 ring-4 ring-black" />
-                                  <p className="text-sm text-white font-medium">Mission acceptée</p>
-                                  <p className="text-xs text-gray-500">Prestataire assigné</p>
+                                  <p className="text-sm text-[var(--text-primary)] font-medium">Mission acceptée</p>
+                                  <p className="text-xs text-[var(--text-muted)]">Prestataire assigné</p>
                                 </div>
                               )}
                               
@@ -581,8 +581,8 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                               {(mission.status === 'ON_WAY' || mission.status === 'ON_SITE') && (
                                 <div className="relative pl-6">
                                   <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-purple-500 ring-4 ring-black animate-pulse" />
-                                  <p className="text-sm text-white font-medium">{mission.status === 'ON_WAY' ? 'En route' : 'Sur place'}</p>
-                                  <p className="text-xs text-gray-500">Arrivée imminente</p>
+                                  <p className="text-sm text-[var(--text-primary)] font-medium">{mission.status === 'ON_WAY' ? 'En route' : 'Sur place'}</p>
+                                  <p className="text-xs text-[var(--text-muted)]">Arrivée imminente</p>
                                 </div>
                               )}
 
@@ -590,8 +590,8 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                               {mission.status === 'IN_PROGRESS' && (
                                 <div className="relative pl-6">
                                   <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-blue-600 ring-4 ring-black animate-pulse" />
-                                  <p className="text-sm text-white font-medium">Intervention en cours</p>
-                                  <p className="text-xs text-gray-500">Travaux démarrés</p>
+                                  <p className="text-sm text-[var(--text-primary)] font-medium">Intervention en cours</p>
+                                  <p className="text-xs text-[var(--text-muted)]">Travaux démarrés</p>
                                 </div>
                               )}
 
@@ -599,8 +599,8 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                               {mission.status === 'COMPLETED' && (
                                 <div className="relative pl-6">
                                   <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-green-500 ring-4 ring-black" />
-                                  <p className="text-sm text-white font-medium">Intervention terminée</p>
-                                  <p className="text-xs text-gray-500">Mission clôturée</p>
+                                  <p className="text-sm text-[var(--text-primary)] font-medium">Intervention terminée</p>
+                                  <p className="text-xs text-[var(--text-muted)]">Mission clôturée</p>
                                 </div>
                               )}
                             </div>
@@ -610,7 +610,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
 
                       {activeTab === 'EVIDENCE' && (
                         <div>
-                          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                          <h3 className="text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-2">
                             <ImageIcon className="w-4 h-4" /> Photos & Vidéos
                           </h3>
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -619,9 +619,9 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                 <div 
                                   key={idx} 
                                   onClick={() => handleOpenGallery(mission.photos || [], idx)}
-                                  className="aspect-square rounded-xl bg-gray-800 border border-white/10 relative overflow-hidden group cursor-pointer"
+                                  className="aspect-square rounded-xl bg-[var(--bg-active)] border border-[var(--border)] relative overflow-hidden group cursor-pointer"
                                 >
-                                  <div className="absolute inset-0 bg-gray-700 flex items-center justify-center text-gray-500">
+                                  <div className="absolute inset-0 bg-[var(--bg-hover)] flex items-center justify-center text-[var(--text-muted)]">
                                     <ImageIcon className="w-8 h-8 opacity-50" />
                                   </div>
                                   <img src={getPhotoUrl(photo)} alt="" className="absolute inset-0 w-full h-full object-cover" />
@@ -631,7 +631,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                 </div>
                               ))
                             ) : (
-                              <div className="col-span-full py-8 text-center border-2 border-dashed border-white/10 rounded-xl text-gray-500 text-sm">
+                              <div className="col-span-full py-8 text-center border-2 border-dashed border-[var(--border)] rounded-xl text-[var(--text-muted)] text-sm">
                                 En attente de photos...
                               </div>
                             )}

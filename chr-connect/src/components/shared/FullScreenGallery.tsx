@@ -47,7 +47,7 @@ export default function FullScreenGallery({ images, initialIndex = 0, isOpen, on
       {/* Close Button */}
       <button 
         onClick={onClose}
-        className="absolute top-6 right-6 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-50"
+        className="absolute top-6 right-6 p-3 rounded-full bg-[var(--bg-active)] hover:bg-white/20 text-[var(--text-primary)] transition-colors z-50"
       >
         <X className="w-6 h-6" />
       </button>
@@ -55,7 +55,7 @@ export default function FullScreenGallery({ images, initialIndex = 0, isOpen, on
       {/* Navigation Left */}
       <button 
         onClick={(e) => { e.stopPropagation(); navigate(-1); }}
-        className="absolute left-6 top-1/2 -translate-y-1/2 p-4 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors z-50 group"
+        className="absolute left-6 top-1/2 -translate-y-1/2 p-4 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] text-[var(--text-primary)] transition-colors z-50 group"
       >
         <ChevronLeft className="w-8 h-8 group-hover:-translate-x-1 transition-transform" />
       </button>
@@ -63,7 +63,7 @@ export default function FullScreenGallery({ images, initialIndex = 0, isOpen, on
       {/* Navigation Right */}
       <button 
         onClick={(e) => { e.stopPropagation(); navigate(1); }}
-        className="absolute right-6 top-1/2 -translate-y-1/2 p-4 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors z-50 group"
+        className="absolute right-6 top-1/2 -translate-y-1/2 p-4 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] text-[var(--text-primary)] transition-colors z-50 group"
       >
         <ChevronRight className="w-8 h-8 group-hover:translate-x-1 transition-transform" />
       </button>
@@ -87,7 +87,7 @@ export default function FullScreenGallery({ images, initialIndex = 0, isOpen, on
                  className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
                />
              ) : (
-                <div className="w-[80vw] h-[60vh] bg-gray-800 rounded-2xl flex flex-col items-center justify-center text-gray-500">
+                <div className="w-[80vw] h-[60vh] bg-[var(--bg-hover)] rounded-2xl flex flex-col items-center justify-center text-[var(--text-muted)]">
                     <ZoomIn className="w-16 h-16 mb-4 opacity-50" />
                     <span className="text-xl font-medium">Image {currentIndex + 1}</span>
                     <span className="text-sm mt-2">{images[currentIndex]}</span>
@@ -95,7 +95,7 @@ export default function FullScreenGallery({ images, initialIndex = 0, isOpen, on
              )}
              
              {/* Counter */}
-             <div className="absolute bottom-[-3rem] left-1/2 -translate-x-1/2 text-white/80 font-medium text-sm bg-black/50 px-4 py-2 rounded-full backdrop-blur-md">
+             <div className="absolute bottom-[-3rem] left-1/2 -translate-x-1/2 text-[var(--text-primary)] font-medium text-sm bg-black/50 px-4 py-2 rounded-full backdrop-blur-md">
                {currentIndex + 1} / {images.length}
              </div>
           </motion.div>
@@ -110,13 +110,13 @@ export default function FullScreenGallery({ images, initialIndex = 0, isOpen, on
             onClick={() => setCurrentIndex(idx)}
             className={clsx(
               "w-12 h-12 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 relative",
-              idx === currentIndex ? "border-white scale-110 z-10" : "border-transparent opacity-50 hover:opacity-100"
+              idx === currentIndex ? "border-[var(--border-strong)] scale-110 z-10" : "border-transparent opacity-50 hover:opacity-100"
             )}
           >
             {img.startsWith('http') || img.startsWith('/') ? (
               <img src={img} alt="" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full bg-gray-700 flex items-center justify-center text-[8px] text-white">
+              <div className="w-full h-full bg-[var(--bg-active)] flex items-center justify-center text-[8px] text-[var(--text-primary)]">
                 {idx + 1}
               </div>
             )}

@@ -192,7 +192,7 @@ export function DocumentManager({ documents, onDocumentsChange, readonly = false
     <div className="space-y-4">
       {/* Header & Add Button */}
       <div className="flex items-center justify-between">
-        <h3 className="text-white font-medium flex items-center gap-2">
+        <h3 className="text-[var(--text-primary)] font-medium flex items-center gap-2">
           <FileText className="w-4 h-4 text-blue-400" />
           Documents ({documents.length})
         </h3>
@@ -218,11 +218,11 @@ export function DocumentManager({ documents, onDocumentsChange, readonly = false
       {/* Document List */}
       <div className="space-y-2">
         {documents.length === 0 ? (
-          <div className="text-center py-8 border border-dashed border-white/10 rounded-xl bg-white/5">
-            <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3">
-              <FileText className="w-5 h-5 text-white/20" />
+          <div className="text-center py-8 border border-dashed border-[var(--border)] rounded-xl bg-[var(--bg-hover)]">
+            <div className="w-10 h-10 rounded-full bg-[var(--bg-hover)] flex items-center justify-center mx-auto mb-3">
+              <FileText className="w-5 h-5 text-[var(--text-muted)]" />
             </div>
-            <p className="text-white/40 text-sm">Aucun document</p>
+            <p className="text-[var(--text-muted)] text-sm">Aucun document</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -234,9 +234,9 @@ export function DocumentManager({ documents, onDocumentsChange, readonly = false
                 <div
                   key={doc.id}
                   onClick={() => openViewer(doc)}
-                  className="group relative p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors flex items-start gap-3 cursor-pointer"
+                  className="group relative p-3 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl hover:bg-[var(--bg-active)] transition-colors flex items-start gap-3 cursor-pointer"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-[#121212] flex items-center justify-center flex-shrink-0 border border-white/5 overflow-hidden">
+                  <div className="w-10 h-10 rounded-lg bg-[var(--bg-sidebar)] flex items-center justify-center flex-shrink-0 border border-[var(--border)] overflow-hidden">
                     {doc.mimeType?.startsWith('image/') ? (
                       <img src={doc.url} alt="" className="w-full h-full object-cover opacity-80" />
                     ) : (
@@ -244,15 +244,15 @@ export function DocumentManager({ documents, onDocumentsChange, readonly = false
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white font-medium text-sm truncate pr-6">
+                    <p className="text-[var(--text-primary)] font-medium text-sm truncate pr-6">
                       {doc.name}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] uppercase tracking-wider text-white/40 bg-white/5 px-1.5 py-0.5 rounded">
+                      <span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] bg-[var(--bg-hover)] px-1.5 py-0.5 rounded">
                         {getTypeLabel(doc.type)}
                       </span>
                       {doc.fileSize && (
-                        <span className="text-white/30 text-xs">• {doc.fileSize}</span>
+                        <span className="text-[var(--text-muted)] text-xs">• {doc.fileSize}</span>
                       )}
                       {pageCount > 1 && (
                         <span className="text-blue-400/60 text-xs bg-blue-500/10 px-1.5 py-0.5 rounded">
@@ -264,7 +264,7 @@ export function DocumentManager({ documents, onDocumentsChange, readonly = false
                   
                   <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                     <button
-                      className="p-1.5 rounded-lg text-white/20 hover:text-white hover:bg-white/10"
+                      className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-active)]"
                       title="Voir"
                     >
                       <Eye className="w-3.5 h-3.5" />
@@ -272,7 +272,7 @@ export function DocumentManager({ documents, onDocumentsChange, readonly = false
                     {!readonly && (
                       <button
                         onClick={(e) => handleDelete(e, doc.id)}
-                        className="p-1.5 rounded-lg text-white/20 hover:text-red-400 hover:bg-red-500/10"
+                        className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-400 hover:bg-red-500/10"
                         title="Supprimer"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -299,16 +299,16 @@ export function DocumentManager({ documents, onDocumentsChange, readonly = false
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[#121212] border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]"
+              className="bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]"
             >
               {/* Header */}
-              <div className="p-4 border-b border-white/10 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white">Ajouter un document</h3>
+              <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">Ajouter un document</h3>
                 <button
                   onClick={resetForm}
-                  className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                  className="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-white/60" />
+                  <X className="w-5 h-5 text-[var(--text-muted)]" />
                 </button>
               </div>
 
@@ -317,7 +317,7 @@ export function DocumentManager({ documents, onDocumentsChange, readonly = false
                 {/* File Preview Card */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm text-white/60">Pages ({selectedFiles.length})</label>
+                    <label className="text-sm text-[var(--text-muted)]">Pages ({selectedFiles.length})</label>
                     <button 
                       onClick={() => addPageInputRef.current?.click()}
                       className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
@@ -337,19 +337,19 @@ export function DocumentManager({ documents, onDocumentsChange, readonly = false
                   
                   <div className="grid gap-2 max-h-48 overflow-y-auto custom-scrollbar">
                     {selectedFiles.map((file, idx) => (
-                      <div key={idx} className="flex items-center gap-4 p-3 bg-white/5 rounded-xl border border-white/10 group">
+                      <div key={idx} className="flex items-center gap-4 p-3 bg-[var(--bg-hover)] rounded-xl border border-[var(--border)] group">
                         <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 text-xs font-bold text-blue-400">
                           {idx + 1}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-white text-sm font-medium truncate">{file.name}</p>
-                          <p className="text-white/40 text-xs">
+                          <p className="text-[var(--text-primary)] text-sm font-medium truncate">{file.name}</p>
+                          <p className="text-[var(--text-muted)] text-xs">
                             {(file.size / 1024 / 1024).toFixed(2)} MB
                           </p>
                         </div>
                         <button
                           onClick={() => handleRemovePage(idx)}
-                          className="p-2 hover:bg-red-500/20 text-white/20 hover:text-red-400 rounded-lg transition-colors"
+                          className="p-2 hover:bg-red-500/20 text-[var(--text-muted)] hover:text-red-400 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -358,7 +358,7 @@ export function DocumentManager({ documents, onDocumentsChange, readonly = false
                   </div>
                   
                   {selectedFiles.length > 1 && (
-                    <p className="text-center text-xs text-white/40">
+                    <p className="text-center text-xs text-[var(--text-muted)]">
                       Ce document sera enregistré comme un fichier multi-pages
                     </p>
                   )}
@@ -399,18 +399,18 @@ export function DocumentManager({ documents, onDocumentsChange, readonly = false
                   )}
 
                   <div className="space-y-2">
-                    <label className="text-sm text-white/60">Nom du document</label>
+                    <label className="text-sm text-[var(--text-muted)]">Nom du document</label>
                     <input
                       type="text"
                       value={docName}
                       onChange={(e) => setDocName(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500/50"
+                      className="w-full px-4 py-3 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-blue-500/50"
                       placeholder="Ex: Facture d'achat"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm text-white/60">Type de document</label>
+                    <label className="text-sm text-[var(--text-muted)]">Type de document</label>
                     <div className="grid grid-cols-2 gap-2">
                       {DOCUMENT_TYPES.map((type) => {
                         const Icon = type.icon;
@@ -422,7 +422,7 @@ export function DocumentManager({ documents, onDocumentsChange, readonly = false
                               "flex items-center gap-2 p-3 rounded-xl border text-sm transition-all text-left",
                               docType === type.value
                                 ? "bg-blue-500/20 border-blue-500/50 text-blue-300"
-                                : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
+                                : "bg-[var(--bg-hover)] border-[var(--border)] text-[var(--text-muted)] hover:bg-[var(--bg-active)]"
                             )}
                           >
                             <Icon className="w-4 h-4" />
@@ -436,10 +436,10 @@ export function DocumentManager({ documents, onDocumentsChange, readonly = false
               </div>
 
               {/* Footer */}
-              <div className="p-4 border-t border-white/10 flex gap-3">
+              <div className="p-4 border-t border-[var(--border)] flex gap-3">
                 <button
                   onClick={resetForm}
-                  className="flex-1 py-3 px-4 bg-white/5 hover:bg-white/10 text-white rounded-xl font-medium transition-colors"
+                  className="flex-1 py-3 px-4 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] text-[var(--text-primary)] rounded-xl font-medium transition-colors"
                 >
                   Annuler
                 </button>

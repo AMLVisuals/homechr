@@ -28,14 +28,14 @@ export default function DocumentUploader({ label, onUpload }: DocumentUploaderPr
 
   return (
     <div className="w-full mb-4">
-      <label className="block text-sm font-medium text-gray-400 mb-2">{label}</label>
+      <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">{label}</label>
       <motion.div
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
         onClick={() => status === 'idle' && handleDrop({ preventDefault: () => {} } as any)}
         className={clsx(
           "relative h-24 rounded-xl border border-dashed transition-all cursor-pointer flex items-center justify-center overflow-hidden",
-          status === 'idle' && "border-gray-700 hover:border-gray-500 bg-white/5",
+          status === 'idle' && "border-gray-700 hover:border-gray-500 bg-[var(--bg-hover)]",
           status === 'uploading' && "border-blue-500 bg-blue-500/10",
           status === 'pending' && "border-yellow-500 bg-yellow-500/10",
           status === 'verified' && "border-green-500 bg-green-500/10"
@@ -44,7 +44,7 @@ export default function DocumentUploader({ label, onUpload }: DocumentUploaderPr
         whileTap={status === 'idle' ? { scale: 0.98 } : {}}
       >
         {status === 'idle' && (
-          <div className="text-center text-gray-500">
+          <div className="text-center text-[var(--text-muted)]">
             <Upload className="w-6 h-6 mx-auto mb-1" />
             <span className="text-xs">Glisser ou cliquer</span>
           </div>

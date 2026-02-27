@@ -39,7 +39,7 @@ export const useStore = create<AppState>((set) => ({
   isOnAir: false,
   toggleOnAir: () => set((state) => ({ isOnAir: !state.isOnAir })),
   
-  theme: 'dark',
+  theme: 'light',
   setTheme: (theme) => set({ theme }),
   
   isPremium: false,

@@ -251,11 +251,11 @@ export function MediaCaptureModal({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-lg bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
-          <h3 className="text-white font-medium flex items-center gap-2">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
+          <h3 className="text-[var(--text-primary)] font-medium flex items-center gap-2">
             {mode === 'PHOTO' && <Camera className="w-5 h-5 text-blue-400" />}
             {mode === 'VIDEO' && <Video className="w-5 h-5 text-purple-400" />}
             {mode === 'AUDIO' && <Mic className="w-5 h-5 text-red-400" />}
@@ -263,7 +263,7 @@ export function MediaCaptureModal({
               {mode === 'PHOTO' ? 'Prendre une photo' : mode === 'VIDEO' ? 'Enregistrer une vidéo' : 'Enregistrer un audio'}
             </span>
           </h3>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/60 hover:text-white">
+          <button onClick={onClose} className="p-2 hover:bg-[var(--bg-active)] rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -275,7 +275,7 @@ export function MediaCaptureModal({
               <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
                 <X className="w-8 h-8 text-red-400" />
               </div>
-              <p className="text-white/60">{error}</p>
+              <p className="text-[var(--text-muted)]">{error}</p>
             </div>
           ) : capturedMedia ? (
             // Captured Preview
@@ -288,7 +288,7 @@ export function MediaCaptureModal({
               )}
               {capturedMedia.type === 'audio' && (
                 <div className="w-full px-6 py-8 flex flex-col items-center justify-center">
-                  <div className="w-full bg-[#222] rounded-lg overflow-hidden border border-white/10 shadow-xl">
+                  <div className="w-full bg-[var(--bg-hover)] rounded-lg overflow-hidden border border-[var(--border)] shadow-xl">
                     <AudioWaveformViewer 
                       url={capturedMedia.url} 
                       name={`Audio ${new Date().toLocaleTimeString()}`} 
@@ -304,12 +304,12 @@ export function MediaCaptureModal({
                 <div className="flex flex-col items-center gap-6">
                    <div className={cn(
                      "w-32 h-32 rounded-full border-4 flex items-center justify-center transition-all duration-300",
-                     isRecording ? "border-red-500 bg-red-500/10 scale-110" : "border-white/10 bg-white/5"
+                     isRecording ? "border-red-500 bg-red-500/10 scale-110" : "border-[var(--border)] bg-[var(--bg-hover)]"
                    )}>
-                     <Mic className={cn("w-12 h-12 transition-colors", isRecording ? "text-red-500" : "text-white/40")} />
+                     <Mic className={cn("w-12 h-12 transition-colors", isRecording ? "text-red-500" : "text-[var(--text-muted)]")} />
                    </div>
                    {isRecording && (
-                     <div className="text-2xl font-mono text-white font-bold tracking-widest">
+                     <div className="text-2xl font-mono text-[var(--text-primary)] font-bold tracking-widest">
                        {formatTime(recordingTime)}
                      </div>
                    )}
@@ -339,7 +339,7 @@ export function MediaCaptureModal({
                   {mode === 'VIDEO' && isRecording && (
                     <div className="absolute top-4 right-4 flex items-center gap-2 bg-red-500/80 px-3 py-1.5 rounded-full backdrop-blur-sm">
                       <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                      <span className="text-white text-sm font-mono font-medium">{formatTime(recordingTime)}</span>
+                      <span className="text-[var(--text-primary)] text-sm font-mono font-medium">{formatTime(recordingTime)}</span>
                     </div>
                   )}
                 </>
@@ -350,12 +350,12 @@ export function MediaCaptureModal({
         </div>
 
         {/* Controls */}
-        <div className="p-6 bg-[#1a1a1a] border-t border-white/10">
+        <div className="p-6 bg-[var(--bg-card)] border-t border-[var(--border)]">
           {capturedMedia ? (
             <div className="flex items-center justify-between gap-4">
               <button 
                 onClick={retake}
-                className="flex-1 py-3 px-4 rounded-xl border border-white/10 hover:bg-white/5 text-white flex items-center justify-center gap-2 transition-colors"
+                className="flex-1 py-3 px-4 rounded-xl border border-[var(--border)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] flex items-center justify-center gap-2 transition-colors"
               >
                 <RotateCcw className="w-4 h-4" />
                 Réessayer
@@ -371,7 +371,7 @@ export function MediaCaptureModal({
           ) : (
             <div className="flex flex-col gap-6">
               {/* Mode Selector */}
-              <div className="flex justify-center bg-black/30 p-1 rounded-xl self-center">
+              <div className="flex justify-center bg-[var(--bg-input)] p-1 rounded-xl self-center">
                 {(['PHOTO', 'VIDEO', 'AUDIO'] as CaptureMode[]).map((m) => (
                   <button
                     key={m}
@@ -380,8 +380,8 @@ export function MediaCaptureModal({
                     className={cn(
                       "px-4 py-2 rounded-lg text-sm font-medium transition-all",
                       mode === m 
-                        ? "bg-white/10 text-white shadow-sm" 
-                        : "text-white/40 hover:text-white/60 hover:bg-white/5",
+                        ? "bg-[var(--bg-active)] text-[var(--text-primary)] shadow-sm" 
+                        : "text-[var(--text-muted)] hover:text-[var(--text-muted)] hover:bg-[var(--bg-hover)]",
                       isRecording && "opacity-50 cursor-not-allowed"
                     )}
                   >
@@ -397,7 +397,7 @@ export function MediaCaptureModal({
                      <button 
                        onClick={() => setFacingMode(prev => prev === 'user' ? 'environment' : 'user')}
                        disabled={isRecording}
-                       className="p-3 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors disabled:opacity-30"
+                       className="p-3 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-30"
                      >
                        <RefreshCw className="w-5 h-5" />
                      </button>
@@ -409,7 +409,7 @@ export function MediaCaptureModal({
                    {mode === 'PHOTO' ? (
                      <button 
                        onClick={takePhoto}
-                       className="w-16 h-16 rounded-full border-4 border-white/20 flex items-center justify-center hover:scale-105 hover:border-white transition-all group"
+                       className="w-16 h-16 rounded-full border-4 border-[var(--border-strong)] flex items-center justify-center hover:scale-105 hover:border-white transition-all group"
                      >
                        <div className="w-12 h-12 rounded-full bg-white group-hover:scale-90 transition-transform" />
                      </button>
@@ -418,7 +418,7 @@ export function MediaCaptureModal({
                        onClick={isRecording ? stopRecording : startRecording}
                        className={cn(
                          "w-16 h-16 rounded-full border-4 flex items-center justify-center hover:scale-105 transition-all",
-                         isRecording ? "border-red-500/50" : "border-white/20 hover:border-white"
+                         isRecording ? "border-red-500/50" : "border-[var(--border-strong)] hover:border-white"
                        )}
                      >
                        <div className={cn(

@@ -47,7 +47,7 @@ export function IntelligentAlerts({ missions, onSelectMission }: IntelligentAler
             <div className="p-3 flex gap-3 relative">
               <button 
                 onClick={(e) => { e.stopPropagation(); removeAlert(mission.id); }}
-                className="absolute top-2 right-2 text-gray-500 hover:text-white"
+                className="absolute top-2 right-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -59,13 +59,13 @@ export function IntelligentAlerts({ missions, onSelectMission }: IntelligentAler
               <div className="flex-1 min-w-0" onClick={() => onSelectMission(mission)}>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-bold text-red-400 uppercase tracking-wider">Urgence Détectée</span>
-                  {mission.distance && <span className="text-[10px] text-gray-500">{mission.distance}</span>}
+                  {mission.distance && <span className="text-[10px] text-[var(--text-muted)]">{mission.distance}</span>}
                 </div>
-                <h4 className="font-bold text-white text-sm truncate leading-tight mb-1">{mission.title}</h4>
-                <p className="text-xs text-gray-400 truncate mb-2">{mission.venue || 'Client'}</p>
+                <h4 className="font-bold text-[var(--text-primary)] text-sm truncate leading-tight mb-1">{mission.title}</h4>
+                <p className="text-xs text-[var(--text-secondary)] truncate mb-2">{mission.venue || 'Client'}</p>
                 
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-white text-sm">
+                  <span className="font-bold text-[var(--text-primary)] text-sm">
                     {typeof mission.price === 'number' ? `${mission.price}€` : mission.price}
                   </span>
                   <button className="text-xs flex items-center gap-1 text-blue-400 font-medium hover:text-blue-300 transition-colors">

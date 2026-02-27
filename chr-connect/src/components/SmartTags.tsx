@@ -33,7 +33,7 @@ export default function SmartTags({ tags, selectedTags, onToggle }: SmartTagsPro
                 "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all border",
                 isSelected 
                   ? "bg-white text-black border-white" 
-                  : "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:border-white/20"
+                  : "bg-[var(--bg-hover)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--bg-active)] hover:border-[var(--border-strong)]"
               )}
               whileTap={{ scale: 0.95 }}
             >

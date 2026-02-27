@@ -36,7 +36,7 @@ export default function SmartScanner({ isOpen, onClose, onCapture, type }: Smart
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center p-4"
       >
-        <div className="relative w-full max-w-lg aspect-[3/4] md:aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+        <div className="relative w-full max-w-lg aspect-[3/4] md:aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl border border-[var(--border)]">
           <Webcam
             audio={false}
             ref={webcamRef}
@@ -56,7 +56,7 @@ export default function SmartScanner({ isOpen, onClose, onCapture, type }: Smart
             </button>
 
             {/* Scanning Frame */}
-            <div className="absolute inset-8 md:inset-12 border-2 border-white/30 rounded-2xl">
+            <div className="absolute inset-8 md:inset-12 border-2 border-[var(--border-strong)] rounded-2xl">
                {/* Corner Brackets */}
                <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-xl" />
                <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-xl" />
@@ -65,7 +65,7 @@ export default function SmartScanner({ isOpen, onClose, onCapture, type }: Smart
 
                {/* Identity Oval or Document Rect */}
                {type === 'IDENTITY' && (
-                 <div className="absolute inset-0 m-auto w-48 h-64 border-2 border-dashed border-white/50 rounded-[50%]" />
+                 <div className="absolute inset-0 m-auto w-48 h-64 border-2 border-dashed border-[var(--border)]0 rounded-[50%]" />
                )}
 
                {/* Laser Scan Animation */}
@@ -81,7 +81,7 @@ export default function SmartScanner({ isOpen, onClose, onCapture, type }: Smart
 
             {/* Instruction Text */}
             <div className="absolute bottom-24 left-0 right-0 text-center">
-              <p className="text-white font-medium drop-shadow-md">
+              <p className="text-[var(--text-primary)] font-medium drop-shadow-md">
                 {isScanning ? "Analyse en cours..." : type === 'IDENTITY' ? "Placez votre visage dans le cadre" : "Placez le document dans le cadre"}
               </p>
             </div>
@@ -94,7 +94,7 @@ export default function SmartScanner({ isOpen, onClose, onCapture, type }: Smart
               disabled={isScanning}
               className={clsx(
                 "w-16 h-16 rounded-full border-4 border-white flex items-center justify-center transition-all active:scale-95",
-                isScanning ? "bg-green-500 border-green-500 scale-90" : "bg-white/20 hover:bg-white/30"
+                isScanning ? "bg-green-500 border-green-500 scale-90" : "bg-[var(--bg-active)] hover:bg-white/30"
               )}
             >
               <div className={clsx("w-12 h-12 rounded-full bg-white transition-all", isScanning && "scale-0")} />

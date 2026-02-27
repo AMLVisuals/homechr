@@ -374,17 +374,17 @@ export function AddEquipmentModal({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-2xl max-h-[90vh] bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+            className="relative w-full max-w-2xl max-h-[90vh] bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl shadow-2xl overflow-hidden flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10">
+            <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                  <Plus className="w-5 h-5 text-white" />
+                  <Plus className="w-5 h-5 text-[var(--text-primary)]" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-white">Ajouter un équipement</h2>
-                  <p className="text-white/50 text-sm">
+                  <h2 className="text-lg font-bold text-[var(--text-primary)]">Ajouter un équipement</h2>
+                  <p className="text-[var(--text-muted)] text-sm">
                     {step === 1 && 'Choisissez la méthode d\'ajout'}
                     {step === 2 && 'Informations de l\'équipement'}
                     {step === 3 && 'Détails additionnels'}
@@ -393,9 +393,9 @@ export function AddEquipmentModal({
               </div>
               <button
                 onClick={handleClose}
-                className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+                className="p-2 hover:bg-[var(--bg-active)] rounded-xl transition-colors"
               >
-                <X className="w-5 h-5 text-white/60" />
+                <X className="w-5 h-5 text-[var(--text-muted)]" />
               </button>
             </div>
 
@@ -407,7 +407,7 @@ export function AddEquipmentModal({
                     key={i}
                     className={cn(
                       'h-1 flex-1 rounded-full transition-colors',
-                      i < step ? 'bg-green-500' : 'bg-white/10'
+                      i < step ? 'bg-green-500' : 'bg-[var(--bg-active)]'
                     )}
                   />
                 ))}
@@ -426,7 +426,7 @@ export function AddEquipmentModal({
                     exit={{ opacity: 0, x: -20 }}
                     className="space-y-4"
                   >
-                    <p className="text-white/60 text-sm mb-6">
+                    <p className="text-[var(--text-muted)] text-sm mb-6">
                       Comment souhaitez-vous ajouter votre équipement ?
                     </p>
 
@@ -436,18 +436,18 @@ export function AddEquipmentModal({
                       className="w-full flex items-center gap-4 p-5 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 hover:border-blue-500/40 transition-all group"
                     >
                       <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                        <QrCode className="w-7 h-7 text-white" />
+                        <QrCode className="w-7 h-7 text-[var(--text-primary)]" />
                       </div>
                       <div className="flex-1 text-left">
-                        <p className="text-white font-semibold text-lg">Scanner un QR Code</p>
-                        <p className="text-white/50 text-sm">
+                        <p className="text-[var(--text-primary)] font-semibold text-lg">Scanner un QR Code</p>
+                        <p className="text-[var(--text-muted)] text-sm">
                           Scan rapide du QR code CHR Connect sur l'équipement
                         </p>
                       </div>
                       <div className="px-3 py-1 bg-blue-500/20 rounded-full">
                         <span className="text-blue-400 text-xs font-bold">RAPIDE</span>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-white/40 group-hover:text-white/60 transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--text-muted)] transition-colors" />
                     </button>
 
                     {/* OCR Scan */}
@@ -456,35 +456,35 @@ export function AddEquipmentModal({
                       className="w-full flex items-center gap-4 p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:border-amber-500/40 transition-all group"
                     >
                       <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                        <Camera className="w-7 h-7 text-white" />
+                        <Camera className="w-7 h-7 text-[var(--text-primary)]" />
                       </div>
                       <div className="flex-1 text-left">
-                        <p className="text-white font-semibold text-lg">Scanner la plaque</p>
-                        <p className="text-white/50 text-sm">
+                        <p className="text-[var(--text-primary)] font-semibold text-lg">Scanner la plaque</p>
+                        <p className="text-[var(--text-muted)] text-sm">
                           Photographier la plaque signalétique pour extraction OCR
                         </p>
                       </div>
                       <div className="px-3 py-1 bg-amber-500/20 rounded-full">
                         <span className="text-amber-400 text-xs font-bold">INTELLIGENT</span>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-white/40 group-hover:text-white/60 transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--text-muted)] transition-colors" />
                     </button>
 
                     {/* Manual Entry */}
                     <button
                       onClick={() => handleMethodSelect('MANUAL')}
-                      className="w-full flex items-center gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all group"
+                      className="w-full flex items-center gap-4 p-5 rounded-2xl bg-[var(--bg-hover)] border border-[var(--border)] hover:border-[var(--border-strong)] transition-all group"
                     >
-                      <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center">
-                        <FileText className="w-7 h-7 text-white/60" />
+                      <div className="w-14 h-14 rounded-xl bg-[var(--bg-active)] flex items-center justify-center">
+                        <FileText className="w-7 h-7 text-[var(--text-muted)]" />
                       </div>
                       <div className="flex-1 text-left">
-                        <p className="text-white font-semibold text-lg">Saisie manuelle</p>
-                        <p className="text-white/50 text-sm">
+                        <p className="text-[var(--text-primary)] font-semibold text-lg">Saisie manuelle</p>
+                        <p className="text-[var(--text-muted)] text-sm">
                           Remplir les informations manuellement
                         </p>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-white/40 group-hover:text-white/60 transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--text-muted)] transition-colors" />
                     </button>
                   </motion.div>
                 )}
@@ -511,10 +511,10 @@ export function AddEquipmentModal({
                         )}
                       </div>
                     </div>
-                    <p className="text-white font-semibold text-lg mb-2">
+                    <p className="text-[var(--text-primary)] font-semibold text-lg mb-2">
                       {addMethod === 'SCAN_QR' ? 'Scan du QR Code...' : 'Analyse de la plaque...'}
                     </p>
-                    <p className="text-white/50 text-sm">
+                    <p className="text-[var(--text-muted)] text-sm">
                       {addMethod === 'SCAN_QR'
                         ? 'Pointez la caméra vers le QR Code'
                         : 'Reconnaissance optique en cours'}
@@ -541,7 +541,7 @@ export function AddEquipmentModal({
 
                     {/* Category Selection */}
                     <div>
-                      <label className="block text-white font-semibold mb-3">
+                      <label className="block text-[var(--text-primary)] font-semibold mb-3">
                         Catégorie <span className="text-red-400">*</span>
                       </label>
                       <div className={cn(
@@ -558,12 +558,12 @@ export function AddEquipmentModal({
                                 'flex items-center gap-3 p-3 rounded-xl border transition-all',
                                 category === cat.id
                                   ? 'bg-green-500/20 border-green-500/50 flex-row text-left'
-                                  : 'bg-white/5 border-white/10 hover:bg-white/10 flex-col text-center justify-center'
+                                  : 'bg-[var(--bg-hover)] border-[var(--border)] hover:bg-[var(--bg-active)] flex-col text-center justify-center'
                               )}
                             >
                               <div
                                 className={cn(
-                                  'w-10 h-10 rounded-lg flex items-center justify-center text-white shrink-0',
+                                  'w-10 h-10 rounded-lg flex items-center justify-center text-[var(--text-primary)] shrink-0',
                                   `bg-gradient-to-br ${cat.color}`
                                 )}
                               >
@@ -571,15 +571,15 @@ export function AddEquipmentModal({
                               </div>
                               <div className="flex-1">
                                 <p className={cn(
-                                  "text-white font-medium",
+                                  "text-[var(--text-primary)] font-medium",
                                   category === cat.id ? "text-base" : "text-xs"
                                 )}>
                                   {cat.label}
                                 </p>
                               </div>
                               {category === cat.id && (
-                                <div className="p-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
-                                  <X className="w-4 h-4 text-white" />
+                                <div className="p-1 rounded-lg bg-[var(--bg-active)] hover:bg-[var(--bg-active)] transition-colors">
+                                  <X className="w-4 h-4 text-[var(--text-primary)]" />
                                 </div>
                               )}
                             </button>
@@ -589,7 +589,7 @@ export function AddEquipmentModal({
 
                     {/* Name */}
                     <div>
-                      <label className="block text-white font-semibold mb-2">
+                      <label className="block text-[var(--text-primary)] font-semibold mb-2">
                         Nom de l'équipement <span className="text-red-400">*</span>
                       </label>
                       <input
@@ -597,37 +597,37 @@ export function AddEquipmentModal({
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Ex: Frigo principal cuisine"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-green-500/50"
+                        className="w-full px-4 py-3 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-green-500/50"
                       />
                     </div>
 
                     {/* Brand & Model */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-white font-semibold mb-2">Marque</label>
+                        <label className="block text-[var(--text-primary)] font-semibold mb-2">Marque</label>
                         <input
                           type="text"
                           value={brand}
                           onChange={(e) => setBrand(e.target.value)}
                           placeholder="Ex: Liebherr"
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-green-500/50"
+                          className="w-full px-4 py-3 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-green-500/50"
                         />
                       </div>
                       <div>
-                        <label className="block text-white font-semibold mb-2">Modèle</label>
+                        <label className="block text-[var(--text-primary)] font-semibold mb-2">Modèle</label>
                         <input
                           type="text"
                           value={model}
                           onChange={(e) => setModel(e.target.value)}
                           placeholder="Ex: GKv 4310"
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-green-500/50"
+                          className="w-full px-4 py-3 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-green-500/50"
                         />
                       </div>
                     </div>
 
                     {/* Serial Number */}
                     <div>
-                      <label className="block text-white font-semibold mb-2">
+                      <label className="block text-[var(--text-primary)] font-semibold mb-2">
                         Numéro de série
                       </label>
                       <input
@@ -635,7 +635,7 @@ export function AddEquipmentModal({
                         value={serialNumber}
                         onChange={(e) => setSerialNumber(e.target.value)}
                         placeholder="Ex: SN-2024-XXXXX"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-green-500/50"
+                        className="w-full px-4 py-3 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-green-500/50"
                       />
                     </div>
                   </motion.div>
@@ -652,7 +652,7 @@ export function AddEquipmentModal({
                   >
                     {/* Location */}
                     <div>
-                      <label className="block text-white font-semibold mb-2">
+                      <label className="block text-[var(--text-primary)] font-semibold mb-2">
                         Emplacement
                       </label>
                       <input
@@ -660,38 +660,38 @@ export function AddEquipmentModal({
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
                         placeholder="Ex: Cuisine principale, côté gauche"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-green-500/50"
+                        className="w-full px-4 py-3 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-green-500/50"
                       />
                     </div>
 
                     {/* Dates */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-white font-semibold mb-2">
+                        <label className="block text-[var(--text-primary)] font-semibold mb-2">
                           Date d'achat
                         </label>
                         <input
                           type="date"
                           value={purchaseDate}
                           onChange={(e) => setPurchaseDate(e.target.value)}
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-500/50"
+                          className="w-full px-4 py-3 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-green-500/50"
                         />
                       </div>
                       <div>
-                        <label className="block text-white font-semibold mb-2">
+                        <label className="block text-[var(--text-primary)] font-semibold mb-2">
                           Fin de garantie
                         </label>
                         <input
                           type="date"
                           value={warrantyEnd}
                           onChange={(e) => setWarrantyEnd(e.target.value)}
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-500/50"
+                          className="w-full px-4 py-3 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-green-500/50"
                         />
                       </div>
                     </div>
 
                     <div>
-                       <label className="block text-white font-semibold mb-2">Médias (Photos, Vidéos, Audio)</label>
+                       <label className="block text-[var(--text-primary)] font-semibold mb-2">Médias (Photos, Vidéos, Audio)</label>
                        
                        {/* Hidden Input */}
                        <input
@@ -709,21 +709,21 @@ export function AddEquipmentModal({
                             onClick={() => {
                               setAddMediaModalOpen(true);
                             }}
-                            className="flex-shrink-0 w-24 h-24 rounded-xl border border-dashed border-white/20 hover:border-white/40 bg-white/5 hover:bg-white/10 flex flex-col items-center justify-center gap-2 transition-all group"
+                            className="flex-shrink-0 w-24 h-24 rounded-xl border border-dashed border-[var(--border-strong)] hover:border-white/40 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] flex flex-col items-center justify-center gap-2 transition-all group"
                             title="Ajouter un média"
                           >
-                             <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                               <Plus className="w-4 h-4 text-white/60" />
+                             <div className="w-8 h-8 rounded-full bg-[var(--bg-active)] flex items-center justify-center group-hover:scale-110 transition-transform">
+                               <Plus className="w-4 h-4 text-[var(--text-muted)]" />
                              </div>
-                             <span className="text-[10px] text-white/40 group-hover:text-white/60">Ajouter</span>
+                             <span className="text-[10px] text-[var(--text-muted)] group-hover:text-[var(--text-muted)]">Ajouter</span>
                           </button>
 
                           {/* Legacy Photos */}
                           {photos.map((photo, index) => (
-                             <div key={`legacy-${index}`} className="relative flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden border border-white/10 group bg-black">
+                             <div key={`legacy-${index}`} className="relative flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden border border-[var(--border)] group bg-black">
                                 <img src={photo} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
                                 <div className="absolute bottom-1 right-1">
-                                  <ImageIcon className="w-3 h-3 text-white/60" />
+                                  <ImageIcon className="w-3 h-3 text-[var(--text-muted)]" />
                                 </div>
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                   <button 
@@ -739,31 +739,31 @@ export function AddEquipmentModal({
 
                           {/* New Media Data */}
                           {mediaData.map((item, idx) => (
-                             <div key={`media-${idx}`} className="relative flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden border border-white/10 group bg-black">
+                             <div key={`media-${idx}`} className="relative flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden border border-[var(--border)] group bg-black">
                                 {item.type === 'video' ? (
-                                  <div className="w-full h-full flex items-center justify-center bg-white/5">
+                                  <div className="w-full h-full flex items-center justify-center bg-[var(--bg-hover)]">
                                     <video src={item.preview} className="w-full h-full object-cover opacity-50" />
                                     <div className="absolute inset-0 flex items-center justify-center">
-                                      <Play className="w-8 h-8 text-white fill-white/20" />
+                                      <Play className="w-8 h-8 text-[var(--text-primary)] fill-white/20" />
                                     </div>
                                     <div className="absolute bottom-1 right-1">
-                                      <Video className="w-3 h-3 text-white/60" />
+                                      <Video className="w-3 h-3 text-[var(--text-muted)]" />
                                     </div>
                                   </div>
                                 ) : item.type === 'audio' ? (
-                                  <div className="w-full h-full flex items-center justify-center bg-white/5">
+                                  <div className="w-full h-full flex items-center justify-center bg-[var(--bg-hover)]">
                                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-500/20 to-blue-500/20">
-                                      <Mic className="w-8 h-8 text-white/80" />
+                                      <Mic className="w-8 h-8 text-[var(--text-secondary)]" />
                                     </div>
                                     <div className="absolute bottom-1 right-1">
-                                      <Mic className="w-3 h-3 text-white/60" />
+                                      <Mic className="w-3 h-3 text-[var(--text-muted)]" />
                                     </div>
                                   </div>
                                 ) : (
                                   <>
                                     <img src={item.preview} alt={`Media ${idx}`} className="w-full h-full object-cover" />
                                     <div className="absolute bottom-1 right-1">
-                                      <ImageIcon className="w-3 h-3 text-white/60" />
+                                      <ImageIcon className="w-3 h-3 text-[var(--text-muted)]" />
                                     </div>
                                   </>
                                 )}
@@ -775,7 +775,7 @@ export function AddEquipmentModal({
                                        setCurrentMediaIndex(idx);
                                        setAnnotatorOpen(true);
                                      }}
-                                     className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                                     className="p-1.5 bg-[var(--bg-active)] hover:bg-[var(--bg-active)] rounded-lg text-[var(--text-primary)] transition-colors"
                                      title={item.type === 'video' ? "Voir" : item.type === 'audio' ? "Écouter" : "Voir et Annoter"}
                                   >
                                      {item.type === 'audio' ? <Mic className="w-4 h-4" /> : <ImageIcon className="w-4 h-4" />}
@@ -803,14 +803,14 @@ export function AddEquipmentModal({
 
                     {/* Notes */}
                     <div>
-                      <label className="block text-white font-semibold mb-2">
+                      <label className="block text-[var(--text-primary)] font-semibold mb-2">
                         Notes
                       </label>
                       <textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Informations complémentaires..."
-                        className="w-full h-24 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-green-500/50"
+                        className="w-full h-24 px-4 py-3 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none focus:outline-none focus:border-green-500/50"
                       />
                     </div>
 
@@ -821,7 +821,7 @@ export function AddEquipmentModal({
                         <p className="text-blue-400 text-sm font-medium">
                           QR Code automatique
                         </p>
-                        <p className="text-white/50 text-xs mt-1">
+                        <p className="text-[var(--text-muted)] text-xs mt-1">
                           Un QR Code unique sera généré pour cet équipement, facilitant les
                           interventions futures.
                         </p>
@@ -834,15 +834,15 @@ export function AddEquipmentModal({
 
             {/* Footer */}
             {!isScanning && (
-              <div className="p-6 border-t border-white/10 flex items-center justify-between">
+              <div className="p-6 border-t border-[var(--border)] flex items-center justify-between">
                 <button
                   onClick={() => step > 1 && setStep(step - 1)}
                   disabled={step === 1}
                   className={cn(
                     'flex items-center gap-2 px-4 py-2 rounded-xl transition-colors',
                     step === 1
-                      ? 'text-white/20 cursor-not-allowed'
-                      : 'text-white/60 hover:text-white hover:bg-white/10'
+                      ? 'text-[var(--text-muted)] cursor-not-allowed'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-active)]'
                   )}
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -857,7 +857,7 @@ export function AddEquipmentModal({
                       'flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all',
                       canProceed()
                         ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:shadow-lg hover:shadow-green-500/25'
-                        : 'bg-white/10 text-white/30 cursor-not-allowed'
+                        : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
                     )}
                   >
                     Continuer
@@ -874,7 +874,7 @@ export function AddEquipmentModal({
                         <motion.div
                           animate={{ rotate: 360 }}
                           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                          className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                          className="w-4 h-4 border-2 border-[var(--border-strong)] border-t-white rounded-full"
                         />
                         Ajout en cours...
                       </>
@@ -907,16 +907,16 @@ export function AddEquipmentModal({
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-sm bg-[#1a1a1a] border border-white/10 rounded-3xl p-6 shadow-2xl overflow-hidden"
+              className="relative w-full max-w-sm bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 shadow-2xl overflow-hidden"
             >
               <button
                 onClick={() => setAddMediaModalOpen(false)}
-                className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full transition-colors"
+                className="absolute top-4 right-4 p-2 hover:bg-[var(--bg-active)] rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-white/60" />
+                <X className="w-5 h-5 text-[var(--text-muted)]" />
               </button>
 
-              <h3 className="text-lg font-bold text-white mb-6 text-center">
+              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-6 text-center">
                 Ajouter un média
               </h3>
 
@@ -927,12 +927,12 @@ export function AddEquipmentModal({
                     setCaptureModalOpen(true);
                     setAddMediaModalOpen(false);
                   }}
-                  className="flex flex-col items-center justify-center gap-3 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group"
+                  className="flex flex-col items-center justify-center gap-3 p-4 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-2xl transition-all group"
                 >
                   <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Camera className="w-6 h-6 text-blue-400" />
                   </div>
-                  <span className="text-white font-medium text-sm">Photo</span>
+                  <span className="text-[var(--text-primary)] font-medium text-sm">Photo</span>
                 </button>
 
                 <button
@@ -941,12 +941,12 @@ export function AddEquipmentModal({
                     setCaptureModalOpen(true);
                     setAddMediaModalOpen(false);
                   }}
-                  className="flex flex-col items-center justify-center gap-3 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group"
+                  className="flex flex-col items-center justify-center gap-3 p-4 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-2xl transition-all group"
                 >
                   <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Video className="w-6 h-6 text-purple-400" />
                   </div>
-                  <span className="text-white font-medium text-sm">Vidéo</span>
+                  <span className="text-[var(--text-primary)] font-medium text-sm">Vidéo</span>
                 </button>
 
                 <button
@@ -955,12 +955,12 @@ export function AddEquipmentModal({
                     setCaptureModalOpen(true);
                     setAddMediaModalOpen(false);
                   }}
-                  className="flex flex-col items-center justify-center gap-3 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group"
+                  className="flex flex-col items-center justify-center gap-3 p-4 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-2xl transition-all group"
                 >
                   <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Mic className="w-6 h-6 text-amber-400" />
                   </div>
-                  <span className="text-white font-medium text-sm">Audio</span>
+                  <span className="text-[var(--text-primary)] font-medium text-sm">Audio</span>
                 </button>
 
                 <button
@@ -968,12 +968,12 @@ export function AddEquipmentModal({
                     fileInputRef.current?.click();
                     setAddMediaModalOpen(false);
                   }}
-                  className="flex flex-col items-center justify-center gap-3 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group"
+                  className="flex flex-col items-center justify-center gap-3 p-4 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-2xl transition-all group"
                 >
                   <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Upload className="w-6 h-6 text-green-400" />
                   </div>
-                  <span className="text-white font-medium text-sm">Importer</span>
+                  <span className="text-[var(--text-primary)] font-medium text-sm">Importer</span>
                 </button>
               </div>
             </motion.div>

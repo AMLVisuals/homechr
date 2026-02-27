@@ -63,17 +63,17 @@ export function CompleteMissionForm({ mission, onComplete, onCancel, requireBefo
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-lg bg-[#121212] border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl max-h-[90vh]"
+        className="w-full max-w-lg bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl overflow-hidden flex flex-col shadow-2xl max-h-[90vh]"
       >
         {/* Header */}
-        <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
+        <div className="p-6 border-b border-[var(--border)] flex justify-between items-center bg-[var(--bg-hover)]">
           <div>
-            <h2 className="text-xl font-bold text-white">Fin de Mission</h2>
-            <p className="text-sm text-gray-400">{mission.title}</p>
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">Fin de Mission</h2>
+            <p className="text-sm text-[var(--text-secondary)]">{mission.title}</p>
           </div>
           <button 
             onClick={onCancel}
-            className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors"
+            className="p-2 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -94,8 +94,8 @@ export function CompleteMissionForm({ mission, onComplete, onCancel, requireBefo
                   <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/30">
                     <Camera className="w-8 h-8 text-red-500" />
                   </div>
-                  <h3 className="text-lg font-bold text-white">Photo "Avant" manquante</h3>
-                  <p className="text-gray-400 text-sm">
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">Photo "Avant" manquante</h3>
+                  <p className="text-[var(--text-secondary)] text-sm">
                     Pour valider la qualité de votre travail, nous avons besoin d'une photo de l'état initial.
                   </p>
                 </div>
@@ -103,7 +103,7 @@ export function CompleteMissionForm({ mission, onComplete, onCancel, requireBefo
                 <div 
                   onClick={() => beforeInputRef.current?.click()}
                   className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all ${
-                    beforePreview ? 'border-green-500/50 bg-green-500/5' : 'border-white/20 hover:border-white/40 hover:bg-white/5'
+                    beforePreview ? 'border-green-500/50 bg-green-500/5' : 'border-[var(--border-strong)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-hover)]'
                   }`}
                 >
                   <input 
@@ -123,8 +123,8 @@ export function CompleteMissionForm({ mission, onComplete, onCancel, requireBefo
                     </div>
                   ) : (
                     <>
-                      <Upload className="w-10 h-10 text-gray-500" />
-                      <p className="text-gray-400 font-medium">Appuyez pour prendre une photo</p>
+                      <Upload className="w-10 h-10 text-[var(--text-muted)]" />
+                      <p className="text-[var(--text-secondary)] font-medium">Appuyez pour prendre une photo</p>
                     </>
                   )}
                 </div>
@@ -151,8 +151,8 @@ export function CompleteMissionForm({ mission, onComplete, onCancel, requireBefo
                   <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/30">
                     <CheckCircle className="w-8 h-8 text-green-500" />
                   </div>
-                  <h3 className="text-lg font-bold text-white">Validation du travail</h3>
-                  <p className="text-gray-400 text-sm">
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">Validation du travail</h3>
+                  <p className="text-[var(--text-secondary)] text-sm">
                     Prenez une photo du résultat final pour déclencher le paiement.
                   </p>
                 </div>
@@ -160,7 +160,7 @@ export function CompleteMissionForm({ mission, onComplete, onCancel, requireBefo
                 <div 
                   onClick={() => afterInputRef.current?.click()}
                   className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all ${
-                    afterPreview ? 'border-green-500/50 bg-green-500/5' : 'border-white/20 hover:border-white/40 hover:bg-white/5'
+                    afterPreview ? 'border-green-500/50 bg-green-500/5' : 'border-[var(--border-strong)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-hover)]'
                   }`}
                 >
                   <input 
@@ -180,8 +180,8 @@ export function CompleteMissionForm({ mission, onComplete, onCancel, requireBefo
                     </div>
                   ) : (
                     <>
-                      <Upload className="w-10 h-10 text-gray-500" />
-                      <p className="text-gray-400 font-medium">Photo du résultat "APRÈS"</p>
+                      <Upload className="w-10 h-10 text-[var(--text-muted)]" />
+                      <p className="text-[var(--text-secondary)] font-medium">Photo du résultat "APRÈS"</p>
                     </>
                   )}
                 </div>
@@ -211,16 +211,16 @@ export function CompleteMissionForm({ mission, onComplete, onCancel, requireBefo
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <h3 className="text-lg font-bold text-white mb-4">Récapitulatif</h3>
+                <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">Récapitulatif</h3>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <span className="text-xs text-gray-500 uppercase font-bold">Avant</span>
+                    <span className="text-xs text-[var(--text-muted)] uppercase font-bold">Avant</span>
                     <div className="aspect-square rounded-lg overflow-hidden bg-gray-800">
                       {beforePreview ? (
                         <img src={beforePreview} alt="Before" className="w-full h-full object-cover" />
                       ) : (
-                         <div className="w-full h-full flex items-center justify-center text-gray-600 text-xs">Non requis</div>
+                         <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)] text-xs">Non requis</div>
                       )}
                     </div>
                   </div>
@@ -233,11 +233,11 @@ export function CompleteMissionForm({ mission, onComplete, onCancel, requireBefo
                 </div>
 
                 <div>
-                  <label className="block text-sm text-gray-400 mb-2">Commentaire final (optionnel)</label>
+                  <label className="block text-sm text-[var(--text-secondary)] mb-2">Commentaire final (optionnel)</label>
                   <textarea 
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-blue-500 transition-colors resize-none h-24"
+                    className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl p-4 text-[var(--text-primary)] focus:outline-none focus:border-blue-500 transition-colors resize-none h-24"
                     placeholder="Rapport d'intervention rapide..."
                   />
                 </div>

@@ -65,7 +65,7 @@ export default function VenuePhotoUploader({ photos, onChange }: VenuePhotoUploa
         onDrop={onDrop}
         className={`
           w-full h-32 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-colors
-          ${isDragging ? 'border-blue-500 bg-blue-500/10' : 'border-white/10 bg-white/5 hover:bg-white/10'}
+          ${isDragging ? 'border-blue-500 bg-blue-500/10' : 'border-[var(--border)] bg-[var(--bg-hover)] hover:bg-[var(--bg-active)]'}
         `}
       >
         <input 
@@ -76,10 +76,10 @@ export default function VenuePhotoUploader({ photos, onChange }: VenuePhotoUploa
           accept="image/*" 
           className="hidden" 
         />
-        <div className="p-3 rounded-full bg-white/5 mb-2">
-          <Upload className="w-6 h-6 text-gray-400" />
+        <div className="p-3 rounded-full bg-[var(--bg-hover)] mb-2">
+          <Upload className="w-6 h-6 text-[var(--text-secondary)]" />
         </div>
-        <span className="text-sm font-medium text-gray-400">
+        <span className="text-sm font-medium text-[var(--text-secondary)]">
           Glisser des photos ou cliquer pour ajouter
         </span>
       </div>
@@ -92,7 +92,7 @@ export default function VenuePhotoUploader({ photos, onChange }: VenuePhotoUploa
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="relative group bg-black/20 border border-white/10 rounded-xl overflow-hidden"
+              className="relative group bg-[var(--bg-input)] border border-[var(--border)] rounded-xl overflow-hidden"
             >
               <div className="aspect-video relative">
                 <img src={photo.url} alt="Preview" className="w-full h-full object-cover" />
@@ -106,7 +106,7 @@ export default function VenuePhotoUploader({ photos, onChange }: VenuePhotoUploa
                   <select
                     value={photo.type}
                     onChange={(e) => updatePhotoType(photo.id, e.target.value as VenuePhoto['type'])}
-                    className="w-full bg-black/60 backdrop-blur-md text-xs text-white border border-white/20 rounded-lg p-1.5 outline-none"
+                    className="w-full bg-black/60 backdrop-blur-md text-xs text-white border border-[var(--border-strong)] rounded-lg p-1.5 outline-none"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <option value="FACADE">Façade</option>

@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #050505;
-  --foreground: #ededed;
+  --background: #f8f9fa;
+  --foreground: #1a1a1a;
 }
 
 html.dark {
+  --bg-main: #050505;
   --bg-app: #050505;
   --bg-sidebar: #0a0a0a;
   --bg-card: #0f0f0f;
@@ -27,9 +28,14 @@ html.dark {
   
   --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+
+  --bg-overlay: rgba(5, 5, 5, 0.7);
+  --bg-elevated: #1a1a1a;
+  --border-active: rgba(59, 130, 246, 0.5);
 }
 
 html:not(.dark) {
+  --bg-main: #f8f9fa;
   --bg-app: #f8f9fa;
   --bg-sidebar: #ffffff;
   --bg-card: #ffffff;
@@ -51,6 +57,10 @@ html:not(.dark) {
   
   --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.06);
+
+  --bg-overlay: rgba(248, 249, 250, 0.7);
+  --bg-elevated: #f1f3f5;
+  --border-active: rgba(37, 99, 235, 0.5);
 }
 
 body {

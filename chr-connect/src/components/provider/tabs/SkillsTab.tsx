@@ -105,8 +105,8 @@ export default function SkillsTab({ profile, setProfile }: SkillsTabProps) {
     <div className="space-y-8 max-w-4xl mx-auto">
       {/* Smart Tag Input Section */}
       <section>
-        <h3 className="text-xl font-bold text-white mb-4">Compétences Techniques</h3>
-        <div className="bg-[#121212] p-6 rounded-2xl border border-white/10 relative z-10">
+        <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4">Compétences Techniques</h3>
+        <div className="bg-[var(--bg-sidebar)] p-6 rounded-2xl border border-[var(--border)] relative z-10">
           <div className="flex flex-wrap gap-2 mb-4">
             {profile.skills.map(skill => (
               <span key={skill} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg shadow-blue-900/20">
@@ -120,7 +120,7 @@ export default function SkillsTab({ profile, setProfile }: SkillsTabProps) {
           
           <div className="relative">
             <div className="relative">
-              <Search className="absolute left-3 top-3.5 w-4 h-4 text-gray-500" />
+              <Search className="absolute left-3 top-3.5 w-4 h-4 text-[var(--text-muted)]" />
               <input 
                 type="text" 
                 value={skillInput}
@@ -131,7 +131,7 @@ export default function SkillsTab({ profile, setProfile }: SkillsTabProps) {
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 placeholder="Rechercher une compétence..."
-                className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:border-blue-500 outline-none transition-colors"
+                className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-3 text-[var(--text-primary)] focus:border-blue-500 outline-none transition-colors"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     addSkill(skillInput.trim());
@@ -147,13 +147,13 @@ export default function SkillsTab({ profile, setProfile }: SkillsTabProps) {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-xl overflow-hidden max-h-60 overflow-y-auto z-20"
+                  className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-xl overflow-hidden max-h-60 overflow-y-auto z-20"
                 >
                   {filteredSuggestions.map(suggestion => (
                     <button
                       key={suggestion}
                       onMouseDown={() => addSkill(suggestion)}
-                      className="w-full text-left px-4 py-3 hover:bg-white/5 text-gray-300 hover:text-white transition-colors flex items-center gap-2"
+                      className="w-full text-left px-4 py-3 hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors flex items-center gap-2"
                     >
                       <Plus className="w-3 h-3 text-blue-400" />
                       {suggestion}
@@ -170,13 +170,13 @@ export default function SkillsTab({ profile, setProfile }: SkillsTabProps) {
       <section>
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h3 className="text-xl font-bold text-white">Certifications & Diplômes</h3>
-            <p className="text-sm text-gray-400">Prouvez votre expertise avec vos documents officiels.</p>
+            <h3 className="text-xl font-bold text-[var(--text-primary)]">Certifications & Diplômes</h3>
+            <p className="text-sm text-[var(--text-secondary)]">Prouvez votre expertise avec vos documents officiels.</p>
           </div>
           {!isAddingCert && (
             <button 
               onClick={() => setIsAddingCert(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors text-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-xl transition-colors text-sm font-medium"
             >
               <Plus className="w-4 h-4" />
               Ajouter
@@ -192,30 +192,30 @@ export default function SkillsTab({ profile, setProfile }: SkillsTabProps) {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="col-span-1 md:col-span-2 bg-[#121212] border border-white/10 rounded-2xl p-6 space-y-4 relative"
+                className="col-span-1 md:col-span-2 bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-2xl p-6 space-y-4 relative"
               >
                  <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 rounded-l-2xl" />
-                 <h4 className="font-medium text-white mb-2">Nouvelle Certification</h4>
+                 <h4 className="font-medium text-[var(--text-primary)] mb-2">Nouvelle Certification</h4>
                  
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                    <div className="space-y-2">
-                     <label className="text-xs text-gray-400">Nom du diplôme / certification</label>
+                     <label className="text-xs text-[var(--text-secondary)]">Nom du diplôme / certification</label>
                      <input 
                         type="text" 
                         value={newCertName}
                         onChange={(e) => setNewCertName(e.target.value)}
                         placeholder="Ex: CAP Cuisine"
-                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none"
+                        className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:border-blue-500 outline-none"
                      />
                    </div>
                    <div className="space-y-2">
-                     <label className="text-xs text-gray-400">Organisme délivreur</label>
+                     <label className="text-xs text-[var(--text-secondary)]">Organisme délivreur</label>
                      <input 
                         type="text" 
                         value={newCertIssuer}
                         onChange={(e) => setNewCertIssuer(e.target.value)}
                         placeholder="Ex: École Ferrandi"
-                        className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none"
+                        className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:border-blue-500 outline-none"
                      />
                    </div>
                  </div>
@@ -231,10 +231,10 @@ export default function SkillsTab({ profile, setProfile }: SkillsTabProps) {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs text-gray-400">Preuve (Photo/PDF)</label>
+                      <label className="text-xs text-[var(--text-secondary)]">Preuve (Photo/PDF)</label>
                       <div 
                         onClick={() => certFileInputRef.current?.click()}
-                        className={`w-full bg-[#0a0a0a] border border-dashed ${newCertFile ? 'border-blue-500/50' : 'border-white/20'} hover:border-blue-500/50 rounded-xl px-4 py-2.5 text-sm flex items-center justify-center gap-2 cursor-pointer transition-colors h-[42px] relative overflow-hidden`}
+                        className={`w-full bg-[var(--bg-card)] border border-dashed ${newCertFile ? 'border-blue-500/50' : 'border-[var(--border-strong)]'} hover:border-blue-500/50 rounded-xl px-4 py-2.5 text-sm flex items-center justify-center gap-2 cursor-pointer transition-colors h-[42px] relative overflow-hidden`}
                       >
                         {newCertFile && newCertFile.startsWith('data:image') ? (
                            <>
@@ -246,8 +246,8 @@ export default function SkillsTab({ profile, setProfile }: SkillsTabProps) {
                            </>
                         ) : (
                           <>
-                            <Upload className={`w-4 h-4 ${newCertFile ? 'text-blue-400' : 'text-gray-400'}`} />
-                            <span className={`truncate max-w-[200px] ${newCertFile ? 'text-blue-400' : 'text-gray-400'}`}>
+                            <Upload className={`w-4 h-4 ${newCertFile ? 'text-blue-400' : 'text-[var(--text-secondary)]'}`} />
+                            <span className={`truncate max-w-[200px] ${newCertFile ? 'text-blue-400' : 'text-[var(--text-secondary)]'}`}>
                               {newCertFile ? "Document chargé" : "Uploader le document"}
                             </span>
                           </>
@@ -266,7 +266,7 @@ export default function SkillsTab({ profile, setProfile }: SkillsTabProps) {
                  <div className="flex justify-end gap-3 pt-2">
                    <button 
                      onClick={() => setIsAddingCert(false)}
-                     className="px-4 py-2 text-gray-400 hover:text-white text-sm"
+                     className="px-4 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-sm"
                    >
                      Annuler
                    </button>
@@ -284,10 +284,10 @@ export default function SkillsTab({ profile, setProfile }: SkillsTabProps) {
 
           {/* Certification List */}
           {profile.certifications.map(cert => (
-            <div key={cert.id} className="bg-[#121212] border border-white/10 rounded-2xl p-5 relative group hover:border-white/20 transition-colors">
+            <div key={cert.id} className="bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-2xl p-5 relative group hover:border-[var(--border-strong)] transition-colors">
               <button 
                 onClick={() => removeCertification(cert.id)}
-                className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-lg text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                className="absolute top-4 right-4 p-2 hover:bg-[var(--bg-active)] rounded-lg text-[var(--text-muted)] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -297,10 +297,10 @@ export default function SkillsTab({ profile, setProfile }: SkillsTabProps) {
                   <Award className="w-6 h-6" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-white truncate pr-6">{cert.name}</h4>
-                  <p className="text-sm text-gray-400 truncate">{cert.issuer}</p>
+                  <h4 className="font-bold text-[var(--text-primary)] truncate pr-6">{cert.name}</h4>
+                  <p className="text-sm text-[var(--text-secondary)] truncate">{cert.issuer}</p>
                   <div className="flex items-center gap-2 mt-3">
-                    <span className="text-xs bg-white/5 text-gray-400 px-2 py-1 rounded-md border border-white/5">
+                    <span className="text-xs bg-[var(--bg-hover)] text-[var(--text-secondary)] px-2 py-1 rounded-md border border-[var(--border)]">
                       {new Date(cert.dateObtained).getFullYear()}
                     </span>
                     {cert.documentUrl ? (

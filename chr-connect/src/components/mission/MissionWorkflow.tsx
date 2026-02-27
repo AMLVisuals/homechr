@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 // Dynamic import for Map to avoid SSR issues
 const MissionMap = dynamic(() => import('./MissionMap'), { 
   ssr: false,
-  loading: () => <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">Chargement de la carte...</div>
+  loading: () => <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center text-[var(--text-secondary)]">Chargement de la carte...</div>
 });
 
 // Mock images for fallback
@@ -270,7 +270,7 @@ export default function MissionWorkflow() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900">Prêt à partir ?</h3>
-                  <p className="text-gray-500 mt-2 max-w-xs mx-auto">
+                  <p className="text-[var(--text-muted)] mt-2 max-w-xs mx-auto">
                     Confirmez votre départ pour prévenir le client et lancer la navigation.
                   </p>
                 </div>
@@ -298,7 +298,7 @@ export default function MissionWorkflow() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900">État des lieux</h3>
-                  <p className="text-gray-500 mt-2">
+                  <p className="text-[var(--text-muted)] mt-2">
                     Prenez une photo de l'équipement avant d'intervenir pour valider votre arrivée.
                   </p>
                 </div>
@@ -322,7 +322,7 @@ export default function MissionWorkflow() {
                 <div className="bg-blue-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-900/20">
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="font-bold text-xl">Intervention en cours</h3>
-                    <div className="bg-white/20 px-3 py-1 rounded-full font-mono text-sm backdrop-blur-sm">
+                    <div className="bg-[var(--bg-active)] px-3 py-1 rounded-full font-mono text-sm backdrop-blur-sm">
                       {elapsedTime}
                     </div>
                   </div>
@@ -389,20 +389,20 @@ export default function MissionWorkflow() {
                 <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
                    <h4 className="font-bold text-gray-900 mb-2">Instructions</h4>
                    <ul className="space-y-3">
-                     <li className="flex gap-3 text-sm text-gray-600">
+                     <li className="flex gap-3 text-sm text-[var(--text-muted)]">
                        <div className="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0 mt-0.5">
                          <CheckCircle className="w-3 h-3" />
                        </div>
                        Vérifier l'alimentation électrique
                      </li>
-                     <li className="flex gap-3 text-sm text-gray-600">
+                     <li className="flex gap-3 text-sm text-[var(--text-muted)]">
                        <div className="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0 mt-0.5">
                          <CheckCircle className="w-3 h-3" />
                        </div>
                        Inspecter les joints d'étanchéité
                      </li>
-                     <li className="flex gap-3 text-sm text-gray-600">
-                       <div className="w-5 h-5 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                     <li className="flex gap-3 text-sm text-[var(--text-muted)]">
+                       <div className="w-5 h-5 rounded-full bg-gray-200 text-[var(--text-muted)] flex items-center justify-center flex-shrink-0 mt-0.5">
                          <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
                        </div>
                        Remplacer le filtre si nécessaire
@@ -411,7 +411,7 @@ export default function MissionWorkflow() {
                 </div>
               </div>
 
-              <Button onClick={handleFinishWork} size="lg" className="w-full h-14 text-lg font-bold bg-gray-900 text-white shadow-xl rounded-2xl mt-4">
+              <Button onClick={handleFinishWork} size="lg" className="w-full h-14 text-lg font-bold bg-gray-900 text-[var(--text-primary)] shadow-xl rounded-2xl mt-4">
                 Terminer l'intervention
               </Button>
             </motion.div>
@@ -437,16 +437,16 @@ export default function MissionWorkflow() {
               
               <div>
                 <h3 className="text-3xl font-bold text-gray-900">Mission Terminée !</h3>
-                <p className="text-gray-500 mt-2">Le rapport a été transmis au client.</p>
+                <p className="text-[var(--text-muted)] mt-2">Le rapport a été transmis au client.</p>
               </div>
 
               <div className="w-full bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
                  <div className="flex justify-between items-center pb-4 border-b border-gray-50">
-                   <span className="text-gray-500">Temps total</span>
+                   <span className="text-[var(--text-muted)]">Temps total</span>
                    <span className="font-mono font-bold text-lg">{elapsedTime}</span>
                  </div>
                  <div className="flex justify-between items-center">
-                   <span className="text-gray-500">Gain estimé</span>
+                   <span className="text-[var(--text-muted)]">Gain estimé</span>
                    <span className="font-bold text-lg text-green-600">85.00 €</span>
                  </div>
               </div>
@@ -472,13 +472,13 @@ export default function MissionWorkflow() {
               className="fixed inset-0 z-[9999] flex flex-col bg-white"
             >
               {/* Top Navigation Panel */}
-              <div className="absolute top-4 left-4 right-4 z-[40] bg-[#1a1a1a] text-white p-4 rounded-xl shadow-2xl border border-white/10 flex items-start gap-4 safe-area-top">
+              <div className="absolute top-4 left-4 right-4 z-[40] bg-[var(--bg-card)] text-[var(--text-primary)] p-4 rounded-xl shadow-2xl border border-[var(--border)] flex items-start gap-4 safe-area-top">
                 <div className="mt-1">
-                  <ArrowRight className="w-8 h-8 text-white" />
+                  <ArrowRight className="w-8 h-8 text-[var(--text-primary)]" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-xl leading-tight">{distance}m</h3>
-                  <p className="text-gray-400 text-sm">{instruction}</p>
+                  <p className="text-[var(--text-secondary)] text-sm">{instruction}</p>
                 </div>
               </div>
 
@@ -507,11 +507,11 @@ export default function MissionWorkflow() {
                 <div className="flex justify-between items-center mb-6">
                   <div>
                     <h4 className="font-bold text-lg">Le Fouquet's</h4>
-                    <p className="text-sm text-gray-500">Arrivée estimée: {new Date(Date.now() + eta * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                    <p className="text-sm text-[var(--text-muted)]">Arrivée estimée: {new Date(Date.now() + eta * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                   </div>
                   <div className="text-right">
                     <span className="block font-bold text-2xl text-blue-600">{Math.ceil(distance / 250)} min</span>
-                    <span className="text-xs text-gray-400">{(distance / 1000).toFixed(1)} km</span>
+                    <span className="text-xs text-[var(--text-secondary)]">{(distance / 1000).toFixed(1)} km</span>
                   </div>
                 </div>
                 
@@ -540,7 +540,7 @@ export default function MissionWorkflow() {
             className="fixed inset-0 bg-black z-[100] flex flex-col"
           >
             <div className="flex justify-between items-center p-4 pt-12 text-white bg-gradient-to-b from-black/80 to-transparent absolute top-0 left-0 right-0 z-10">
-              <button onClick={() => setShowEvidenceModal(false)} className="p-2 bg-white/10 rounded-full backdrop-blur-md">
+              <button onClick={() => setShowEvidenceModal(false)} className="p-2 bg-[var(--bg-active)] rounded-full backdrop-blur-md">
                 <ChevronLeft className="w-6 h-6" />
               </button>
               <span className="font-bold text-lg">
@@ -554,7 +554,7 @@ export default function MissionWorkflow() {
             </div>
             
             <div className="absolute bottom-0 left-0 right-0 p-8 pb-12 bg-gradient-to-t from-black/90 to-transparent flex flex-col items-center gap-8">
-               <div className="flex bg-white/20 backdrop-blur-md rounded-full p-1.5">
+               <div className="flex bg-[var(--bg-active)] backdrop-blur-md rounded-full p-1.5">
                   <button 
                     onClick={() => setMediaType('PHOTO')}
                     className={cn(

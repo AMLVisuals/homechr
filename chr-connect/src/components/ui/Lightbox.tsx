@@ -76,7 +76,7 @@ export function Lightbox({ images, initialIndex = 0, isOpen, onClose }: Lightbox
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-50 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+            className="absolute top-4 right-4 z-50 p-2 bg-[var(--bg-active)] hover:bg-white/20 rounded-full text-[var(--text-primary)] transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
@@ -86,13 +86,13 @@ export function Lightbox({ images, initialIndex = 0, isOpen, onClose }: Lightbox
             <>
               <button
                 onClick={handlePrev}
-                className="absolute left-4 z-50 p-3 bg-white/5 hover:bg-white/10 rounded-full text-white transition-colors hidden md:block"
+                className="absolute left-4 z-50 p-3 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-full text-[var(--text-primary)] transition-colors hidden md:block"
               >
                 <ChevronLeft className="w-8 h-8" />
               </button>
               <button
                 onClick={handleNext}
-                className="absolute right-4 z-50 p-3 bg-white/5 hover:bg-white/10 rounded-full text-white transition-colors hidden md:block"
+                className="absolute right-4 z-50 p-3 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-full text-[var(--text-primary)] transition-colors hidden md:block"
               >
                 <ChevronRight className="w-8 h-8" />
               </button>
@@ -140,9 +140,9 @@ export function Lightbox({ images, initialIndex = 0, isOpen, onClose }: Lightbox
                       initial={{ opacity: 0, y: 20, scale: 0.9 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.9 }}
-                      className="bg-black/80 backdrop-blur-md border border-white/10 p-4 rounded-2xl text-center w-full"
+                      className="bg-black/80 backdrop-blur-md border border-[var(--border)] p-4 rounded-2xl text-center w-full"
                     >
-                      <p className="text-white text-sm font-medium">{currentImage.caption}</p>
+                      <p className="text-[var(--text-primary)] text-sm font-medium">{currentImage.caption}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -150,9 +150,9 @@ export function Lightbox({ images, initialIndex = 0, isOpen, onClose }: Lightbox
                 <button
                   onClick={() => setShowCaption(!showCaption)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-md border transition-all ${
-                    showCaption 
-                      ? 'bg-white text-black border-white' 
-                      : 'bg-black/50 text-white border-white/20 hover:bg-black/70'
+                    showCaption
+                      ? 'bg-white text-black border-white'
+                      : 'bg-black/50 text-[var(--text-primary)] border-[var(--border)] hover:bg-black/70'
                   }`}
                 >
                   <MessageCircle className="w-4 h-4" />
@@ -164,7 +164,7 @@ export function Lightbox({ images, initialIndex = 0, isOpen, onClose }: Lightbox
             )}
             
             {/* Page Indicator */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-black/30 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium text-white/70">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-black/30 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium text-[var(--text-secondary)]">
               {currentIndex + 1} / {normalizedImages.length}
             </div>
           </div>

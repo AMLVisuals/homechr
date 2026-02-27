@@ -23,7 +23,7 @@ export default function DynamicForm({ fields, onChange }: DynamicFormProps) {
     <div className="space-y-4">
       {fields.map((field) => (
         <div key={field.id} className="space-y-2">
-          <label className="block text-sm font-medium text-gray-400">
+          <label className="block text-sm font-medium text-[var(--text-secondary)]">
             {field.label} {field.required && <span className="text-red-500">*</span>}
           </label>
 
@@ -35,10 +35,10 @@ export default function DynamicForm({ fields, onChange }: DynamicFormProps) {
                 placeholder={field.placeholder}
                 value={values[field.id] || ''}
                 onChange={(e) => handleChange(field.id, field.type === 'number' ? parseFloat(e.target.value) : e.target.value)}
-                className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder-gray-600 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
               />
               {field.suffix && (
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-sm">
                   {field.suffix}
                 </span>
               )}
@@ -51,14 +51,14 @@ export default function DynamicForm({ fields, onChange }: DynamicFormProps) {
               <select
                 value={values[field.id] || ''}
                 onChange={(e) => handleChange(field.id, e.target.value)}
-                className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:ring-1 focus:ring-blue-500 outline-none appearance-none cursor-pointer"
+                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder-gray-600 focus:ring-1 focus:ring-blue-500 outline-none appearance-none cursor-pointer"
               >
-                <option value="" disabled className="bg-gray-900 text-gray-500">Sélectionner...</option>
+                <option value="" disabled className="bg-gray-900 text-[var(--text-muted)]">Sélectionner...</option>
                 {field.options?.map(opt => (
-                  <option key={opt} value={opt} className="bg-gray-900 text-white">{opt}</option>
+                  <option key={opt} value={opt} className="bg-gray-900 text-[var(--text-primary)]">{opt}</option>
                 ))}
               </select>
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--text-muted)]">
                 ▼
               </div>
             </div>
@@ -75,7 +75,7 @@ export default function DynamicForm({ fields, onChange }: DynamicFormProps) {
                     "px-4 py-2 rounded-lg text-sm font-medium transition-all border",
                     values[field.id] === opt 
                       ? "bg-blue-500/20 border-blue-500 text-blue-300" 
-                      : "bg-white/5 border-transparent text-gray-400 hover:bg-white/10"
+                      : "bg-[var(--bg-hover)] border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-active)]"
                   )}
                 >
                   {opt}
@@ -91,9 +91,9 @@ export default function DynamicForm({ fields, onChange }: DynamicFormProps) {
                 "w-6 h-6 rounded-lg border flex items-center justify-center transition-colors",
                 values[field.id] 
                   ? "bg-blue-500 border-blue-500" 
-                  : "bg-black/20 border-white/10 group-hover:border-white/30"
+                  : "bg-[var(--bg-input)] border-[var(--border)] group-hover:border-[var(--border-strong)]"
               )}>
-                {values[field.id] && <span className="text-white font-bold">✓</span>}
+                {values[field.id] && <span className="text-[var(--text-primary)] font-bold">✓</span>}
               </div>
               <input 
                 type="checkbox" 
@@ -101,7 +101,7 @@ export default function DynamicForm({ fields, onChange }: DynamicFormProps) {
                 checked={values[field.id] || false} 
                 onChange={(e) => handleChange(field.id, e.target.checked)}
               />
-              <span className={clsx("text-sm transition-colors", values[field.id] ? "text-white" : "text-gray-400")}>
+              <span className={clsx("text-sm transition-colors", values[field.id] ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]")}>
                 {field.label}
               </span>
             </label>
@@ -124,7 +124,7 @@ export default function DynamicForm({ fields, onChange }: DynamicFormProps) {
                       "px-3 py-1.5 rounded-full text-xs font-medium transition-all border",
                       selected
                         ? "bg-white text-black border-white" 
-                        : "bg-white/5 border-white/10 text-gray-400 hover:border-white/30"
+                        : "bg-[var(--bg-hover)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]"
                     )}
                   >
                     {selected ? '✓ ' : '+ '}{opt}
@@ -140,7 +140,7 @@ export default function DynamicForm({ fields, onChange }: DynamicFormProps) {
               placeholder={field.placeholder}
               value={values[field.id] || ''}
               onChange={(e) => handleChange(field.id, e.target.value)}
-              className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:ring-1 focus:ring-blue-500 outline-none transition-all min-h-[100px] resize-none"
+              className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder-gray-600 focus:ring-1 focus:ring-blue-500 outline-none transition-all min-h-[100px] resize-none"
             />
           )}
 

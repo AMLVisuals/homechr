@@ -110,17 +110,17 @@ export default function ProviderProfileEditor() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-primary)]">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-[#050505]/80 backdrop-blur-md border-b border-white/10 px-6 py-4 flex justify-between items-center">
+      <div className="sticky top-0 z-40 bg-[var(--bg-main)]/80 backdrop-blur-md border-b border-[var(--border)] px-6 py-4 flex justify-between items-center">
         <div>
           <h1 className="text-xl font-bold">Éditeur de Profil</h1>
-          <p className="text-sm text-gray-400">Complétez votre fiche pour attirer plus de clients</p>
+          <p className="text-sm text-[var(--text-secondary)]">Complétez votre fiche pour attirer plus de clients</p>
         </div>
         <div className="flex gap-3">
           <button 
             onClick={() => setShowPreview(true)}
-            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium"
+            className="px-4 py-2 bg-[var(--bg-active)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors flex items-center gap-2 text-sm font-medium"
           >
             <Eye className="w-4 h-4" />
             Aperçu
@@ -148,7 +148,7 @@ export default function ProviderProfileEditor() {
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
               activeTab === 'IDENTITY' 
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
-                : 'bg-zinc-900/50 text-gray-400 hover:bg-zinc-800 hover:text-white'
+                : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)] hover:text-[var(--text-primary)]'
             }`}
           >
             <User className="w-5 h-5" />
@@ -163,7 +163,7 @@ export default function ProviderProfileEditor() {
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
               activeTab === 'SKILLS' 
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
-                : 'bg-zinc-900/50 text-gray-400 hover:bg-zinc-800 hover:text-white'
+                : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)] hover:text-[var(--text-primary)]'
             }`}
           >
             <Award className="w-5 h-5" />
@@ -178,7 +178,7 @@ export default function ProviderProfileEditor() {
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
               activeTab === 'EXPERIENCE' 
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
-                : 'bg-zinc-900/50 text-gray-400 hover:bg-zinc-800 hover:text-white'
+                : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)] hover:text-[var(--text-primary)]'
             }`}
           >
             <Briefcase className="w-5 h-5" />
@@ -193,7 +193,7 @@ export default function ProviderProfileEditor() {
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
               activeTab === 'PORTFOLIO' 
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
-                : 'bg-zinc-900/50 text-gray-400 hover:bg-zinc-800 hover:text-white'
+                : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)] hover:text-[var(--text-primary)]'
             }`}
           >
             <ImageIcon className="w-5 h-5" />
@@ -208,7 +208,7 @@ export default function ProviderProfileEditor() {
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
               activeTab === 'HISTORY' 
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
-                : 'bg-zinc-900/50 text-gray-400 hover:bg-zinc-800 hover:text-white'
+                : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)] hover:text-[var(--text-primary)]'
             }`}
           >
             <History className="w-5 h-5" />
@@ -219,14 +219,14 @@ export default function ProviderProfileEditor() {
           </button>
 
           {/* Completion Status */}
-          <div className="mt-8 bg-zinc-900/50 rounded-xl p-4 border border-white/5">
-            <h3 className="text-sm font-medium text-white mb-3">Progression du profil</h3>
+          <div className="mt-8 bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+            <h3 className="text-sm font-medium text-[var(--text-primary)] mb-3">Progression du profil</h3>
             <div className="space-y-3">
-              <div className="flex justify-between text-xs text-gray-400">
+              <div className="flex justify-between text-xs text-[var(--text-secondary)]">
                 <span>Complétion</span>
                 <span className={`font-bold ${score === 100 ? 'text-green-400' : 'text-blue-400'}`}>{score}%</span>
               </div>
-              <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-[var(--bg-active)] rounded-full overflow-hidden">
                 <motion.div 
                   className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
                   initial={{ width: 0 }}
@@ -236,11 +236,11 @@ export default function ProviderProfileEditor() {
               </div>
               <ul className="space-y-2 mt-4">
                 {steps.map((step, index) => (
-                  <li key={index} className={`flex items-center gap-2 text-xs ${step.completed ? 'text-green-400' : 'text-gray-500'}`}>
+                  <li key={index} className={`flex items-center gap-2 text-xs ${step.completed ? 'text-green-400' : 'text-[var(--text-muted)]'}`}>
                     {step.completed ? (
                       <Check className="w-3 h-3" />
                     ) : (
-                      <div className="w-3 h-3 rounded-full border border-gray-600" />
+                      <div className="w-3 h-3 rounded-full border border-[var(--text-muted)]" />
                     )}
                     {step.label}
                   </li>
@@ -258,7 +258,7 @@ export default function ProviderProfileEditor() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
-            className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 min-h-[600px]"
+            className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl p-6 min-h-[600px]"
           >
             {activeTab === 'IDENTITY' && (
               <IdentityTab profile={profile} setProfile={setProfile} />

@@ -286,20 +286,20 @@ export function AudioWaveformViewer({ url, name }: AudioWaveformViewerProps) {
   };
 
   return (
-    <div className="flex flex-col w-full max-w-5xl mx-auto bg-[#1e1e1e] text-gray-300 rounded-xl overflow-hidden shadow-2xl border border-[#333] relative my-4 ring-1 ring-white/5 transition-all duration-300 ease-in-out">
+    <div className="flex flex-col w-full max-w-5xl mx-auto bg-[var(--bg-card)] text-[var(--text-secondary)] rounded-xl overflow-hidden shadow-2xl border border-[var(--border)] relative my-4 ring-1 ring-[var(--border)] transition-all duration-300 ease-in-out">
       
       {/* Main Waveform Area */}
-      <div className="relative bg-[#111] flex flex-col group min-h-[160px]">
+      <div className="relative bg-[var(--bg-card)] flex flex-col group min-h-[160px]">
         
         {/* Header Overlay: Name */}
         <div className="absolute top-2 left-3 z-20 flex items-center gap-2 pointer-events-none">
-            <div className="px-2 py-1 bg-black/50 backdrop-blur rounded text-xs font-medium text-gray-400 border border-white/5 shadow-sm">
+            <div className="px-2 py-1 bg-black/50 backdrop-blur rounded text-xs font-medium text-[var(--text-secondary)] border border-[var(--border)] shadow-sm">
                 {name}
             </div>
         </div>
 
         {/* Timeline Container */}
-        <div ref={timelineRef} className="w-full h-6 bg-[#1a1a1a] border-b border-[#333] shrink-0" />
+        <div ref={timelineRef} className="w-full h-6 bg-[var(--bg-card)] border-b border-[var(--border)] shrink-0" />
         
         {/* Waveform Container */}
         <div className="relative flex-1 w-full overflow-hidden flex flex-col justify-center py-4">
@@ -313,17 +313,17 @@ export function AudioWaveformViewer({ url, name }: AudioWaveformViewerProps) {
         
         {/* Selection Info Overlay - Compact */}
         {activeRegion && (
-          <div className="absolute top-8 right-4 bg-black/80 backdrop-blur border border-white/10 rounded-lg p-2 text-[10px] font-mono flex items-center gap-3 z-20 shadow-lg animate-in fade-in slide-in-from-top-1">
+          <div className="absolute top-8 right-4 bg-black/80 backdrop-blur border border-[var(--border)] rounded-lg p-2 text-[10px] font-mono flex items-center gap-3 z-20 shadow-lg animate-in fade-in slide-in-from-top-1">
              <div className="flex flex-col">
-                <span className="text-gray-500 uppercase tracking-wider">Start</span>
-                <span className="text-white font-medium">{formatTime(activeRegion.start)}</span>
+                <span className="text-[var(--text-muted)] uppercase tracking-wider">Start</span>
+                <span className="text-[var(--text-primary)] font-medium">{formatTime(activeRegion.start)}</span>
              </div>
-             <div className="w-[1px] h-6 bg-white/10"></div>
+             <div className="w-[1px] h-6 bg-[var(--bg-active)]"></div>
              <div className="flex flex-col">
-                <span className="text-gray-500 uppercase tracking-wider">End</span>
-                <span className="text-white font-medium">{formatTime(activeRegion.end)}</span>
+                <span className="text-[var(--text-muted)] uppercase tracking-wider">End</span>
+                <span className="text-[var(--text-primary)] font-medium">{formatTime(activeRegion.end)}</span>
              </div>
-             <div className="w-[1px] h-6 bg-white/10"></div>
+             <div className="w-[1px] h-6 bg-[var(--bg-active)]"></div>
              <div className="flex flex-col">
                 <span className="text-blue-500 uppercase tracking-wider">Dur</span>
                 <span className="text-blue-400 font-medium">{formatTime(activeRegion.end - activeRegion.start)}</span>
@@ -336,7 +336,7 @@ export function AudioWaveformViewer({ url, name }: AudioWaveformViewerProps) {
       </div>
 
       {/* Compact Control Bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-[#222] border-t border-[#333] gap-4">
+      <div className="flex items-center justify-between px-4 py-2 bg-[var(--bg-hover)] border-t border-[var(--border)] gap-4">
         
         {/* Left: Transport */}
         <div className="flex items-center gap-3">
@@ -350,25 +350,25 @@ export function AudioWaveformViewer({ url, name }: AudioWaveformViewerProps) {
             <div className="flex items-center gap-1">
                 <button
                     onClick={() => wavesurferRef.current?.skip(-5)}
-                    className="p-1.5 hover:bg-[#333] rounded text-gray-400 hover:text-white transition-colors"
+                    className="p-1.5 hover:bg-[var(--bg-active)] rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                     title="-5s"
                 >
                     <Rewind className="w-4 h-4" />
                 </button>
                 <button
                     onClick={() => wavesurferRef.current?.skip(5)}
-                    className="p-1.5 hover:bg-[#333] rounded text-gray-400 hover:text-white transition-colors"
+                    className="p-1.5 hover:bg-[var(--bg-active)] rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                     title="+5s"
                 >
                     <FastForward className="w-4 h-4" />
                 </button>
             </div>
 
-            <div className="w-[1px] h-5 bg-[#333]"></div>
+            <div className="w-[1px] h-5 bg-[var(--bg-active)]"></div>
 
             <button
                 onClick={() => setIsLooping(!isLooping)}
-                className={`p-1.5 rounded transition-colors ${isLooping ? 'bg-blue-500/10 text-blue-400' : 'hover:bg-[#333] text-gray-500'}`}
+                className={`p-1.5 rounded transition-colors ${isLooping ? 'bg-blue-500/10 text-blue-400' : 'hover:bg-[var(--bg-active)] text-[var(--text-muted)]'}`}
                 title="Loop"
             >
                 <Repeat className="w-4 h-4" />
@@ -378,31 +378,31 @@ export function AudioWaveformViewer({ url, name }: AudioWaveformViewerProps) {
         {/* Center: Time Display */}
         <div className="flex items-center gap-1.5 font-mono text-xs bg-black/20 px-3 py-1 rounded border border-white/5">
             <span className="text-green-400 font-medium w-[50px] text-right">{formatTime(currentTime)}</span>
-            <span className="text-gray-600">/</span>
-            <span className="text-gray-500 w-[50px]">{formatTime(duration)}</span>
+            <span className="text-[var(--text-muted)]">/</span>
+            <span className="text-[var(--text-muted)] w-[50px]">{formatTime(duration)}</span>
         </div>
 
         {/* Right: Tools (Zoom & Volume) */}
         <div className="flex items-center gap-4">
             {/* Zoom */}
             <div className="flex items-center gap-2 group">
-                <ZoomOut className="w-3 h-3 text-gray-500" />
+                <ZoomOut className="w-3 h-3 text-[var(--text-muted)]" />
                 <input
                   type="range"
                   min="10"
                   max="500"
                   value={zoom}
                   onChange={handleZoomChange}
-                  className="w-16 h-1 bg-[#333] rounded-lg appearance-none cursor-pointer accent-gray-500 hover:accent-green-500 transition-all"
+                  className="w-16 h-1 bg-[var(--bg-active)] rounded-lg appearance-none cursor-pointer accent-gray-500 hover:accent-green-500 transition-all"
                 />
-                <ZoomIn className="w-3 h-3 text-gray-500" />
+                <ZoomIn className="w-3 h-3 text-[var(--text-muted)]" />
             </div>
 
-            <div className="w-[1px] h-5 bg-[#333]"></div>
+            <div className="w-[1px] h-5 bg-[var(--bg-active)]"></div>
 
             {/* Volume */}
             <div className="flex items-center gap-2 group">
-                <button onClick={toggleMute} className="text-gray-400 hover:text-white transition-colors">
+                <button onClick={toggleMute} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                     {isMuted || volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                 </button>
                 <input
@@ -412,7 +412,7 @@ export function AudioWaveformViewer({ url, name }: AudioWaveformViewerProps) {
                   step="0.01"
                   value={isMuted ? 0 : volume}
                   onChange={handleVolumeChange}
-                  className="w-16 h-1 bg-[#333] rounded-lg appearance-none cursor-pointer accent-gray-500 hover:accent-green-500 transition-all"
+                  className="w-16 h-1 bg-[var(--bg-active)] rounded-lg appearance-none cursor-pointer accent-gray-500 hover:accent-green-500 transition-all"
                 />
             </div>
         </div>

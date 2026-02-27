@@ -298,7 +298,7 @@ function PriceComparisonBar({
   return (
     <div className="relative h-8 mt-2">
       {/* Background bar */}
-      <div className="absolute inset-x-0 top-3 h-2 bg-slate-700 rounded-full" />
+      <div className="absolute inset-x-0 top-3 h-2 bg-[var(--bg-active)] rounded-full" />
 
       {/* Market zone (green) */}
       <div
@@ -340,13 +340,13 @@ function PriceComparisonBar({
 
       {/* Min/Max labels */}
       <div
-        className="absolute top-6 text-[8px] text-gray-500"
+        className="absolute top-6 text-[8px] text-[var(--text-muted)]"
         style={{ left: `${minPos}%`, transform: 'translateX(-50%)' }}
       >
         Min
       </div>
       <div
-        className="absolute top-6 text-[8px] text-gray-500"
+        className="absolute top-6 text-[8px] text-[var(--text-muted)]"
         style={{ left: `${maxPos}%`, transform: 'translateX(-50%)' }}
       >
         Max
@@ -387,19 +387,19 @@ export function PriceHistoryChart({
   const isPriceHigh = priceVariance > 20;
 
   const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus;
-  const trendColor = trend === 'up' ? 'text-red-400' : trend === 'down' ? 'text-green-400' : 'text-gray-400';
+  const trendColor = trend === 'up' ? 'text-red-400' : trend === 'down' ? 'text-green-400' : 'text-[var(--text-secondary)]';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className={clsx(
-        'bg-slate-800/50 rounded-xl border border-white/10 overflow-hidden',
+        'bg-[var(--bg-hover)] rounded-xl border border-[var(--border)] overflow-hidden',
         className
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
         <div className="flex items-center gap-3">
           <div className={clsx(
             'p-2 rounded-lg',
@@ -410,10 +410,10 @@ export function PriceHistoryChart({
             <BarChart3 className="w-4 h-4" />
           </div>
           <div>
-            <div className="text-sm font-medium text-white">
+            <div className="text-sm font-medium text-[var(--text-primary)]">
               Analyse de prix
             </div>
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-[var(--text-secondary)]">
               {reference} {brand && `• ${brand}`}
             </div>
           </div>
@@ -429,7 +429,7 @@ export function PriceHistoryChart({
       {/* Price Comparison */}
       <div className="px-4 py-3">
         <div className="flex items-center justify-between mb-2">
-          <div className="text-xs text-gray-400">Comparaison marché</div>
+          <div className="text-xs text-[var(--text-secondary)]">Comparaison marché</div>
           <div className={clsx(
             'flex items-center gap-1 text-xs font-medium',
             isPriceGood && 'text-green-400',
@@ -454,21 +454,21 @@ export function PriceHistoryChart({
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-4 gap-2 px-4 py-3 border-t border-white/5">
+      <div className="grid grid-cols-4 gap-2 px-4 py-3 border-t border-[var(--border)]">
         <div className="text-center">
-          <div className="text-[10px] text-gray-500 uppercase">Min</div>
-          <div className="text-sm font-medium text-gray-300">{marketMin.toFixed(0)}€</div>
+          <div className="text-[10px] text-[var(--text-muted)] uppercase">Min</div>
+          <div className="text-sm font-medium text-[var(--text-secondary)]">{marketMin.toFixed(0)}€</div>
         </div>
         <div className="text-center">
-          <div className="text-[10px] text-gray-500 uppercase">Moy</div>
+          <div className="text-[10px] text-[var(--text-muted)] uppercase">Moy</div>
           <div className="text-sm font-medium text-green-400">{marketAverage.toFixed(0)}€</div>
         </div>
         <div className="text-center">
-          <div className="text-[10px] text-gray-500 uppercase">Max</div>
-          <div className="text-sm font-medium text-gray-300">{marketMax.toFixed(0)}€</div>
+          <div className="text-[10px] text-[var(--text-muted)] uppercase">Max</div>
+          <div className="text-sm font-medium text-[var(--text-secondary)]">{marketMax.toFixed(0)}€</div>
         </div>
         <div className="text-center">
-          <div className="text-[10px] text-gray-500 uppercase">Écart</div>
+          <div className="text-[10px] text-[var(--text-muted)] uppercase">Écart</div>
           <div className={clsx(
             'text-sm font-medium',
             priceVariance <= 0 && 'text-green-400',
@@ -482,9 +482,9 @@ export function PriceHistoryChart({
 
       {/* Sparkline Preview */}
       {!showFullChart && (
-        <div className="px-4 py-2 border-t border-white/5">
+        <div className="px-4 py-2 border-t border-[var(--border)]">
           <div className="flex items-center justify-between">
-            <div className="text-[10px] text-gray-500">Évolution 12 mois</div>
+            <div className="text-[10px] text-[var(--text-muted)]">Évolution 12 mois</div>
             <Sparkline
               data={sparklineData}
               color={isPriceGood ? '#22c55e' : isPriceFair ? '#f59e0b' : '#ef4444'}
@@ -499,9 +499,9 @@ export function PriceHistoryChart({
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: 'auto', opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
-          className="px-4 py-3 border-t border-white/5"
+          className="px-4 py-3 border-t border-[var(--border)]"
         >
-          <div className="text-xs text-gray-400 mb-2">Historique des prix (12 mois)</div>
+          <div className="text-xs text-[var(--text-secondary)] mb-2">Historique des prix (12 mois)</div>
           <FullPriceChart
             history={history}
             currentPrice={currentPrice}
@@ -516,7 +516,7 @@ export function PriceHistoryChart({
       {onExpandToggle && (
         <button
           onClick={onExpandToggle}
-          className="w-full px-4 py-2 flex items-center justify-center gap-1 text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-colors border-t border-white/5"
+          className="w-full px-4 py-2 flex items-center justify-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors border-t border-[var(--border)]"
         >
           {showFullChart ? (
             <>
@@ -533,10 +533,10 @@ export function PriceHistoryChart({
       )}
 
       {/* AI Insight */}
-      <div className="px-4 py-3 bg-slate-900/50 border-t border-white/5">
+      <div className="px-4 py-3 bg-[var(--bg-card)] border-t border-[var(--border)]">
         <div className="flex items-start gap-2">
           <Zap className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-[var(--text-secondary)]">
             <span className="text-purple-400 font-medium">Analyse IA:</span>{' '}
             {isPriceGood
               ? `Ce prix est dans la fourchette normale du marché. Les prix ont été ${trend === 'up' ? 'en hausse' : trend === 'down' ? 'en baisse' : 'stables'} ces derniers mois.`

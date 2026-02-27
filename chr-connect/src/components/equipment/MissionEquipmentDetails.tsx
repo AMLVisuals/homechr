@@ -60,15 +60,15 @@ function ImageGallery({ images }: ImageGalleryProps) {
 
   if (images.length === 0) {
     return (
-      <div className="aspect-video bg-white/5 rounded-xl flex items-center justify-center">
-        <Image className="w-12 h-12 text-white/20" />
+      <div className="aspect-video bg-[var(--bg-hover)] rounded-xl flex items-center justify-center">
+        <Image className="w-12 h-12 text-[var(--text-muted)]" />
       </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      <div className="aspect-video rounded-xl overflow-hidden bg-white/5">
+      <div className="aspect-video rounded-xl overflow-hidden bg-[var(--bg-hover)]">
         <img
           src={images[activeIndex]}
           alt="Equipment"
@@ -85,7 +85,7 @@ function ImageGallery({ images }: ImageGalleryProps) {
                 'w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-colors',
                 activeIndex === idx
                   ? 'border-blue-500'
-                  : 'border-transparent hover:border-white/30'
+                  : 'border-transparent hover:border-[var(--border-strong)]'
               )}
             >
               <img
@@ -159,10 +159,10 @@ export function MissionEquipmentDetails({
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          className="bg-[#121212] border border-white/10 rounded-3xl overflow-hidden max-w-2xl w-full max-h-[90vh] flex flex-col"
+          className="bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl overflow-hidden max-w-2xl w-full max-h-[90vh] flex flex-col"
         >
           {/* Header */}
-          <div className="p-6 border-b border-white/10 flex items-start justify-between">
+          <div className="p-6 border-b border-[var(--border)] flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span
@@ -180,16 +180,16 @@ export function MissionEquipmentDetails({
                   </span>
                 ) : null}
               </div>
-              <h2 className="text-xl font-semibold text-white">{displayName}</h2>
-              <p className="text-white/50 text-sm">
+              <h2 className="text-xl font-semibold text-[var(--text-primary)]">{displayName}</h2>
+              <p className="text-[var(--text-muted)] text-sm">
                 {EQUIPMENT_CATEGORY_LABELS[equipment.category]} • {equipment.location}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+              className="w-10 h-10 rounded-full bg-[var(--bg-hover)] flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
             >
-              <X className="w-5 h-5 text-white/60" />
+              <X className="w-5 h-5 text-[var(--text-muted)]" />
             </button>
           </div>
 
@@ -200,34 +200,34 @@ export function MissionEquipmentDetails({
 
             {/* Quick Info Cards */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                <p className="text-white/50 text-sm mb-1">Marque / Modèle</p>
-                <p className="text-white font-medium">
+              <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                <p className="text-[var(--text-muted)] text-sm mb-1">Marque / Modèle</p>
+                <p className="text-[var(--text-primary)] font-medium">
                   {equipment.brand} {equipment.model}
                 </p>
               </div>
-              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                <p className="text-white/50 text-sm mb-1">Emplacement</p>
-                <p className="text-white font-medium">{equipment.location}</p>
+              <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+                <p className="text-[var(--text-muted)] text-sm mb-1">Emplacement</p>
+                <p className="text-[var(--text-primary)] font-medium">{equipment.location}</p>
               </div>
             </div>
 
             {/* Serial Number */}
             {equipment.serialNumber ? (
-              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+              <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-white/50 text-sm mb-1">Numéro de série</p>
-                    <p className="text-white font-mono">{equipment.serialNumber}</p>
+                    <p className="text-[var(--text-muted)] text-sm mb-1">Numéro de série</p>
+                    <p className="text-[var(--text-primary)] font-mono">{equipment.serialNumber}</p>
                   </div>
                   <button
                     onClick={copySerial}
-                    className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                    className="p-2 rounded-lg bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] transition-colors"
                   >
                     {copiedSerial ? (
                       <Check className="w-4 h-4 text-green-400" />
                     ) : (
-                      <Copy className="w-4 h-4 text-white/40" />
+                      <Copy className="w-4 h-4 text-[var(--text-muted)]" />
                     )}
                   </button>
                 </div>
@@ -237,7 +237,7 @@ export function MissionEquipmentDetails({
             {/* Technical Specs */}
             {equipment.specifications && Object.keys(equipment.specifications).length > 0 ? (
               <div>
-                <h4 className="text-white/60 text-sm font-medium mb-3 flex items-center gap-2">
+                <h4 className="text-[var(--text-muted)] text-sm font-medium mb-3 flex items-center gap-2">
                   <Zap className="w-4 h-4" />
                   Spécifications techniques
                 </h4>
@@ -281,7 +281,7 @@ export function MissionEquipmentDetails({
             {/* Maintenance History */}
             {history.length > 0 && (
               <div>
-                <h4 className="text-white/60 text-sm font-medium mb-3 flex items-center gap-2">
+                <h4 className="text-[var(--text-muted)] text-sm font-medium mb-3 flex items-center gap-2">
                   <History className="w-4 h-4" />
                   Historique des interventions
                 </h4>
@@ -289,7 +289,7 @@ export function MissionEquipmentDetails({
                   {history.slice(0, 3).map((record) => (
                     <div
                       key={record.id}
-                      className="bg-white/5 rounded-xl p-4 border border-white/10"
+                      className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
@@ -311,17 +311,17 @@ export function MissionEquipmentDetails({
                             />
                           </div>
                           <div>
-                            <p className="text-white text-sm font-medium">
+                            <p className="text-[var(--text-primary)] text-sm font-medium">
                               {record.description}
                             </p>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-white/50 text-xs">
+                              <span className="text-[var(--text-muted)] text-xs">
                                 {new Date(record.date).toLocaleDateString('fr-FR')}
                               </span>
                               {record.technicianName && (
                                 <>
-                                  <span className="text-white/30">•</span>
-                                  <span className="text-white/50 text-xs">
+                                  <span className="text-[var(--text-muted)]">•</span>
+                                  <span className="text-[var(--text-muted)] text-xs">
                                     {record.technicianName}
                                   </span>
                                 </>
@@ -337,7 +337,7 @@ export function MissionEquipmentDetails({
                         </div>
                       </div>
                       {record.resolution && (
-                        <p className="text-white/60 text-sm mt-2 pl-11">
+                        <p className="text-[var(--text-muted)] text-sm mt-2 pl-11">
                           {record.resolution}
                         </p>
                       )}
@@ -349,7 +349,7 @@ export function MissionEquipmentDetails({
 
             {/* Documentation */}
             <div>
-              <h4 className="text-white/60 text-sm font-medium mb-3 flex items-center gap-2">
+              <h4 className="text-[var(--text-muted)] text-sm font-medium mb-3 flex items-center gap-2">
                 <FileText className="w-4 h-4" />
                 Documentation technique
               </h4>
@@ -357,16 +357,16 @@ export function MissionEquipmentDetails({
                 {mockDocuments.map((doc, idx) => (
                   <button
                     key={idx}
-                    className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 flex items-center justify-between transition-colors group"
+                    className="w-full p-3 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-xl border border-[var(--border)] flex items-center justify-between transition-colors group"
                   >
                     <div className="flex items-center gap-3">
-                      <FileText className="w-5 h-5 text-white/40" />
+                      <FileText className="w-5 h-5 text-[var(--text-muted)]" />
                       <div className="text-left">
-                        <p className="text-white text-sm">{doc.name}</p>
-                        <p className="text-white/40 text-xs">{doc.size}</p>
+                        <p className="text-[var(--text-primary)] text-sm">{doc.name}</p>
+                        <p className="text-[var(--text-muted)] text-xs">{doc.size}</p>
                       </div>
                     </div>
-                    <Download className="w-4 h-4 text-white/30 group-hover:text-white/60 transition-colors" />
+                    <Download className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--text-muted)] transition-colors" />
                   </button>
                 ))}
               </div>
@@ -401,13 +401,13 @@ export function MissionEquipmentDetails({
           </div>
 
           {/* Footer Actions */}
-          <div className="p-6 border-t border-white/10 space-y-3">
+          <div className="p-6 border-t border-[var(--border)] space-y-3">
             {/* Quick Actions Row */}
             <div className="flex gap-3">
               {onOpenWaze && (
                 <button
                   onClick={onOpenWaze}
-                  className="flex-1 py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
+                  className="flex-1 py-3 px-4 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] text-[var(--text-primary)] rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
                 >
                   <Navigation className="w-4 h-4" />
                   Ouvrir Waze
@@ -416,7 +416,7 @@ export function MissionEquipmentDetails({
               {onCallRestaurant && (
                 <button
                   onClick={onCallRestaurant}
-                  className="flex-1 py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
+                  className="flex-1 py-3 px-4 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] text-[var(--text-primary)] rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
                 >
                   <Phone className="w-4 h-4" />
                   Appeler

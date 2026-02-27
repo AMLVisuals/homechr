@@ -77,38 +77,38 @@ export function EstablishmentSheet({ venueId, venueName, isOpen, onClose }: Esta
 
           {/* Sheet */}
           <motion.div
-            className="absolute bottom-0 left-0 right-0 z-[800] bg-[#0A0A0A] border-t border-white/10 rounded-t-[32px] overflow-hidden shadow-2xl h-[90vh]"
+            className="absolute bottom-0 left-0 right-0 z-[800] bg-[var(--bg-card)] border-t border-[var(--border)] rounded-t-[32px] overflow-hidden shadow-2xl h-[90vh]"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           >
             {/* Handle */}
-            <div className="flex justify-center py-3 bg-gradient-to-b from-white/5 to-transparent absolute top-0 left-0 right-0 z-20">
-              <div className="w-12 h-1.5 bg-white/20 rounded-full" />
+            <div className="flex justify-center py-3 bg-gradient-to-b from-[var(--bg-hover)] to-transparent absolute top-0 left-0 right-0 z-20">
+              <div className="w-12 h-1.5 bg-[var(--bg-active)] rounded-full" />
             </div>
             
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 z-20 p-2 bg-black/50 hover:bg-black/70 backdrop-blur-md rounded-full text-white/70 hover:text-white transition-colors border border-white/10"
+              className="absolute top-4 right-4 z-20 p-2 bg-black/50 hover:bg-black/70 backdrop-blur-md rounded-full text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors border border-[var(--border)]"
             >
               <X className="h-5 w-5" />
             </button>
 
             {/* Cover Photo */}
             <div className="h-64 w-full relative">
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0A0A0A]" />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--bg-card)]" />
               <img 
                 src={typeof venueDetails.photos[0] === 'string' ? venueDetails.photos[0] : venueDetails.photos[0].url} 
                 alt={venueDetails.name} 
                 className="w-full h-full object-cover opacity-80"
               />
-              <div className="absolute bottom-0 left-0 right-0 p-6 pt-20 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent">
+              <div className="absolute bottom-0 left-0 right-0 p-6 pt-20 bg-gradient-to-t from-[var(--bg-card)] via-[var(--bg-card)]/80 to-transparent">
                 <div className="flex items-start justify-between">
                    <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="px-2 py-1 rounded-md bg-white/10 border border-white/10 backdrop-blur-md text-xs font-bold text-white flex items-center gap-1">
+                        <span className="px-2 py-1 rounded-md bg-[var(--bg-active)] border border-[var(--border)] backdrop-blur-md text-xs font-bold text-[var(--text-primary)] flex items-center gap-1">
                           <Utensils className="w-3 h-3" />
                           {venueDetails.category}
                         </span>
@@ -117,9 +117,9 @@ export function EstablishmentSheet({ venueId, venueName, isOpen, onClose }: Esta
                           Ouvert
                         </span>
                       </div>
-                      <h2 className="text-3xl font-bold text-white mb-1">{venueDetails.name}</h2>
-                      <div className="flex items-center text-gray-400 text-sm">
-                        <MapPin className="h-4 w-4 mr-1 text-gray-500" />
+                      <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-1">{venueDetails.name}</h2>
+                      <div className="flex items-center text-[var(--text-secondary)] text-sm">
+                        <MapPin className="h-4 w-4 mr-1 text-[var(--text-muted)]" />
                         <span>{venueDetails.address}</span>
                       </div>
                    </div>
@@ -138,32 +138,32 @@ export function EstablishmentSheet({ venueId, venueName, isOpen, onClose }: Esta
               
               {/* Stats Grid */}
               <div className="grid grid-cols-3 gap-3 mb-8">
-                <div className="bg-white/5 rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center">
+                <div className="bg-[var(--bg-hover)] rounded-2xl p-3 border border-[var(--border)] flex flex-col items-center justify-center text-center">
                   <Users className="h-5 w-5 text-blue-400 mb-1" />
-                  <span className="text-lg font-bold text-white">{venueDetails.teamSize}</span>
-                  <span className="text-[10px] text-gray-500 uppercase">Employés</span>
+                  <span className="text-lg font-bold text-[var(--text-primary)]">{venueDetails.teamSize}</span>
+                  <span className="text-[10px] text-[var(--text-muted)] uppercase">Employés</span>
                 </div>
-                <div className="bg-white/5 rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center">
+                <div className="bg-[var(--bg-hover)] rounded-2xl p-3 border border-[var(--border)] flex flex-col items-center justify-center text-center">
                   <Ruler className="h-5 w-5 text-purple-400 mb-1" />
-                  <span className="text-lg font-bold text-white">{venueDetails.surface}</span>
-                  <span className="text-[10px] text-gray-500 uppercase">m² Surface</span>
+                  <span className="text-lg font-bold text-[var(--text-primary)]">{venueDetails.surface}</span>
+                  <span className="text-[10px] text-[var(--text-muted)] uppercase">m² Surface</span>
                 </div>
-                <div className="bg-white/5 rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center">
+                <div className="bg-[var(--bg-hover)] rounded-2xl p-3 border border-[var(--border)] flex flex-col items-center justify-center text-center">
                   <ShieldCheck className="h-5 w-5 text-green-400 mb-1" />
-                  <span className="text-lg font-bold text-white">Vérifié</span>
-                  <span className="text-[10px] text-gray-500 uppercase">Status</span>
+                  <span className="text-lg font-bold text-[var(--text-primary)]">Vérifié</span>
+                  <span className="text-[10px] text-[var(--text-muted)] uppercase">Status</span>
                 </div>
               </div>
               
               {/* Description */}
               <div className="mb-8">
-                <h3 className="text-sm font-medium text-gray-300 mb-3 uppercase tracking-wide">À propos</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">{venueDetails.description}</p>
+                <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-3 uppercase tracking-wide">À propos</h3>
+                <p className="text-[var(--text-secondary)] leading-relaxed text-sm">{venueDetails.description}</p>
               </div>
 
               {/* Photos Gallery */}
               <div className="mb-8">
-                <h3 className="text-sm font-medium text-gray-300 mb-3 uppercase tracking-wide">Photos de l'établissement</h3>
+                <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-3 uppercase tracking-wide">Photos de l'établissement</h3>
                 <div className="grid grid-cols-2 gap-3">
                    {venueDetails.photos.map((photo, idx) => {
                       const url = typeof photo === 'string' ? photo : photo.url;
@@ -178,7 +178,7 @@ export function EstablishmentSheet({ venueId, venueName, isOpen, onClose }: Esta
                             date: new Date().toISOString(),
                             size: '0 MB'
                           })}
-                          className={`rounded-xl overflow-hidden border border-white/10 relative w-full text-left group ${idx === 0 ? 'col-span-2 h-48' : 'h-32'}`}
+                          className={`rounded-xl overflow-hidden border border-[var(--border)] relative w-full text-left group ${idx === 0 ? 'col-span-2 h-48' : 'h-32'}`}
                         >
                            <img src={url} alt={`Venue ${idx}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
@@ -190,35 +190,35 @@ export function EstablishmentSheet({ venueId, venueName, isOpen, onClose }: Esta
 
               {/* Contact & Infos */}
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-gray-300 mb-3 uppercase tracking-wide">Contact & Accès</h3>
+                <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-3 uppercase tracking-wide">Contact & Accès</h3>
                 
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center gap-4">
-                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                      <Phone className="w-5 h-5 text-white" />
+                <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)] flex items-center gap-4">
+                   <div className="w-10 h-10 rounded-full bg-[var(--bg-active)] flex items-center justify-center shrink-0">
+                      <Phone className="w-5 h-5 text-[var(--text-primary)]" />
                    </div>
                    <div>
-                      <p className="text-xs text-gray-400 uppercase">Téléphone</p>
-                      <p className="text-white font-medium">{venueDetails.phone}</p>
+                      <p className="text-xs text-[var(--text-secondary)] uppercase">Téléphone</p>
+                      <p className="text-[var(--text-primary)] font-medium">{venueDetails.phone}</p>
                    </div>
                 </div>
 
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center gap-4">
-                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                      <Mail className="w-5 h-5 text-white" />
+                <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)] flex items-center gap-4">
+                   <div className="w-10 h-10 rounded-full bg-[var(--bg-active)] flex items-center justify-center shrink-0">
+                      <Mail className="w-5 h-5 text-[var(--text-primary)]" />
                    </div>
                    <div>
-                      <p className="text-xs text-gray-400 uppercase">Email</p>
-                      <p className="text-white font-medium">{venueDetails.email}</p>
+                      <p className="text-xs text-[var(--text-secondary)] uppercase">Email</p>
+                      <p className="text-[var(--text-primary)] font-medium">{venueDetails.email}</p>
                    </div>
                 </div>
 
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center gap-4">
-                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                      <Globe className="w-5 h-5 text-white" />
+                <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)] flex items-center gap-4">
+                   <div className="w-10 h-10 rounded-full bg-[var(--bg-active)] flex items-center justify-center shrink-0">
+                      <Globe className="w-5 h-5 text-[var(--text-primary)]" />
                    </div>
                    <div>
-                      <p className="text-xs text-gray-400 uppercase">Site Web</p>
-                      <p className="text-white font-medium">{venueDetails.website}</p>
+                      <p className="text-xs text-[var(--text-secondary)] uppercase">Site Web</p>
+                      <p className="text-[var(--text-primary)] font-medium">{venueDetails.website}</p>
                    </div>
                 </div>
               </div>

@@ -189,17 +189,17 @@ function NotificationToast({
               {notification.dismissible !== false && (
                 <button
                   onClick={onDismiss}
-                  className="text-gray-500 hover:text-white transition-colors"
+                  className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               )}
             </div>
-            <p className="text-xs text-gray-400 mt-1">{notification.message}</p>
+            <p className="text-xs text-[var(--text-secondary)] mt-1">{notification.message}</p>
 
             {/* Details */}
             {notification.details && (
-              <p className="text-[10px] text-gray-500 mt-2 p-2 bg-black/20 rounded">
+              <p className="text-[10px] text-[var(--text-muted)] mt-2 p-2 bg-[var(--bg-input)] rounded">
                 {notification.details}
               </p>
             )}
@@ -232,7 +232,7 @@ function NotificationToast({
                 className={clsx(
                   'mt-3 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
                   config.bgColor,
-                  'hover:bg-white/10',
+                  'hover:bg-[var(--bg-active)]',
                   config.iconColor
                 )}
               >
@@ -244,7 +244,7 @@ function NotificationToast({
 
         {/* Timestamp */}
         <div className="flex items-center justify-end mt-2">
-          <span className="text-[10px] text-gray-600">
+          <span className="text-[10px] text-[var(--text-muted)]">
             {notification.timestamp.toLocaleTimeString('fr-FR', {
               hour: '2-digit',
               minute: '2-digit',
@@ -295,7 +295,7 @@ export function SmartNotifications({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-center text-xs text-gray-500"
+          className="text-center text-xs text-[var(--text-muted)]"
         >
           +{notifications.length - maxVisible} autres notifications
         </motion.div>
@@ -330,13 +330,13 @@ export function NotificationCenter({
   };
 
   return (
-    <div className="w-96 bg-slate-900 rounded-xl border border-white/10 shadow-2xl overflow-hidden">
+    <div className="w-96 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] shadow-2xl overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-white/10 bg-slate-800/50">
+      <div className="px-4 py-3 border-b border-[var(--border)] bg-[var(--bg-hover)]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-blue-400" />
-            <span className="font-medium text-white">Notifications</span>
+            <span className="font-medium text-[var(--text-primary)]">Notifications</span>
             {unreadCount > 0 && (
               <span className="px-2 py-0.5 bg-blue-500 text-white text-xs rounded-full">
                 {unreadCount}
@@ -346,7 +346,7 @@ export function NotificationCenter({
           {notifications.length > 0 && (
             <button
               onClick={onDismissAll}
-              className="text-xs text-gray-400 hover:text-white transition-colors"
+              className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             >
               Tout effacer
             </button>
@@ -368,7 +368,7 @@ export function NotificationCenter({
                   'px-2 py-1 rounded text-xs font-medium transition-colors whitespace-nowrap',
                   filter === type
                     ? 'bg-blue-500/20 text-blue-400'
-                    : 'text-gray-500 hover:text-white hover:bg-white/5'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
                 )}
               >
                 {type === 'all' ? 'Tout' : type === 'price_alert' ? 'Prix' : type === 'warning' ? 'Alertes' : type === 'error' ? 'Erreurs' : type === 'success' ? 'Succès' : 'Conseils'}
@@ -383,11 +383,11 @@ export function NotificationCenter({
       <div className="max-h-96 overflow-y-auto">
         {filteredNotifications.length === 0 ? (
           <div className="py-12 text-center">
-            <Bell className="w-8 h-8 text-gray-600 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">Aucune notification</p>
+            <Bell className="w-8 h-8 text-[var(--text-muted)] mx-auto mb-2" />
+            <p className="text-sm text-[var(--text-muted)]">Aucune notification</p>
           </div>
         ) : (
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-[var(--border)]">
             {/* Critical Priority */}
             {groupedByPriority.critical.length > 0 && (
               <div className="bg-red-500/5">
@@ -441,8 +441,8 @@ export function NotificationCenter({
 
       {/* Footer Stats */}
       {notifications.length > 0 && (
-        <div className="px-4 py-2 border-t border-white/10 bg-slate-800/30">
-          <div className="flex items-center justify-between text-xs text-gray-500">
+        <div className="px-4 py-2 border-t border-[var(--border)] bg-[var(--bg-hover)]">
+          <div className="flex items-center justify-between text-xs text-[var(--text-muted)]">
             <span>
               {notifications.filter((n) => n.type === 'price_alert').length} alertes prix
             </span>
@@ -478,7 +478,7 @@ function NotificationItem({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 10 }}
       className={clsx(
-        'px-4 py-3 hover:bg-white/5 transition-colors cursor-pointer',
+        'px-4 py-3 hover:bg-[var(--bg-hover)] transition-colors cursor-pointer',
         !notification.read && 'bg-blue-500/5'
       )}
     >
@@ -493,7 +493,7 @@ function NotificationItem({
               <h4 className={clsx('text-sm font-medium', config.titleColor)}>
                 {notification.title}
               </h4>
-              <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5 line-clamp-2">
                 {notification.message}
               </p>
             </div>
@@ -502,7 +502,7 @@ function NotificationItem({
                 e.stopPropagation();
                 onDismiss();
               }}
-              className="text-gray-600 hover:text-white transition-colors flex-shrink-0"
+              className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors flex-shrink-0"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -537,7 +537,7 @@ function NotificationItem({
             </button>
           )}
 
-          <div className="flex items-center gap-2 mt-2 text-[10px] text-gray-600">
+          <div className="flex items-center gap-2 mt-2 text-[10px] text-[var(--text-muted)]">
             <Clock className="w-2.5 h-2.5" />
             {notification.timestamp.toLocaleTimeString('fr-FR', {
               hour: '2-digit',

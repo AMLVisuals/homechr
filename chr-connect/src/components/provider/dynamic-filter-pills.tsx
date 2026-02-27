@@ -74,7 +74,7 @@ export function DynamicFilterPills({ jobId, activeFilters, onFilterChange }: Dyn
 
         {/* Global Label (Optional) */}
         {!hasActiveFilters && (
-          <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/10 text-white/50 border border-white/5 text-sm shrink-0">
+          <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-[var(--bg-active)] text-[var(--text-muted)] border border-[var(--border)] text-sm shrink-0">
             <Filter className="w-3 h-3" />
             <span>Filtres</span>
           </div>
@@ -100,7 +100,7 @@ export function DynamicFilterPills({ jobId, activeFilters, onFilterChange }: Dyn
                     'flex items-center space-x-2 whitespace-nowrap backdrop-blur-md px-3 py-1.5 rounded-full text-sm font-medium transition-all border shrink-0',
                     isActive
                       ? 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-900/20'
-                      : 'bg-black/40 text-white/70 border-white/10 hover:bg-black/60 hover:text-white'
+                      : 'bg-black/40 text-[var(--text-muted)] border-[var(--border)] hover:bg-black/60 hover:text-[var(--text-primary)]'
                   )}
                 >
                   {option.icon && <span className={isActive ? "text-white" : ""}>{option.icon}</span>}

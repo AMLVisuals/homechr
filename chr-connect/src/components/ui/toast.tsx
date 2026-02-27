@@ -93,9 +93,9 @@ function ToastItem({ toast, onRemove }: ToastItemProps) {
       <div className="flex-shrink-0 mt-0.5">{ToastIcon[toast.type]}</div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-white font-medium text-sm">{toast.title}</p>
+        <p className="text-[var(--text-primary)] font-medium text-sm">{toast.title}</p>
         {toast.message && (
-          <p className="text-white/60 text-xs mt-0.5">{toast.message}</p>
+          <p className="text-[var(--text-secondary)] text-xs mt-0.5">{toast.message}</p>
         )}
         {toast.action && (
           <button
@@ -113,9 +113,9 @@ function ToastItem({ toast, onRemove }: ToastItemProps) {
       {toast.type !== 'loading' && (
         <button
           onClick={onRemove}
-          className="flex-shrink-0 p-1 hover:bg-white/10 rounded-lg transition-colors"
+          className="flex-shrink-0 p-1 hover:bg-[var(--bg-active)] rounded-lg transition-colors"
         >
-          <X className="w-4 h-4 text-white/40" />
+          <X className="w-4 h-4 text-[var(--text-muted)]" />
         </button>
       )}
     </motion.div>

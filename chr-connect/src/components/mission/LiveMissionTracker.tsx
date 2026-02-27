@@ -10,7 +10,7 @@ import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 // Dynamic import for Map to avoid SSR issues
 const MissionMap = dynamic(() => import('./MissionMap'), { 
   ssr: false,
-  loading: () => <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">Chargement de la carte...</div>
+  loading: () => <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center text-[var(--text-secondary)]">Chargement de la carte...</div>
 });
 
 export default function LiveMissionTracker() {
@@ -35,7 +35,7 @@ export default function LiveMissionTracker() {
   const renderAttachment = (att: { type: 'PHOTO' | 'VIDEO' | 'VOICE', url: string }, index: number) => {
     return (
       <div key={index} className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm text-left w-full">
-        <h4 className="text-xs font-bold text-gray-500 mb-2 flex items-center gap-2 uppercase tracking-wider">
+        <h4 className="text-xs font-bold text-[var(--text-muted)] mb-2 flex items-center gap-2 uppercase tracking-wider">
           {att.type === 'VIDEO' && <Video className="w-3 h-3" />}
           {att.type === 'PHOTO' && <Camera className="w-3 h-3" />}
           {att.type === 'VOICE' && <Mic className="w-3 h-3" />}
@@ -51,7 +51,7 @@ export default function LiveMissionTracker() {
                <div className="h-2 bg-gray-200 rounded-full w-full overflow-hidden">
                  <div className="h-full bg-purple-500 w-1/3" />
                </div>
-               <span className="text-xs text-gray-400 mt-1 block">00:42</span>
+               <span className="text-xs text-[var(--text-secondary)] mt-1 block">00:42</span>
              </div>
           </div>
         ) : (
@@ -71,7 +71,7 @@ export default function LiveMissionTracker() {
     if (!item) return null;
     return (
       <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm text-left w-full">
-        <h4 className="text-xs font-bold text-gray-500 mb-2 flex items-center gap-2 uppercase tracking-wider">
+        <h4 className="text-xs font-bold text-[var(--text-muted)] mb-2 flex items-center gap-2 uppercase tracking-wider">
           {item.type === 'VIDEO' ? <Video className="w-3 h-3" /> : <Camera className="w-3 h-3" />}
           {label}
         </h4>
@@ -92,16 +92,16 @@ export default function LiveMissionTracker() {
       <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white z-10">
         <div>
           <h2 className="font-bold text-gray-900">Suivi de Mission</h2>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+          <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
             <span className={`w-2 h-2 rounded-full animate-pulse ${status === 'COMPLETED' ? 'bg-blue-500' : 'bg-green-500'}`} />
             {status === 'COMPLETED' ? 'Terminé' : 'En direct'}
           </div>
         </div>
         <div className="flex gap-2">
-          <button className="p-2 bg-gray-100 rounded-full text-gray-600 hover:bg-gray-200 transition-colors">
+          <button className="p-2 bg-gray-100 rounded-full text-[var(--text-muted)] hover:bg-gray-200 transition-colors">
             <Phone className="w-4 h-4" />
           </button>
-          <button className="p-2 bg-gray-100 rounded-full text-gray-600 hover:bg-gray-200 transition-colors">
+          <button className="p-2 bg-gray-100 rounded-full text-[var(--text-muted)] hover:bg-gray-200 transition-colors">
             <MessageSquare className="w-4 h-4" />
           </button>
         </div>
@@ -123,13 +123,13 @@ export default function LiveMissionTracker() {
                 {/* ETA Overlay */}
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border border-gray-200 z-[400] flex items-center gap-3">
                   <div className="text-center">
-                    <div className="text-xs text-gray-500 font-bold uppercase tracking-wider">Arrivée estimée</div>
+                    <div className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">Arrivée estimée</div>
                     <div className="text-xl font-bold text-gray-900">{eta} min</div>
                   </div>
                   <div className="h-8 w-px bg-gray-300 mx-2" />
                   <div className="text-left">
                     <div className="text-sm font-bold text-gray-900">Jean D.</div>
-                    <div className="text-xs text-gray-500">Plombier Expert</div>
+                    <div className="text-xs text-[var(--text-muted)]">Plombier Expert</div>
                   </div>
                 </div>
               </div>
@@ -169,7 +169,7 @@ export default function LiveMissionTracker() {
                   <CheckCircle className="w-6 h-6 text-green-600" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">Mission Terminée</h3>
-                <p className="text-gray-500">Veuillez valider le résultat final.</p>
+                <p className="text-[var(--text-muted)]">Veuillez valider le résultat final.</p>
               </div>
 
               {/* Before Evidence */}
@@ -184,7 +184,7 @@ export default function LiveMissionTracker() {
                 <div className="space-y-6">
                   {/* Text Report */}
                   <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm text-left">
-                    <h4 className="text-xs font-bold text-gray-500 mb-2 flex items-center gap-2 uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-[var(--text-muted)] mb-2 flex items-center gap-2 uppercase tracking-wider">
                       <FileText className="w-3 h-3" />
                       Rapport du technicien
                     </h4>
@@ -205,11 +205,11 @@ export default function LiveMissionTracker() {
               <div className="mt-8 space-y-3 pb-4">
                 <button 
                   onClick={resetMission}
-                  className="w-full py-4 bg-black hover:bg-gray-800 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-black hover:bg-gray-800 text-[var(--text-primary)] font-bold rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
                 >
                   Valider & Payer la prestation
                 </button>
-                <p className="text-center text-xs text-gray-400">
+                <p className="text-center text-xs text-[var(--text-secondary)]">
                   En validant, vous déclenchez le paiement sécurisé.
                 </p>
               </div>

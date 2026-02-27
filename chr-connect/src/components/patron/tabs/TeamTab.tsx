@@ -63,7 +63,7 @@ export default function TeamTab() {
         <div className="sticky top-0 z-0 md:static md:z-auto pb-4">
           <div className="flex flex-col md:flex-row justify-between items-center md:items-center gap-6 md:gap-4 mb-4 md:mb-8 p-4 md:p-0">
             <div className="text-center md:text-left w-full md:w-auto">
-              <h2 className="text-3xl font-bold mb-1 bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">Mon Équipe</h2>
+              <h2 className="text-3xl font-bold mb-1 bg-gradient-to-r from-[var(--gradient-heading-from)] via-[var(--gradient-heading-via)] to-[var(--gradient-heading-to)] bg-clip-text text-transparent">Mon Équipe</h2>
               <p className="text-sm md:text-base text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 font-medium animate-pulse">Vos experts favoris et staff régulier</p>
             </div>
             
@@ -78,21 +78,21 @@ export default function TeamTab() {
         </div>
 
         {/* Scrolling Content Section (Sheet) */}
-        <div className="relative z-10 bg-[#1a1a1a] rounded-t-3xl border-t border-white/5 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] min-h-full md:z-auto md:bg-transparent md:rounded-none md:border-none md:shadow-none">
+        <div className="relative z-10 bg-[var(--bg-card)] rounded-t-3xl border-t border-[var(--border)] shadow-lg min-h-full md:z-auto md:bg-transparent md:rounded-none md:border-none md:shadow-none">
           
           {/* Sticky Search Container */}
-          <div className="sticky top-0 z-20 bg-[#1a1a1a] pb-4 pt-4 px-4 md:px-0 rounded-t-3xl md:bg-transparent md:static md:z-auto md:rounded-none md:pt-0">
+          <div className="sticky top-0 z-20 bg-[var(--bg-card)] pb-4 pt-4 px-4 md:px-0 rounded-t-3xl md:bg-transparent md:static md:z-auto md:rounded-none md:pt-0">
             <div className="px-4 md:px-0 pt-4 md:pt-0">
               <div className="flex items-center gap-3 w-full mb-4 md:mb-6">
-                <div className="flex items-center gap-2 bg-[#1a1a1a] md:bg-black/20 p-1 rounded-xl border border-white/10 flex-1">
+                <div className="flex items-center gap-2 bg-[var(--bg-card)] md:bg-[var(--bg-input)] p-1 rounded-xl border border-[var(--border)] flex-1">
                   <div className="relative flex-1">
-                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                     <input 
                       type="text" 
                       placeholder="Rechercher un membre..." 
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="bg-transparent border-none focus:ring-0 focus:outline-none text-sm text-white pl-9 w-full placeholder:text-gray-600 focus:outline-none"
+                      className="bg-transparent border-none focus:ring-0 focus:outline-none text-sm text-[var(--text-primary)] pl-9 w-full placeholder:text-[var(--text-muted)] focus:outline-none"
                     />
                   </div>
                 </div>
@@ -128,7 +128,7 @@ export default function TeamTab() {
                     }}
                     whileHover={{ y: -5, transition: { delay: 0 } }}
                     onClick={() => handleEdit(member)}
-                    className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-2xl p-3 md:p-4 lg:p-6 border border-white/10 hover:border-blue-500/30 transition-all cursor-pointer group relative flex flex-col justify-between shadow-xl h-full"
+                    className="bg-gradient-to-br from-[var(--bg-active)] to-[var(--bg-hover)] backdrop-blur-md rounded-2xl p-3 md:p-4 lg:p-6 border border-[var(--border)] hover:border-blue-500/30 transition-all cursor-pointer group relative flex flex-col justify-between shadow-xl h-full"
                   >
                     {/* Delete Button */}
                     <button
@@ -140,29 +140,29 @@ export default function TeamTab() {
 
                     <div className="flex flex-col items-center mb-3 md:mb-6 pt-1 md:pt-2 text-center w-full">
                       <div className="relative mb-2 md:mb-5">
-                        <div className="w-16 h-16 md:w-28 md:h-28 rounded-full overflow-hidden border-2 md:border-4 border-white/5 group-hover:border-blue-500/20 transition-all duration-300 shadow-2xl">
+                        <div className="w-16 h-16 md:w-28 md:h-28 rounded-full overflow-hidden border-2 md:border-4 border-[var(--border)] group-hover:border-blue-500/20 transition-all duration-300 shadow-2xl">
                           <img src={member.avatar} alt={member.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
                         </div>
                         <div className={clsx(
-                          "absolute bottom-0.5 right-0.5 md:bottom-1 md:right-1 w-3 h-3 md:w-5 md:h-5 rounded-full border-2 md:border-4 border-[#1a1a1a]",
+                          "absolute bottom-0.5 right-0.5 md:bottom-1 md:right-1 w-3 h-3 md:w-5 md:h-5 rounded-full border-2 md:border-4 border-[var(--bg-card)]",
                           member.status === 'AVAILABLE' ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" :
                           member.status === 'BUSY' ? "bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]" : "bg-gray-500"
                         )} />
                       </div>
                       
-                      <h3 className="text-sm md:text-xl font-bold text-white mb-0.5 md:mb-1 group-hover:text-blue-400 transition-colors truncate w-full">{member.name}</h3>
-                      <p className="text-gray-400 font-medium text-[10px] md:text-sm mb-0.5 md:mb-1 truncate w-full">{member.role}</p>
+                      <h3 className="text-sm md:text-xl font-bold text-[var(--text-primary)] mb-0.5 md:mb-1 group-hover:text-blue-400 transition-colors truncate w-full">{member.name}</h3>
+                      <p className="text-[var(--text-secondary)] font-medium text-[10px] md:text-sm mb-0.5 md:mb-1 truncate w-full">{member.role}</p>
                       {member.company && (
-                        <p className="text-gray-600 text-[9px] md:text-xs font-medium uppercase tracking-wider truncate w-full">{member.company}</p>
+                        <p className="text-[var(--text-muted)] text-[9px] md:text-xs font-medium uppercase tracking-wider truncate w-full">{member.company}</p>
                       )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 md:gap-3 mt-auto w-full">
                     <button 
                       onClick={(e) => handleContact(e, 'email', member.email)}
-                      className="flex items-center justify-center gap-1 md:gap-2 py-2 md:py-3 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-all text-[10px] md:text-xs font-bold uppercase tracking-wider group/btn"
+                      className="flex items-center justify-center gap-1 md:gap-2 py-2 md:py-3 rounded-xl bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all text-[10px] md:text-xs font-bold uppercase tracking-wider group/btn"
                     >
-                      <MessageSquare className="w-3 h-3 md:w-4 md:h-4 text-gray-500 group-hover/btn:text-white transition-colors" />
+                      <MessageSquare className="w-3 h-3 md:w-4 md:h-4 text-[var(--text-muted)] group-hover/btn:text-[var(--text-primary)] transition-colors" />
                       <span className="hidden md:inline">Message</span>
                     </button>
                     <button 
@@ -177,11 +177,11 @@ export default function TeamTab() {
               ))
             ) : (
               <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
-                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                  <Users className="w-10 h-10 text-white/20" />
+                <div className="w-20 h-20 rounded-full bg-[var(--bg-hover)] flex items-center justify-center mb-4">
+                  <Users className="w-10 h-10 text-[var(--text-muted)]" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">Aucun membre trouvé</h3>
-                <p className="text-gray-500 max-w-sm">
+                <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Aucun membre trouvé</h3>
+                <p className="text-[var(--text-muted)] max-w-sm">
                   Il n'y a pas encore de membres d'équipe assignés à cet établissement ou correspondant à votre recherche.
                 </p>
                 <button 

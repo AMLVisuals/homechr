@@ -264,9 +264,9 @@ function MessageBubble({
         isUser ? 'bg-blue-500' : 'bg-gradient-to-br from-purple-500 to-blue-500'
       )}>
         {isUser ? (
-          <User className="w-4 h-4 text-white" />
+          <User className="w-4 h-4 text-[var(--text-primary)]" />
         ) : (
-          <Bot className="w-4 h-4 text-white" />
+          <Bot className="w-4 h-4 text-[var(--text-primary)]" />
         )}
       </div>
 
@@ -275,7 +275,7 @@ function MessageBubble({
         'max-w-[80%] rounded-2xl px-4 py-3',
         isUser
           ? 'bg-blue-500 text-white rounded-tr-sm'
-          : 'bg-slate-700/50 text-gray-100 rounded-tl-sm'
+          : 'bg-[var(--bg-active)] text-[var(--text-primary)] rounded-tl-sm'
       )}>
         {message.isTyping ? (
           <TypingIndicator />
@@ -303,12 +303,12 @@ function MessageBubble({
 
             {/* Suggestions */}
             {!isUser && message.suggestions && message.suggestions.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-white/10">
+              <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-[var(--border)]">
                 {message.suggestions.map((suggestion, index) => (
                   <button
                     key={index}
                     onClick={() => onSuggestionClick?.(suggestion)}
-                    className="px-2 py-1 text-xs bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                    className="px-2 py-1 text-xs bg-[var(--bg-active)] hover:bg-[var(--bg-active)] rounded-full transition-colors"
                   >
                     {suggestion}
                   </button>
@@ -318,10 +318,10 @@ function MessageBubble({
 
             {/* Actions */}
             {!isUser && (
-              <div className="flex items-center gap-2 mt-3 pt-2 border-t border-white/5">
+              <div className="flex items-center gap-2 mt-3 pt-2 border-t border-[var(--border)]">
                 <button
                   onClick={handleCopy}
-                  className="p-1 text-gray-500 hover:text-white transition-colors"
+                  className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                   title="Copier"
                 >
                   {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -331,7 +331,7 @@ function MessageBubble({
                   onClick={() => onFeedback?.(message.id, 'positive')}
                   className={clsx(
                     'p-1 transition-colors',
-                    message.feedback === 'positive' ? 'text-green-400' : 'text-gray-500 hover:text-green-400'
+                    message.feedback === 'positive' ? 'text-green-400' : 'text-[var(--text-muted)] hover:text-green-400'
                   )}
                   title="Utile"
                 >
@@ -341,7 +341,7 @@ function MessageBubble({
                   onClick={() => onFeedback?.(message.id, 'negative')}
                   className={clsx(
                     'p-1 transition-colors',
-                    message.feedback === 'negative' ? 'text-red-400' : 'text-gray-500 hover:text-red-400'
+                    message.feedback === 'negative' ? 'text-red-400' : 'text-[var(--text-muted)] hover:text-red-400'
                   )}
                   title="Pas utile"
                 >
@@ -464,39 +464,39 @@ export function QuoteAIAssistant({
       animate={{ opacity: 1, x: 0, y: 0 }}
       exit={{ opacity: 0, x: position === 'right' ? 20 : 0, y: position === 'bottom' ? 20 : 0 }}
       className={clsx(
-        'bg-slate-900 rounded-xl border border-white/10 shadow-2xl overflow-hidden flex flex-col',
+        'bg-[var(--bg-card)] rounded-xl border border-[var(--border)] shadow-2xl overflow-hidden flex flex-col',
         position === 'right' ? 'w-96 h-[500px]' : 'w-full h-80',
         className
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 border-b border-white/10">
+      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
           <div className="p-1.5 bg-purple-500/20 rounded-lg">
             <Sparkles className="w-4 h-4 text-purple-400" />
           </div>
           <div>
-            <h3 className="text-sm font-medium text-white">Assistant IA</h3>
-            <p className="text-[10px] text-gray-400">Analyse de devis</p>
+            <h3 className="text-sm font-medium text-[var(--text-primary)]">Assistant IA</h3>
+            <p className="text-[10px] text-[var(--text-secondary)]">Analyse de devis</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
           <button
             onClick={handleReset}
-            className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            className="p-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-active)] rounded-lg transition-colors"
             title="Réinitialiser"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            className="p-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-active)] rounded-lg transition-colors"
           >
             {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
           </button>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            className="p-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-active)] rounded-lg transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -512,7 +512,7 @@ export function QuoteAIAssistant({
             className="flex-1 flex flex-col min-h-0"
           >
             {/* Quick Suggestions */}
-            <div className="px-3 py-2 border-b border-white/5 overflow-x-auto">
+            <div className="px-3 py-2 border-b border-[var(--border)] overflow-x-auto">
               <div className="flex gap-1">
                 {(Object.keys(QUICK_SUGGESTIONS) as SuggestionCategory[]).map((cat) => (
                   <button
@@ -522,7 +522,7 @@ export function QuoteAIAssistant({
                       'px-2 py-1 rounded text-xs font-medium transition-colors whitespace-nowrap',
                       selectedCategory === cat
                         ? 'bg-purple-500/20 text-purple-400'
-                        : 'text-gray-500 hover:text-white hover:bg-white/5'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
                     )}
                   >
                     {cat === 'price' ? '💰 Prix' :
@@ -537,7 +537,7 @@ export function QuoteAIAssistant({
                   <button
                     key={index}
                     onClick={() => handleSendMessage(suggestion)}
-                    className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-xs text-gray-300 rounded-full transition-colors whitespace-nowrap"
+                    className="px-2 py-1 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] text-xs text-[var(--text-secondary)] rounded-full transition-colors whitespace-nowrap"
                   >
                     {suggestion}
                   </button>
@@ -559,7 +559,7 @@ export function QuoteAIAssistant({
             </div>
 
             {/* Input */}
-            <div className="p-3 border-t border-white/10">
+            <div className="p-3 border-t border-[var(--border)]">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -572,7 +572,7 @@ export function QuoteAIAssistant({
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Posez une question..."
-                  className="flex-1 px-3 py-2 bg-slate-800 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                  className="flex-1 px-3 py-2 bg-[var(--bg-hover)] border border-[var(--border)] rounded-lg text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-purple-500"
                 />
                 <button
                   type="submit"
@@ -581,7 +581,7 @@ export function QuoteAIAssistant({
                     'p-2 rounded-lg transition-colors',
                     inputValue.trim()
                       ? 'bg-purple-500 hover:bg-purple-600 text-white'
-                      : 'bg-slate-700 text-gray-500 cursor-not-allowed'
+                      : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
                   )}
                 >
                   <Send className="w-4 h-4" />
@@ -619,7 +619,7 @@ export function AIAssistantButton({
         className
       )}
     >
-      <Sparkles className="w-5 h-5 text-white" />
+      <Sparkles className="w-5 h-5 text-[var(--text-primary)]" />
 
       {/* Notification dot */}
       {hasNewInsights && (
@@ -628,7 +628,7 @@ export function AIAssistantButton({
           animate={{ scale: 1 }}
           className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center"
         >
-          <span className="text-[10px] text-white font-bold">!</span>
+          <span className="text-[10px] text-[var(--text-primary)] font-bold">!</span>
         </motion.div>
       )}
 

@@ -899,7 +899,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                         'w-14 h-14 rounded-xl flex items-center justify-center bg-gradient-to-br',
                         cat.color
                       )}>
-                        <Icon className="w-7 h-7 text-white" />
+                        <Icon className="w-7 h-7 text-[var(--text-primary)]" />
                       </div>
                       <div className="flex-1">
                         <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-1">{cat.label}</h3>
@@ -1464,7 +1464,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                               setCurrentMediaIndex(idx);
                               setAnnotatorOpen(true);
                             }}
-                            className="p-1.5 bg-[var(--bg-active)] hover:bg-[var(--bg-elevated)] rounded-lg text-white transition-colors"
+                            className="p-1.5 bg-[var(--bg-active)] hover:bg-[var(--bg-elevated)] rounded-lg text-[var(--text-primary)] transition-colors"
                             title={item.type === 'video' ? "Voir" : item.type === 'audio' ? "Écouter" : "Voir et Annoter"}
                           >
                             {item.type === 'audio' ? <Mic className="w-4 h-4" /> : <ImageIcon className="w-4 h-4" />}
@@ -1546,7 +1546,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                         )}
                       >
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                          <Users className="w-6 h-6 text-white" />
+                          <Users className="w-6 h-6 text-[var(--text-primary)]" />
                         </div>
                         <div className="flex-1">
                           <p className="text-[var(--text-primary)] font-medium">{role.role}</p>
@@ -2122,7 +2122,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                      className="w-5 h-5 border-2 border-[var(--border-strong)] border-t-white rounded-full"
                     />
                     Envoi en cours...
                   </>

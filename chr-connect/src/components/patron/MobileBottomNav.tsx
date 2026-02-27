@@ -20,7 +20,7 @@ interface MobileBottomNavProps {
 export default function MobileBottomNav({ activeTab, onTabChange }: MobileBottomNavProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-[80] lg:hidden">
-      <div className="bg-[#0a0a0a]/80 backdrop-blur-xl border-t border-white/10 px-2 pb-[env(safe-area-inset-bottom)]">
+      <div className="bg-[var(--bg-sidebar)] backdrop-blur-xl border-t border-[var(--border)] px-2 pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-center justify-around h-16">
           {BOTTOM_NAV_ITEMS.map((item) => {
             const isActive = activeTab === item.id;
@@ -40,13 +40,13 @@ export default function MobileBottomNav({ activeTab, onTabChange }: MobileBottom
                 <item.icon
                   className={clsx(
                     'w-5 h-5 transition-colors',
-                    isActive ? 'text-blue-400' : 'text-gray-500'
+                    isActive ? 'text-blue-400' : 'text-[var(--text-muted)]'
                   )}
                 />
                 <span
                   className={clsx(
                     'text-[10px] font-medium transition-colors',
-                    isActive ? 'text-blue-400' : 'text-gray-500'
+                    isActive ? 'text-blue-400' : 'text-[var(--text-muted)]'
                   )}
                 >
                   {item.label}

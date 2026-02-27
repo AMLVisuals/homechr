@@ -15,10 +15,10 @@ import { Locate, Navigation } from 'lucide-react';
 const MapComponent = dynamic(() => import('./MapComponent'), { 
   ssr: false,
   loading: () => (
-    <div className="w-full h-full bg-[#0a0a0a] flex items-center justify-center">
+    <div className="w-full h-full bg-[var(--bg-card)] flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-        <p className="text-gray-500 text-sm font-medium">Initialisation de la carte...</p>
+        <p className="text-[var(--text-muted)] text-sm font-medium">Initialisation de la carte...</p>
       </div>
     </div>
   )
@@ -100,7 +100,7 @@ export default function MissionRadar({ authorizedCategories }: { authorizedCateg
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#0a0a0a]">
+    <div className="relative w-full h-screen overflow-hidden bg-[var(--bg-card)]">
       {/* Map Background */}
       <div className="absolute inset-0 z-0">
         <MapComponent 
@@ -114,22 +114,22 @@ export default function MissionRadar({ authorizedCategories }: { authorizedCateg
       <div className="absolute top-0 left-0 right-0 z-10 p-4 bg-gradient-to-b from-black/80 to-transparent pt-safe-top">
         <div className="flex flex-col gap-4 max-w-2xl mx-auto">
           {/* Header */}
-          <div className="flex items-center justify-between text-white">
+          <div className="flex items-center justify-between text-[var(--text-primary)]">
             <div>
               <h1 className="text-xl font-bold flex items-center gap-2">
                 <Navigation className="w-5 h-5 text-blue-500 fill-blue-500" />
                 Mission Radar
               </h1>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-[var(--text-secondary)]">
                 {filteredMissions.length} missions disponibles à proximité
               </p>
             </div>
             
             <button 
               onClick={handleLocateMe}
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-colors border border-white/10"
+              className="p-2 rounded-full bg-[var(--bg-active)] hover:bg-[var(--bg-active)] backdrop-blur-md transition-colors border border-[var(--border)]"
             >
-              <Locate className="w-5 h-5 text-white" />
+              <Locate className="w-5 h-5 text-[var(--text-primary)]" />
             </button>
           </div>
 

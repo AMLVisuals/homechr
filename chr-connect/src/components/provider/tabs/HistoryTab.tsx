@@ -58,7 +58,7 @@ export function HistoryTab() {
           <div className="h-full flex flex-col">
               <button 
                 onClick={() => setSelectedMission(null)}
-                className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors"
+                className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-6 transition-colors"
               >
                   <ArrowRight className="w-4 h-4 rotate-180" />
                   Retour à l'historique
@@ -68,29 +68,29 @@ export function HistoryTab() {
                   {/* Header */}
                   <div className="flex justify-between items-start">
                       <div>
-                          <h2 className="text-2xl font-bold text-white mb-2">{selectedMission.title}</h2>
-                          <div className="flex items-center gap-2 text-gray-400">
+                          <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">{selectedMission.title}</h2>
+                          <div className="flex items-center gap-2 text-[var(--text-secondary)]">
                               <MapPin className="w-4 h-4" />
                               {selectedMission.venue}
                           </div>
                       </div>
                       <div className="text-right">
                           <div className="text-xl font-bold text-green-400">{selectedMission.amount}</div>
-                          <div className="text-sm text-gray-500">{selectedMission.date}</div>
+                          <div className="text-sm text-[var(--text-muted)]">{selectedMission.date}</div>
                       </div>
                   </div>
 
                   {/* Before / After */}
                   <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                          <span className="text-sm font-medium text-gray-400">Avant</span>
-                          <div className="aspect-video rounded-xl overflow-hidden bg-white/5 border border-white/10 relative group">
+                          <span className="text-sm font-medium text-[var(--text-secondary)]">Avant</span>
+                          <div className="aspect-video rounded-xl overflow-hidden bg-[var(--bg-hover)] border border-[var(--border)] relative group">
                               <img src={selectedMission.report.before} alt="Avant" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                           </div>
                       </div>
                       <div className="space-y-2">
-                          <span className="text-sm font-medium text-gray-400">Après</span>
-                          <div className="aspect-video rounded-xl overflow-hidden bg-white/5 border border-white/10 relative group">
+                          <span className="text-sm font-medium text-[var(--text-secondary)]">Après</span>
+                          <div className="aspect-video rounded-xl overflow-hidden bg-[var(--bg-hover)] border border-[var(--border)] relative group">
                               <img src={selectedMission.report.after} alt="Après" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                               <div className="absolute bottom-2 right-2 bg-green-500/90 text-black text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
                                   <CheckCircle className="w-3 h-3" />
@@ -101,29 +101,29 @@ export function HistoryTab() {
                   </div>
 
                   {/* Report */}
-                  <div className="bg-white/5 rounded-xl p-5 border border-white/10">
-                      <h3 className="font-bold text-white mb-3">Rapport d'intervention</h3>
-                      <p className="text-gray-300 leading-relaxed">
+                  <div className="bg-[var(--bg-hover)] rounded-xl p-5 border border-[var(--border)]">
+                      <h3 className="font-bold text-[var(--text-primary)] mb-3">Rapport d'intervention</h3>
+                      <p className="text-[var(--text-secondary)] leading-relaxed">
                           {selectedMission.report.text}
                       </p>
                   </div>
 
                   {/* Stats */}
                   <div className="grid grid-cols-3 gap-4">
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/10 text-center">
+                      <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)] text-center">
                           <Clock className="w-5 h-5 text-blue-400 mx-auto mb-2" />
-                          <div className="text-lg font-bold text-white">{selectedMission.duration}</div>
-                          <div className="text-xs text-gray-500">Durée</div>
+                          <div className="text-lg font-bold text-[var(--text-primary)]">{selectedMission.duration}</div>
+                          <div className="text-xs text-[var(--text-muted)]">Durée</div>
                       </div>
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/10 text-center">
+                      <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)] text-center">
                           <Euro className="w-5 h-5 text-green-400 mx-auto mb-2" />
-                          <div className="text-lg font-bold text-white">{selectedMission.amount}</div>
-                          <div className="text-xs text-gray-500">Facturé</div>
+                          <div className="text-lg font-bold text-[var(--text-primary)]">{selectedMission.amount}</div>
+                          <div className="text-xs text-[var(--text-muted)]">Facturé</div>
                       </div>
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/10 text-center">
+                      <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)] text-center">
                           <CheckCircle className="w-5 h-5 text-purple-400 mx-auto mb-2" />
-                          <div className="text-lg font-bold text-white">5.0</div>
-                          <div className="text-xs text-gray-500">Note</div>
+                          <div className="text-lg font-bold text-[var(--text-primary)]">5.0</div>
+                          <div className="text-xs text-[var(--text-muted)]">Note</div>
                       </div>
                   </div>
               </div>
@@ -140,33 +140,33 @@ export function HistoryTab() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
           onClick={() => setSelectedMission(mission)}
-          className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-4 cursor-pointer transition-all group"
+          className="bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-xl p-4 cursor-pointer transition-all group"
         >
           <div className="flex gap-4">
-            <div className="w-16 h-16 rounded-lg overflow-hidden bg-zinc-800 shrink-0">
+            <div className="w-16 h-16 rounded-lg overflow-hidden bg-[var(--bg-active)] shrink-0">
               <img src={mission.image} alt="" className="w-full h-full object-cover" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-start mb-1">
-                <h3 className="font-bold text-white truncate pr-4">{mission.title}</h3>
+                <h3 className="font-bold text-[var(--text-primary)] truncate pr-4">{mission.title}</h3>
                 <span className="text-green-400 font-mono font-bold">{mission.amount}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
+              <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-2">
                 <MapPin className="w-3 h-3" />
                 <span className="truncate">{mission.venue}</span>
-                <span className="w-1 h-1 rounded-full bg-gray-600" />
+                <span className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
                 <span>{mission.date}</span>
               </div>
               <div className="flex items-center gap-2">
                  <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-[10px] font-bold border border-green-500/20">
                     TERMINÉE
                  </span>
-                 <span className="text-xs text-gray-500 flex items-center gap-1">
+                 <span className="text-xs text-[var(--text-muted)] flex items-center gap-1">
                     <Clock className="w-3 h-3" /> {mission.duration}
                  </span>
               </div>
             </div>
-            <div className="flex items-center text-gray-600 group-hover:text-white transition-colors">
+            <div className="flex items-center text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors">
                 <ChevronRight className="w-5 h-5" />
             </div>
           </div>

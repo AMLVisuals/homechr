@@ -124,17 +124,17 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold text-white">Portfolio</h3>
-          <p className="text-sm text-gray-400">Vos meilleures réalisations</p>
+          <h3 className="text-lg font-semibold text-[var(--text-primary)]">Portfolio</h3>
+          <p className="text-sm text-[var(--text-secondary)]">Vos meilleures réalisations</p>
         </div>
         
         {/* Mode Toggle */}
-        <div className="flex bg-white/5 rounded-lg p-1 border border-white/10">
+        <div className="flex bg-[var(--bg-hover)] rounded-lg p-1 border border-[var(--border)]">
           <button
             onClick={() => setUploadMode('SIMPLE')}
             className={clsx(
               "px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-2",
-              uploadMode === 'SIMPLE' ? "bg-blue-500 text-white" : "text-gray-400 hover:text-white"
+              uploadMode === 'SIMPLE' ? "bg-blue-500 text-white" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             )}
           >
             <ImageIcon className="w-3 h-3" /> Standard
@@ -143,7 +143,7 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
             onClick={() => setUploadMode('BEFORE_AFTER')}
             className={clsx(
               "px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-2",
-              uploadMode === 'BEFORE_AFTER' ? "bg-blue-500 text-white" : "text-gray-400 hover:text-white"
+              uploadMode === 'BEFORE_AFTER' ? "bg-blue-500 text-white" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             )}
           >
             <SplitSquareHorizontal className="w-3 h-3" /> Avant/Après
@@ -181,7 +181,7 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
       {uploadMode === 'SIMPLE' ? (
         <div 
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-zinc-700 hover:border-blue-500/50 bg-zinc-900/30 hover:bg-zinc-900/50 rounded-xl h-32 flex flex-col items-center justify-center cursor-pointer transition-all group"
+          className="border-2 border-dashed border-[var(--border)] hover:border-blue-500/50 bg-[var(--bg-hover)] hover:bg-[var(--bg-hover)] rounded-xl h-32 flex flex-col items-center justify-center cursor-pointer transition-all group"
         >
           <input 
             type="file" 
@@ -190,21 +190,21 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
             accept="image/*,video/*"
             className="hidden"
           />
-          <div className="w-10 h-10 rounded-full bg-zinc-800 group-hover:bg-blue-500/20 flex items-center justify-center mb-3 transition-colors">
-            <Upload className="w-5 h-5 text-gray-400 group-hover:text-blue-400" />
+          <div className="w-10 h-10 rounded-full bg-[var(--bg-active)] group-hover:bg-blue-500/20 flex items-center justify-center mb-3 transition-colors">
+            <Upload className="w-5 h-5 text-[var(--text-secondary)] group-hover:text-blue-400" />
           </div>
-          <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
+          <span className="text-sm font-medium text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">
             Cliquez pour ajouter une photo ou vidéo
           </span>
         </div>
       ) : (
-        <div className="bg-zinc-900/30 border border-zinc-700 rounded-xl p-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+        <div className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl p-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
           {/* Before Input */}
           <div 
             onClick={() => beforeInputRef.current?.click()}
             className={clsx(
               "border-2 border-dashed rounded-xl h-32 flex flex-col items-center justify-center cursor-pointer transition-all relative overflow-hidden",
-              beforeFile ? "border-green-500/50" : "border-zinc-700 hover:border-blue-500/50"
+              beforeFile ? "border-green-500/50" : "border-[var(--border)] hover:border-blue-500/50"
             )}
           >
             <input type="file" ref={beforeInputRef} onChange={handleBeforeUpload} accept="image/*" className="hidden" />
@@ -215,8 +215,8 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
               </>
             ) : (
               <>
-                <span className="text-xs font-bold text-gray-500 mb-1">ÉTAPE 1</span>
-                <span className="text-sm text-gray-300">Photo AVANT</span>
+                <span className="text-xs font-bold text-[var(--text-muted)] mb-1">ÉTAPE 1</span>
+                <span className="text-sm text-[var(--text-secondary)]">Photo AVANT</span>
               </>
             )}
           </div>
@@ -226,7 +226,7 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
             onClick={() => afterInputRef.current?.click()}
             className={clsx(
               "border-2 border-dashed rounded-xl h-32 flex flex-col items-center justify-center cursor-pointer transition-all relative overflow-hidden",
-              afterFile ? "border-green-500/50" : "border-zinc-700 hover:border-blue-500/50"
+              afterFile ? "border-green-500/50" : "border-[var(--border)] hover:border-blue-500/50"
             )}
           >
             <input type="file" ref={afterInputRef} onChange={handleAfterUpload} accept="image/*" className="hidden" />
@@ -237,8 +237,8 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
               </>
             ) : (
               <>
-                <span className="text-xs font-bold text-gray-500 mb-1">ÉTAPE 2</span>
-                <span className="text-sm text-gray-300">Photo APRÈS</span>
+                <span className="text-xs font-bold text-[var(--text-muted)] mb-1">ÉTAPE 2</span>
+                <span className="text-sm text-[var(--text-secondary)]">Photo APRÈS</span>
               </>
             )}
           </div>
@@ -248,12 +248,12 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
             <button
               disabled={!beforeFile || !afterFile}
               onClick={createBeforeAfterItem}
-              className="w-full h-12 bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="w-full h-12 bg-blue-600 hover:bg-blue-500 disabled:bg-[var(--bg-active)] disabled:text-[var(--text-muted)] text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               <SplitSquareHorizontal className="w-4 h-4" />
               Créer le Slider
             </button>
-            <p className="text-xs text-gray-500 mt-2 text-center">
+            <p className="text-xs text-[var(--text-muted)] mt-2 text-center">
               Crée un comparatif interactif
             </p>
           </div>
@@ -267,13 +267,13 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
             key={item.id}
             layoutId={`portfolio-${item.id}`}
             onClick={() => openItem(item)}
-            className="break-inside-avoid relative group cursor-pointer rounded-xl overflow-hidden bg-zinc-900 border border-white/5"
+            className="break-inside-avoid relative group cursor-pointer rounded-xl overflow-hidden bg-[var(--bg-card)] border border-[var(--border)]"
           >
             {item.type === 'VIDEO' ? (
               <div className="relative aspect-video bg-black">
                 <video src={item.url} className="w-full h-full object-cover" />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                  <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-[var(--bg-active)] backdrop-blur-sm flex items-center justify-center">
                     <Video className="w-4 h-4 text-white" />
                   </div>
                 </div>
@@ -295,9 +295,9 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
             )}
             
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4 z-20">
-              <h4 className="text-white font-medium truncate">{item.title}</h4>
+              <h4 className="text-[var(--text-primary)] font-medium truncate">{item.title}</h4>
               {item.description && (
-                <p className="text-gray-300 text-xs line-clamp-2 mt-1">{item.description}</p>
+                <p className="text-[var(--text-secondary)] text-xs line-clamp-2 mt-1">{item.description}</p>
               )}
             </div>
           </motion.div>
@@ -307,11 +307,11 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
       {/* Empty State */}
       {profile.portfolio.length === 0 && (
         <div className="text-center py-12">
-          <div className="w-16 h-16 rounded-full bg-zinc-900 mx-auto flex items-center justify-center mb-4">
-            <ImageIcon className="w-8 h-8 text-zinc-700" />
+          <div className="w-16 h-16 rounded-full bg-[var(--bg-card)] mx-auto flex items-center justify-center mb-4">
+            <ImageIcon className="w-8 h-8 text-[var(--text-muted)]" />
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">Votre portfolio est vide</h3>
-          <p className="text-gray-500 max-w-sm mx-auto">
+          <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">Votre portfolio est vide</h3>
+          <p className="text-[var(--text-muted)] max-w-sm mx-auto">
             Ajoutez des photos de vos réalisations pour convaincre les futurs clients.
           </p>
         </div>
@@ -331,7 +331,7 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
             
             <motion.div
               layoutId={`portfolio-${selectedItem.id}`}
-              className="relative w-full max-w-4xl bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] border border-white/10"
+              className="relative w-full max-w-4xl bg-[var(--bg-card)] rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] border border-[var(--border)]"
             >
               {/* Media Section */}
               <div className="flex-1 bg-black flex items-center justify-center overflow-hidden relative">
@@ -352,19 +352,19 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
               </div>
 
               {/* Sidebar */}
-              <div className="w-full md:w-80 bg-zinc-900 p-6 flex flex-col border-l border-white/5">
+              <div className="w-full md:w-80 bg-[var(--bg-card)] p-6 flex flex-col border-l border-[var(--border)]">
                 <div className="flex justify-between items-start mb-6">
-                  <h3 className="text-xl font-bold text-white">Détails</h3>
+                  <h3 className="text-xl font-bold text-[var(--text-primary)]">Détails</h3>
                   <div className="flex gap-2">
                     <button 
                       onClick={() => setIsEditing(!isEditing)}
-                      className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors"
+                      className="p-2 hover:bg-[var(--bg-active)] rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button 
                       onClick={() => handleDelete(selectedItem.id)}
-                      className="p-2 hover:bg-red-500/10 rounded-lg text-gray-400 hover:text-red-400 transition-colors"
+                      className="p-2 hover:bg-red-500/10 rounded-lg text-[var(--text-secondary)] hover:text-red-400 transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -374,20 +374,20 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
                 {isEditing ? (
                   <div className="space-y-4 flex-1">
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Titre</label>
+                      <label className="block text-xs text-[var(--text-muted)] mb-1">Titre</label>
                       <input 
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
-                        className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                        className="w-full bg-black/50 border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text-primary)] text-sm focus:border-blue-500 outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Description</label>
+                      <label className="block text-xs text-[var(--text-muted)] mb-1">Description</label>
                       <textarea 
                         value={editDescription}
                         onChange={(e) => setEditDescription(e.target.value)}
                         rows={4}
-                        className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none resize-none"
+                        className="w-full bg-black/50 border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text-primary)] text-sm focus:border-blue-500 outline-none resize-none"
                       />
                     </div>
                     <button 
@@ -399,8 +399,8 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
                   </div>
                 ) : (
                   <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-white mb-2">{selectedItem.title}</h2>
-                    <p className="text-gray-400 leading-relaxed text-sm">
+                    <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">{selectedItem.title}</h2>
+                    <p className="text-[var(--text-secondary)] leading-relaxed text-sm">
                       {selectedItem.description || "Aucune description."}
                     </p>
                     
@@ -420,7 +420,7 @@ export default function PortfolioTab({ profile, setProfile }: PortfolioTabProps)
                 
                 <button 
                   onClick={() => setSelectedItem(null)}
-                  className="mt-6 w-full border border-white/10 hover:bg-white/5 text-white font-medium py-2 rounded-lg transition-colors"
+                  className="mt-6 w-full border border-[var(--border)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] font-medium py-2 rounded-lg transition-colors"
                 >
                   Fermer
                 </button>

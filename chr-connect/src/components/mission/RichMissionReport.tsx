@@ -157,7 +157,7 @@ export default function RichMissionReport({ onSubmit, onCancel }: RichMissionRep
       {/* Header */}
       <div className="bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between safe-area-top shadow-sm z-20">
         <Button variant="ghost" size="icon" onClick={onCancel} className="-ml-2">
-          <ChevronLeft className="w-6 h-6 text-gray-600" />
+          <ChevronLeft className="w-6 h-6 text-[var(--text-muted)]" />
         </Button>
         <h1 className="font-bold text-lg text-gray-900">Rapport de Mission</h1>
         <div className="w-8" /> {/* Spacer */}
@@ -170,7 +170,7 @@ export default function RichMissionReport({ onSubmit, onCancel }: RichMissionRep
           <div className="flex justify-between items-start">
             <div>
               <h2 className="font-bold text-xl text-gray-900">Le Fouquet's</h2>
-              <div className="flex items-center text-gray-500 text-sm mt-1 gap-1">
+              <div className="flex items-center text-[var(--text-muted)] text-sm mt-1 gap-1">
                 <MapPin className="w-3.5 h-3.5" />
                 99 Av. des Champs-Élysées
               </div>
@@ -186,7 +186,7 @@ export default function RichMissionReport({ onSubmit, onCancel }: RichMissionRep
                 <Clock className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-xs text-gray-400 font-medium">Durée</p>
+                <p className="text-xs text-[var(--text-secondary)] font-medium">Durée</p>
                 <p className="text-sm font-bold text-gray-900">{formatDuration()}</p>
               </div>
             </div>
@@ -195,7 +195,7 @@ export default function RichMissionReport({ onSubmit, onCancel }: RichMissionRep
                 <Calendar className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-xs text-gray-400 font-medium">Date</p>
+                <p className="text-xs text-[var(--text-secondary)] font-medium">Date</p>
                 <p className="text-sm font-bold text-gray-900">{new Date().toLocaleDateString('fr-FR')}</p>
               </div>
             </div>
@@ -234,7 +234,7 @@ export default function RichMissionReport({ onSubmit, onCancel }: RichMissionRep
           <div className="space-y-2">
             <div className="flex justify-between items-center pl-1">
               <Label className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Médias & Preuves</Label>
-              <span className="text-xs text-gray-500 font-medium">{attachments.length} fichiers</span>
+              <span className="text-xs text-[var(--text-muted)] font-medium">{attachments.length} fichiers</span>
             </div>
             
             <div className="grid grid-cols-3 gap-3">
@@ -244,7 +244,7 @@ export default function RichMissionReport({ onSubmit, onCancel }: RichMissionRep
                     <img src={att.url} alt="Attachment" className="w-full h-full object-cover" />
                   )}
                   {att.type === 'VIDEO' && (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-900 text-white">
+                    <div className="w-full h-full flex items-center justify-center bg-gray-900 text-[var(--text-primary)]">
                       <Video className="w-8 h-8" />
                     </div>
                   )}
@@ -265,7 +265,7 @@ export default function RichMissionReport({ onSubmit, onCancel }: RichMissionRep
 
               <button 
                 onClick={() => handleAddAttachment('PHOTO')}
-                className="aspect-square rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-2 text-gray-400 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                className="aspect-square rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-2 text-[var(--text-secondary)] hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 transition-all"
               >
                 <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center">
                   <Camera className="w-4 h-4" />
@@ -275,7 +275,7 @@ export default function RichMissionReport({ onSubmit, onCancel }: RichMissionRep
               
               <button 
                 onClick={() => handleAddAttachment('VIDEO')}
-                className="aspect-square rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-2 text-gray-400 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                className="aspect-square rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-2 text-[var(--text-secondary)] hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 transition-all"
               >
                 <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center">
                   <Video className="w-4 h-4" />
@@ -327,7 +327,7 @@ export default function RichMissionReport({ onSubmit, onCancel }: RichMissionRep
                 onTouchEnd={stopDrawing}
               />
               {!signature && !isDrawing && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-gray-300">
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-[var(--text-secondary)]">
                   <div className="w-64 h-px bg-gray-100 mb-2" />
                   <span className="text-xs font-medium uppercase tracking-widest">Signer ici</span>
                 </div>

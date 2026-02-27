@@ -29,11 +29,11 @@ export default function PriceEstimator({ category, onOptionsChange }: PriceEstim
   }, [breakdown.totalHT, isNightWeekend, isUrgent, onOptionsChange]);
 
   return (
-    <div className="w-full bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-colors">
+    <div className="w-full bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl overflow-hidden transition-colors">
       {/* Header & Main Price */}
-      <div className="p-5 border-b border-white/5">
+      <div className="p-5 border-b border-[var(--border)]">
         <div className="flex justify-between items-start mb-2">
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+          <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
             Estimation Forfaitaire
           </span>
@@ -42,7 +42,7 @@ export default function PriceEstimator({ category, onOptionsChange }: PriceEstim
                onClick={() => setIsNightWeekend(!isNightWeekend)}
                className={clsx(
                  "p-2 rounded-lg transition-all",
-                 isNightWeekend ? "bg-purple-500/20 text-purple-300 border border-purple-500/50" : "bg-white/5 text-gray-500 hover:text-gray-300"
+                 isNightWeekend ? "bg-purple-500/20 text-purple-300 border border-purple-500/50" : "bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
                )}
                title="Mode Nuit / Week-end"
              >
@@ -52,7 +52,7 @@ export default function PriceEstimator({ category, onOptionsChange }: PriceEstim
                onClick={() => setIsUrgent(!isUrgent)}
                className={clsx(
                  "p-2 rounded-lg transition-all",
-                 isUrgent ? "bg-orange-500/20 text-orange-300 border border-orange-500/50" : "bg-white/5 text-gray-500 hover:text-gray-300"
+                 isUrgent ? "bg-orange-500/20 text-orange-300 border border-orange-500/50" : "bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
                )}
                title="Urgence Prioritaire"
              >
@@ -63,7 +63,7 @@ export default function PriceEstimator({ category, onOptionsChange }: PriceEstim
 
         <div className="flex items-baseline gap-2">
           <CountUp value={breakdown.totalHT} />
-          <span className="text-xl text-gray-400 font-medium">€ HT</span>
+          <span className="text-xl text-[var(--text-secondary)] font-medium">€ HT</span>
         </div>
         
         {/* Tags for active modifiers */}
@@ -93,7 +93,7 @@ export default function PriceEstimator({ category, onOptionsChange }: PriceEstim
       <div>
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex items-center justify-between p-4 text-sm text-gray-400 hover:bg-white/5 transition-colors"
+          className="w-full flex items-center justify-between p-4 text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors"
         >
           <span className="flex items-center gap-2">
             <Info className="w-4 h-4" /> Comprendre ce prix
@@ -107,18 +107,18 @@ export default function PriceEstimator({ category, onOptionsChange }: PriceEstim
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden bg-black/20"
+              className="overflow-hidden bg-[var(--bg-input)]"
             >
-              <div className="p-4 pt-0 space-y-3 text-sm border-t border-white/5 mt-2 pt-4">
-                <div className="flex justify-between text-gray-400">
+              <div className="p-4 pt-0 space-y-3 text-sm border-t border-[var(--border)] mt-2 pt-4">
+                <div className="flex justify-between text-[var(--text-secondary)]">
                   <span>Déplacement & Camion</span>
                   <span>{breakdown.travel}€</span>
                 </div>
-                <div className="flex justify-between text-gray-300">
+                <div className="flex justify-between text-[var(--text-secondary)]">
                   <span>Main d'œuvre qualifiée (1h)</span>
                   <span>{breakdown.labor}€</span>
                 </div>
-                <div className="flex justify-between text-gray-400">
+                <div className="flex justify-between text-[var(--text-secondary)]">
                   <span>Frais de Service (Platform)</span>
                   <span>{breakdown.platformFee}€</span>
                 </div>
@@ -137,12 +137,12 @@ export default function PriceEstimator({ category, onOptionsChange }: PriceEstim
                   </div>
                 )}
 
-                <div className="border-t border-white/10 pt-2 mt-2 flex justify-between font-bold text-white">
+                <div className="border-t border-[var(--border)] pt-2 mt-2 flex justify-between font-bold text-[var(--text-primary)]">
                   <span>Total HT</span>
                   <span>{breakdown.totalHT}€</span>
                 </div>
                 
-                <p className="text-[10px] text-gray-600 mt-2 leading-tight">
+                <p className="text-[10px] text-[var(--text-muted)] mt-2 leading-tight">
                   *Prix hors pièces détachées. Toute heure supplémentaire sera facturée 70€ HT. TVA 20% ou 10% selon éligibilité.
                 </p>
               </div>
@@ -160,7 +160,7 @@ function CountUp({ value }: { value: number }) {
       key={value}
       initial={{ opacity: 0.5, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="text-4xl font-bold text-white tracking-tight"
+      className="text-4xl font-bold text-[var(--text-primary)] tracking-tight"
     >
       {value}
     </motion.span>
