@@ -34,6 +34,7 @@ import PlanningTab from './tabs/PlanningTab';
 import TeamTab from './tabs/TeamTab';
 import InvoicesTab from './tabs/InvoicesTab';
 import PayslipsTab from './tabs/PayslipsTab';
+import PremiumTab from './tabs/PremiumTab';
 import MissionDetailsModal from './missions/MissionDetailsModal';
 import Sidebar from './Sidebar';
 import SettingsModal from '../shared/SettingsModal';
@@ -58,6 +59,7 @@ export default function PatronDashboard() {
       '/patron/tableau-de-bord': 'DASHBOARD',
       '/patron/mon-equipe': 'TEAM',
       '/patron/bulletins-paie': 'PAYSLIPS',
+      '/patron/premium': 'PREMIUM',
       '/patron/equipements': 'GARAGE',
       '/patron/factures': 'INVOICES',
       '/patron/planning': 'PLANNING',
@@ -357,6 +359,7 @@ export default function PatronDashboard() {
           {activeTab === 'PLANNING' && <PlanningTab />}
           {activeTab === 'TEAM' && <TeamTab />}
           {activeTab === 'PAYSLIPS' && <PayslipsTab />}
+          {activeTab === 'PREMIUM' && <PremiumTab />}
           {activeTab === 'INVOICES' && <InvoicesTab />}
         </div>
       </div>

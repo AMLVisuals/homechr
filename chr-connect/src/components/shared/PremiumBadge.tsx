@@ -16,7 +16,7 @@ export default function PremiumBadge({ size = 'sm', className }: PremiumBadgePro
         className
       )}
     >
-      PRO
+      PREMIUM
     </span>
   );
 }

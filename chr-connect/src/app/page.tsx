@@ -54,9 +54,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white flex flex-col">
+    <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-primary)] flex flex-col">
       {/* Navbar */}
-      <header className="h-16 border-b border-white/10 flex items-center justify-between px-6 glass sticky top-0 z-50">
+      <header className="h-16 border-b border-[var(--border)] flex items-center justify-between px-6 glass sticky top-0 z-50">
         <div className="text-xl font-bold tracking-wider">CHR CONNECT</div>
         <div className="flex items-center gap-4 relative">
              <div className="relative">
@@ -75,7 +75,7 @@ export default function Home() {
                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
                      animate={{ opacity: 1, y: 0, scale: 1 }}
                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                     className="absolute top-full right-0 mt-2 w-48 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50"
+                     className="absolute top-full right-0 mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-2xl overflow-hidden z-50"
                    >
                      {SIMULATED_PROFILES.map((profile) => (
                        <button
@@ -85,8 +85,8 @@ export default function Home() {
                            setShowProfileSwitcher(false);
                          }}
                          className={clsx(
-                           "w-full text-left px-4 py-3 text-sm hover:bg-white/5 transition-colors",
-                           currentProfile.id === profile.id ? "text-blue-400 bg-blue-500/10 font-medium" : "text-gray-300"
+                           "w-full text-left px-4 py-3 text-sm hover:bg-[var(--bg-hover)] transition-colors",
+                           currentProfile.id === profile.id ? "text-blue-400 bg-blue-500/10 font-medium" : "text-[var(--text-secondary)]"
                          )}
                        >
                          {profile.specialty}
@@ -99,7 +99,7 @@ export default function Home() {
 
            <button 
              onClick={() => setShowNotifications(!showNotifications)}
-             className="p-2 hover:bg-white/10 rounded-full transition-colors relative"
+             className="p-2 hover:bg-[var(--bg-hover)] rounded-full transition-colors relative"
            >
              <Bell className="w-5 h-5" />
              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
@@ -111,36 +111,36 @@ export default function Home() {
                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
                  animate={{ opacity: 1, y: 0, scale: 1 }}
                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                 className="absolute top-full right-0 mt-2 w-80 bg-[#1a1a1a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
+                 className="absolute top-full right-0 mt-2 w-80 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden z-50"
                >
-                 <div className="p-4 border-b border-white/10 flex justify-between items-center">
+                 <div className="p-4 border-b border-[var(--border)] flex justify-between items-center">
                    <h3 className="font-bold">Notifications</h3>
-                   <button onClick={() => setShowNotifications(false)}><X className="w-4 h-4 text-gray-400" /></button>
+                   <button onClick={() => setShowNotifications(false)}><X className="w-4 h-4 text-[var(--text-muted)]" /></button>
                  </div>
                  <div className="max-h-80 overflow-y-auto">
-                   <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                   <div className="p-4 border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer">
                      <div className="flex gap-3">
                        <div className="w-2 h-2 mt-2 rounded-full bg-blue-500 shrink-0" />
                        <div>
                          <p className="text-sm font-medium">Expert en route</p>
-                         <p className="text-xs text-gray-400 mt-1">L'expert Plombier arrivera dans 15 min.</p>
-                         <p className="text-[10px] text-gray-500 mt-2">Il y a 2 min</p>
+                         <p className="text-xs text-[var(--text-muted)] mt-1">L'expert Plombier arrivera dans 15 min.</p>
+                         <p className="text-[10px] text-[var(--text-muted)] mt-2">Il y a 2 min</p>
                        </div>
                      </div>
                    </div>
-                   <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                   <div className="p-4 border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer">
                      <div className="flex gap-3">
                        <div className="w-2 h-2 mt-2 rounded-full bg-green-500 shrink-0" />
                        <div>
                          <p className="text-sm font-medium">Mission Terminée</p>
-                         <p className="text-xs text-gray-400 mt-1">La réparation du four a été validée.</p>
-                         <p className="text-[10px] text-gray-500 mt-2">Hier</p>
+                         <p className="text-xs text-[var(--text-muted)] mt-1">La réparation du four a été validée.</p>
+                         <p className="text-[10px] text-[var(--text-muted)] mt-2">Hier</p>
                        </div>
                      </div>
                    </div>
                  </div>
-                 <div className="p-2 bg-black/20 text-center">
-                   <button className="text-xs text-gray-400 hover:text-white font-medium">Tout marquer comme lu</button>
+                 <div className="p-2 bg-[var(--bg-hover)] text-center">
+                   <button className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] font-medium">Tout marquer comme lu</button>
                  </div>
                </motion.div>
              )}
@@ -158,7 +158,7 @@ export default function Home() {
                "flex items-center gap-2 px-4 py-2 rounded-full transition-all font-medium text-sm",
                isAvailable 
                  ? "bg-green-500/20 text-green-400 border-2 border-green-500/50 hover:bg-green-500/30" 
-                 : "bg-white/5 text-gray-400 border-2 border-white/10 hover:bg-white/10 hover:text-white"
+                 : "bg-[var(--bg-hover)] text-[var(--text-muted)] border-2 border-[var(--border)] hover:bg-[var(--bg-active)] hover:text-[var(--text-primary)]"
              )}
            >
              <Power className={clsx("w-4 h-4", isAvailable ? "text-green-400" : "")} />
@@ -167,7 +167,7 @@ export default function Home() {
 
            <button 
              onClick={() => setUserRole(null)} 
-             className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors border border-white/10"
+             className="flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-full transition-colors border border-[var(--border)]"
            >
              <User className="w-4 h-4" />
              <span className="text-sm font-medium">{userRole} VIEW</span>
@@ -185,14 +185,14 @@ export default function Home() {
              <div className="h-full flex flex-col">
                 {/* Worker Navigation */}
                 <div className="flex justify-center mb-6 shrink-0 relative">
-                   <div className="bg-white/5 p-1 rounded-xl flex gap-1 border border-white/10">
+                   <div className="bg-[var(--bg-hover)] p-1 rounded-xl flex gap-1 border border-[var(--border)]">
                       <button 
                          onClick={() => router.push('/worker/mon-profil')}
                          className={clsx(
                            "px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2", 
                            workerView === 'PROFILE' 
                              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-900/20" 
-                             : "text-gray-400 hover:text-white hover:bg-white/5"
+                             : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                          )}
                       >
                          <UserCircle className="w-4 h-4" />
@@ -204,10 +204,10 @@ export default function Home() {
                          className={clsx(
                            "px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2", 
                            !isAvailable 
-                             ? "bg-zinc-900/30 text-gray-600 cursor-not-allowed" 
+                             ? "bg-[var(--bg-hover)] text-[var(--text-muted)] cursor-not-allowed" 
                              : workerView === 'MISSIONS' 
                                ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-900/20" 
-                               : "text-gray-400 hover:text-white hover:bg-white/5"
+                               : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                          )}
                       >
                          <Briefcase className="w-4 h-4" />
@@ -219,11 +219,11 @@ export default function Home() {
                 <div className="flex-1 min-h-0">
                   {workerView === 'MISSIONS' ? (
                      status !== 'IDLE' ? (
-                        <div className="h-full w-full rounded-3xl overflow-hidden border border-white/10 relative shadow-2xl bg-white text-black">
+                        <div className="h-full w-full rounded-3xl overflow-hidden border border-[var(--border)] relative shadow-2xl bg-[var(--bg-card)]">
                              <MissionWorkflow />
                         </div>
                      ) : (
-                        <div className="h-full w-full rounded-3xl overflow-hidden border border-white/10 relative shadow-2xl">
+                        <div className="h-full w-full rounded-3xl overflow-hidden border border-[var(--border)] relative shadow-2xl">
                            <MissionRadar authorizedCategories={currentProfile.authorizedCategories} />
                         </div>
                      )

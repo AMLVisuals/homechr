@@ -57,10 +57,10 @@ export default function RoleSwitcher() {
   const allVerified = requiredDocuments.every(doc => !doc.required || docStatuses[doc.id] === 'verified');
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#050505] relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg-app)] relative overflow-hidden">
       {/* Background Ambience */}
       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-20 blur-xl scale-110" />
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-0 bg-[var(--bg-overlay)]" />
 
       <div className="relative z-10 w-full max-w-4xl p-4 md:p-6">
         <AnimatePresence mode='wait'>
@@ -93,12 +93,12 @@ export default function RoleSwitcher() {
             >
               <button 
                 onClick={() => setStep('role')}
-                className="mb-3 md:mb-4 flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                className="mb-3 md:mb-4 flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-xs md:text-sm">Retour</span>
               </button>
-              <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6 text-white text-center">Choisissez votre domaine</h2>
+              <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6 text-[var(--text-primary)] text-center">Choisissez votre domaine</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                 {CATEGORIES.map((category) => (
                   <motion.button
@@ -106,13 +106,13 @@ export default function RoleSwitcher() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleCategorySelect(category)}
-                    className="glass p-3 md:p-4 rounded-2xl flex flex-col items-center justify-center text-center min-h-[120px] md:min-h-[140px] hover:bg-white/10 transition-colors"
+                    className="glass p-3 md:p-4 rounded-2xl flex flex-col items-center justify-center text-center min-h-[120px] md:min-h-[140px] hover:bg-[var(--bg-hover)] transition-colors"
                   >
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 flex items-center justify-center mb-2 md:mb-3">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[var(--bg-hover)] flex items-center justify-center mb-2 md:mb-3">
                       <category.icon className="w-5 h-5 md:w-6 md:h-6 text-blue-400" />
                     </div>
-                    <h3 className="text-xs md:text-sm font-bold text-white">{category.label}</h3>
-                    <p className="text-[10px] md:text-xs text-gray-400 mt-1">{category.description}</p>
+                    <h3 className="text-xs md:text-sm font-bold text-[var(--text-primary)]">{category.label}</h3>
+                    <p className="text-[10px] md:text-xs text-[var(--text-muted)] mt-1">{category.description}</p>
                   </motion.button>
                 ))}
               </div>
@@ -127,18 +127,18 @@ export default function RoleSwitcher() {
             >
               <button 
                 onClick={handleBackToCategories}
-                className="mb-3 md:mb-4 flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                className="mb-3 md:mb-4 flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-xs md:text-sm">Retour</span>
               </button>
               <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[var(--bg-hover)] flex items-center justify-center flex-shrink-0">
                   <selectedCategory.icon className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="text-base md:text-xl font-bold text-white truncate">{selectedCategory.label}</h2>
-                  <p className="text-xs md:text-sm text-gray-400 truncate">{selectedCategory.description}</p>
+                  <h2 className="text-base md:text-xl font-bold text-[var(--text-primary)] truncate">{selectedCategory.label}</h2>
+                  <p className="text-xs md:text-sm text-[var(--text-muted)] truncate">{selectedCategory.description}</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2 md:gap-3 max-h-[55vh] overflow-y-auto pr-1 md:pr-2 custom-scrollbar pb-2">
@@ -153,8 +153,8 @@ export default function RoleSwitcher() {
                     className={clsx(
                       "p-3 md:p-4 rounded-xl border cursor-pointer transition-all min-h-[70px] md:min-h-[80px] flex flex-col justify-center",
                       selectedSkills.includes(service.id) 
-                        ? "bg-white/10 border-white text-white" 
-                        : "bg-white/5 border-transparent text-gray-400 hover:bg-white/10"
+                        ? "bg-[var(--bg-active)] border-[var(--border-active)] text-[var(--text-primary)]" 
+                        : "bg-[var(--bg-hover)] border-transparent text-[var(--text-muted)] hover:bg-[var(--bg-active)]"
                     )}
                   >
                     <span className="text-xs md:text-sm font-medium">{service.label}</span>
@@ -166,7 +166,7 @@ export default function RoleSwitcher() {
               </div>
               <button 
                 onClick={() => setStep('verification')}
-                className="mt-4 md:mt-6 w-full py-3 md:py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
+                className="mt-4 md:mt-6 w-full py-3 md:py-4 bg-[var(--text-primary)] text-[var(--bg-app)] font-bold rounded-xl hover:bg-[var(--text-secondary)] transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
               >
                 Continuer <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
               </button>
@@ -181,13 +181,13 @@ export default function RoleSwitcher() {
             >
               <button 
                 onClick={() => setStep(selectedRole === 'WORKER' ? 'services' : 'role')}
-                className="mb-3 md:mb-4 flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                className="mb-3 md:mb-4 flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-xs md:text-sm">Retour</span>
               </button>
-              <h2 className="text-xl md:text-2xl font-bold mb-1 md:mb-2 text-white">Vérification de Sécurité</h2>
-              <p className="text-xs md:text-sm text-gray-400 mb-4 md:mb-8">Pour garantir la qualité du réseau, nous devons valider votre identité.</p>
+              <h2 className="text-xl md:text-2xl font-bold mb-1 md:mb-2 text-[var(--text-primary)]">Vérification de Sécurité</h2>
+              <p className="text-xs md:text-sm text-[var(--text-muted)] mb-4 md:mb-8">Pour garantir la qualité du réseau, nous devons valider votre identité.</p>
               
               <div className="space-y-3 md:space-y-4">
                 {requiredDocuments.map((doc) => (
@@ -208,14 +208,14 @@ export default function RoleSwitcher() {
                 className={clsx(
                   "mt-6 md:mt-8 w-full py-3 md:py-4 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm md:text-base",
                   allVerified 
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90" 
-                    : "bg-gray-800 text-gray-500 cursor-not-allowed"
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-[var(--text-primary)] hover:opacity-90" 
+                    : "bg-[var(--bg-hover)] text-[var(--text-muted)] cursor-not-allowed"
                 )}
               >
                 Accéder au Command Center <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
               </button>
 
-              <button onClick={bypassVerification} className="mt-3 md:mt-4 text-[10px] md:text-xs text-gray-700 hover:text-gray-500 mx-auto block">
+              <button onClick={bypassVerification} className="mt-3 md:mt-4 text-[10px] md:text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] mx-auto block">
                  Dev Mode: Auto-Verify
               </button>
             </motion.div>
@@ -232,13 +232,13 @@ function RoleCard({ title, subtitle, icon: Icon, onClick }: { title: string, sub
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="glass p-8 rounded-3xl flex flex-col items-center justify-center text-center w-full aspect-[3/4] md:aspect-square hover:bg-white/10 transition-colors group"
+      className="glass p-8 rounded-3xl flex flex-col items-center justify-center text-center w-full aspect-[3/4] md:aspect-square hover:bg-[var(--bg-hover)] transition-colors group"
     >
-      <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/5 flex items-center justify-center mb-4 md:mb-6 group-hover:bg-white/20 transition-colors">
-        <Icon className="w-8 h-8 md:w-10 md:h-10 text-white" />
+      <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[var(--bg-hover)] flex items-center justify-center mb-4 md:mb-6 group-hover:bg-[var(--bg-active)] transition-colors">
+        <Icon className="w-8 h-8 md:w-10 md:h-10 text-[var(--text-primary)]" />
       </div>
-      <h3 className="text-xl md:text-2xl font-bold text-white mb-1 md:mb-2">{subtitle}</h3>
-      <p className="text-xs md:text-sm text-gray-400">{title}</p>
+      <h3 className="text-xl md:text-2xl font-bold text-[var(--text-primary)] mb-1 md:mb-2">{subtitle}</h3>
+      <p className="text-xs md:text-sm text-[var(--text-muted)]">{title}</p>
     </motion.button>
   );
 }
