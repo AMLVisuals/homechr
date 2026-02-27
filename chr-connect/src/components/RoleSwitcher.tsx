@@ -142,7 +142,7 @@ export default function RoleSwitcher() {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2 md:gap-3 max-h-[55vh] overflow-y-auto pr-1 md:pr-2 custom-scrollbar pb-2">
-                {selectedCategory.services.map((service) => (
+                {selectedCategory.services.map((service: any) => (
                   <motion.div
                     key={service.id}
                     whileHover={{ scale: 1.02 }}

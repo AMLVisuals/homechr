@@ -178,8 +178,8 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
                             name: `Photo mission ${index + 1}`,
                             type: 'OTHER',
                             url: url,
-                            date: new Date().toISOString(),
-                            size: '0 MB'
+                            uploadedAt: new Date().toISOString(),
+                            fileSize: '0 MB'
                           })}
                           className="flex-shrink-0 w-40 h-28 rounded-xl overflow-hidden border border-[var(--border)] relative group cursor-zoom-in"
                         >

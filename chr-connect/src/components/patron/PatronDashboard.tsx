@@ -222,9 +222,6 @@ export default function PatronDashboard() {
                     <h2 className="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-[var(--gradient-heading-from)] via-[var(--gradient-heading-via)] to-[var(--gradient-heading-to)] bg-clip-text text-transparent">Nouvelle Demande</h2>
                     <p className="text-sm md:text-base text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 font-medium">De quoi avez-vous besoin aujourd'hui ?</p>
                   </div>
-                  <Button onClick={() => setShowNewRequestModal(true)} className="hidden md:flex bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full px-6">
-                    <PlusCircle className="w-5 h-5 mr-2" /> Autre demande
-                  </Button>
                 </div>
 
                 <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">

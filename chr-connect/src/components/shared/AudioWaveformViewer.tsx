@@ -157,7 +157,7 @@ export function AudioWaveformViewer({ url, name }: AudioWaveformViewerProps) {
     wsRegions.on('region-initialized', () => {
       selectingRef.current = true;
     });
-    wavesurfer.on('seek', (progress) => {
+    (wavesurfer as any).on('seek', (progress: number) => {
       const time = wavesurfer.getDuration() * progress;
       setCurrentTime(time);
       lastSeekRef.current = time;

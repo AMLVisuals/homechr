@@ -88,7 +88,7 @@ type WizardStep =
   | 'summary'
   | 'success';
 
-export type CategoryId = 'PERSONNEL' | 'TECHNICIENS' | 'BATIMENTS' | 'COMPTABILITE' | 'JURIDIQUE';
+export type CategoryId = 'PERSONNEL' | 'TECHNICIENS' | 'BATIMENTS' | 'COMPTABILITE' | 'JURIDIQUE' | 'STAFFING' | 'TECH' | 'MAINTENANCE';
 
 interface CategoryDef {
   id: CategoryId;

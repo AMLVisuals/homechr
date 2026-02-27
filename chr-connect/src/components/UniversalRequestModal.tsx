@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronRight, Star, MapPin, Clock, ArrowLeft, Mic, CheckCircle } from 'lucide-react';
-import { CATEGORIES, Category, SubCategory } from '@/data/categories';
+import { CATEGORIES, Category, Service } from '@/data/categories';
 import { useStore } from '@/store/useStore';
 import MediaHub from './MediaHub';
 import SmartTags from './SmartTags';
@@ -26,7 +26,7 @@ import { Mission } from '@/types/missions';
 export default function UniversalRequestModal() {
   const [step, setStep] = useState<number>(0);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [selectedSub, setSelectedSub] = useState<SubCategory | null>(null);
+  const [selectedSub, setSelectedSub] = useState<Service | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [description, setDescription] = useState('');
   const [urgency, setUrgency] = useState<'NORMAL' | 'HIGH' | 'CRITICAL'>('NORMAL');
@@ -70,7 +70,7 @@ export default function UniversalRequestModal() {
     setStep(1);
   };
 
-  const handleSubSelect = (sub: SubCategory) => {
+  const handleSubSelect = (sub: Service) => {
     setSelectedSub(sub);
     setStep(2);
   };
@@ -225,13 +225,13 @@ export default function UniversalRequestModal() {
             initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
             className="grid grid-cols-2 md:grid-cols-3 gap-4"
           >
-            {selectedCategory.subCategories.map((sub) => (
+            {selectedCategory.services.map((sub: any) => (
               <button
                 key={sub.id}
                 onClick={() => handleSubSelect(sub)}
                 className="glass p-4 rounded-xl flex flex-col items-center justify-center text-center gap-3 hover:bg-[var(--bg-active)] transition-colors h-32"
               >
-                <sub.icon className="w-8 h-8 text-[var(--text-primary)]" />
+                {sub.icon && <sub.icon className="w-8 h-8 text-[var(--text-primary)]" />}
                 <span className="font-medium">{sub.label}</span>
               </button>
             ))}

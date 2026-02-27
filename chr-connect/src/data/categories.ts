@@ -2,7 +2,7 @@ import {
   Users, Wrench, Building2, Calculator, Scale 
 } from 'lucide-react';
 
-export type CategoryId = 'PERSONNEL' | 'TECHNICIENS' | 'BATIMENTS' | 'COMPTABILITE' | 'JURIDIQUE';
+export type CategoryId = 'PERSONNEL' | 'TECHNICIENS' | 'BATIMENTS' | 'COMPTABILITE' | 'JURIDIQUE' | 'STAFFING' | 'TECH' | 'MAINTENANCE';
 
 export interface Service {
   id: string;

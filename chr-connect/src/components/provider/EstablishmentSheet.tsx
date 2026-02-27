@@ -175,8 +175,8 @@ export function EstablishmentSheet({ venueId, venueName, isOpen, onClose }: Esta
                             name: `Photo établissement ${idx + 1}`,
                             type: 'OTHER',
                             url: url,
-                            date: new Date().toISOString(),
-                            size: '0 MB'
+                            uploadedAt: new Date().toISOString(),
+                            fileSize: '0 MB'
                           })}
                           className={`rounded-xl overflow-hidden border border-[var(--border)] relative w-full text-left group ${idx === 0 ? 'col-span-2 h-48' : 'h-32'}`}
                         >

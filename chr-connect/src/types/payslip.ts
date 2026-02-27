@@ -37,6 +37,7 @@ export interface Payslip {
   createdAt: string;
   updatedAt: string;
   isDeleted?: boolean;
+  deletedAt?: string;
 }
 
 export interface PayslipEntry {

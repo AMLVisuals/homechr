@@ -1,20 +1,18 @@
-import type { PayslipProviderConfig, PayslipProviderInterface } from '@/types/payslip';
+import type { PayslipProviderConfig, PayslipProviderInterface, PayslipGenerationResponse, ValidationResult } from '@/types/payslip';
 
 export const defaultPayslipProvider: PayslipProviderInterface = {
   name: 'Default',
-  isConnected: false,
-  generatePayslip: async () => null,
-  getPayrollPeriods: async () => [],
-  getEmployees: async () => [],
+  generatePayslip: async () => ({ success: false, message: 'No provider configured' }),
+  getPayslipPdf: async () => new Blob(),
+  validateData: async () => ({ valid: true, errors: [] }),
 };
 
 export const createPayslipProvider = (config: PayslipProviderConfig): PayslipProviderInterface => ({
   name: config.name || 'Custom Provider',
-  isConnected: !!config.apiKey,
   generatePayslip: async (request) => {
     console.log('Generating payslip:', request);
-    return null;
+    return { success: false, message: 'Not implemented' };
   },
-  getPayrollPeriods: async () => [],
-  getEmployees: async () => [],
+  getPayslipPdf: async () => new Blob(),
+  validateData: async () => ({ valid: true, errors: [] }),
 });
