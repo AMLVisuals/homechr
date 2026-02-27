@@ -9,7 +9,7 @@ import {
   Wrench, ChefHat, Monitor, Hammer, Ruler,
   Clock, MapPin, Star, CreditCard, X,
   ArrowUpRight, AlertCircle, CheckCircle2, User, LogOut,
-  Warehouse, QrCode, Menu, Scale, Calculator, Receipt,
+  Warehouse, QrCode, Menu, Scale, Calculator, Receipt, Crown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CreateMissionWizard, type CategoryId } from '@/components/mission/CreateMissionWizard';
@@ -58,6 +58,7 @@ export default function PatronDashboard() {
     const tabMap: Record<string, string> = {
       '/': 'DASHBOARD',
       '/patron/tableau-de-bord': 'DASHBOARD',
+      '/patron/missions': 'MISSIONS',
       '/patron/mon-equipe': 'TEAM',
       '/patron/bulletins-paie': 'PAYSLIPS',
       '/patron/premium': 'PREMIUM',
@@ -79,7 +80,10 @@ export default function PatronDashboard() {
   const [isMissionModalOpen, setIsMissionModalOpen] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [globalSearch, setGlobalSearch] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { status } = useMissionEngine();
+  const { team } = useMissionsStore();
 
   useEffect(() => {
     setActiveTab(getInitialTab(pathname));
@@ -106,6 +110,18 @@ export default function PatronDashboard() {
         displayStatus: m.status === 'IN_PROGRESS' ? 'En cours' : m.status === 'SEARCHING' ? 'Recherche...' : m.status === 'SCHEDULED' ? 'Prévu' : 'En attente'
       }));
   }, [missions, activeVenueId]);
+
+  const searchResults = useMemo(() => {
+    if (!globalSearch.trim()) return { missions: [], team: [], invoices: [] };
+    const q = globalSearch.toLowerCase();
+    return {
+      missions: missions.filter(m => m.title.toLowerCase().includes(q) || m.expert?.toLowerCase().includes(q)).slice(0, 4),
+      team: team.filter(m => m.name.toLowerCase().includes(q) || m.role.toLowerCase().includes(q)).slice(0, 4),
+      invoices: missions.filter(m => m.invoice && (m.title.toLowerCase().includes(q) || m.invoice.number.toLowerCase().includes(q))).slice(0, 4),
+    };
+  }, [globalSearch, missions, team]);
+
+  const hasSearchResults = searchResults.missions.length > 0 || searchResults.team.length > 0 || searchResults.invoices.length > 0;
 
   const handleQuickAction = (category: string) => { setSelectedCategory(category as CategoryId); setShowNewRequestModal(true); };
   const handleMissionClick = (mission: Mission) => { setSelectedMission(mission); setIsMissionModalOpen(true); };
@@ -147,8 +163,15 @@ export default function PatronDashboard() {
             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden absolute left-0 p-2 -ml-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] relative z-10">
               <Menu className="w-6 h-6" />
             </button>
-            <div className="flex-1 flex justify-center lg:justify-start">
+            <div className="flex-1 flex justify-center lg:justify-start items-center gap-3">
               <VenueSelector onAddVenue={() => { setVenueDashboardView('SEARCH'); setShowVenueDashboard(true); }} onManage={() => { setVenueDashboardView('LIST'); setShowVenueDashboard(true); }} />
+              <button
+                onClick={() => { setActiveTab('PREMIUM'); router.push('/patron/premium'); }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black transition-all text-xs font-bold hover:from-amber-300 hover:to-yellow-400 shadow-sm shadow-amber-500/20"
+              >
+                <Crown className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Premium</span>
+              </button>
             </div>
           </div>
 
@@ -158,7 +181,67 @@ export default function PatronDashboard() {
             </button>
             <div className="relative hidden md:block">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
-              <input type="text" placeholder="Rechercher..." className="bg-[var(--bg-input)] border border-[var(--border)] rounded-full pl-10 pr-4 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-all w-64" />
+              <input
+                type="text"
+                placeholder="Rechercher..."
+                value={globalSearch}
+                onChange={(e) => setGlobalSearch(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+                className="bg-[var(--bg-input)] border border-[var(--border)] rounded-full pl-10 pr-4 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-all w-64"
+              />
+              {globalSearch.trim() && isSearchFocused && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden z-50 w-80">
+                  {!hasSearchResults ? (
+                    <div className="p-6 text-center text-[var(--text-muted)] text-sm">Aucun résultat pour "{globalSearch}"</div>
+                  ) : (
+                    <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+                      {searchResults.missions.length > 0 && (
+                        <div>
+                          <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] bg-[var(--bg-hover)]">Missions</div>
+                          {searchResults.missions.map(m => (
+                            <button key={m.id} onClick={() => { setGlobalSearch(''); handleMissionClick(m); }} className="w-full text-left px-4 py-3 hover:bg-[var(--bg-hover)] transition-colors flex items-center gap-3">
+                              <Wrench className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
+                              <div className="min-w-0">
+                                <div className="text-sm font-medium text-[var(--text-primary)] truncate">{m.title}</div>
+                                <div className="text-xs text-[var(--text-muted)]">{m.expert || 'En attente'}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {searchResults.team.length > 0 && (
+                        <div>
+                          <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] bg-[var(--bg-hover)]">Équipe</div>
+                          {searchResults.team.map(m => (
+                            <button key={m.id} onClick={() => { setGlobalSearch(''); setActiveTab('TEAM'); router.push('/patron/mon-equipe'); }} className="w-full text-left px-4 py-3 hover:bg-[var(--bg-hover)] transition-colors flex items-center gap-3">
+                              <Users className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
+                              <div className="min-w-0">
+                                <div className="text-sm font-medium text-[var(--text-primary)] truncate">{m.name}</div>
+                                <div className="text-xs text-[var(--text-muted)]">{m.role}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {searchResults.invoices.length > 0 && (
+                        <div>
+                          <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] bg-[var(--bg-hover)]">Factures</div>
+                          {searchResults.invoices.map(m => (
+                            <button key={m.id} onClick={() => { setGlobalSearch(''); setActiveTab('INVOICES'); router.push('/patron/factures'); }} className="w-full text-left px-4 py-3 hover:bg-[var(--bg-hover)] transition-colors flex items-center gap-3">
+                              <CreditCard className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
+                              <div className="min-w-0">
+                                <div className="text-sm font-medium text-[var(--text-primary)] truncate">{m.title}</div>
+                                <div className="text-xs text-[var(--text-muted)]">{m.invoice?.number}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <div className="relative">
               <button onClick={() => setShowNotifications(!showNotifications)} className="w-10 h-10 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] flex items-center justify-center transition-colors relative">
@@ -205,8 +288,37 @@ export default function PatronDashboard() {
               <div className="p-3">
                 <div className="relative">
                   <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
-                  <input type="text" placeholder="Rechercher..." autoFocus className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-full pl-10 pr-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-all" />
+                  <input
+                    type="text"
+                    placeholder="Rechercher..."
+                    autoFocus
+                    value={globalSearch}
+                    onChange={(e) => setGlobalSearch(e.target.value)}
+                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-full pl-10 pr-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-all"
+                  />
                 </div>
+                {globalSearch.trim() && (
+                  <div className="mt-2 max-h-[50vh] overflow-y-auto custom-scrollbar">
+                    {!hasSearchResults ? (
+                      <div className="p-4 text-center text-[var(--text-muted)] text-sm">Aucun résultat</div>
+                    ) : (
+                      <>
+                        {searchResults.missions.map(m => (
+                          <button key={m.id} onClick={() => { setGlobalSearch(''); setShowMobileSearch(false); handleMissionClick(m); }} className="w-full text-left px-3 py-2.5 hover:bg-[var(--bg-hover)] transition-colors flex items-center gap-3 rounded-lg">
+                            <Wrench className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
+                            <div className="min-w-0"><div className="text-sm font-medium text-[var(--text-primary)] truncate">{m.title}</div></div>
+                          </button>
+                        ))}
+                        {searchResults.team.map(m => (
+                          <button key={m.id} onClick={() => { setGlobalSearch(''); setShowMobileSearch(false); setActiveTab('TEAM'); router.push('/patron/mon-equipe'); }} className="w-full text-left px-3 py-2.5 hover:bg-[var(--bg-hover)] transition-colors flex items-center gap-3 rounded-lg">
+                            <Users className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
+                            <div className="min-w-0"><div className="text-sm font-medium text-[var(--text-primary)] truncate">{m.name}</div></div>
+                          </button>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
@@ -216,6 +328,40 @@ export default function PatronDashboard() {
         <div className={clsx("flex-1 overflow-y-auto custom-scrollbar", ['PLANNING', 'INVOICES', 'PAYSLIPS'].includes(activeTab) ? "p-0 lg:p-8" : "p-4 lg:p-8")}>
           {activeTab === 'DASHBOARD' && (
             <div className="max-w-7xl mx-auto space-y-10">
+              {/* Onboarding — shown when no missions exist */}
+              {missions.length === 0 && (
+                <motion.section
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent border border-blue-500/20 rounded-3xl p-6 md:p-10 text-center md:text-left"
+                >
+                  <div className="max-w-2xl mx-auto md:mx-0 space-y-4">
+                    <h2 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">
+                      Bienvenue sur CHR Connect
+                    </h2>
+                    <p className="text-[var(--text-secondary)] text-sm md:text-base leading-relaxed">
+                      Commencez par configurer votre établissement, puis créez votre première demande — personnel extra, technicien, maintenance...
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 pt-2 justify-center md:justify-start">
+                      <button
+                        onClick={() => { setVenueDashboardView('LIST'); setShowVenueDashboard(true); }}
+                        className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-colors shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2"
+                      >
+                        <MapPin className="w-4 h-4" />
+                        Configurer mon établissement
+                      </button>
+                      <button
+                        onClick={() => handleQuickAction('PERSONNEL')}
+                        className="px-5 py-3 rounded-xl bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] text-[var(--text-primary)] text-sm font-bold transition-colors flex items-center justify-center gap-2"
+                      >
+                        <PlusCircle className="w-4 h-4" />
+                        Créer ma première demande
+                      </button>
+                    </div>
+                  </div>
+                </motion.section>
+              )}
+
               {/* Quick Actions */}
               <section>
                 <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-6 gap-4">

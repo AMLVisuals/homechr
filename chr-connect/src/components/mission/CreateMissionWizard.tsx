@@ -104,6 +104,7 @@ interface SubCategoryDef {
   id: string;
   label: string;
   icon: React.ElementType;
+  group?: string;
   equipmentCategories?: EquipmentCategory[];
 }
 
@@ -119,22 +120,27 @@ const CATEGORIES: CategoryDef[] = [
     icon: Users,
     color: 'from-purple-500 to-pink-500',
     subCategories: [
-      { id: 'serveur', label: 'Serveur / Limonadier', icon: User },
-      { id: 'chef_rang', label: 'Chef de Rang / Maître d\'hôtel', icon: User },
-      { id: 'barman', label: 'Barman / Mixologue', icon: Martini },
-      { id: 'sommelier', label: 'Sommelier / Caviste', icon: Wine },
-      { id: 'hotesse', label: 'Hôte / Hôtesse d\'accueil', icon: User },
-      { id: 'commis_salle', label: 'Commis de salle', icon: User },
-      { id: 'groom', label: 'Groom / Valet', icon: User },
-      { id: 'chef_partie', label: 'Chef de Partie', icon: ChefHat },
-      { id: 'chef_cuisine', label: 'Chef de Cuisine', icon: ChefHat },
-      { id: 'cuisinier', label: 'Cuisinier', icon: ChefHat },
-      { id: 'plongeur', label: 'Plongeur', icon: Utensils },
-      { id: 'patissier', label: 'Pâtissier', icon: ChefHat },
-      { id: 'boulanger', label: 'Boulanger', icon: ChefHat },
-      { id: 'securite', label: 'Sécurité / Videur', icon: Shield },
-      { id: 'manager_salle', label: 'Manager de salle', icon: User },
-      { id: 'gouvernante', label: 'Gouvernante / Femme de chambre', icon: User },
+      // Salle
+      { id: 'serveur', label: 'Serveur / Limonadier', icon: User, group: 'Salle' },
+      { id: 'chef_rang', label: 'Chef de Rang / Maître d\'hôtel', icon: User, group: 'Salle' },
+      { id: 'commis_salle', label: 'Commis de salle', icon: User, group: 'Salle' },
+      { id: 'manager_salle', label: 'Manager de salle', icon: User, group: 'Salle' },
+      // Bar
+      { id: 'barman', label: 'Barman / Mixologue', icon: Martini, group: 'Bar' },
+      { id: 'sommelier', label: 'Sommelier / Caviste', icon: Wine, group: 'Bar' },
+      // Cuisine
+      { id: 'chef_cuisine', label: 'Chef de Cuisine', icon: ChefHat, group: 'Cuisine' },
+      { id: 'chef_partie', label: 'Chef de Partie', icon: ChefHat, group: 'Cuisine' },
+      { id: 'cuisinier', label: 'Cuisinier', icon: ChefHat, group: 'Cuisine' },
+      { id: 'patissier', label: 'Pâtissier', icon: ChefHat, group: 'Cuisine' },
+      { id: 'boulanger', label: 'Boulanger', icon: ChefHat, group: 'Cuisine' },
+      { id: 'plongeur', label: 'Plongeur', icon: Utensils, group: 'Cuisine' },
+      // Accueil & Hôtellerie
+      { id: 'hotesse', label: 'Hôte / Hôtesse d\'accueil', icon: User, group: 'Accueil & Hôtellerie' },
+      { id: 'gouvernante', label: 'Gouvernante / Femme de chambre', icon: User, group: 'Accueil & Hôtellerie' },
+      { id: 'groom', label: 'Groom / Valet', icon: User, group: 'Accueil & Hôtellerie' },
+      // Sécurité
+      { id: 'securite', label: 'Sécurité / Videur', icon: Shield, group: 'Sécurité' },
     ]
   },
   {
@@ -144,19 +150,25 @@ const CATEGORIES: CategoryDef[] = [
     icon: Wrench,
     color: 'from-orange-500 to-red-500',
     subCategories: [
-      { id: 'tech_froid', label: 'Technicien Froid', icon: Snowflake },
-      { id: 'tech_chaud', label: 'Technicien Chaud', icon: Flame },
-      { id: 'tech_ventilation', label: 'Technicien Ventilation / CVC', icon: Wrench },
-      { id: 'electricien', label: 'Électricien', icon: Zap },
-      { id: 'plombier', label: 'Plombier', icon: Wrench },
-      { id: 'tech_cafe', label: 'Technicien Machine à Café', icon: Coffee },
-      { id: 'tech_biere', label: 'Technicien Pompe à Bière', icon: Beer },
-      { id: 'tech_lave_vaisselle', label: 'Technicien Lave-vaisselle', icon: Utensils },
-      { id: 'tech_pos', label: 'Technicien Equipement Caisse / POS', icon: Monitor },
-      { id: 'ingenieur_son', label: 'Ingénieur Son', icon: Mic },
-      { id: 'ingenieur_lumiere', label: 'Ingénieur Lumière', icon: Lightbulb },
-      { id: 'tech_video', label: 'Technicien Vidéo', icon: Video },
-      { id: 'tech_reseau', label: 'Technicien Réseau / WiFi', icon: Wifi },
+      // Froid & Climatisation
+      { id: 'tech_froid', label: 'Technicien Froid', icon: Snowflake, group: 'Froid & Climatisation' },
+      { id: 'tech_ventilation', label: 'Technicien Ventilation / CVC', icon: Wrench, group: 'Froid & Climatisation' },
+      // Cuisson & Chaud
+      { id: 'tech_chaud', label: 'Technicien Chaud', icon: Flame, group: 'Cuisson & Chaud' },
+      // Équipement cuisine
+      { id: 'tech_lave_vaisselle', label: 'Technicien Lave-vaisselle', icon: Utensils, group: 'Équipement cuisine' },
+      { id: 'tech_cafe', label: 'Technicien Machine à Café', icon: Coffee, group: 'Équipement cuisine' },
+      { id: 'tech_biere', label: 'Technicien Pompe à Bière', icon: Beer, group: 'Équipement cuisine' },
+      // Électricité & Plomberie
+      { id: 'electricien', label: 'Électricien', icon: Zap, group: 'Électricité & Plomberie' },
+      { id: 'plombier', label: 'Plombier', icon: Wrench, group: 'Électricité & Plomberie' },
+      // Caisse & IT
+      { id: 'tech_pos', label: 'Technicien Caisse / POS', icon: Monitor, group: 'Caisse & IT' },
+      { id: 'tech_reseau', label: 'Technicien Réseau / WiFi', icon: Wifi, group: 'Caisse & IT' },
+      // Événementiel / AV
+      { id: 'ingenieur_son', label: 'Ingénieur Son', icon: Mic, group: 'Événementiel / AV' },
+      { id: 'ingenieur_lumiere', label: 'Ingénieur Lumière', icon: Lightbulb, group: 'Événementiel / AV' },
+      { id: 'tech_video', label: 'Technicien Vidéo', icon: Video, group: 'Événementiel / AV' },
     ]
   },
   {
@@ -923,29 +935,75 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
             )}
 
             {/* STEP: SubCategory Selection */}
-            {step === 'subcategory' && selectedCategory && (
-              <motion.div
-                key="subcategory"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="grid grid-cols-2 md:grid-cols-3 gap-3"
-              >
-                {selectedCategory.subCategories.map((sub) => {
-                  const Icon = sub.icon;
-                  return (
-                    <button
-                      key={sub.id}
-                      onClick={() => handleSubCategorySelect(sub)}
-                      className="flex flex-col items-center justify-center gap-3 p-5 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] hover:bg-[var(--bg-active)] hover:border-[var(--border-strong)] transition-all h-32"
-                    >
-                      <Icon className="w-8 h-8 text-[var(--text-primary)]" />
-                      <span className="text-sm font-medium text-[var(--text-primary)] text-center">{sub.label}</span>
-                    </button>
-                  );
-                })}
-              </motion.div>
-            )}
+            {step === 'subcategory' && selectedCategory && (() => {
+              // Group subcategories by group field
+              const hasGroups = selectedCategory.subCategories.some(s => s.group);
+              if (hasGroups) {
+                const groups: { name: string; items: SubCategoryDef[] }[] = [];
+                selectedCategory.subCategories.forEach((sub) => {
+                  const groupName = sub.group || 'Autre';
+                  const existing = groups.find(g => g.name === groupName);
+                  if (existing) existing.items.push(sub);
+                  else groups.push({ name: groupName, items: [sub] });
+                });
+                return (
+                  <motion.div
+                    key="subcategory"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
+                  >
+                    {groups.map((group, gi) => (
+                      <div key={group.name}>
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-3 px-1">{group.name}</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {group.items.map((sub) => {
+                            const Icon = sub.icon;
+                            return (
+                              <button
+                                key={sub.id}
+                                onClick={() => handleSubCategorySelect(sub)}
+                                className="flex items-center gap-3 p-3.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] hover:bg-[var(--bg-active)] hover:border-[var(--border-strong)] transition-all text-left"
+                              >
+                                <div className="w-9 h-9 rounded-lg bg-[var(--bg-hover)] flex items-center justify-center shrink-0">
+                                  <Icon className="w-5 h-5 text-[var(--text-primary)]" />
+                                </div>
+                                <span className="text-sm font-medium text-[var(--text-primary)] leading-tight">{sub.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </motion.div>
+                );
+              }
+              // Fallback: flat grid for categories without groups
+              return (
+                <motion.div
+                  key="subcategory"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="grid grid-cols-2 md:grid-cols-3 gap-3"
+                >
+                  {selectedCategory.subCategories.map((sub) => {
+                    const Icon = sub.icon;
+                    return (
+                      <button
+                        key={sub.id}
+                        onClick={() => handleSubCategorySelect(sub)}
+                        className="flex flex-col items-center justify-center gap-3 p-5 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] hover:bg-[var(--bg-active)] hover:border-[var(--border-strong)] transition-all h-32"
+                      >
+                        <Icon className="w-8 h-8 text-[var(--text-primary)]" />
+                        <span className="text-sm font-medium text-[var(--text-primary)] text-center">{sub.label}</span>
+                      </button>
+                    );
+                  })}
+                </motion.div>
+              );
+            })()}
 
             {/* STEP: Mission Type Selection (Tech only) */}
             {step === 'mission-type-selection' && (

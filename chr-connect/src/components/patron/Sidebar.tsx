@@ -4,15 +4,15 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, Receipt, Warehouse,
-  CreditCard, Calendar, Settings, User, Crown,
+  CreditCard, Calendar, Settings, User, Crown, Briefcase,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export const NAV_ITEMS = [
   { id: 'DASHBOARD', icon: LayoutDashboard, label: 'Mon tableau de bord', path: '/patron/tableau-de-bord' },
+  { id: 'MISSIONS', icon: Briefcase, label: 'Missions', path: '/patron/missions' },
   { id: 'TEAM', icon: Users, label: 'Mon Équipe', path: '/patron/mon-equipe' },
-  { id: 'PAYSLIPS', icon: Receipt, label: 'Bulletin de paie', path: '/patron/bulletins-paie' },
-  { id: 'PREMIUM', icon: Crown, label: 'Premium', path: '/patron/premium' },
+  { id: 'PAYSLIPS', icon: Receipt, label: 'Bulletin de paie', path: '/patron/bulletins-paie', premium: true },
   { id: 'GARAGE', icon: Warehouse, label: 'Mes équipements', path: '/patron/equipements' },
   { id: 'INVOICES', icon: CreditCard, label: 'Mes factures', path: '/patron/factures' },
   { id: 'PLANNING', icon: Calendar, label: 'Planning', path: '/patron/planning' },
@@ -52,6 +52,11 @@ export default function Sidebar({ activeTab, onSettingsClick, layoutId = 'active
           >
             <item.icon className={clsx('w-5 h-5 z-10', activeTab === item.id ? 'text-blue-500' : 'group-hover:text-[var(--text-primary)]')} />
             <span className="font-medium text-sm z-10">{item.label}</span>
+            {item.premium && (
+              <span className="z-10 ml-auto inline-flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black">
+                <Crown className="w-3 h-3" />
+              </span>
+            )}
 
             {activeTab === item.id && (
               <motion.div

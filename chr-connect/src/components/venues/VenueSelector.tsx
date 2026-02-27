@@ -40,7 +40,7 @@ export default function VenueSelector({ onAddVenue, onManage }: VenueSelectorPro
           <MapPin className="w-3.5 h-3.5 text-blue-300" />
         </div>
         <div className="text-left">
-          <div className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider font-bold leading-none mb-0.5">Établissement</div>
+          <div className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider font-bold leading-none mb-0.5">Établissements</div>
           <div className="text-sm font-bold text-[var(--text-primary)] leading-none flex items-center gap-1">
             {activeVenue?.name || "Sélectionner"}
             <ChevronDown className={clsx("w-4 h-4 transition-transform text-[var(--text-secondary)]", isOpen && "rotate-180")} />

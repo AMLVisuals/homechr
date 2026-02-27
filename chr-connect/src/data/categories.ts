@@ -7,6 +7,7 @@ export type CategoryId = 'PERSONNEL' | 'TECHNICIENS' | 'BATIMENTS' | 'COMPTABILI
 export interface Service {
   id: string;
   label: string;
+  group?: string;
 }
 
 export interface Category {
@@ -26,22 +27,27 @@ export const CATEGORIES: Category[] = [
     description: 'Renforts salle et cuisine',
     icon: Users,
     services: [
-      { id: 'serveur', label: 'Serveur / Limonadier' },
-      { id: 'chef_rang', label: 'Chef de Rang / Maître d\'hôtel' },
-      { id: 'barman', label: 'Barman / Mixologue' },
-      { id: 'sommelier', label: 'Sommelier / Caviste' },
-      { id: 'hotesse', label: 'Hôte / Hôtesse d\'accueil' },
-      { id: 'commis_salle', label: 'Commis de salle' },
-      { id: 'groom', label: 'Groom / Valet' },
-      { id: 'chef_partie', label: 'Chef de Partie' },
-      { id: 'chef_cuisine', label: 'Chef de Cuisine' },
-      { id: 'cuisinier', label: 'Cuisinier' },
-      { id: 'plongeur', label: 'Plongeur' },
-      { id: 'patissier', label: 'Pâtissier' },
-      { id: 'boulanger', label: 'Boulanger' },
-      { id: 'securite', label: 'Sécurité / Videur' },
-      { id: 'manager_salle', label: 'Manager de salle' },
-      { id: 'gouvernante', label: 'Gouvernante / Femme de chambre' },
+      // Salle
+      { id: 'serveur', label: 'Serveur / Limonadier', group: 'Salle' },
+      { id: 'chef_rang', label: 'Chef de Rang / Maître d\'hôtel', group: 'Salle' },
+      { id: 'commis_salle', label: 'Commis de salle', group: 'Salle' },
+      { id: 'manager_salle', label: 'Manager de salle', group: 'Salle' },
+      // Bar
+      { id: 'barman', label: 'Barman / Mixologue', group: 'Bar' },
+      { id: 'sommelier', label: 'Sommelier / Caviste', group: 'Bar' },
+      // Cuisine
+      { id: 'chef_cuisine', label: 'Chef de Cuisine', group: 'Cuisine' },
+      { id: 'chef_partie', label: 'Chef de Partie', group: 'Cuisine' },
+      { id: 'cuisinier', label: 'Cuisinier', group: 'Cuisine' },
+      { id: 'patissier', label: 'Pâtissier', group: 'Cuisine' },
+      { id: 'boulanger', label: 'Boulanger', group: 'Cuisine' },
+      { id: 'plongeur', label: 'Plongeur', group: 'Cuisine' },
+      // Accueil & Hôtellerie
+      { id: 'hotesse', label: 'Hôte / Hôtesse d\'accueil', group: 'Accueil & Hôtellerie' },
+      { id: 'gouvernante', label: 'Gouvernante / Femme de chambre', group: 'Accueil & Hôtellerie' },
+      { id: 'groom', label: 'Groom / Valet', group: 'Accueil & Hôtellerie' },
+      // Sécurité
+      { id: 'securite', label: 'Sécurité / Videur', group: 'Sécurité' },
     ]
   },
   {
@@ -50,19 +56,25 @@ export const CATEGORIES: Category[] = [
     description: 'Maintenance et équipements',
     icon: Wrench,
     services: [
-      { id: 'tech_froid', label: 'Technicien Froid' },
-      { id: 'tech_chaud', label: 'Technicien Chaud' },
-      { id: 'tech_ventilation', label: 'Technicien Ventilation / CVC' },
-      { id: 'electricien', label: 'Électricien' },
-      { id: 'plombier', label: 'Plombier' },
-      { id: 'tech_cafe', label: 'Technicien Machine à Café' },
-      { id: 'tech_biere', label: 'Technicien Pompe à Bière' },
-      { id: 'tech_lave_vaisselle', label: 'Technicien Lave-vaisselle' },
-      { id: 'tech_pos', label: 'Technicien Equipement Caisse / POS' },
-      { id: 'ingenieur_son', label: 'Ingénieur Son' },
-      { id: 'ingenieur_lumiere', label: 'Ingénieur Lumière' },
-      { id: 'tech_video', label: 'Technicien Vidéo' },
-      { id: 'tech_reseau', label: 'Technicien Réseau / WiFi' },
+      // Froid & Climatisation
+      { id: 'tech_froid', label: 'Technicien Froid', group: 'Froid & Climatisation' },
+      { id: 'tech_ventilation', label: 'Technicien Ventilation / CVC', group: 'Froid & Climatisation' },
+      // Cuisson & Chaud
+      { id: 'tech_chaud', label: 'Technicien Chaud', group: 'Cuisson & Chaud' },
+      // Équipement cuisine
+      { id: 'tech_lave_vaisselle', label: 'Technicien Lave-vaisselle', group: 'Équipement cuisine' },
+      { id: 'tech_cafe', label: 'Technicien Machine à Café', group: 'Équipement cuisine' },
+      { id: 'tech_biere', label: 'Technicien Pompe à Bière', group: 'Équipement cuisine' },
+      // Électricité & Plomberie
+      { id: 'electricien', label: 'Électricien', group: 'Électricité & Plomberie' },
+      { id: 'plombier', label: 'Plombier', group: 'Électricité & Plomberie' },
+      // Caisse & IT
+      { id: 'tech_pos', label: 'Technicien Caisse / POS', group: 'Caisse & IT' },
+      { id: 'tech_reseau', label: 'Technicien Réseau / WiFi', group: 'Caisse & IT' },
+      // Événementiel / AV
+      { id: 'ingenieur_son', label: 'Ingénieur Son', group: 'Événementiel / AV' },
+      { id: 'ingenieur_lumiere', label: 'Ingénieur Lumière', group: 'Événementiel / AV' },
+      { id: 'tech_video', label: 'Technicien Vidéo', group: 'Événementiel / AV' },
     ]
   },
   {
