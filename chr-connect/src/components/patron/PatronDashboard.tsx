@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CreateMissionWizard, type CategoryId } from '@/components/mission/CreateMissionWizard';
+import { COMING_SOON_CATEGORIES } from '@/data/categories';
 import { clsx } from 'clsx';
 import { useStore } from '@/store/useStore';
 import { useMissionEngine } from '@/store/mission-engine';
@@ -231,21 +232,33 @@ export default function PatronDashboard() {
                     { id: 'BATIMENTS', label: 'Bâtiments', desc: 'Rénovation et construction', icon: Hammer, gradient: 'from-emerald-500 to-teal-500' },
                     { id: 'COMPTABILITE', label: 'Comptabilité', desc: 'Gestion financière', icon: Calculator, gradient: 'from-blue-500 to-cyan-500' },
                     { id: 'JURIDIQUE', label: 'Juridique', desc: 'Conseil et conformité', icon: Scale, gradient: 'from-amber-500 to-yellow-500' },
-                  ].map((cat) => (
-                    <motion.button key={cat.id} whileHover={{ y: -5, scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => handleQuickAction(cat.id)}
-                      className={clsx("relative h-32 md:h-48 rounded-2xl md:rounded-3xl overflow-hidden group text-left p-4 md:p-6 flex flex-col justify-between border-0 transition-all bg-gradient-to-br shadow-lg", cat.gradient)}>
+                  ].map((cat) => {
+                    const isComingSoon = COMING_SOON_CATEGORIES.includes(cat.id as any);
+                    return (
+                    <motion.button key={cat.id}
+                      {...(!isComingSoon ? { whileHover: { y: -5, scale: 1.02 }, whileTap: { scale: 0.98 } } : {})}
+                      onClick={() => !isComingSoon && handleQuickAction(cat.id)}
+                      className={clsx("relative h-32 md:h-48 rounded-2xl md:rounded-3xl overflow-hidden group text-left p-4 md:p-6 flex flex-col justify-between border-0 transition-all bg-gradient-to-br shadow-lg", cat.gradient, isComingSoon && "opacity-50 cursor-not-allowed")}>
+                      {isComingSoon && (
+                        <span className="absolute top-2 right-2 text-[9px] md:text-[10px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full z-10">
+                          Bientôt disponible
+                        </span>
+                      )}
                       <div className={clsx("w-8 h-8 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-sm")}>
                         <cat.icon className="w-4 h-4 md:w-6 md:h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-sm md:text-xl font-bold mb-0.5 md:mb-1 group-hover:translate-x-1 transition-transform text-white">{cat.label}</h3>
+                        <h3 className={clsx("text-sm md:text-xl font-bold mb-0.5 md:mb-1 transition-transform text-white", !isComingSoon && "group-hover:translate-x-1")}>{cat.label}</h3>
                         <p className="text-xs md:text-sm truncate text-white/70">{cat.desc}</p>
                       </div>
+                      {!isComingSoon && (
                       <div className="absolute bottom-3 right-3 md:bottom-4 md:right-4 opacity-0 group-hover:opacity-100 transition-opacity hidden md:block">
                         <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center"><ArrowUpRight className="w-4 h-4 text-white" /></div>
                       </div>
+                      )}
                     </motion.button>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
 

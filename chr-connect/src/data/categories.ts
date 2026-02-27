@@ -17,6 +17,8 @@ export interface Category {
   services: Service[];
 }
 
+export const COMING_SOON_CATEGORIES: CategoryId[] = ['BATIMENTS', 'COMPTABILITE', 'JURIDIQUE'];
+
 export const CATEGORIES: Category[] = [
   {
     id: 'PERSONNEL',

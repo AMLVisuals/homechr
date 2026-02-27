@@ -50,6 +50,7 @@ import {
   Calculator,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { COMING_SOON_CATEGORIES } from '@/data/categories';
 import { useEstablishment } from '@/contexts/EstablishmentContext';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useEquipmentStore } from '@/store/useEquipmentStore';
@@ -889,12 +890,21 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
               >
                 {CATEGORIES.map((cat) => {
                   const Icon = cat.icon;
+                  const isComingSoon = COMING_SOON_CATEGORIES.includes(cat.id as any);
                   return (
                     <button
                       key={cat.id}
-                      onClick={() => handleCategorySelect(cat)}
-                      className="flex items-start gap-4 p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border)] hover:bg-[var(--bg-active)] hover:border-[var(--border-strong)] transition-all group text-left"
+                      onClick={() => !isComingSoon && handleCategorySelect(cat)}
+                      className={cn(
+                        "relative flex items-start gap-4 p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border)] transition-all group text-left",
+                        isComingSoon ? "opacity-50 cursor-not-allowed" : "hover:bg-[var(--bg-active)] hover:border-[var(--border-strong)]"
+                      )}
                     >
+                      {isComingSoon && (
+                        <span className="absolute top-2 right-2 text-[9px] md:text-[10px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full z-10">
+                          Bientôt disponible
+                        </span>
+                      )}
                       <div className={cn(
                         'w-14 h-14 rounded-xl flex items-center justify-center bg-gradient-to-br',
                         cat.color

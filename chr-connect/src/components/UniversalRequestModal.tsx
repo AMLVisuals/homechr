@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronRight, Star, MapPin, Clock, ArrowLeft, Mic, CheckCircle } from 'lucide-react';
-import { CATEGORIES, Category, Service } from '@/data/categories';
+import { CATEGORIES, COMING_SOON_CATEGORIES, Category, Service } from '@/data/categories';
 import { useStore } from '@/store/useStore';
 import MediaHub from './MediaHub';
 import SmartTags from './SmartTags';
@@ -200,12 +200,22 @@ export default function UniversalRequestModal() {
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
             className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto custom-scrollbar pr-2"
           >
-            {CATEGORIES.map((cat) => (
+            {CATEGORIES.map((cat) => {
+              const isComingSoon = COMING_SOON_CATEGORIES.includes(cat.id);
+              return (
               <button
                 key={cat.id}
-                onClick={() => handleCategorySelect(cat)}
-                className="glass p-6 rounded-2xl flex items-start gap-4 text-left hover:bg-[var(--bg-active)] transition-colors group"
+                onClick={() => !isComingSoon && handleCategorySelect(cat)}
+                className={clsx(
+                  "relative glass p-6 rounded-2xl flex items-start gap-4 text-left transition-colors group",
+                  isComingSoon ? "opacity-50 cursor-not-allowed" : "hover:bg-[var(--bg-active)]"
+                )}
               >
+                {isComingSoon && (
+                  <span className="absolute top-2 right-2 text-[9px] md:text-[10px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full z-10">
+                    Bientôt disponible
+                  </span>
+                )}
                 <div className="p-3 rounded-xl bg-[var(--bg-hover)] group-hover:bg-[var(--bg-active)] transition-colors">
                   <cat.icon className="w-8 h-8 text-[var(--text-primary)]" />
                 </div>
@@ -215,7 +225,8 @@ export default function UniversalRequestModal() {
                 </div>
                 <ChevronRight className="w-5 h-5 ml-auto self-center text-[var(--text-muted)] group-hover:text-[var(--text-primary)]" />
               </button>
-            ))}
+              );
+            })}
           </motion.div>
         )}
 

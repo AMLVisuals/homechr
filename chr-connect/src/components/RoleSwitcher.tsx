@@ -6,7 +6,7 @@ import { User, Briefcase, Check, ChevronRight, ArrowLeft } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import DocumentUploader from './DocumentUploader';
 import DropZonePro from './DropZonePro';
-import { CATEGORIES } from '@/data/categories';
+import { CATEGORIES, COMING_SOON_CATEGORIES } from '@/data/categories';
 import { clsx } from 'clsx';
 import { getRequiredDocuments, DocumentRequirement } from '@/config/documents';
 
@@ -100,21 +100,31 @@ export default function RoleSwitcher() {
               </button>
               <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6 text-[var(--text-primary)] text-center">Choisissez votre domaine</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-                {CATEGORIES.map((category) => (
+                {CATEGORIES.map((category) => {
+                  const isComingSoon = COMING_SOON_CATEGORIES.includes(category.id);
+                  return (
                   <motion.button
                     key={category.id}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handleCategorySelect(category)}
-                    className="glass p-3 md:p-4 rounded-2xl flex flex-col items-center justify-center text-center min-h-[120px] md:min-h-[140px] hover:bg-[var(--bg-hover)] transition-colors"
+                    {...(!isComingSoon ? { whileHover: { scale: 1.02 }, whileTap: { scale: 0.98 } } : {})}
+                    onClick={() => !isComingSoon && handleCategorySelect(category)}
+                    className={clsx(
+                      "relative glass p-3 md:p-4 rounded-2xl flex flex-col items-center justify-center text-center min-h-[120px] md:min-h-[140px] transition-colors",
+                      isComingSoon ? "opacity-50 cursor-not-allowed" : "hover:bg-[var(--bg-hover)]"
+                    )}
                   >
+                    {isComingSoon && (
+                      <span className="absolute top-2 right-2 text-[9px] md:text-[10px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full z-10">
+                        Bientôt disponible
+                      </span>
+                    )}
                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[var(--bg-hover)] flex items-center justify-center mb-2 md:mb-3">
                       <category.icon className="w-5 h-5 md:w-6 md:h-6 text-blue-400" />
                     </div>
                     <h3 className="text-xs md:text-sm font-bold text-[var(--text-primary)]">{category.label}</h3>
                     <p className="text-[10px] md:text-xs text-[var(--text-muted)] mt-1">{category.description}</p>
                   </motion.button>
-                ))}
+                  );
+                })}
               </div>
             </motion.div>
           )}
