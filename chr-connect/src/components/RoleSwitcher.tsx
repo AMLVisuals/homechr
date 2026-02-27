@@ -57,12 +57,12 @@ export default function RoleSwitcher() {
   const allVerified = requiredDocuments.every(doc => !doc.required || docStatuses[doc.id] === 'verified');
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--bg-app)] relative overflow-hidden">
+    <div className="min-h-screen flex items-start md:items-center justify-center bg-[var(--bg-app)] relative overflow-x-hidden overflow-y-auto">
       {/* Background Ambience */}
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-20 blur-xl scale-110" />
-      <div className="absolute inset-0 bg-[var(--bg-overlay)]" />
+      <div className="fixed inset-0 bg-[url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-20 blur-xl scale-110" />
+      <div className="fixed inset-0 bg-[var(--bg-overlay)]" />
 
-      <div className="relative z-10 w-full max-w-4xl p-4 md:p-6">
+      <div className="relative z-10 w-full max-w-4xl p-4 md:p-6 py-8 md:py-6">
         <AnimatePresence mode='wait'>
           {step === 'role' && (
             <motion.div 
@@ -151,7 +151,7 @@ export default function RoleSwitcher() {
                   <p className="text-xs md:text-sm text-[var(--text-muted)] truncate">{selectedCategory.description}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2 md:gap-3 max-h-[55vh] overflow-y-auto pr-1 md:pr-2 custom-scrollbar pb-2">
+              <div className="grid grid-cols-2 gap-2 md:gap-3 md:max-h-[55vh] md:overflow-y-auto pr-1 md:pr-2 custom-scrollbar pb-2">
                 {selectedCategory.services.map((service: any) => (
                   <motion.div
                     key={service.id}
@@ -187,7 +187,7 @@ export default function RoleSwitcher() {
             <motion.div
               key="verification"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-              className="glass-strong rounded-3xl p-4 md:p-8 max-w-xl mx-auto max-h-[90vh] overflow-y-auto custom-scrollbar"
+              className="glass-strong rounded-3xl p-4 md:p-8 max-w-xl mx-auto md:max-h-[90vh] md:overflow-y-auto custom-scrollbar"
             >
               <button 
                 onClick={() => setStep(selectedRole === 'WORKER' ? 'services' : 'role')}
@@ -242,7 +242,7 @@ function RoleCard({ title, subtitle, icon: Icon, onClick }: { title: string, sub
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="glass p-8 rounded-3xl flex flex-col items-center justify-center text-center w-full aspect-[3/4] md:aspect-square hover:bg-[var(--bg-hover)] transition-colors group"
+      className="glass p-8 rounded-3xl flex flex-col items-center justify-center text-center w-full aspect-square md:aspect-square hover:bg-[var(--bg-hover)] transition-colors group"
     >
       <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[var(--bg-hover)] flex items-center justify-center mb-4 md:mb-6 group-hover:bg-[var(--bg-active)] transition-colors">
         <Icon className="w-8 h-8 md:w-10 md:h-10 text-[var(--text-primary)]" />

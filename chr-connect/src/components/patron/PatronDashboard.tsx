@@ -118,7 +118,7 @@ export default function PatronDashboard() {
   ];
 
   return (
-    <div className="flex h-screen bg-[var(--bg-app)] text-[var(--text-primary)] overflow-hidden font-sans">
+    <div className="flex h-screen bg-[var(--bg-app)] text-[var(--text-primary)] overflow-hidden font-sans" style={{ height: '100dvh' }}>
       {/* Sidebar Desktop */}
       <aside className="hidden lg:flex w-64 border-r border-[var(--border)] bg-[var(--bg-sidebar)] flex-col z-20">
         <Sidebar activeTab={activeTab} onSettingsClick={() => setShowSettings(true)} layoutId="activeTabDesktop" />

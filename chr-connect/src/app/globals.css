@@ -99,6 +99,10 @@ html:not(.dark) .glass-strong {
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
+.custom-scrollbar {
+  -webkit-overflow-scrolling: touch;
+}
+
 html.dark ::-webkit-scrollbar {
   width: 6px;
 }

@@ -111,7 +111,7 @@ export default function PayslipsTab() {
   return (
     <div className="h-full flex flex-col relative overflow-hidden">
       <div className="flex-1 overflow-y-auto custom-scrollbar relative">
-        <div className="sticky top-0 z-0 md:static md:z-auto pb-4">
+        <div className="pb-4">
           <div className="flex flex-col md:flex-row justify-between items-center md:items-center gap-4 mb-4 md:mb-8 p-4 md:p-0">
             <div className="text-center md:text-left w-full md:w-auto">
               <div className="flex items-center justify-center md:justify-start gap-2">

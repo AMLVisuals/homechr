@@ -197,7 +197,7 @@ export default function PlanningTab() {
     <div className="h-full flex flex-col relative overflow-hidden lg:h-full">
       <div className="flex-1 overflow-y-auto custom-scrollbar relative lg:overflow-hidden lg:flex lg:flex-row lg:gap-6 lg:h-full">
         {/* Fixed Header Section (Header + Calendar) */}
-        <div className="sticky top-0 z-0 lg:static lg:flex-1 lg:h-full lg:flex lg:flex-col pb-4 lg:pb-0 px-4 lg:px-0 lg:overflow-y-auto lg:overflow-x-hidden custom-scrollbar">
+        <div className="lg:static lg:flex-1 lg:h-full lg:flex lg:flex-col pb-4 lg:pb-0 px-4 lg:px-0 lg:overflow-y-auto lg:overflow-x-hidden custom-scrollbar">
           {/* Mobile Page Header */}
           <div className="md:hidden mb-2 text-center pt-4">
             <h2 className="text-3xl font-bold mb-1 bg-gradient-to-r from-[var(--gradient-heading-from)] via-[var(--gradient-heading-via)] to-[var(--gradient-heading-to)] bg-clip-text text-transparent">
