@@ -48,11 +48,14 @@ import {
   Upload,
   Scale,
   Calculator,
+  Crown,
+  CreditCard,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { COMING_SOON_CATEGORIES } from '@/data/categories';
 import { useEstablishment } from '@/contexts/EstablishmentContext';
 import { useMissionsStore } from '@/store/useMissionsStore';
+import { useStore } from '@/store/useStore';
 import { useEquipmentStore } from '@/store/useEquipmentStore';
 import {
   getProblemsForCategory,
@@ -87,6 +90,7 @@ type WizardStep =
   | 'details'
   | 'staffing-config'
   | 'summary'
+  | 'payment'
   | 'success';
 
 export type CategoryId = 'PERSONNEL' | 'TECHNICIENS' | 'BATIMENTS' | 'COMPTABILITE' | 'JURIDIQUE' | 'STAFFING' | 'TECH' | 'MAINTENANCE';
@@ -268,6 +272,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
   const { addMission } = useMissionsStore();
   const { addEvent } = useCalendarStore();
   const { reportFault } = useEquipmentStore();
+  const isPremium = useStore((s) => s.isPremium);
 
   // Wizard State
   const [step, setStep] = useState<WizardStep>(() => {
@@ -352,6 +357,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
   }, [currentMediaIndex, media]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPayingRelationFee, setIsPayingRelationFee] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Staffing specific state
@@ -642,6 +648,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
           setStep('details');
         }
         break;
+      case 'payment':
+        setStep('summary');
+        break;
     }
   };
 
@@ -758,6 +767,17 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         addMission(createdMission);
       }
 
+      // Add relation fee info
+      if (createdMission) {
+        if (isPremium) {
+          createdMission.paidRelationFee = false;
+          createdMission.relationFeeAmount = 0;
+        } else {
+          createdMission.paidRelationFee = true;
+          createdMission.relationFeeAmount = 20;
+        }
+      }
+
       // Add to Calendar if date is present
       if (createdMission && createdMission.date) {
         const [dateStr, timeStr] = createdMission.date.split(' ');
@@ -856,6 +876,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                 {step === 'details' && 'Détails supplémentaires'}
                 {step === 'staffing-config' && 'Configuration du staffing'}
                 {step === 'summary' && 'Récapitulatif'}
+                {step === 'payment' && 'Paiement'}
                 {step === 'success' && 'Demande envoyée !'}
               </h2>
               {currentEstablishment && step !== 'success' && (
@@ -2112,6 +2133,101 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
               </motion.div>
             )}
 
+            {/* STEP: Payment (free users only) */}
+            {step === 'payment' && (
+              <motion.div
+                key="payment"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-6"
+              >
+                {/* Mission recap */}
+                <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-5">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={cn(
+                      "w-12 h-12 rounded-xl flex items-center justify-center",
+                      selectedCategory?.id === 'PERSONNEL' || selectedCategory?.id === 'STAFFING'
+                        ? "bg-purple-500/20"
+                        : "bg-blue-500/20"
+                    )}>
+                      {selectedCategory?.icon && <selectedCategory.icon className={cn("w-6 h-6", selectedCategory?.id === 'PERSONNEL' || selectedCategory?.id === 'STAFFING' ? "text-purple-400" : "text-blue-400")} />}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-[var(--text-primary)]">
+                        {selectedProblem?.label || selectedStaffingRole?.role || selectedSubCategory?.label || 'Mission'}
+                      </h3>
+                      <p className="text-sm text-[var(--text-muted)]">{currentEstablishment?.name}</p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[var(--border)] pt-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-[var(--text-secondary)]">Frais de mise en relation</span>
+                      <span className="text-lg font-bold text-[var(--text-primary)]">20,00 €</span>
+                    </div>
+                    <p className="text-xs text-[var(--text-muted)]">
+                      Ce frais unique couvre la recherche et la mise en relation avec un prestataire qualifié pour cette mission.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Pay button */}
+                <button
+                  onClick={async () => {
+                    setIsPayingRelationFee(true);
+                    // Simulate payment delay
+                    await new Promise(r => setTimeout(r, 1500));
+                    setIsPayingRelationFee(false);
+                    await handleSubmit();
+                  }}
+                  disabled={isPayingRelationFee || isSubmitting}
+                  className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-green-500/25 transition-all flex items-center justify-center gap-2"
+                >
+                  {isPayingRelationFee || isSubmitting ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        className="w-5 h-5 border-2 border-[var(--border-strong)] border-t-white rounded-full"
+                      />
+                      {isPayingRelationFee ? 'Paiement en cours...' : 'Publication...'}
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-5 h-5" />
+                      Payer 20€ et publier la mission
+                    </>
+                  )}
+                </button>
+
+                {/* Premium CTA */}
+                <div className="bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/20 rounded-2xl p-5">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center">
+                      <Crown className="w-5 h-5 text-black" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-[var(--text-primary)]">Passez au Premium</h4>
+                      <p className="text-sm text-amber-400 font-medium">100€/mois</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-[var(--text-secondary)] mb-3">
+                    Missions illimitées sans frais de mise en relation + DPAE, fiches de paie, gestion de stock et plus encore.
+                  </p>
+                  <button
+                    onClick={() => {
+                      onClose();
+                      // Navigate to premium tab - user preference handled externally
+                    }}
+                    className="text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors"
+                  >
+                    En savoir plus →
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
             {/* STEP: Success */}
             {step === 'success' && (
               <motion.div
@@ -2142,7 +2258,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         </div>
 
         {/* Footer */}
-        {step !== 'category' && step !== 'success' && (
+        {step !== 'category' && step !== 'success' && step !== 'payment' && (
           <div className="p-6 border-t border-[var(--border)]">
             {step === 'details' && (
               <button
@@ -2180,27 +2296,37 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
             )}
 
             {step === 'summary' && (
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-green-500/25 transition-all flex items-center justify-center gap-2"
-              >
-                {isSubmitting ? (
-                  <>
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      className="w-5 h-5 border-2 border-[var(--border-strong)] border-t-white rounded-full"
-                    />
-                    Envoi en cours...
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-5 h-5" />
-                    Lancer la recherche
-                  </>
-                )}
-              </button>
+              isPremium ? (
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-green-500/25 transition-all flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        className="w-5 h-5 border-2 border-[var(--border-strong)] border-t-white rounded-full"
+                      />
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5" />
+                      Lancer la recherche
+                    </>
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={() => setStep('payment')}
+                  className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition-all flex items-center justify-center gap-2"
+                >
+                  <CreditCard className="w-5 h-5" />
+                  Continuer vers le paiement
+                </button>
+              )
             )}
           </div>
         )}

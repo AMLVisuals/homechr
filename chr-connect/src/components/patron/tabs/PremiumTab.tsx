@@ -1,29 +1,28 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Zap, FileText, Download, Clock, Server, CheckCircle2, Crown, X, Headphones, Shield, Star } from 'lucide-react';
+import { Zap, FileText, Infinity, Package, CheckCircle2, Crown, X, Headphones, Shield, Star, ScrollText } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { clsx } from 'clsx';
 
 const PREMIUM_FEATURES = [
-  { icon: FileText, label: 'Création de bulletins de paie', desc: 'Générez des fiches de paie complètes en quelques clics' },
-  { icon: Download, label: 'Export PDF professionnel', desc: 'Téléchargez des bulletins au format PDF officiel' },
-  { icon: Clock, label: 'Historique complet', desc: 'Accédez à l\'historique illimité de tous vos bulletins' },
-  { icon: Server, label: 'API externe', desc: 'Connectez PayFit, Silae ou tout autre fournisseur de paie' },
-  { icon: Headphones, label: 'Support dédié', desc: 'Un account manager à votre écoute, assistance prioritaire par chat et téléphone' },
+  { icon: Infinity, label: 'Missions illimitées', desc: 'Plus de frais de 20€ par mise en relation — créez autant de missions que nécessaire' },
+  { icon: FileText, label: 'Fiches de paie', desc: 'Création de bulletins de paie complets en quelques clics' },
+  { icon: ScrollText, label: 'DPAE + contrat de travail', desc: 'Déclaration URSSAF automatique + CDD d\'usage auto-généré' },
+  { icon: Package, label: 'Gestion de stock', desc: 'Suivi inventaire par établissement avec alertes seuil bas' },
+  { icon: Headphones, label: 'Support dédié', desc: 'Un manager dédié à votre écoute + chat prioritaire' },
   { icon: Shield, label: 'Garantie intervention', desc: 'Remplacement garanti sous 2h en cas d\'annulation prestataire' },
 ];
 
 const COMPARISON_ROWS = [
-  { label: 'Création de missions', free: true, premium: true },
+  { label: 'Création de missions', free: '20€/mission', premium: 'Illimité, 0€' },
   { label: 'Gestion des équipements', free: true, premium: true },
   { label: 'Planning & calendrier', free: true, premium: true },
   { label: 'Gestion d\'équipe', free: true, premium: true },
   { label: 'Suivi des factures', free: true, premium: true },
-  { label: 'Bulletins de paie', free: false, premium: true },
-  { label: 'Export PDF', free: false, premium: true },
-  { label: 'Historique illimité', free: false, premium: true },
-  { label: 'Intégration PayFit / Silae', free: false, premium: true },
+  { label: 'Fiches de paie', free: false, premium: true },
+  { label: 'DPAE + contrat CDD auto', free: false, premium: true },
+  { label: 'Gestion de stock', free: false, premium: true },
   { label: 'Support dédié & prioritaire', free: false, premium: true },
   { label: 'Garantie intervention 2h', free: false, premium: true },
 ];
@@ -74,7 +73,7 @@ export default function PremiumTab() {
                 <p className="text-[var(--text-secondary)] text-sm">Abonnement actif</p>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-bold text-[var(--text-primary)]">29€</span>
+                <span className="text-2xl font-bold text-[var(--text-primary)]">100€</span>
                 <span className="text-[var(--text-secondary)] text-sm">/mois</span>
               </div>
             </div>
@@ -120,7 +119,7 @@ export default function PremiumTab() {
             Passez à la vitesse supérieure
           </h1>
           <p className="text-[var(--text-secondary)] text-lg max-w-2xl mx-auto">
-            Débloquez toutes les fonctionnalités premium pour gérer votre établissement comme un pro.
+            Supprimez les frais de mise en relation et débloquez toutes les fonctionnalités avancées.
           </p>
         </div>
 
@@ -142,7 +141,7 @@ export default function PremiumTab() {
               <div>
                 <h2 className="text-2xl font-bold text-[var(--text-primary)]">CHR Connect Premium</h2>
                 <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-4xl font-bold text-[var(--text-primary)]">29€</span>
+                  <span className="text-4xl font-bold text-[var(--text-primary)]">100€</span>
                   <span className="text-[var(--text-secondary)]">/mois</span>
                 </div>
               </div>
@@ -227,14 +226,20 @@ export default function PremiumTab() {
             >
               <span className="text-sm text-[var(--text-primary)] font-medium">{row.label}</span>
               <span className="flex justify-center">
-                {row.free ? (
+                {typeof row.free === 'string' ? (
+                  <span className="text-xs font-medium text-orange-400">{row.free}</span>
+                ) : row.free ? (
                   <CheckCircle2 className="w-5 h-5 text-green-400" />
                 ) : (
                   <X className="w-5 h-5 text-[var(--text-muted)]" />
                 )}
               </span>
               <span className="flex justify-center">
-                <CheckCircle2 className="w-5 h-5 text-amber-400" />
+                {typeof row.premium === 'string' ? (
+                  <span className="text-xs font-medium text-amber-400">{row.premium}</span>
+                ) : (
+                  <CheckCircle2 className="w-5 h-5 text-amber-400" />
+                )}
               </span>
             </div>
           ))}

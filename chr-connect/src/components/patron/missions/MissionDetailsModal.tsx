@@ -2,19 +2,25 @@
 
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  X, MapPin, Clock, Camera, Mic, Star, Send, 
+import {
+  X, MapPin, Clock, Camera, Mic, Star, Send,
   User, Phone, MessageSquare, Video, Image as ImageIcon,
-  AlertCircle, Navigation, ChevronRight
+  AlertCircle, Navigation, ChevronRight, CheckCircle2, Package, FileText
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import FullScreenGallery from '@/components/shared/FullScreenGallery';
 import ProviderProfileModal from '@/components/shared/ProviderProfileModal';
 import DirectRequestModal from './DirectRequestModal';
+import QuoteRejectionForm from '@/components/mission/QuoteRejectionForm';
 import { ProviderProfile } from '@/types/provider';
+import { calculateTravelCost } from '@/lib/financial-engine';
+import { getMissionFlowType } from '@/lib/utils';
 
 import { useMissionsStore } from '@/store/useMissionsStore';
+import { useStore } from '@/store/useStore';
+import { useDPAEStore } from '@/store/useDPAEStore';
 import { Mission } from '@/types/missions';
+import DPAEWizard from '../dpae/DPAEWizard';
 
 interface MissionDetailsModalProps {
   mission: Mission | null;
@@ -25,11 +31,21 @@ interface MissionDetailsModalProps {
 import { InvoiceDetailView } from '../billing/InvoiceDetailView';
 
 export default function MissionDetailsModal({ mission, isOpen, onClose }: MissionDetailsModalProps) {
-  const { addReview, generateInvoice, payInvoice, updateMission } = useMissionsStore();
-  const [activeTab, setActiveTab] = useState<'DETAILS' | 'EVIDENCE' | 'PROVIDER' | 'INVOICE'>('DETAILS');
+  const { addReview, generateInvoice, payInvoice, updateMission, rejectQuote, validateStaffMission, setPartsStatus } = useMissionsStore();
+  const isPremium = useStore((s) => s.isPremium);
+  const dpaeDeclaration = useDPAEStore((s) => mission ? s.getDeclarationByMission(mission.id) : undefined);
+  const [showDPAEWizard, setShowDPAEWizard] = useState(false);
+  const [activeTab, setActiveTab] = useState<'DETAILS' | 'EVIDENCE' | 'PROVIDER' | 'INVOICE' | 'QUOTE'>('DETAILS');
   const [showRating, setShowRating] = useState(false);
   const [showProviderProfile, setShowProviderProfile] = useState(false);
   const [showDirectRequest, setShowDirectRequest] = useState(false);
+
+  // Staff validation state
+  const [staffConfirmed, setStaffConfirmed] = useState(false);
+
+  // Tech quote response state
+  const [showImmediateChoice, setShowImmediateChoice] = useState(false);
+  const [showRejectionForm, setShowRejectionForm] = useState(false);
   
   // Gallery State
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -42,10 +58,9 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
   const [isRecording, setIsRecording] = useState(false);
   const [reviewMedia, setReviewMedia] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedProvider, setSelectedProvider] = useState<ProviderProfile | null>(null);
 
   if (!isOpen || !mission) return null;
-
-  const [selectedProvider, setSelectedProvider] = useState<ProviderProfile | null>(null);
 
   const handleOpenProviderProfile = () => {
     if (!mission?.provider) return;
@@ -196,6 +211,14 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
         return { label: 'Terminée', color: 'bg-green-500/20 text-green-400 border-green-500/30' };
       case 'CANCELLED':
         return { label: 'Annulée', color: 'bg-red-500/20 text-red-400 border-red-500/30' };
+      case 'PENDING_VALIDATION':
+        return { label: 'Validation requise', color: 'bg-amber-500/20 text-amber-400 border-amber-500/30' };
+      case 'DIAGNOSING':
+        return { label: 'Diagnostic', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30' };
+      case 'QUOTE_SENT':
+        return { label: 'Devis reçu', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30' };
+      case 'STANDBY':
+        return { label: 'En attente pièce', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' };
       default:
         return { label: status, color: 'bg-gray-500/20 text-gray-400 border-gray-500/30' };
     }
@@ -504,7 +527,18 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                       >
                         Preuves
                       </button>
-                      {mission.status === 'COMPLETED' && (
+                      {mission.quote && (
+                        <button
+                          onClick={() => setActiveTab('QUOTE')}
+                          className={clsx(
+                            "flex-1 py-2 rounded-lg text-sm font-bold transition-all",
+                            activeTab === 'QUOTE' ? "bg-white text-black shadow-lg" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                          )}
+                        >
+                          Devis
+                        </button>
+                      )}
+                      {(mission.status === 'COMPLETED' || mission.invoice) && (
                         <button
                           onClick={() => {
                              setActiveTab('INVOICE');
@@ -521,6 +555,157 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                     </div>
 
                     <div className="flex-1 overflow-y-auto custom-scrollbar space-y-6">
+
+                      {/* === PENDING_VALIDATION BANNER (Staff flow — patron must validate) === */}
+                      {mission.status === 'PENDING_VALIDATION' && activeTab === 'DETAILS' && (
+                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 space-y-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-amber-500/20 rounded-full flex items-center justify-center">
+                              <CheckCircle2 className="w-5 h-5 text-amber-400" />
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-[var(--text-primary)]">Le prestataire a terminé</h4>
+                              <p className="text-xs text-[var(--text-muted)]">Veuillez valider le travail effectué</p>
+                            </div>
+                          </div>
+
+                          <label className="flex items-center gap-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={staffConfirmed}
+                              onChange={(e) => setStaffConfirmed(e.target.checked)}
+                              className="w-4 h-4 text-amber-500 focus:ring-amber-500 rounded"
+                            />
+                            <span className="text-sm text-[var(--text-primary)]">Je confirme que le travail a été effectué correctement</span>
+                          </label>
+
+                          {staffConfirmed && !showRating && (
+                            <button
+                              onClick={() => setShowRating(true)}
+                              className="w-full py-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
+                            >
+                              <Star className="w-4 h-4" /> Noter le prestataire puis valider
+                            </button>
+                          )}
+
+                          {staffConfirmed && (
+                            <button
+                              onClick={() => {
+                                validateStaffMission(mission.id);
+                                generateInvoice(mission.id);
+                                updateMission(mission.id, { status: 'COMPLETED' });
+                                // Auto-pay
+                                setTimeout(() => {
+                                  const updatedMission = useMissionsStore.getState().missions.find(m => m.id === mission.id);
+                                  if (updatedMission?.invoice) payInvoice(updatedMission.invoice.id);
+                                }, 100);
+                              }}
+                              className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
+                            >
+                              <CheckCircle2 className="w-4 h-4" /> Valider et payer
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      {/* === QUOTE_SENT BANNER (Tech flow — patron must accept/reject quote) === */}
+                      {mission.status === 'QUOTE_SENT' && activeTab === 'DETAILS' && (
+                        <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-5 space-y-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
+                              <FileText className="w-5 h-5 text-orange-400" />
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-[var(--text-primary)]">Devis reçu du technicien</h4>
+                              <p className="text-xs text-[var(--text-muted)]">
+                                {mission.quote ? `${mission.quote.totalTTC.toFixed(2)} € TTC` : 'Consultez le devis dans l\'onglet Devis'}
+                              </p>
+                            </div>
+                          </div>
+
+                          {!showImmediateChoice ? (
+                            <div className="flex gap-3">
+                              <button
+                                onClick={() => setShowImmediateChoice(true)}
+                                className="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition-all"
+                              >
+                                Accepter le devis
+                              </button>
+                              <button
+                                onClick={() => setShowRejectionForm(true)}
+                                className="flex-1 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-sm font-bold transition-all"
+                              >
+                                Refuser
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="space-y-3">
+                              <p className="text-sm text-[var(--text-secondary)]">La réparation peut-elle être effectuée immédiatement ?</p>
+                              <div className="flex gap-3">
+                                <button
+                                  onClick={() => {
+                                    updateMission(mission.id, { status: 'IN_PROGRESS' });
+                                    setShowImmediateChoice(false);
+                                  }}
+                                  className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all"
+                                >
+                                  Oui, réparation immédiate
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    updateMission(mission.id, { status: 'STANDBY', partsStatus: 'PART_ORDERED' });
+                                    setShowImmediateChoice(false);
+                                  }}
+                                  className="flex-1 py-3 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border border-yellow-500/20 rounded-xl text-sm font-bold transition-all"
+                                >
+                                  Non, commande de pièce
+                                </button>
+                              </div>
+                              <button
+                                onClick={() => setShowImmediateChoice(false)}
+                                className="w-full text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                              >
+                                Annuler
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* === STANDBY BANNER (Tech flow — waiting for parts) === */}
+                      {mission.status === 'STANDBY' && activeTab === 'DETAILS' && (
+                        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-5 space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-yellow-500/20 rounded-full flex items-center justify-center">
+                              <Package className="w-5 h-5 text-yellow-400" />
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-[var(--text-primary)]">
+                                {mission.partsStatus === 'PART_RECEIVED' ? 'Pièce reçue' : 'Pièce commandée'}
+                              </h4>
+                              <p className="text-xs text-[var(--text-muted)]">Le technicien reprendra l'intervention à réception</p>
+                            </div>
+                          </div>
+
+                          {mission.partsStatus !== 'PART_RECEIVED' ? (
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+                                <span className="text-sm text-yellow-400">En attente de livraison...</span>
+                              </div>
+                              <button
+                                onClick={() => setPartsStatus(mission.id, 'PART_RECEIVED')}
+                                className="w-full py-2.5 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border border-yellow-500/20 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
+                              >
+                                <Package className="w-4 h-4" /> Marquer pièce reçue
+                              </button>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-green-400 font-medium">Pièce reçue — en attente de reprise par le technicien</p>
+                          )}
+                        </div>
+                      )}
+
                       {activeTab === 'DETAILS' && (
                         <>
                           {mission.description && (
@@ -586,12 +771,50 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                 </div>
                               )}
 
+                              {/* Diagnosing */}
+                              {mission.status === 'DIAGNOSING' && (
+                                <div className="relative pl-6">
+                                  <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-purple-500 ring-4 ring-black animate-pulse" />
+                                  <p className="text-sm text-[var(--text-primary)] font-medium">Diagnostic en cours</p>
+                                  <p className="text-xs text-[var(--text-muted)]">Le technicien analyse le problème</p>
+                                </div>
+                              )}
+
+                              {/* Quote Sent */}
+                              {mission.status === 'QUOTE_SENT' && (
+                                <div className="relative pl-6">
+                                  <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-orange-500 ring-4 ring-black animate-pulse" />
+                                  <p className="text-sm text-[var(--text-primary)] font-medium">Devis reçu</p>
+                                  <p className="text-xs text-[var(--text-muted)]">En attente de votre validation</p>
+                                </div>
+                              )}
+
                               {/* In Progress */}
                               {mission.status === 'IN_PROGRESS' && (
                                 <div className="relative pl-6">
                                   <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-blue-600 ring-4 ring-black animate-pulse" />
                                   <p className="text-sm text-[var(--text-primary)] font-medium">Intervention en cours</p>
                                   <p className="text-xs text-[var(--text-muted)]">Travaux démarrés</p>
+                                </div>
+                              )}
+
+                              {/* Pending Validation (Staff) */}
+                              {mission.status === 'PENDING_VALIDATION' && (
+                                <div className="relative pl-6">
+                                  <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-amber-500 ring-4 ring-black animate-pulse" />
+                                  <p className="text-sm text-[var(--text-primary)] font-medium">Validation requise</p>
+                                  <p className="text-xs text-[var(--text-muted)]">Le prestataire a terminé son service</p>
+                                </div>
+                              )}
+
+                              {/* Standby (Tech - parts) */}
+                              {mission.status === 'STANDBY' && (
+                                <div className="relative pl-6">
+                                  <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-yellow-500 ring-4 ring-black animate-pulse" />
+                                  <p className="text-sm text-[var(--text-primary)] font-medium">En attente de pièce</p>
+                                  <p className="text-xs text-[var(--text-muted)]">
+                                    {mission.partsStatus === 'PART_RECEIVED' ? 'Pièce reçue — reprise imminente' : 'Pièce commandée'}
+                                  </p>
                                 </div>
                               )}
 
@@ -606,6 +829,29 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                             </div>
                           </div>
                         </>
+                      )}
+
+                      {/* DPAE Button — STAFF missions, confirmed, premium only */}
+                      {activeTab === 'DETAILS' &&
+                       mission.category === 'STAFFING' &&
+                       ['ON_WAY', 'ON_SITE', 'IN_PROGRESS', 'COMPLETED', 'PENDING_VALIDATION'].includes(mission.status) && (
+                        <div className="mt-4">
+                          <button
+                            onClick={() => setShowDPAEWizard(true)}
+                            className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-blue-500/25"
+                          >
+                            <FileText className="w-4 h-4" />
+                            Déclarer DPAE + Générer contrat
+                          </button>
+                          {dpaeDeclaration && (
+                            <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-green-500/10 border border-green-500/20 rounded-xl">
+                              <CheckCircle2 className="w-4 h-4 text-green-400" />
+                              <span className="text-xs font-medium text-green-400">
+                                DPAE envoyée — Réf. {dpaeDeclaration.urssafReference || 'En cours'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       )}
 
                       {activeTab === 'EVIDENCE' && (
@@ -635,6 +881,40 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                 En attente de photos...
                               </div>
                             )}
+                          </div>
+                        </div>
+                      )}
+
+                      {activeTab === 'QUOTE' && mission.quote && (
+                        <div className="animate-fadeIn space-y-4">
+                          <div className="bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border)]">
+                            <h3 className="text-sm font-bold text-[var(--text-muted)] uppercase mb-3">Devis #{mission.quote.reference}</h3>
+                            <div className="space-y-2">
+                              {mission.quote.items.map((item, idx) => (
+                                <div key={idx} className="flex justify-between text-sm">
+                                  <span className="text-[var(--text-secondary)]">{item.description} × {item.quantity}</span>
+                                  <span className="text-[var(--text-primary)] font-medium">{(item.unitPriceHT * item.quantity).toFixed(2)} €</span>
+                                </div>
+                              ))}
+                              <div className="border-t border-[var(--border)] pt-2 mt-2">
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-[var(--text-muted)]">Sous-total HT</span>
+                                  <span>{mission.quote.subtotalHT.toFixed(2)} €</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-[var(--text-muted)]">TVA</span>
+                                  <span>{mission.quote.totalTVA.toFixed(2)} €</span>
+                                </div>
+                                <div className="flex justify-between text-base font-bold mt-1">
+                                  <span className="text-[var(--text-primary)]">Total TTC</span>
+                                  <span className="text-green-400">{mission.quote.totalTTC.toFixed(2)} €</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-xs text-[var(--text-muted)]">
+                            <span>Statut: </span>
+                            <span className="font-bold">{mission.quote.status}</span>
                           </div>
                         </div>
                       )}
@@ -672,11 +952,40 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
       }}
     />
 
-    <DirectRequestModal 
+    <DirectRequestModal
       isOpen={showDirectRequest && !!selectedProvider}
       provider={selectedProvider!}
       onClose={() => setShowDirectRequest(false)}
     />
+
+    {/* Quote Rejection Form */}
+    <AnimatePresence>
+      {showRejectionForm && mission && (
+        <QuoteRejectionForm
+          missionTitle={mission.title}
+          quoteTotal={mission.quote?.totalTTC || 0}
+          displacementFeeAmount={(() => {
+            const distKm = mission.distance ? parseFloat(mission.distance.replace(/[^\d.]/g, '')) : 5;
+            try { return calculateTravelCost(distKm).totalTTC; } catch { return 25; }
+          })()}
+          onSubmit={(rejection) => {
+            rejectQuote(mission.id, rejection);
+            setShowRejectionForm(false);
+          }}
+          onCancel={() => setShowRejectionForm(false)}
+        />
+      )}
+    </AnimatePresence>
+
+    {/* DPAE Wizard */}
+    {showDPAEWizard && mission && (
+      <DPAEWizard
+        isOpen={showDPAEWizard}
+        onClose={() => setShowDPAEWizard(false)}
+        mission={mission}
+        establishmentName={mission.venue}
+      />
+    )}
     </>
   );
 }

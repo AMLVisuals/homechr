@@ -120,7 +120,7 @@ export interface Mission {
 
   // Patron View Fields
   expert?: string; // Display name of expert/company
-  status: 'SEARCHING' | 'SCHEDULED' | 'ON_WAY' | 'ON_SITE' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  status: 'SEARCHING' | 'SCHEDULED' | 'ON_WAY' | 'ON_SITE' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'DIAGNOSING' | 'QUOTE_SENT' | 'STANDBY' | 'PENDING_VALIDATION' | 'AWAITING_PATRON_CONFIRMATION';
   date?: string;
   category?: 'MAINTENANCE' | 'STAFFING' | 'CONSULTING' | 'OTHER'; // Can map to type
   iconName?: 'Wrench' | 'ChefHat' | 'Monitor' | 'Hammer' | 'Zap';
@@ -135,6 +135,37 @@ export interface Mission {
   // Persistence
   review?: Review;
   invoice?: Invoice;
+
+  // Post-acceptance workflow fields
+  quote?: import('@/components/provider/QuoteBuilderUltimate').FinalQuote;
+  quoteRejection?: {
+    reason: 'too_expensive' | 'not_needed';
+    comment: string;
+    rejectedAt: string;
+    displacementFeeApplied?: boolean;
+    displacementFeeAmount?: number;
+  };
+  partsStatus?: 'PART_ORDERED' | 'PART_RECEIVED';
+  partsDescription?: string;
+  staffValidation?: {
+    validated: boolean;
+    validatedAt?: string;
+    hoursWorked?: number;
+  };
+
+  // Relation fee (entremetteur model)
+  paidRelationFee?: boolean;
+  relationFeeAmount?: number;
+
+  // Patron confirmation flow
+  pendingWorker?: {
+    id: string;
+    name: string;
+    specialty: string;
+    rating: number;
+    avatar?: string;
+    completedMissions?: number;
+  };
 }
 
 export interface TeamMember {

@@ -13,6 +13,7 @@ interface AppState {
   
   isOnAir: boolean;
   toggleOnAir: () => void;
+  setIsOnAir: (value: boolean) => void;
   
   theme: Theme;
   setTheme: (theme: Theme) => void;
@@ -38,6 +39,7 @@ export const useStore = create<AppState>((set) => ({
   
   isOnAir: false,
   toggleOnAir: () => set((state) => ({ isOnAir: !state.isOnAir })),
+  setIsOnAir: (value) => set({ isOnAir: value }),
   
   theme: 'light',
   setTheme: (theme) => set({ theme }),

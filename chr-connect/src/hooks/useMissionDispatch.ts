@@ -145,7 +145,7 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
     }, 1000);
   }, [clearCountdown]);
 
-  // Accept current mission
+  // Accept current mission → goes to AWAITING_PATRON_CONFIRMATION
   const handleAccept = useCallback(() => {
     const { currentProposal: proposal } = getDispatchActions();
     if (!proposal) return;
@@ -153,10 +153,24 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
     clearCountdown();
     const flowType = getMissionFlowType(proposal);
 
-    updateMission(proposal.id, { status: 'ON_WAY', expert: 'Vous' });
+    // Store pending worker info on the mission for patron review
+    updateMission(proposal.id, {
+      status: 'AWAITING_PATRON_CONFIRMATION',
+      pendingWorker: {
+        id: 'worker-self',
+        name: 'Vous',
+        specialty: flowType === 'STAFF' ? 'Personnel / Extra' : 'Technicien',
+        rating: 4.8,
+        avatar: 'https://i.pravatar.cc/150?u=worker-self',
+        completedMissions: 47,
+      },
+    });
     startMission(proposal.id);
     setFlowType(flowType);
     getDispatchActions().acceptProposal();
+
+    // Set engine to awaiting patron confirmation
+    useMissionEngine.getState().setStatus('AWAITING_PATRON_CONFIRMATION');
   }, [clearCountdown, updateMission, startMission, setFlowType]);
 
   // Watch for PROPOSING state to start countdown

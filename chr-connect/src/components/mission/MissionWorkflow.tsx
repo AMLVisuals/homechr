@@ -108,6 +108,41 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
     return () => clearInterval(interval);
   }, [status, activeMissionId, setStatus, resetMission]);
 
+  // PATRON CONFIRMATION: poll store for patron response
+  const [patronConfirmCountdown, setPatronConfirmCountdown] = useState<number | null>(null);
+  useEffect(() => {
+    if (status !== 'AWAITING_PATRON_CONFIRMATION' || !activeMissionId) {
+      setPatronConfirmCountdown(null);
+      return;
+    }
+
+    const DELAY = 8;
+    setPatronConfirmCountdown(DELAY);
+
+    const countdownInterval = setInterval(() => {
+      setPatronConfirmCountdown(prev => (prev !== null && prev > 0) ? prev - 1 : 0);
+    }, 1000);
+
+    // Poll store for patron decision
+    const pollInterval = setInterval(() => {
+      const currentMission = useMissionsStore.getState().missions.find(m => m.id === activeMissionId);
+      if (!currentMission) return;
+
+      if (currentMission.status === 'ON_WAY') {
+        // Patron confirmed → proceed
+        setStatus('ACCEPTED');
+      } else if (currentMission.status === 'SEARCHING') {
+        // Patron refused → back to idle
+        resetMission();
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(countdownInterval);
+      clearInterval(pollInterval);
+    };
+  }, [status, activeMissionId, setStatus, resetMission]);
+
   // TECH flow: simulate patron acceptance after 8s
   useEffect(() => {
     if (status !== 'AWAITING_QUOTE_RESPONSE' || !activeMissionId) {
@@ -436,6 +471,38 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
               <Button onClick={handleStartTrip} size="lg" className="w-full h-14 text-lg font-bold shadow-xl shadow-blue-900/20 rounded-2xl">
                 Commencer le trajet <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
+            </motion.div>
+          )}
+
+          {/* === AWAITING_PATRON_CONFIRMATION STATE === */}
+          {status === 'AWAITING_PATRON_CONFIRMATION' && (
+            <motion.div
+              key="awaiting-patron"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              className="h-full flex flex-col items-center justify-center text-center p-6 space-y-6"
+            >
+              <div className="relative">
+                <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center">
+                  <Clock className="w-10 h-10 text-amber-600" />
+                </div>
+                <div className="absolute inset-0 bg-amber-200 rounded-full animate-ping opacity-20" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">En attente de confirmation</h3>
+                <p className="text-[var(--text-muted)] mt-2 max-w-xs mx-auto">
+                  Le patron examine votre profil. Vous serez notifié dès qu&apos;il confirme.
+                </p>
+              </div>
+              {patronConfirmCountdown !== null && (
+                <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+                  <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
+                    <span className="text-amber-600 font-bold text-sm">{patronConfirmCountdown}</span>
+                  </div>
+                  <span>Simulation: confirmation automatique...</span>
+                </div>
+              )}
             </motion.div>
           )}
 

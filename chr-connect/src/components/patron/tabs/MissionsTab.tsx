@@ -2,15 +2,16 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Search, Filter, Wrench, ChefHat, Monitor, Hammer, 
-  Clock, MapPin, CheckCircle2, AlertCircle, XCircle, MoreVertical, ArrowRight 
+import {
+  Search, Filter, Wrench, ChefHat, Monitor, Hammer,
+  Clock, MapPin, CheckCircle2, AlertCircle, XCircle, MoreVertical, ArrowRight, UserCheck
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useVenuesStore } from '@/store/useVenuesStore';
 import { Mission } from '@/types/missions';
 import MissionDetailsModal from '../missions/MissionDetailsModal';
+import WorkerValidationModal from '../WorkerValidationModal';
 
 const ICON_MAP: Record<string, any> = {
   Wrench, ChefHat, Monitor, Hammer
@@ -18,6 +19,7 @@ const ICON_MAP: Record<string, any> = {
 
 const STATUS_FILTERS = [
   { id: 'ALL', label: 'Tout' },
+  { id: 'ACTION_REQUIRED', label: 'Action requise' },
   { id: 'IN_PROGRESS', label: 'En cours' },
   { id: 'SCHEDULED', label: 'Planifié' },
   { id: 'COMPLETED', label: 'Terminé' },
@@ -35,11 +37,21 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [validationMission, setValidationMission] = useState<Mission | null>(null);
+  const [isValidationOpen, setIsValidationOpen] = useState(false);
 
   const handleMissionClick = (mission: Mission) => {
+    if (mission.status === 'AWAITING_PATRON_CONFIRMATION') {
+      setValidationMission(mission);
+      setIsValidationOpen(true);
+      return;
+    }
     setSelectedMission(mission);
     setIsModalOpen(true);
   };
+
+  // Count missions awaiting confirmation
+  const awaitingCount = missions.filter(m => m.status === 'AWAITING_PATRON_CONFIRMATION' && (!activeVenueId || m.venueId === activeVenueId)).length;
 
   const filteredMissions = missions.filter(m => {
     // 1. Venue Filter
@@ -55,8 +67,12 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
       return m.status === 'SCHEDULED' || (m.status === 'SEARCHING' && !!m.date);
     }
 
+    if (filter === 'ACTION_REQUIRED') {
+      return ['PENDING_VALIDATION', 'QUOTE_SENT', 'AWAITING_PATRON_CONFIRMATION'].includes(m.status);
+    }
+
     if (filter === 'IN_PROGRESS') {
-      return ['IN_PROGRESS', 'ON_WAY', 'ON_SITE', 'SEARCHING'].includes(m.status);
+      return ['IN_PROGRESS', 'ON_WAY', 'ON_SITE', 'SEARCHING', 'DIAGNOSING', 'STANDBY'].includes(m.status);
     }
 
     return m.status === filter;
@@ -122,6 +138,19 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
               onClick={() => handleMissionClick(mission)}
               className="bg-[var(--bg-card)] rounded-xl p-4 md:p-6 border border-[var(--border)] hover:border-[var(--border-strong)] transition-all cursor-pointer group relative overflow-hidden"
             >
+              {/* Action required dot */}
+              {(['PENDING_VALIDATION', 'QUOTE_SENT', 'AWAITING_PATRON_CONFIRMATION'] as string[]).includes(mission.status) && (
+                <div className="absolute top-3 right-3 w-3 h-3 rounded-full bg-orange-500 animate-pulse z-10" />
+              )}
+
+              {/* Awaiting confirmation banner */}
+              {mission.status === 'AWAITING_PATRON_CONFIRMATION' && (
+                <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-b border-amber-500/30 px-4 py-1.5 flex items-center gap-2">
+                  <UserCheck className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="text-xs font-bold text-amber-400">Prestataire trouvé — Confirmez</span>
+                </div>
+              )}
+
               {/* Status Stripe */}
               <div className={clsx(
                 "absolute left-0 top-0 bottom-0 w-1",
@@ -129,6 +158,11 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
                 mission.status === 'COMPLETED' ? "bg-green-500" :
                 mission.status === 'SCHEDULED' ? "bg-purple-500" :
                 mission.status === 'CANCELLED' ? "bg-red-500" :
+                mission.status === 'AWAITING_PATRON_CONFIRMATION' ? "bg-amber-500" :
+                mission.status === 'PENDING_VALIDATION' ? "bg-amber-500" :
+                mission.status === 'QUOTE_SENT' ? "bg-orange-500" :
+                mission.status === 'DIAGNOSING' ? "bg-purple-500" :
+                mission.status === 'STANDBY' ? "bg-yellow-500" :
                 "bg-[var(--bg-active)]"
               )} />
 
@@ -160,12 +194,23 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
                     mission.status === 'IN_PROGRESS' ? "bg-blue-500/20 text-blue-400" :
                     mission.status === 'COMPLETED' ? "bg-green-500/20 text-green-400" :
                     mission.status === 'SCHEDULED' ? "bg-purple-500/20 text-purple-400" :
+                    mission.status === 'AWAITING_PATRON_CONFIRMATION' ? "bg-amber-500/20 text-amber-400" :
+                    mission.status === 'PENDING_VALIDATION' ? "bg-amber-500/20 text-amber-400" :
+                    mission.status === 'QUOTE_SENT' ? "bg-orange-500/20 text-orange-400" :
+                    mission.status === 'DIAGNOSING' ? "bg-purple-500/20 text-purple-400" :
+                    mission.status === 'STANDBY' ? "bg-yellow-500/20 text-yellow-400" :
                     "bg-[var(--bg-active)] text-[var(--text-secondary)]"
                   )}>
-                    {mission.status === 'IN_PROGRESS' && <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />}
-                    {mission.status === 'IN_PROGRESS' ? 'En cours' : 
+                    {(mission.status === 'IN_PROGRESS' || mission.status === 'PENDING_VALIDATION' || mission.status === 'QUOTE_SENT' || mission.status === 'AWAITING_PATRON_CONFIRMATION') && <div className={clsx("w-1.5 h-1.5 rounded-full animate-pulse", mission.status === 'AWAITING_PATRON_CONFIRMATION' ? 'bg-amber-400' : mission.status === 'PENDING_VALIDATION' ? 'bg-amber-400' : mission.status === 'QUOTE_SENT' ? 'bg-orange-400' : 'bg-blue-400')} />}
+                    {mission.status === 'AWAITING_PATRON_CONFIRMATION' ? 'À confirmer' :
+                     mission.status === 'IN_PROGRESS' ? 'En cours' :
                      mission.status === 'COMPLETED' ? 'Terminé' :
-                     mission.status === 'SCHEDULED' ? 'Planifié' : 'En attente'}
+                     mission.status === 'SCHEDULED' ? 'Planifié' :
+                     mission.status === 'PENDING_VALIDATION' ? 'À valider' :
+                     mission.status === 'QUOTE_SENT' ? 'Devis reçu' :
+                     mission.status === 'DIAGNOSING' ? 'Diagnostic' :
+                     mission.status === 'STANDBY' ? 'Attente pièce' :
+                     'En attente'}
                   </span>
                 </div>
               </div>
@@ -197,13 +242,19 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
 
       <AnimatePresence>
         {isModalOpen && selectedMission && (
-          <MissionDetailsModal 
+          <MissionDetailsModal
             mission={missions.find(m => m.id === selectedMission.id) || selectedMission}
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
           />
         )}
       </AnimatePresence>
+
+      <WorkerValidationModal
+        mission={validationMission ? missions.find(m => m.id === validationMission.id) || validationMission : null}
+        isOpen={isValidationOpen}
+        onClose={() => setIsValidationOpen(false)}
+      />
     </div>
   );
 }

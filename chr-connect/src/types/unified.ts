@@ -30,6 +30,10 @@ export type UnifiedMissionStatus =
   | 'IN_PROGRESS'         // Intervention en cours
   | 'COMPLETED'           // Terminé
   | 'CANCELLED'           // Annulé
+  | 'DIAGNOSING'          // Technicien en diagnostic
+  | 'QUOTE_SENT'          // Devis envoyé, attente réponse patron
+  | 'STANDBY'             // En attente pièce (technicien libre)
+  | 'PENDING_VALIDATION'  // Service staff terminé, attente validation patron
   | 'DISPUTED';           // En litige
 
 export type UnifiedMissionPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT' | 'EMERGENCY';
@@ -261,6 +265,11 @@ function mapLegacyStatus(status: Mission['status']): UnifiedMissionStatus {
     'IN_PROGRESS': 'IN_PROGRESS',
     'COMPLETED': 'COMPLETED',
     'CANCELLED': 'CANCELLED',
+    'DIAGNOSING': 'DIAGNOSING',
+    'QUOTE_SENT': 'QUOTE_SENT',
+    'STANDBY': 'STANDBY',
+    'PENDING_VALIDATION': 'PENDING_VALIDATION',
+    'AWAITING_PATRON_CONFIRMATION': 'SEARCHING',
   };
   return mapping[status] || 'SEARCHING';
 }

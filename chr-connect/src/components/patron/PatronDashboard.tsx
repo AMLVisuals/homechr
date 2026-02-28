@@ -36,6 +36,7 @@ import TeamTab from './tabs/TeamTab';
 import InvoicesTab from './tabs/InvoicesTab';
 import PayslipsTab from './tabs/PayslipsTab';
 import PremiumTab from './tabs/PremiumTab';
+import StockTab from './tabs/StockTab';
 import MissionDetailsModal from './missions/MissionDetailsModal';
 import Sidebar from './Sidebar';
 import SettingsModal from '../shared/SettingsModal';
@@ -65,6 +66,7 @@ export default function PatronDashboard() {
       '/patron/equipements': 'GARAGE',
       '/patron/factures': 'INVOICES',
       '/patron/planning': 'PLANNING',
+      '/patron/stock': 'STOCK',
     };
     return tabMap[path] || 'DASHBOARD';
   };
@@ -516,6 +518,7 @@ export default function PatronDashboard() {
           {activeTab === 'TEAM' && <TeamTab />}
           {activeTab === 'PAYSLIPS' && <PayslipsTab />}
           {activeTab === 'PREMIUM' && <PremiumTab />}
+          {activeTab === 'STOCK' && <StockTab />}
           {activeTab === 'INVOICES' && <InvoicesTab />}
         </div>
       </div>
