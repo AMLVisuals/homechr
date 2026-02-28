@@ -8,8 +8,13 @@ import RoleSwitcher from '@/components/RoleSwitcher';
 import MissionRadar from '@/components/provider/MissionRadar';
 import ProviderProfileEditor from '@/components/provider/ProviderProfileEditor';
 import MissionWorkflow from '@/components/mission/MissionWorkflow';
+import MissionPopup from '@/components/provider/MissionPopup';
+import MissionWarningPopup from '@/components/provider/MissionWarningPopup';
+import DispatchSearchingOverlay from '@/components/provider/DispatchSearchingOverlay';
+import { useMissionDispatch } from '@/hooks/useMissionDispatch';
+import { useMissionDispatchStore } from '@/store/useMissionDispatchStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, Bell, User, X, Briefcase, UserCircle, ChevronDown, Power, Menu } from 'lucide-react';
+import { LayoutDashboard, Bell, User, X, Briefcase, UserCircle, ChevronDown, Power, Menu, CheckCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SIMULATED_PROFILES } from '@/constants/profiles';
 import WorkerDashboard from '@/components/provider/WorkerDashboard';
@@ -26,8 +31,10 @@ const NOTIFICATIONS = [
 ];
 
 export default function Home() {
-  const { userRole, setUserRole, isOnAir, toggleOnAir } = useStore();
-  const { status } = useMissionEngine();
+  const { userRole, setUserRole, isOnAir, toggleOnAir, setIsOnAir } = useStore();
+  const status = useMissionEngine((s) => s.status);
+  const resetMission = useMissionEngine((s) => s.resetMission);
+  const [showAvailabilityPrompt, setShowAvailabilityPrompt] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -36,16 +43,45 @@ export default function Home() {
     : 'PROFILE';
 
   const isAvailable = isOnAir;
-  const [currentProfile, setCurrentProfile] = useState(SIMULATED_PROFILES[0]);
+  const [currentProfile, setCurrentProfile] = useState(() => {
+    if (typeof window === 'undefined') return SIMULATED_PROFILES[0];
+    const savedId = localStorage.getItem('chr-worker-profile');
+    return SIMULATED_PROFILES.find(p => p.id === savedId) || SIMULATED_PROFILES[0];
+  });
   const [showProfileSwitcher, setShowProfileSwitcher] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Callback when a mission ends (STAFF or TECH) — prompt availability
+  const handleMissionEnd = () => {
+    resetMission();          // engine → IDLE
+    setIsOnAir(false);       // prevent dispatch auto-restart
+    setShowAvailabilityPrompt(true);
+  };
+
+  // Mission dispatch system
+  const {
+    dispatchStatus,
+    currentProposal,
+    countdown,
+    consecutiveRefusals,
+    showWarning,
+    suspendedUntil,
+    handleAccept,
+    handleRefuse,
+    dismissWarning,
+  } = useMissionDispatch({
+    authorizedCategories: currentProfile.authorizedCategories,
+    enabled: workerView === 'MISSIONS',
+  });
+
+  const isSuspended = dispatchStatus === 'SUSPENDED';
+
   useEffect(() => {
-    if (!isAvailable && workerView === 'MISSIONS') {
+    if (!isAvailable && workerView === 'MISSIONS' && !showAvailabilityPrompt) {
       router.push('/prestataire/mon-profil');
     }
-  }, [isAvailable, workerView, router]);
+  }, [isAvailable, workerView, router, showAvailabilityPrompt]);
 
   useEffect(() => {
     if (pathname !== '/') return;
@@ -179,7 +215,7 @@ export default function Home() {
                   {showProfileSwitcher && (
                     <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} className="absolute top-full left-0 mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-2xl overflow-hidden z-50 max-h-60 overflow-y-auto custom-scrollbar">
                       {SIMULATED_PROFILES.map((profile) => (
-                        <button key={profile.id} onClick={() => { setCurrentProfile(profile); setShowProfileSwitcher(false); }} className={clsx("w-full text-left px-4 py-3 text-sm hover:bg-[var(--bg-hover)] transition-colors", currentProfile.id === profile.id ? "text-blue-400 bg-blue-500/10 font-medium" : "text-[var(--text-secondary)]")}>
+                        <button key={profile.id} onClick={() => { setCurrentProfile(profile); localStorage.setItem('chr-worker-profile', profile.id); setShowProfileSwitcher(false); }} className={clsx("w-full text-left px-4 py-3 text-sm hover:bg-[var(--bg-hover)] transition-colors", currentProfile.id === profile.id ? "text-blue-400 bg-blue-500/10 font-medium" : "text-[var(--text-secondary)]")}>
                           {profile.specialty}
                         </button>
                       ))}
@@ -190,7 +226,12 @@ export default function Home() {
 
               {/* Availability toggle */}
               <button
+                disabled={isSuspended}
                 onClick={() => {
+                  if (isAvailable) {
+                    // Going offline: reset dispatch
+                    useMissionDispatchStore.getState().reset();
+                  }
                   toggleOnAir();
                   if (!isAvailable) {
                     router.push('/prestataire/mes-missions');
@@ -261,13 +302,96 @@ export default function Home() {
             <div className="max-w-5xl mx-auto h-full">
               {status !== 'IDLE' ? (
                 <div className="h-full w-full rounded-3xl overflow-hidden border border-[var(--border)] relative shadow-2xl bg-[var(--bg-card)]">
-                  <MissionWorkflow />
+                  <MissionWorkflow onMissionEnd={handleMissionEnd} />
                 </div>
               ) : (
                 <div className="h-full w-full rounded-3xl overflow-hidden border border-[var(--border)] relative shadow-2xl">
-                  <MissionRadar authorizedCategories={currentProfile.authorizedCategories} />
+                  <MissionRadar
+                    authorizedCategories={currentProfile.authorizedCategories}
+                  />
+                  {/* Dispatch overlay — blocks map interactions during all active dispatch phases */}
+                  <DispatchSearchingOverlay
+                    visible={dispatchStatus === 'SEARCHING' || dispatchStatus === 'COOLDOWN' || dispatchStatus === 'PROPOSING'}
+                    isCooldown={dispatchStatus === 'COOLDOWN'}
+                    minimal={dispatchStatus === 'PROPOSING'}
+                  />
                 </div>
               )}
+              {/* Mission proposal popup */}
+              <MissionPopup
+                mission={dispatchStatus === 'PROPOSING' ? currentProposal : null}
+                countdown={countdown}
+                consecutiveRefusals={consecutiveRefusals}
+                onAccept={handleAccept}
+                onRefuse={handleRefuse}
+              />
+              {/* Warning popup (3 refusals) */}
+              <MissionWarningPopup
+                type="warning"
+                visible={showWarning}
+                onDismiss={dismissWarning}
+              />
+              {/* Suspension popup (5 refusals) */}
+              <MissionWarningPopup
+                type="suspension"
+                visible={isSuspended}
+                suspendedUntil={suspendedUntil}
+                onDismiss={() => {
+                  useMissionDispatchStore.getState().reset();
+                  router.push('/prestataire/tableau-de-bord');
+                }}
+              />
+
+              {/* Availability prompt after mission ends */}
+              <AnimatePresence>
+                {showAvailabilityPrompt && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                      className="bg-[var(--bg-card)] rounded-2xl w-full max-w-sm p-6 space-y-6 border border-[var(--border)] shadow-2xl"
+                    >
+                      <div className="flex flex-col items-center text-center space-y-4">
+                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                          <CheckCircle className="w-8 h-8 text-green-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-[var(--text-primary)]">Mission terminée !</h3>
+                          <p className="text-sm text-[var(--text-secondary)] mt-2">
+                            Voulez-vous rester disponible pour de nouvelles missions ?
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-3">
+                        <button
+                          onClick={() => {
+                            setIsOnAir(true);
+                            setShowAvailabilityPrompt(false);
+                          }}
+                          className="w-full h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-sm transition-colors shadow-lg shadow-green-900/20"
+                        >
+                          Oui, rester disponible
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowAvailabilityPrompt(false);
+                            router.push('/prestataire/tableau-de-bord');
+                          }}
+                          className="w-full h-12 rounded-xl border border-[var(--border)] text-[var(--text-secondary)] font-medium text-sm hover:bg-[var(--bg-hover)] transition-colors"
+                        >
+                          Non, me déconnecter
+                        </button>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ) : (
             <div className="max-w-7xl mx-auto">

@@ -4,31 +4,42 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Clock, CheckCircle, Navigation, ArrowRight, FileText, ChevronLeft, MoreVertical, Phone, Shield } from 'lucide-react';
+import { Camera, Clock, CheckCircle, Navigation, ArrowRight, FileText, ChevronLeft, MoreVertical, Phone, Shield, Search, Stethoscope, Send, Loader2 } from 'lucide-react';
 import { useMissionEngine } from '@/store/mission-engine';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { Button } from '@/components/ui/button';
 import Webcam from 'react-webcam';
 import RichMissionReport from './RichMissionReport';
 import { cn } from '@/lib/utils';
+import { FinalQuote } from '@/components/provider/QuoteBuilderUltimate';
 
-// Dynamic import for Map to avoid SSR issues
-const MissionMap = dynamic(() => import('./MissionMap'), { 
+// Dynamic imports
+const MissionMap = dynamic(() => import('./MissionMap'), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center text-[var(--text-secondary)]">Chargement de la carte...</div>
 });
 
-// Mock images for fallback
-const MOCK_BEFORE = "https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=800&auto=format&fit=crop"; 
+const QuoteBuilderUltimate = dynamic(() => import('@/components/provider/QuoteBuilderUltimate').then(m => ({ default: m.default })), {
+  ssr: false,
+  loading: () => <div className="h-full flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>
+});
 
-export default function MissionWorkflow() {
-  const { 
+// Mock images for fallback
+const MOCK_BEFORE = "https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=800&auto=format&fit=crop";
+
+interface MissionWorkflowProps {
+  onMissionEnd?: () => void;
+}
+
+export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) {
+  const {
     status, setStatus, updateLocation, setEta, eta,
     uploadEvidence, submitReport, addInterimNote, addInterimMedia,
+    addDiagnosticNote, addDiagnosticPhoto, diagnosticData,
     venueLocation, technicianLocation, startTime,
-    resetMission, activeMissionId
+    resetMission, activeMissionId, flowType
   } = useMissionEngine();
-  
+
   const { updateMission, generateInvoice, missions } = useMissionsStore();
   const activeMission = activeMissionId ? missions.find(m => m.id === activeMissionId) : null;
 
@@ -42,14 +53,19 @@ export default function MissionWorkflow() {
   const [showQuickNote, setShowQuickNote] = useState(false);
   const [quickNote, setQuickNote] = useState('');
 
+  // TECH flow: diagnostic note
+  const [diagNote, setDiagNote] = useState('');
+  // TECH flow: quote builder
+  const [showQuoteBuilder, setShowQuoteBuilder] = useState(false);
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Timer for IN_PROGRESS
+  // Timer for IN_PROGRESS (not needed for STAFF flow)
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (status === 'IN_PROGRESS' && startTime) {
+    if (status === 'IN_PROGRESS' && startTime && flowType !== 'STAFF') {
       interval = setInterval(() => {
         const now = Date.now();
         const diff = Math.floor((now - startTime) / 1000);
@@ -59,34 +75,52 @@ export default function MissionWorkflow() {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [status, startTime]);
+  }, [status, startTime, flowType]);
+
+  // TECH flow: poll store for patron response when AWAITING_QUOTE_RESPONSE
+  useEffect(() => {
+    if (status !== 'AWAITING_QUOTE_RESPONSE' || !activeMissionId) return;
+
+    const interval = setInterval(() => {
+      const currentMission = useMissionsStore.getState().missions.find(m => m.id === activeMissionId);
+      if (!currentMission) return;
+
+      if (currentMission.status === 'IN_PROGRESS') {
+        // Patron accepted — immediate repair
+        setStatus('IN_PROGRESS');
+      } else if (currentMission.status === 'STANDBY') {
+        // Patron accepted — parts needed, technician free
+        resetMission();
+      } else if (currentMission.status === 'CANCELLED') {
+        // Patron rejected quote
+        resetMission();
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [status, activeMissionId, setStatus, resetMission]);
 
   // Real Geolocation or Simulation when ON_WAY
   const [distance, setDistance] = useState(1200); // meters
   const [instruction, setInstruction] = useState("Tournez à droite sur Rue de Rivoli");
 
   useEffect(() => {
-    let watchId: number;
     if (status === 'ON_WAY') {
-      // Simulation mode for demo
       const moveInterval = setInterval(() => {
-        // Move tech 5% closer to venue
         const lat = technicianLocation.lat + (venueLocation.lat - technicianLocation.lat) * 0.05;
         const lng = technicianLocation.lng + (venueLocation.lng - technicianLocation.lng) * 0.05;
-        
+
         updateLocation(lat, lng);
-        
-        // Update distance
+
         const newDist = Math.sqrt(
-          Math.pow(lat - venueLocation.lat, 2) + 
+          Math.pow(lat - venueLocation.lat, 2) +
           Math.pow(lng - venueLocation.lng, 2)
-        ) * 111000; // rough deg to meters
-        
+        ) * 111000;
+
         setDistance(Math.round(newDist));
         const newEta = Math.ceil(newDist / 500 * 60);
         setEta(newEta);
 
-        // Sync real-time location with persistent store
         if (activeMissionId) {
           updateMission(activeMissionId, {
             technicianLocation: { lat, lng },
@@ -94,14 +128,13 @@ export default function MissionWorkflow() {
           });
         }
 
-        // Update instructions based on distance
         if (newDist < 100) setInstruction("Vous êtes arrivé à destination");
         else if (newDist < 300) setInstruction("La destination est sur votre droite");
         else if (newDist < 800) setInstruction("Continuez tout droit sur 500m");
-        
+
         if (Math.abs(lat - venueLocation.lat) < 0.0001) clearInterval(moveInterval);
       }, 1000);
-      
+
       return () => clearInterval(moveInterval);
     }
   }, [status, venueLocation]);
@@ -110,34 +143,80 @@ export default function MissionWorkflow() {
     setStatus('ON_WAY');
     if (activeMissionId) updateMission(activeMissionId, { status: 'ON_WAY' });
   };
-  
+
   const handleArrived = () => {
     setStatus('ON_SITE');
     if (activeMissionId) updateMission(activeMissionId, { status: 'ON_SITE' });
   };
-  
-  const handleStartMission = () => {
-    setEvidenceStep('BEFORE');
-    setShowEvidenceModal(true);
+
+  // STAFF flow: skip photo, go directly to IN_PROGRESS
+  const handleStartStaffMission = () => {
+    setStatus('IN_PROGRESS');
+    if (activeMissionId) {
+      updateMission(activeMissionId, { status: 'IN_PROGRESS' });
+    }
   };
 
-  const handleFinishWork = () => {
+  // STAFF flow: finish work → PENDING_VALIDATION + signal mission end
+  const handleStaffFinishWork = () => {
+    if (activeMissionId) {
+      updateMission(activeMissionId, { status: 'PENDING_VALIDATION' });
+    }
+    if (onMissionEnd) {
+      onMissionEnd();
+    } else {
+      resetMission();
+    }
+  };
+
+  // TECH flow: transition ON_SITE → DIAGNOSING
+  const handleStartDiagnosis = () => {
+    setStatus('DIAGNOSING');
+    if (activeMissionId) updateMission(activeMissionId, { status: 'DIAGNOSING' });
+  };
+
+  // TECH flow: open quote builder
+  const handleOpenQuoteBuilder = () => {
+    setShowQuoteBuilder(true);
+    setStatus('QUOTE_BUILDING');
+  };
+
+  // TECH flow: quote submitted
+  const handleQuoteSubmit = (quote: FinalQuote) => {
+    setShowQuoteBuilder(false);
+    if (activeMissionId) {
+      updateMission(activeMissionId, { status: 'QUOTE_SENT', quote });
+    }
+    setStatus('AWAITING_QUOTE_RESPONSE');
+  };
+
+  // TECH flow: finish repair after IN_PROGRESS → report
+  const handleTechFinishWork = () => {
     setIsReporting(true);
   };
 
   const handleAddQuickNote = () => {
     if (quickNote.trim()) {
       addInterimNote(quickNote);
-      
-      // Sync with persistent store
       if (activeMissionId) {
         const currentNotes = activeMission?.notes || [];
         updateMission(activeMissionId, { notes: [...currentNotes, quickNote] });
       }
-
       setQuickNote('');
       setShowQuickNote(false);
     }
+  };
+
+  const handleAddDiagNote = () => {
+    if (diagNote.trim()) {
+      addDiagnosticNote(diagNote);
+      setDiagNote('');
+    }
+  };
+
+  const handleDiagPhoto = () => {
+    const mockUrl = MOCK_BEFORE;
+    addDiagnosticPhoto(mockUrl);
   };
 
   const handleInterimCapture = () => {
@@ -148,19 +227,18 @@ export default function MissionWorkflow() {
   const handleCapture = () => {
     setIsCapturing(true);
     setTimeout(() => {
-      const mockUrl = mediaType === 'PHOTO' 
+      const mockUrl = mediaType === 'PHOTO'
         ? MOCK_BEFORE
-        : "https://example.com/video.mp4"; 
-      
+        : "https://example.com/video.mp4";
+
       if (evidenceStep === 'BEFORE') {
         uploadEvidence('BEFORE', mediaType, mockUrl);
         setIsCapturing(false);
         setShowEvidenceModal(false);
         setStatus('IN_PROGRESS');
-        
-        // Sync with persistent store
+
         if (activeMissionId) {
-          updateMission(activeMissionId, { 
+          updateMission(activeMissionId, {
             status: 'IN_PROGRESS',
             evidence: {
               ...activeMission?.evidence,
@@ -181,41 +259,71 @@ export default function MissionWorkflow() {
     setIsReporting(false);
     setStatus('COMPLETED');
 
-    // Sync with persistent store and generate invoice
     if (activeMissionId) {
-      updateMission(activeMissionId, { 
+      updateMission(activeMissionId, {
         status: 'COMPLETED',
         report: data.text
-        // We could also map attachments here
       });
       generateInvoice(activeMissionId);
     }
   };
 
   const [recenterKey, setRecenterKey] = useState(0);
-
-  const handleRecenter = () => {
-    setRecenterKey(prev => prev + 1);
-  };
+  const handleRecenter = () => setRecenterKey(prev => prev + 1);
 
   // If in reporting mode, show full screen report component
   if (isReporting) {
     return (
-      <RichMissionReport 
-        onSubmit={handleReportSubmit} 
-        onCancel={() => setIsReporting(false)} 
+      <RichMissionReport
+        onSubmit={handleReportSubmit}
+        onCancel={() => setIsReporting(false)}
       />
     );
   }
 
-  // Calculate progress percentage
-  const steps = ['ACCEPTED', 'ON_WAY', 'ON_SITE', 'IN_PROGRESS', 'COMPLETED'];
+  // If in quote building mode, show QuoteBuilderUltimate full screen
+  if (showQuoteBuilder) {
+    const distKm = activeMission?.distance ? parseFloat(activeMission.distance.replace(/[^\d.]/g, '')) : undefined;
+    return (
+      <QuoteBuilderUltimate
+        isOpen={true}
+        onClose={() => { setShowQuoteBuilder(false); setStatus('DIAGNOSING'); }}
+        onSubmit={handleQuoteSubmit}
+        providerId="current-worker"
+        providerName="Vous"
+        clientId={activeMission?.venueId || 'client'}
+        clientName={activeMission?.venue || 'Client'}
+        establishmentId={activeMission?.venueId || 'est'}
+        establishmentName={activeMission?.venue || 'Établissement'}
+        missionId={activeMissionId || undefined}
+        distanceKm={distKm}
+        problemDescription={activeMission?.description}
+      />
+    );
+  }
+
+  // Calculate progress percentage based on flow
+  const getSteps = () => {
+    if (flowType === 'TECH') return ['ACCEPTED', 'ON_WAY', 'ON_SITE', 'DIAGNOSING', 'QUOTE_BUILDING', 'AWAITING_QUOTE_RESPONSE', 'IN_PROGRESS', 'COMPLETED'];
+    if (flowType === 'STAFF') return ['ACCEPTED', 'ON_WAY', 'ON_SITE', 'IN_PROGRESS', 'PENDING_VALIDATION'];
+    return ['ACCEPTED', 'ON_WAY', 'ON_SITE', 'IN_PROGRESS', 'COMPLETED'];
+  };
+  const steps = getSteps();
   const currentStepIndex = steps.indexOf(status);
   const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
+  const getStatusLabel = () => {
+    switch (status) {
+      case 'DIAGNOSING': return 'DIAGNOSTIC';
+      case 'QUOTE_BUILDING': return 'DEVIS';
+      case 'AWAITING_QUOTE_RESPONSE': return 'ATTENTE RÉPONSE';
+      default: return status.replace('_', ' ');
+    }
+  };
+
   return (
     <div className="h-full flex flex-col bg-gray-50 relative overflow-hidden">
-      
+
       {/* Compact Header - Always visible except ON_WAY (GPS mode) */}
       {status !== 'ON_WAY' && (
         <div className="flex-none bg-white px-4 py-3 border-b border-gray-100 flex justify-between items-center shadow-sm z-20">
@@ -223,12 +331,20 @@ export default function MissionWorkflow() {
             <h2 className="font-bold text-base flex items-center gap-2">
               {activeMission ? activeMission.title : 'Mission #1245'}
               <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider">
-                {status.replace('_', ' ')}
+                {getStatusLabel()}
               </span>
+              {flowType && (
+                <span className={cn(
+                  "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider",
+                  flowType === 'STAFF' ? "bg-orange-50 text-orange-600" : "bg-purple-50 text-purple-600"
+                )}>
+                  {flowType === 'STAFF' ? 'Personnel' : 'Technicien'}
+                </span>
+              )}
             </h2>
           </div>
           <div className="flex items-center gap-3">
-            {status === 'IN_PROGRESS' && (
+            {status === 'IN_PROGRESS' && flowType !== 'STAFF' && (
               <div className="font-mono font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded text-sm">
                 {elapsedTime}
               </div>
@@ -237,10 +353,10 @@ export default function MissionWorkflow() {
               <MoreVertical className="w-4 h-4" />
             </Button>
           </div>
-          
+
           {/* Progress Bar */}
           <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-100">
-            <motion.div 
+            <motion.div
               className="h-full bg-blue-600"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
@@ -253,10 +369,10 @@ export default function MissionWorkflow() {
       {/* Main Content Area */}
       <div className="flex-1 relative overflow-hidden">
         <AnimatePresence mode="wait">
-          
-          {/* 1. ACCEPTED STATE */}
+
+          {/* === COMMON: ACCEPTED STATE === */}
           {status === 'ACCEPTED' && (
-            <motion.div 
+            <motion.div
               key="accepted"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -281,11 +397,62 @@ export default function MissionWorkflow() {
             </motion.div>
           )}
 
-          {/* 2. ON_WAY STATE (UBER GPS MODE) - MOVED TO PORTAL */}
+          {/* === COMMON: ON_WAY → Portal below === */}
 
-          {/* 3. ON_SITE STATE */}
-          {status === 'ON_SITE' && (
-            <motion.div 
+          {/* === ON_SITE STATE — DIVERGES BY FLOW === */}
+          {status === 'ON_SITE' && flowType === 'STAFF' && (
+            <motion.div
+              key="on-site-staff"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="h-full flex flex-col p-4"
+            >
+              <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
+                <div className="w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-10 h-10 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Arrivé sur site</h3>
+                  <p className="text-[var(--text-muted)] mt-2">
+                    Vous êtes sur place. Lancez votre service dès que vous êtes prêt.
+                  </p>
+                </div>
+              </div>
+              <Button onClick={handleStartStaffMission} size="lg" className="w-full h-14 text-lg font-bold bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-900/20 rounded-2xl">
+                <ArrowRight className="mr-2 w-5 h-5" /> Commencer le service
+              </Button>
+            </motion.div>
+          )}
+
+          {status === 'ON_SITE' && flowType === 'TECH' && (
+            <motion.div
+              key="on-site-tech"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="h-full flex flex-col p-4"
+            >
+              <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
+                <div className="w-24 h-24 bg-purple-50 rounded-full flex items-center justify-center">
+                  <Stethoscope className="w-10 h-10 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Arrivé sur site</h3>
+                  <p className="text-[var(--text-muted)] mt-2">
+                    Commencez le diagnostic de l'équipement.
+                  </p>
+                </div>
+              </div>
+              <Button onClick={handleStartDiagnosis} size="lg" className="w-full h-14 text-lg font-bold bg-purple-600 hover:bg-purple-700 shadow-xl shadow-purple-900/20 rounded-2xl">
+                <Stethoscope className="mr-2 w-5 h-5" /> Commencer le diagnostic
+              </Button>
+            </motion.div>
+          )}
+
+          {/* ON_SITE fallback (no flowType set yet) */}
+          {status === 'ON_SITE' && !flowType && (
+            <motion.div
               key="on-site"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -303,16 +470,154 @@ export default function MissionWorkflow() {
                   </p>
                 </div>
               </div>
-              <Button onClick={handleStartMission} size="lg" className="w-full h-14 text-lg font-bold bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-900/20 rounded-2xl">
+              <Button onClick={handleStartStaffMission} size="lg" className="w-full h-14 text-lg font-bold bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-900/20 rounded-2xl">
                 <Camera className="mr-2 w-5 h-5" /> Prendre photo
               </Button>
             </motion.div>
           )}
 
-          {/* 4. IN_PROGRESS STATE */}
-          {status === 'IN_PROGRESS' && (
-            <motion.div 
-              key="in-progress"
+          {/* === TECH: DIAGNOSING STATE === */}
+          {status === 'DIAGNOSING' && (
+            <motion.div
+              key="diagnosing"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              className="h-full flex flex-col p-4"
+            >
+              <div className="flex-1 space-y-6 overflow-y-auto">
+                <div className="bg-purple-600 rounded-2xl p-6 text-white shadow-lg shadow-purple-900/20">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-bold text-xl">Diagnostic en cours</h3>
+                    <Stethoscope className="w-6 h-6 text-purple-200" />
+                  </div>
+                  <p className="text-purple-100 text-sm">
+                    Identifiez le problème, prenez des photos et des notes avant d'établir le devis.
+                  </p>
+                </div>
+
+                {/* Problem description */}
+                {activeMission?.description && (
+                  <div className="bg-white rounded-xl p-4 border border-gray-100">
+                    <h4 className="font-bold text-gray-900 text-sm mb-1">Description du problème</h4>
+                    <p className="text-sm text-[var(--text-muted)]">{activeMission.description}</p>
+                  </div>
+                )}
+
+                {/* Diagnostic photos */}
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-3">Photos du diagnostic</h4>
+                  <div className="flex gap-3 overflow-x-auto pb-2">
+                    <button
+                      onClick={handleDiagPhoto}
+                      className="w-24 h-24 bg-white rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 shrink-0 hover:border-purple-400 transition-colors"
+                    >
+                      <Camera className="w-6 h-6 text-gray-400" />
+                      <span className="text-[10px] text-gray-400 font-bold">PHOTO</span>
+                    </button>
+                    {diagnosticData.photos.map((url, i) => (
+                      <div key={i} className="w-24 h-24 rounded-xl overflow-hidden shrink-0 border border-gray-100">
+                        <img src={url} alt={`Diag ${i + 1}`} className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Diagnostic notes */}
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-3">Notes</h4>
+                  <div className="space-y-2 mb-3">
+                    {diagnosticData.notes.map((note, i) => (
+                      <div key={i} className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700">
+                        {note}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      value={diagNote}
+                      onChange={(e) => setDiagNote(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleAddDiagNote()}
+                      placeholder="Ajouter une observation..."
+                      className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                    <Button onClick={handleAddDiagNote} className="bg-purple-600 hover:bg-purple-700 rounded-xl px-4">
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <Button onClick={handleOpenQuoteBuilder} size="lg" className="w-full h-14 text-lg font-bold bg-gray-900 text-white shadow-xl rounded-2xl mt-4">
+                <FileText className="mr-2 w-5 h-5" /> Créer le devis
+              </Button>
+            </motion.div>
+          )}
+
+          {/* === TECH: AWAITING_QUOTE_RESPONSE STATE === */}
+          {status === 'AWAITING_QUOTE_RESPONSE' && (
+            <motion.div
+              key="awaiting-quote"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              className="h-full flex flex-col p-4"
+            >
+              <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
+                <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center relative">
+                  <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-20" />
+                  <Send className="w-10 h-10 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Devis envoyé</h3>
+                  <p className="text-[var(--text-muted)] mt-2 max-w-xs mx-auto">
+                    En attente de la réponse du patron. Vous serez notifié dès qu'il accepte ou refuse.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 px-4 py-2 rounded-full">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Vérification en cours...</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* === STAFF: IN_PROGRESS STATE (ultra-minimal) === */}
+          {status === 'IN_PROGRESS' && flowType === 'STAFF' && (
+            <motion.div
+              key="in-progress-staff"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              className="h-full flex flex-col p-6 items-center justify-center text-center"
+            >
+              <div className="flex-1 flex flex-col items-center justify-center space-y-6">
+                <div className="w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center relative">
+                  <div className="absolute inset-0 bg-orange-100 rounded-full animate-pulse opacity-30" />
+                  <CheckCircle className="w-10 h-10 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Service en cours</h3>
+                  <p className="text-[var(--text-muted)] mt-2 max-w-xs mx-auto">
+                    {activeMission?.venue || 'Établissement'}
+                  </p>
+                  {activeMission?.title && (
+                    <p className="text-sm text-[var(--text-secondary)] mt-1">{activeMission.title}</p>
+                  )}
+                </div>
+              </div>
+
+              <Button onClick={handleStaffFinishWork} size="lg" className="w-full h-14 text-lg font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-xl shadow-orange-900/20 rounded-2xl">
+                Terminer le service
+              </Button>
+            </motion.div>
+          )}
+
+          {/* === TECH: IN_PROGRESS STATE (repair after quote accepted) === */}
+          {status === 'IN_PROGRESS' && flowType === 'TECH' && (
+            <motion.div
+              key="in-progress-tech"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.05 }}
@@ -322,7 +627,7 @@ export default function MissionWorkflow() {
                 <div className="bg-blue-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-900/20">
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="font-bold text-xl">Intervention en cours</h3>
-                    <div className="bg-[var(--bg-active)] px-3 py-1 rounded-full font-mono text-sm backdrop-blur-sm">
+                    <div className="bg-white/20 px-3 py-1 rounded-full font-mono text-sm backdrop-blur-sm">
                       {elapsedTime}
                     </div>
                   </div>
@@ -337,7 +642,7 @@ export default function MissionWorkflow() {
                 <div>
                   <h4 className="font-bold text-gray-900 mb-4">Actions Rapides</h4>
                   <div className="grid grid-cols-2 gap-4">
-                    <button 
+                    <button
                       onClick={() => setShowQuickNote(true)}
                       className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-3"
                     >
@@ -346,8 +651,8 @@ export default function MissionWorkflow() {
                       </div>
                       <span className="font-medium text-gray-900">Ajouter Note</span>
                     </button>
-                    
-                    <button 
+
+                    <button
                       onClick={handleInterimCapture}
                       className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-3"
                     >
@@ -363,7 +668,7 @@ export default function MissionWorkflow() {
                 <AnimatePresence>
                   {showQuickNote && (
                     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
@@ -411,22 +716,53 @@ export default function MissionWorkflow() {
                 </div>
               </div>
 
-              <Button onClick={handleFinishWork} size="lg" className="w-full h-14 text-lg font-bold bg-gray-900 text-[var(--text-primary)] shadow-xl rounded-2xl mt-4">
+              <Button onClick={handleTechFinishWork} size="lg" className="w-full h-14 text-lg font-bold bg-gray-900 text-white shadow-xl rounded-2xl mt-4">
                 Terminer l'intervention
               </Button>
             </motion.div>
           )}
 
-          {/* 5. COMPLETED STATE */}
+          {/* === IN_PROGRESS fallback (no flowType) === */}
+          {status === 'IN_PROGRESS' && !flowType && (
+            <motion.div
+              key="in-progress-fallback"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              className="h-full flex flex-col p-4"
+            >
+              <div className="flex-1 space-y-6">
+                <div className="bg-blue-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-900/20">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="font-bold text-xl">Intervention en cours</h3>
+                    <div className="bg-white/20 px-3 py-1 rounded-full font-mono text-sm backdrop-blur-sm">
+                      {elapsedTime}
+                    </div>
+                  </div>
+                  <div className="flex gap-4 text-blue-100 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" /> Début: {startTime ? new Date(startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Button onClick={() => setIsReporting(true)} size="lg" className="w-full h-14 text-lg font-bold bg-gray-900 text-white shadow-xl rounded-2xl mt-4">
+                Terminer l'intervention
+              </Button>
+            </motion.div>
+          )}
+
+          {/* === COMPLETED STATE (TECH flow only — STAFF goes to PENDING_VALIDATION) === */}
           {status === 'COMPLETED' && (
-            <motion.div 
+            <motion.div
               key="completed"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               className="h-full flex flex-col p-6 items-center justify-center text-center space-y-8"
             >
               <div className="w-32 h-32 bg-green-100 rounded-full flex items-center justify-center relative">
-                 <motion.div 
+                 <motion.div
                    initial={{ scale: 0 }}
                    animate={{ scale: 1 }}
                    transition={{ delay: 0.2, type: "spring" }}
@@ -434,7 +770,7 @@ export default function MissionWorkflow() {
                    <CheckCircle className="w-16 h-16 text-green-600" />
                  </motion.div>
               </div>
-              
+
               <div>
                 <h3 className="text-3xl font-bold text-gray-900">Mission Terminée !</h3>
                 <p className="text-[var(--text-muted)] mt-2">Le rapport a été transmis au client.</p>
@@ -451,7 +787,7 @@ export default function MissionWorkflow() {
                  </div>
               </div>
 
-              <Button onClick={resetMission} size="lg" variant="outline" className="w-full h-14 rounded-2xl border-gray-200">
+              <Button onClick={onMissionEnd || resetMission} size="lg" variant="outline" className="w-full h-14 rounded-2xl border-gray-200">
                 Retour à la carte
               </Button>
             </motion.div>
@@ -464,7 +800,7 @@ export default function MissionWorkflow() {
       {mounted && createPortal(
         <AnimatePresence>
           {status === 'ON_WAY' && (
-            <motion.div 
+            <motion.div
               key="on-way-portal"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -484,12 +820,12 @@ export default function MissionWorkflow() {
 
               {/* Full Screen Map */}
               <div className="flex-1 w-full h-full bg-gray-200 relative">
-                <MissionMap 
-                  techLocation={technicianLocation} 
-                  venueLocation={venueLocation} 
+                <MissionMap
+                  techLocation={technicianLocation}
+                  venueLocation={venueLocation}
                   recenterKey={recenterKey}
                 />
-                
+
                 {/* Map Controls */}
                 <div className="absolute right-4 top-32 flex flex-col gap-2 z-[40]">
                   <Button onClick={handleRecenter} size="icon" className="h-10 w-10 rounded-full bg-white text-black shadow-lg hover:bg-gray-50">
@@ -506,7 +842,7 @@ export default function MissionWorkflow() {
                 <div className="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-4" />
                 <div className="flex justify-between items-center mb-6">
                   <div>
-                    <h4 className="font-bold text-lg">Le Fouquet's</h4>
+                    <h4 className="font-bold text-lg">{activeMission?.venue || "Le Fouquet's"}</h4>
                     <p className="text-sm text-[var(--text-muted)]">Arrivée estimée: {new Date(Date.now() + eta * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                   </div>
                   <div className="text-right">
@@ -514,7 +850,7 @@ export default function MissionWorkflow() {
                     <span className="text-xs text-[var(--text-secondary)]">{(distance / 1000).toFixed(1)} km</span>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-4 gap-3">
                    <Button variant="outline" className="col-span-1 h-12 rounded-xl border-gray-200">
                      <Phone className="w-5 h-5" />
@@ -530,12 +866,12 @@ export default function MissionWorkflow() {
         document.body
       )}
 
-      {/* Capture Modal (Unchanged logic, just ensure styling is correct) */}
+      {/* Capture Modal */}
       <AnimatePresence>
         {showEvidenceModal && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black z-[100] flex flex-col"
           >
@@ -552,10 +888,10 @@ export default function MissionWorkflow() {
             <div className="flex-1 relative bg-black">
               <Webcam audio={false} className="w-full h-full object-cover" />
             </div>
-            
+
             <div className="absolute bottom-0 left-0 right-0 p-8 pb-12 bg-gradient-to-t from-black/90 to-transparent flex flex-col items-center gap-8">
                <div className="flex bg-[var(--bg-active)] backdrop-blur-md rounded-full p-1.5">
-                  <button 
+                  <button
                     onClick={() => setMediaType('PHOTO')}
                     className={cn(
                       "px-6 py-2 rounded-full text-sm font-bold transition-all",
@@ -564,7 +900,7 @@ export default function MissionWorkflow() {
                   >
                     Photo
                   </button>
-                  <button 
+                  <button
                      onClick={() => setMediaType('VIDEO')}
                      className={cn(
                       "px-6 py-2 rounded-full text-sm font-bold transition-all",
@@ -575,7 +911,7 @@ export default function MissionWorkflow() {
                   </button>
                </div>
 
-               <button 
+               <button
                  onClick={handleCapture}
                  disabled={isCapturing}
                  className="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center relative"
