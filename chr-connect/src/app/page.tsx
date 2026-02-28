@@ -5,235 +5,277 @@ import { useStore } from '@/store/useStore';
 import { useMissionEngine } from '@/store/mission-engine';
 import { usePathname, useRouter } from 'next/navigation';
 import RoleSwitcher from '@/components/RoleSwitcher';
-import UniversalRequestModal from '@/components/UniversalRequestModal';
 import MissionRadar from '@/components/provider/MissionRadar';
 import ProviderProfileEditor from '@/components/provider/ProviderProfileEditor';
 import MissionWorkflow from '@/components/mission/MissionWorkflow';
-import LiveMissionTracker from '@/components/mission/LiveMissionTracker';
-import PatronDashboard from '@/components/patron/PatronDashboard';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutGrid, Bell, Settings, User, X, Briefcase, UserCircle, ChevronDown, PlayCircle, Power } from 'lucide-react';
+import { LayoutDashboard, Bell, User, X, Briefcase, UserCircle, ChevronDown, Power, Menu } from 'lucide-react';
 import { clsx } from 'clsx';
-import { Button } from '@/components/ui/button';
 import { SIMULATED_PROFILES } from '@/constants/profiles';
+import WorkerDashboard from '@/components/provider/WorkerDashboard';
+
+const NAV_ITEMS = [
+  { id: 'DASHBOARD', label: 'Tableau de bord', icon: LayoutDashboard, route: '/prestataire/tableau-de-bord', alwaysEnabled: true },
+  { id: 'PROFILE', label: 'Mon Profil', icon: UserCircle, route: '/prestataire/mon-profil', alwaysEnabled: true },
+  { id: 'MISSIONS', label: 'Missions', icon: Briefcase, route: '/prestataire/mes-missions', alwaysEnabled: false },
+];
+
+const NOTIFICATIONS = [
+  { id: 1, title: 'Expert en route', desc: "L'expert Plombier arrivera dans 15 min.", time: 'Il y a 2 min', unread: true },
+  { id: 2, title: 'Mission Terminée', desc: 'La réparation du four a été validée.', time: 'Hier', unread: false },
+];
 
 export default function Home() {
-  const { userRole, setUserRole } = useStore();
-  const { status, startMission } = useMissionEngine();
+  const { userRole, setUserRole, isOnAir, toggleOnAir } = useStore();
+  const { status } = useMissionEngine();
   const pathname = usePathname();
   const router = useRouter();
+
+  const workerView = pathname === '/prestataire/mes-missions' ? 'MISSIONS'
+    : pathname === '/prestataire/tableau-de-bord' ? 'DASHBOARD'
+    : 'PROFILE';
+
+  const isAvailable = isOnAir;
+  const [currentProfile, setCurrentProfile] = useState(SIMULATED_PROFILES[0]);
+  const [showProfileSwitcher, setShowProfileSwitcher] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  
-  const workerView = pathname === '/worker/mes-missions' ? 'MISSIONS' : 'PROFILE';
-  
-  const [isAvailable, setIsAvailable] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!isAvailable && workerView === 'MISSIONS') {
-      router.push('/worker/mon-profil');
+      router.push('/prestataire/mon-profil');
     }
   }, [isAvailable, workerView, router]);
 
-  // State for simulated user profile
-  const [currentProfile, setCurrentProfile] = useState(SIMULATED_PROFILES[0]);
-  const [showProfileSwitcher, setShowProfileSwitcher] = useState(false);
-
   useEffect(() => {
+    if (pathname !== '/') return;
     if (userRole === 'PATRON') {
       router.replace('/patron/tableau-de-bord');
     }
-  }, [userRole, router]);
+    if (userRole === 'WORKER') {
+      router.replace('/prestataire/tableau-de-bord');
+    }
+  }, [userRole, router, pathname]);
 
   if (!userRole) {
     return <RoleSwitcher />;
   }
 
   if (userRole === 'PATRON') {
-    // Redirect handled in useEffect
-    return null; 
+    return null;
+  }
+
+  if (userRole === 'WORKER' && pathname === '/') {
+    return null;
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-primary)] flex flex-col">
-      {/* Navbar */}
-      <header className="h-16 border-b border-[var(--border)] flex items-center justify-between px-6 glass sticky top-0 z-50">
-        <div className="text-xl font-bold tracking-wider">CHR CONNECT</div>
-        <div className="flex items-center gap-4 relative">
-             <div className="relative">
-               <button 
-                 onClick={() => setShowProfileSwitcher(!showProfileSwitcher)}
-                 className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full hover:bg-blue-500/20 transition-colors"
-               >
-                 <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
-                 <span className="text-blue-400 text-xs font-bold uppercase tracking-wider">{currentProfile.specialty}</span>
-                 <ChevronDown className="w-3 h-3 text-blue-400 ml-1" />
-               </button>
-
-               <AnimatePresence>
-                 {showProfileSwitcher && (
-                   <motion.div
-                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                     className="absolute top-full right-0 mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-2xl overflow-hidden z-50"
-                   >
-                     {SIMULATED_PROFILES.map((profile) => (
-                       <button
-                         key={profile.id}
-                         onClick={() => {
-                           setCurrentProfile(profile);
-                           setShowProfileSwitcher(false);
-                         }}
-                         className={clsx(
-                           "w-full text-left px-4 py-3 text-sm hover:bg-[var(--bg-hover)] transition-colors",
-                           currentProfile.id === profile.id ? "text-blue-400 bg-blue-500/10 font-medium" : "text-[var(--text-secondary)]"
-                         )}
-                       >
-                         {profile.specialty}
-                       </button>
-                     ))}
-                   </motion.div>
-                 )}
-               </AnimatePresence>
-             </div>
-
-           <button 
-             onClick={() => setShowNotifications(!showNotifications)}
-             className="p-2 hover:bg-[var(--bg-hover)] rounded-full transition-colors relative"
-           >
-             <Bell className="w-5 h-5" />
-             <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
-           </button>
-           
-           <AnimatePresence>
-             {showNotifications && (
-               <motion.div 
-                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                 className="absolute top-full right-0 mt-2 w-80 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden z-50"
-               >
-                 <div className="p-4 border-b border-[var(--border)] flex justify-between items-center">
-                   <h3 className="font-bold">Notifications</h3>
-                   <button onClick={() => setShowNotifications(false)}><X className="w-4 h-4 text-[var(--text-muted)]" /></button>
-                 </div>
-                 <div className="max-h-80 overflow-y-auto">
-                   <div className="p-4 border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer">
-                     <div className="flex gap-3">
-                       <div className="w-2 h-2 mt-2 rounded-full bg-blue-500 shrink-0" />
-                       <div>
-                         <p className="text-sm font-medium">Expert en route</p>
-                         <p className="text-xs text-[var(--text-muted)] mt-1">L'expert Plombier arrivera dans 15 min.</p>
-                         <p className="text-[10px] text-[var(--text-muted)] mt-2">Il y a 2 min</p>
-                       </div>
-                     </div>
-                   </div>
-                   <div className="p-4 border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer">
-                     <div className="flex gap-3">
-                       <div className="w-2 h-2 mt-2 rounded-full bg-green-500 shrink-0" />
-                       <div>
-                         <p className="text-sm font-medium">Mission Terminée</p>
-                         <p className="text-xs text-[var(--text-muted)] mt-1">La réparation du four a été validée.</p>
-                         <p className="text-[10px] text-[var(--text-muted)] mt-2">Hier</p>
-                       </div>
-                     </div>
-                   </div>
-                 </div>
-                 <div className="p-2 bg-[var(--bg-hover)] text-center">
-                   <button className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] font-medium">Tout marquer comme lu</button>
-                 </div>
-               </motion.div>
-             )}
-           </AnimatePresence>
-
-           <button 
-             onClick={() => {
-               const newValue = !isAvailable;
-               setIsAvailable(newValue);
-               if (newValue) {
-                 router.push('/worker/mes-missions');
-               }
-             }}
-             className={clsx(
-               "flex items-center gap-2 px-4 py-2 rounded-full transition-all font-medium text-sm",
-               isAvailable 
-                 ? "bg-green-500/20 text-green-400 border-2 border-green-500/50 hover:bg-green-500/30" 
-                 : "bg-[var(--bg-hover)] text-[var(--text-muted)] border-2 border-[var(--border)] hover:bg-[var(--bg-active)] hover:text-[var(--text-primary)]"
-             )}
-           >
-             <Power className={clsx("w-4 h-4", isAvailable ? "text-green-400" : "")} />
-             {isAvailable ? "Disponible" : "Se rendre disponible"}
-           </button>
-
-           <button 
-             onClick={() => setUserRole(null)} 
-             className="flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-full transition-colors border border-[var(--border)]"
-           >
-             <User className="w-4 h-4" />
-             <span className="text-sm font-medium">{userRole} VIEW</span>
-           </button>
+    <div className="flex h-screen bg-[var(--bg-app)] text-[var(--text-primary)] overflow-hidden font-sans" style={{ height: '100dvh' }}>
+      {/* ── Sidebar Desktop ─────────────────────────────────── */}
+      <aside className="hidden lg:flex w-64 border-r border-[var(--border)] bg-[var(--bg-sidebar)] flex-col z-20">
+        <div className="h-16 flex items-center px-6 border-b border-[var(--border)]">
+          <button onClick={() => { setUserRole(null); router.push('/'); }} className="text-lg font-bold tracking-wider text-[var(--text-primary)] hover:opacity-70 transition-opacity">
+            CHR CONNECT
+          </button>
         </div>
-      </header>
+        <nav className="flex-1 p-4 space-y-1">
+          {NAV_ITEMS.map((item) => {
+            const disabled = !item.alwaysEnabled && !isAvailable;
+            return (
+              <button
+                key={item.id}
+                onClick={() => !disabled && router.push(item.route)}
+                disabled={disabled}
+                className={clsx(
+                  "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all",
+                  disabled
+                    ? "text-[var(--text-muted)] opacity-40 cursor-not-allowed"
+                    : workerView === item.id
+                      ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-900/20"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                )}
+              >
+                <item.icon className="w-5 h-5" />
+                {item.label}
+              </button>
+            );
+          })}
+        </nav>
+        <div className="p-4 border-t border-[var(--border)]">
+          <button onClick={() => { setUserRole(null); router.push('/'); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all">
+            <User className="w-5 h-5" />
+            Changer de rôle
+          </button>
+        </div>
+      </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-6 overflow-hidden">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }}
-          className="h-full max-w-5xl mx-auto"
-        >
-             <div className="h-full flex flex-col">
-                {/* Worker Navigation */}
-                <div className="flex justify-center mb-6 shrink-0 relative">
-                   <div className="bg-[var(--bg-hover)] p-1 rounded-xl flex gap-1 border border-[var(--border)]">
-                      <button 
-                         onClick={() => router.push('/worker/mon-profil')}
-                         className={clsx(
-                           "px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2", 
-                           workerView === 'PROFILE' 
-                             ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-900/20" 
-                             : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
-                         )}
-                      >
-                         <UserCircle className="w-4 h-4" />
-                         Mon Profil
-                      </button>
-                      <button 
-                         onClick={() => isAvailable && router.push('/worker/mes-missions')}
-                         disabled={!isAvailable}
-                         className={clsx(
-                           "px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2", 
-                           !isAvailable 
-                             ? "bg-[var(--bg-hover)] text-[var(--text-muted)] cursor-not-allowed" 
-                             : workerView === 'MISSIONS' 
-                               ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-900/20" 
-                               : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
-                         )}
-                      >
-                         <Briefcase className="w-4 h-4" />
-                         Missions
-                      </button>
-                   </div>
-                </div>
+      {/* ── Mobile Drawer ───────────────────────────────────── */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsMobileMenuOpen(false)} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[90] lg:hidden" />
+            <motion.aside initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="fixed inset-y-0 left-0 w-64 bg-[var(--bg-sidebar)] border-r border-[var(--border)] z-[100] lg:hidden flex flex-col shadow-2xl">
+              <div className="h-16 flex items-center justify-between px-6 border-b border-[var(--border)]">
+                <span className="text-lg font-bold tracking-wider text-[var(--text-primary)]">CHR CONNECT</span>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><X className="w-5 h-5" /></button>
+              </div>
+              <nav className="flex-1 p-4 space-y-1">
+                {NAV_ITEMS.map((item) => {
+                  const disabled = !item.alwaysEnabled && !isAvailable;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => { if (!disabled) { router.push(item.route); setIsMobileMenuOpen(false); } }}
+                      disabled={disabled}
+                      className={clsx(
+                        "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all",
+                        disabled
+                          ? "text-[var(--text-muted)] opacity-40 cursor-not-allowed"
+                          : workerView === item.id
+                            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-900/20"
+                            : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                      )}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      {item.label}
+                      {disabled && <span className="ml-auto text-[10px] text-[var(--text-muted)]">Hors ligne</span>}
+                    </button>
+                  );
+                })}
+              </nav>
+              <div className="p-4 border-t border-[var(--border)]">
+                <button onClick={() => { setUserRole(null); router.push('/'); setIsMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all">
+                  <User className="w-5 h-5" />
+                  Changer de rôle
+                </button>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
 
-                <div className="flex-1 min-h-0">
-                  {workerView === 'MISSIONS' ? (
-                     status !== 'IDLE' ? (
-                        <div className="h-full w-full rounded-3xl overflow-hidden border border-[var(--border)] relative shadow-2xl bg-[var(--bg-card)]">
-                             <MissionWorkflow />
-                        </div>
-                     ) : (
-                        <div className="h-full w-full rounded-3xl overflow-hidden border border-[var(--border)] relative shadow-2xl">
-                           <MissionRadar authorizedCategories={currentProfile.authorizedCategories} />
-                        </div>
-                     )
-                  ) : (
-                     <ProviderProfileEditor />
+      {/* ── Main ────────────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col min-w-0 bg-[var(--bg-app)] relative">
+        {/* Header */}
+        <header className="h-16 flex items-center justify-between px-4 lg:px-8 border-b border-[var(--border)] z-50 bg-[var(--bg-header)] backdrop-blur-xl sticky top-0" style={{ boxShadow: 'var(--shadow-card)' }}>
+          <div className="flex items-center gap-4 lg:gap-6 w-full lg:w-auto relative">
+            {/* Burger mobile */}
+            <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden p-2 -ml-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+              <Menu className="w-6 h-6" />
+            </button>
+
+            <div className="flex-1 flex justify-center lg:justify-start items-center gap-3">
+              {/* Profile specialty */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowProfileSwitcher(!showProfileSwitcher)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full hover:bg-blue-500/20 transition-colors"
+                >
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+                  <span className="text-blue-400 text-xs font-bold uppercase tracking-wider">{currentProfile.specialty}</span>
+                  <ChevronDown className="w-3 h-3 text-blue-400 ml-1" />
+                </button>
+                <AnimatePresence>
+                  {showProfileSwitcher && (
+                    <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} className="absolute top-full left-0 mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-2xl overflow-hidden z-50 max-h-60 overflow-y-auto custom-scrollbar">
+                      {SIMULATED_PROFILES.map((profile) => (
+                        <button key={profile.id} onClick={() => { setCurrentProfile(profile); setShowProfileSwitcher(false); }} className={clsx("w-full text-left px-4 py-3 text-sm hover:bg-[var(--bg-hover)] transition-colors", currentProfile.id === profile.id ? "text-blue-400 bg-blue-500/10 font-medium" : "text-[var(--text-secondary)]")}>
+                          {profile.specialty}
+                        </button>
+                      ))}
+                    </motion.div>
                   )}
+                </AnimatePresence>
+              </div>
+
+              {/* Availability toggle */}
+              <button
+                onClick={() => {
+                  toggleOnAir();
+                  if (!isAvailable) {
+                    router.push('/prestataire/mes-missions');
+                  }
+                }}
+                className={clsx(
+                  "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-xs",
+                  isAvailable
+                    ? "bg-green-500/20 text-green-400 border border-green-500/50 hover:bg-green-500/30"
+                    : "bg-[var(--bg-hover)] text-[var(--text-muted)] border border-[var(--border)] hover:bg-[var(--bg-active)]"
+                )}
+              >
+                <Power className={clsx("w-3.5 h-3.5", isAvailable ? "text-green-400" : "")} />
+                <span className="hidden sm:inline">{isAvailable ? "Disponible" : "Se rendre disponible"}</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Notifications */}
+            <div className="relative">
+              <button onClick={() => setShowNotifications(!showNotifications)} className="w-10 h-10 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] flex items-center justify-center transition-colors relative">
+                <Bell className="w-5 h-5 text-[var(--text-secondary)]" />
+                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
+              </button>
+              <AnimatePresence>
+                {showNotifications && (
+                  <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} className="absolute top-full right-0 mt-2 w-80 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden backdrop-blur-xl z-50" style={{ boxShadow: 'var(--shadow-lg)' }}>
+                    <div className="p-4 border-b border-[var(--border)] flex justify-between items-center">
+                      <h3 className="font-bold text-sm text-[var(--text-primary)]">Notifications</h3>
+                      <button className="text-xs text-blue-500 hover:text-blue-400">Tout marquer lu</button>
+                    </div>
+                    <div className="max-h-[300px] overflow-y-auto">
+                      {NOTIFICATIONS.map((notif) => (
+                        <div key={notif.id} className={clsx("p-4 border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer", notif.unread && "bg-blue-500/5")}>
+                          <div className="flex justify-between items-start mb-1">
+                            <h4 className={clsx("text-sm font-bold", notif.unread ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]")}>{notif.title}</h4>
+                            <span className="text-[10px] text-[var(--text-muted)]">{notif.time}</span>
+                          </div>
+                          <p className="text-xs text-[var(--text-secondary)]">{notif.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <button className="w-full p-3 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors text-center">
+                      Voir toutes les notifications
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Avatar */}
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-[1px] cursor-pointer hover:scale-105 transition-transform hidden md:block">
+              <div className="w-full h-full rounded-full bg-[var(--bg-card)] flex items-center justify-center overflow-hidden">
+                <span className="font-bold text-sm text-[var(--text-primary)]">{currentProfile.name.split(' ').map(n => n[0]).join('')}</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-8">
+          {workerView === 'DASHBOARD' ? (
+            <div className="max-w-7xl mx-auto">
+              <WorkerDashboard currentProfile={currentProfile} />
+            </div>
+          ) : workerView === 'MISSIONS' ? (
+            <div className="max-w-5xl mx-auto h-full">
+              {status !== 'IDLE' ? (
+                <div className="h-full w-full rounded-3xl overflow-hidden border border-[var(--border)] relative shadow-2xl bg-[var(--bg-card)]">
+                  <MissionWorkflow />
                 </div>
-             </div>
-        </motion.div>
-      </main>
+              ) : (
+                <div className="h-full w-full rounded-3xl overflow-hidden border border-[var(--border)] relative shadow-2xl">
+                  <MissionRadar authorizedCategories={currentProfile.authorizedCategories} />
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="max-w-7xl mx-auto">
+              <ProviderProfileEditor />
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

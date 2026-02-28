@@ -7,18 +7,18 @@ import Home from '@/app/page';
 export default function WorkerProfilePage() {
   const { setUserRole } = useStore();
   const [mounted, setMounted] = useState(false);
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
-  
+
   useEffect(() => {
     if (mounted) {
       setUserRole('WORKER');
     }
   }, [mounted, setUserRole]);
-  
+
   if (!mounted) return null;
-  
+
   return <Home />;
 }

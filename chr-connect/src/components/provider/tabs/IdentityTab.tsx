@@ -174,23 +174,21 @@ export default function IdentityTab({ profile, setProfile }: IdentityTabProps) {
                     </button>
                   </span>
                 ))}
-                <select 
-                  className="bg-transparent outline-none text-[var(--text-primary)] text-sm flex-1 p-1"
-                  onChange={(e) => {
-                    addLanguage(e.target.value);
-                    e.target.value = '';
+                <input
+                  type="text"
+                  className="bg-transparent outline-none text-[var(--text-primary)] text-sm flex-1 p-1 min-w-[120px]"
+                  placeholder="Ajouter une langue..."
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const value = (e.target as HTMLInputElement).value.trim();
+                      if (value) {
+                        addLanguage(value);
+                        (e.target as HTMLInputElement).value = '';
+                      }
+                    }
                   }}
-                >
-                  <option value="" className="bg-[var(--bg-sidebar)] text-[var(--text-muted)]">Ajouter une langue...</option>
-                  <option value="Français" className="bg-[var(--bg-sidebar)]">Français</option>
-                  <option value="Anglais" className="bg-[var(--bg-sidebar)]">Anglais</option>
-                  <option value="Espagnol" className="bg-[var(--bg-sidebar)]">Espagnol</option>
-                  <option value="Allemand" className="bg-[var(--bg-sidebar)]">Allemand</option>
-                  <option value="Italien" className="bg-[var(--bg-sidebar)]">Italien</option>
-                  <option value="Portugais" className="bg-[var(--bg-sidebar)]">Portugais</option>
-                  <option value="Arabe" className="bg-[var(--bg-sidebar)]">Arabe</option>
-                  <option value="Mandarin" className="bg-[var(--bg-sidebar)]">Mandarin</option>
-                </select>
+                />
              </div>
           </div>
         </div>

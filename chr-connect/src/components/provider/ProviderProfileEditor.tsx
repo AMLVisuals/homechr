@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  User, Briefcase, Award, Image as ImageIcon, 
-  Save, Eye, Check, History
+import {
+  User, Briefcase, Award, Image as ImageIcon,
+  Save, Eye, Check, History, Receipt
 } from 'lucide-react';
+import { clsx } from 'clsx';
 import { ProviderProfile } from '@/types/provider';
 import ProviderProfileModal from '../shared/ProviderProfileModal';
 import IdentityTab from './tabs/IdentityTab';
@@ -11,8 +12,17 @@ import SkillsTab from './tabs/SkillsTab';
 import ExperienceTab from './tabs/ExperienceTab';
 import PortfolioTab from './tabs/PortfolioTab';
 import { HistoryTab } from './tabs/HistoryTab';
+import { PayslipsTab } from './tabs/PayslipsTab';
 
-// Mock initial data for a new provider
+const TABS = [
+  { id: 'IDENTITY' as const, label: 'Identité', icon: User },
+  { id: 'SKILLS' as const, label: 'Compétences', icon: Award },
+  { id: 'EXPERIENCE' as const, label: 'Expérience', icon: Briefcase },
+  { id: 'PORTFOLIO' as const, label: 'Portfolio', icon: ImageIcon },
+  { id: 'HISTORY' as const, label: 'Historique', icon: History },
+  { id: 'PAYSLIPS' as const, label: 'Fiches de paie', icon: Receipt },
+];
+
 const INITIAL_PROFILE: ProviderProfile = {
   id: 'new-user',
   firstName: '',
@@ -37,9 +47,11 @@ const INITIAL_PROFILE: ProviderProfile = {
   availability: { isAvailable: true }
 };
 
+type TabId = typeof TABS[number]['id'];
+
 export default function ProviderProfileEditor() {
   const [profile, setProfile] = useState<ProviderProfile>(INITIAL_PROFILE);
-  const [activeTab, setActiveTab] = useState<'IDENTITY' | 'SKILLS' | 'PORTFOLIO' | 'EXPERIENCE' | 'HISTORY'>('IDENTITY');
+  const [activeTab, setActiveTab] = useState<TabId>('IDENTITY');
   const [showPreview, setShowPreview] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -47,7 +59,6 @@ export default function ProviderProfileEditor() {
     let score = 0;
     const steps = [];
 
-    // 1. Avatar (15%)
     if (profile.avatarUrl && !profile.avatarUrl.includes('pravatar.cc')) {
       score += 15;
       steps.push({ label: 'Photo de profil', completed: true });
@@ -55,7 +66,6 @@ export default function ProviderProfileEditor() {
       steps.push({ label: 'Photo de profil', completed: false });
     }
 
-    // 2. Identity (25%)
     if (profile.firstName && profile.lastName && profile.title && profile.bio && profile.location.city) {
       score += 25;
       steps.push({ label: 'Identité & Bio', completed: true });
@@ -63,7 +73,6 @@ export default function ProviderProfileEditor() {
       steps.push({ label: 'Identité & Bio', completed: false });
     }
 
-    // 3. Skills (15%)
     if (profile.skills.length >= 3) {
       score += 15;
       steps.push({ label: 'Compétences (3+)', completed: true });
@@ -71,7 +80,6 @@ export default function ProviderProfileEditor() {
       steps.push({ label: 'Compétences (3 min)', completed: false });
     }
 
-    // 4. Experience (20%)
     if (profile.experiences.length >= 1) {
       score += 20;
       steps.push({ label: 'Expérience', completed: true });
@@ -79,7 +87,6 @@ export default function ProviderProfileEditor() {
       steps.push({ label: 'Ajouter une expérience', completed: false });
     }
 
-    // 5. Certifications (15%)
     if (profile.certifications.length >= 1) {
       score += 15;
       steps.push({ label: 'Certifications', completed: true });
@@ -87,7 +94,6 @@ export default function ProviderProfileEditor() {
       steps.push({ label: 'Ajouter une certification', completed: false });
     }
 
-    // 6. Portfolio (10%)
     if (profile.portfolio.length >= 1) {
       score += 10;
       steps.push({ label: 'Portfolio', completed: true });
@@ -102,7 +108,6 @@ export default function ProviderProfileEditor() {
 
   const handleSave = () => {
     setIsSaving(true);
-    // Simulate API call
     setTimeout(() => {
       setIsSaving(false);
       alert('Profil enregistré avec succès !');
@@ -110,22 +115,22 @@ export default function ProviderProfileEditor() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-primary)]">
+    <div className="text-[var(--text-primary)]">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-[var(--bg-main)]/80 backdrop-blur-md border-b border-[var(--border)] px-6 py-4 flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-xl font-bold">Éditeur de Profil</h1>
           <p className="text-sm text-[var(--text-secondary)]">Complétez votre fiche pour attirer plus de clients</p>
         </div>
         <div className="flex gap-3">
-          <button 
+          <button
             onClick={() => setShowPreview(true)}
             className="px-4 py-2 bg-[var(--bg-active)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors flex items-center gap-2 text-sm font-medium"
           >
             <Eye className="w-4 h-4" />
-            Aperçu
+            <span className="hidden sm:inline">Aperçu</span>
           </button>
-          <button 
+          <button
             onClick={handleSave}
             disabled={isSaving}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium disabled:opacity-50"
@@ -135,88 +140,52 @@ export default function ProviderProfileEditor() {
             ) : (
               <Save className="w-4 h-4" />
             )}
-            Enregistrer
+            <span className="hidden sm:inline">Enregistrer</span>
           </button>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Navigation Sidebar */}
-        <div className="lg:col-span-3 space-y-2">
-          <button
-            onClick={() => setActiveTab('IDENTITY')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-              activeTab === 'IDENTITY' 
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
-                : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)] hover:text-[var(--text-primary)]'
-            }`}
-          >
-            <User className="w-5 h-5" />
-            <div className="text-left">
-              <span className="block font-medium">Identité</span>
-              <span className="text-xs opacity-70">Infos personnelles</span>
-            </div>
-          </button>
+      {/* Mobile Tab Bar — horizontal scroll */}
+      <div className="lg:hidden mb-6 -mx-4 px-4">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={clsx(
+                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all shrink-0",
+                activeTab === tab.id
+                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-900/20"
+                  : "bg-[var(--bg-hover)] text-[var(--text-secondary)] border border-[var(--border)]"
+              )}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
-          <button
-            onClick={() => setActiveTab('SKILLS')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-              activeTab === 'SKILLS' 
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
-                : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)] hover:text-[var(--text-primary)]'
-            }`}
-          >
-            <Award className="w-5 h-5" />
-            <div className="text-left">
-              <span className="block font-medium">Compétences</span>
-              <span className="text-xs opacity-70">Expertise & Certifs</span>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('EXPERIENCE')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-              activeTab === 'EXPERIENCE' 
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
-                : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)] hover:text-[var(--text-primary)]'
-            }`}
-          >
-            <Briefcase className="w-5 h-5" />
-            <div className="text-left">
-              <span className="block font-medium">Expérience</span>
-              <span className="text-xs opacity-70">Parcours pro</span>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('PORTFOLIO')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-              activeTab === 'PORTFOLIO' 
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
-                : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)] hover:text-[var(--text-primary)]'
-            }`}
-          >
-            <ImageIcon className="w-5 h-5" />
-            <div className="text-left">
-              <span className="block font-medium">Portfolio</span>
-              <span className="text-xs opacity-70">Photos & Vidéos</span>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('HISTORY')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-              activeTab === 'HISTORY' 
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
-                : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)] hover:text-[var(--text-primary)]'
-            }`}
-          >
-            <History className="w-5 h-5" />
-            <div className="text-left">
-              <span className="block font-medium">Historique</span>
-              <span className="text-xs opacity-70">Missions passées</span>
-            </div>
-          </button>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Desktop Sidebar — hidden on mobile */}
+        <div className="hidden lg:block lg:col-span-3 space-y-2">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={clsx(
+                "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
+                activeTab === tab.id
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20"
+                  : "bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:bg-[var(--bg-active)] hover:text-[var(--text-primary)]"
+              )}
+            >
+              <tab.icon className="w-5 h-5" />
+              <div className="text-left">
+                <span className="block font-medium">{tab.label}</span>
+              </div>
+            </button>
+          ))}
 
           {/* Completion Status */}
           <div className="mt-8 bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
@@ -227,7 +196,7 @@ export default function ProviderProfileEditor() {
                 <span className={`font-bold ${score === 100 ? 'text-green-400' : 'text-blue-400'}`}>{score}%</span>
               </div>
               <div className="h-1.5 bg-[var(--bg-active)] rounded-full overflow-hidden">
-                <motion.div 
+                <motion.div
                   className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
                   initial={{ width: 0 }}
                   animate={{ width: `${score}%` }}
@@ -258,31 +227,22 @@ export default function ProviderProfileEditor() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
-            className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl p-6 min-h-[600px]"
+            className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl p-4 md:p-6 min-h-[400px] lg:min-h-[600px]"
           >
-            {activeTab === 'IDENTITY' && (
-              <IdentityTab profile={profile} setProfile={setProfile} />
-            )}
-            {activeTab === 'SKILLS' && (
-              <SkillsTab profile={profile} setProfile={setProfile} />
-            )}
-            {activeTab === 'EXPERIENCE' && (
-              <ExperienceTab profile={profile} setProfile={setProfile} />
-            )}
-            {activeTab === 'PORTFOLIO' && (
-              <PortfolioTab profile={profile} setProfile={setProfile} />
-            )}
-            {activeTab === 'HISTORY' && (
-              <HistoryTab />
-            )}
+            {activeTab === 'IDENTITY' && <IdentityTab profile={profile} setProfile={setProfile} />}
+            {activeTab === 'SKILLS' && <SkillsTab profile={profile} setProfile={setProfile} />}
+            {activeTab === 'EXPERIENCE' && <ExperienceTab profile={profile} setProfile={setProfile} />}
+            {activeTab === 'PORTFOLIO' && <PortfolioTab profile={profile} setProfile={setProfile} />}
+            {activeTab === 'HISTORY' && <HistoryTab />}
+            {activeTab === 'PAYSLIPS' && <PayslipsTab />}
           </motion.div>
         </div>
       </div>
 
       {/* Preview Modal */}
       {showPreview && (
-        <ProviderProfileModal 
-          provider={profile} 
+        <ProviderProfileModal
+          provider={profile}
           onClose={() => setShowPreview(false)}
           onBook={() => alert("Ceci est un aperçu. Le client pourra réserver depuis ici.")}
         />
