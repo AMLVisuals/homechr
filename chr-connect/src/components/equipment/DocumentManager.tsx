@@ -125,7 +125,7 @@ export function DocumentManager({ documents, onDocumentsChange, readonly = false
 
     // Simulate upload - in real app, this would upload to S3/Cloudinary
     const newDoc: EquipmentDocument = {
-      id: Math.random().toString(36).substring(2, 9),
+      id: `doc_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
       name: docName,
       type: docType,
       url: fileUrls[0], // Main preview is the first page

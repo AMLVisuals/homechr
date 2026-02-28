@@ -113,6 +113,26 @@ interface SubCategoryDef {
 }
 
 // ============================================================================
+// GROUP COLORS (gradients for subcategory buttons)
+// ============================================================================
+
+const GROUP_COLORS: Record<string, string> = {
+  // PERSONNEL
+  'Salle': 'from-purple-500 to-pink-500',
+  'Bar': 'from-amber-500 to-yellow-500',
+  'Cuisine': 'from-orange-500 to-red-500',
+  'Accueil & Hôtellerie': 'from-emerald-500 to-teal-500',
+  'Sécurité': 'from-slate-500 to-zinc-600',
+  // TECHNICIENS
+  'Froid & Climatisation': 'from-sky-500 to-blue-600',
+  'Cuisson & Chaud': 'from-orange-500 to-red-500',
+  'Équipement cuisine': 'from-emerald-500 to-teal-500',
+  'Électricité & Plomberie': 'from-yellow-500 to-amber-600',
+  'Caisse & IT': 'from-violet-500 to-purple-600',
+  'Événementiel / AV': 'from-pink-500 to-rose-600',
+};
+
+// ============================================================================
 // CATEGORY DEFINITIONS WITH EQUIPMENT MAPPING
 // ============================================================================
 
@@ -379,7 +399,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
   const [savedEventTypes, setSavedEventTypes] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('chr_connect_custom_event_types');
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed: string[] = JSON.parse(saved);
+      return parsed.filter(t => t.trim() !== '');
     } catch {
       return [];
     }
@@ -495,7 +517,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
 
   // Get staffing roles based on subcategory - Direct match via subcategoryId
   const staffingRoles = useMemo(() => {
-    if (!selectedSubCategory || selectedCategory?.id !== 'STAFFING') return [];
+    if (!selectedSubCategory || selectedCategory?.id !== 'PERSONNEL') return [];
 
     // Direct match: subcategoryId in STAFFING_NEEDS matches wizard's subCategory.id
     return STAFFING_NEEDS.filter(need => need.subcategoryId === selectedSubCategory.id);
@@ -510,7 +532,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
   const handleSubCategorySelect = (subCategory: SubCategoryDef) => {
     setSelectedSubCategory(subCategory);
 
-    if (selectedCategory?.id === 'STAFFING') {
+    if (selectedCategory?.id === 'PERSONNEL') {
       // Auto-select role if there is a direct 1-to-1 mapping
       const roles = STAFFING_NEEDS.filter(need => need.subcategoryId === subCategory.id);
       if (roles.length === 1) {
@@ -521,7 +543,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
       
       // Staffing flow - go to staffing config
       setStep('staffing-config');
-    } else if (selectedCategory?.id === 'TECH') {
+    } else if (selectedCategory?.id === 'TECHNICIENS') {
       // Tech flow - ask for mission type (Equipment vs Service)
       setStep('mission-type-selection');
     } else if (subCategory.equipmentCategories && subCategory.equipmentCategories.length > 0) {
@@ -614,7 +636,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         setSelectedSubCategory(null);
         break;
       case 'asset-selection':
-        if (selectedCategory?.id === 'TECH') {
+        if (selectedCategory?.id === 'TECHNICIENS') {
           setStep('mission-type-selection');
         } else {
           setStep('subcategory');
@@ -630,7 +652,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         if (selectedEquipment) {
           setStep('problem-selection');
           setSelectedProblem(null);
-        } else if (selectedCategory?.id === 'TECH') {
+        } else if (selectedCategory?.id === 'TECHNICIENS') {
           setStep('mission-type-selection');
         } else {
           setStep('subcategory');
@@ -642,7 +664,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         setSelectedStaffingRole(null);
         break;
       case 'summary':
-        if (selectedCategory?.id === 'STAFFING') {
+        if (selectedCategory?.id === 'PERSONNEL') {
           setStep('staffing-config');
         } else {
           setStep('details');
@@ -672,7 +694,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
       const missionId = `mission_${Date.now()}`;
       let createdMission: any = null;
 
-      if (selectedCategory?.id === 'STAFFING' && selectedStaffingRole) {
+      if (selectedCategory?.id === 'PERSONNEL' && selectedStaffingRole) {
         // Staffing mission
         // Use user-defined servicePrice if available, otherwise fallback to average
         const rate = servicePrice ? parseFloat(servicePrice) : (selectedStaffingRole.hourlyRate.min + selectedStaffingRole.hourlyRate.max) / 2;
@@ -730,7 +752,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         let date: string | undefined = undefined;
 
         // Handle Tech Service specific fields
-        if (selectedCategory?.id === 'TECH' && !selectedEquipment) {
+        if (selectedCategory?.id === 'TECHNICIENS' && !selectedEquipment) {
           if (servicePrice) {
             if (staffingDuration && parseFloat(staffingDuration) > 0) {
               const total = parseInt(servicePrice) * parseFloat(staffingDuration);
@@ -783,9 +805,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         const [dateStr, timeStr] = createdMission.date.split(' ');
         
         let eventType: any = 'OTHER';
-        if (selectedCategory?.id === 'STAFFING') eventType = 'STAFFING';
+        if (selectedCategory?.id === 'PERSONNEL') eventType = 'STAFFING';
         else if (selectedCategory?.id === 'MAINTENANCE') eventType = 'MAINTENANCE';
-        else if (selectedCategory?.id === 'TECH') eventType = 'EVENT';
+        else if (selectedCategory?.id === 'TECHNICIENS') eventType = 'EVENT';
         
         addEvent({
           title: createdMission.title,
@@ -811,9 +833,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
   const getProgress = () => {
     let steps: WizardStep[] = [];
 
-    if (selectedCategory?.id === 'STAFFING') {
+    if (selectedCategory?.id === 'PERSONNEL') {
       steps = ['category', 'subcategory', 'staffing-config', 'summary'];
-    } else if (selectedCategory?.id === 'TECH') {
+    } else if (selectedCategory?.id === 'TECHNICIENS') {
       // Tech specific path handling
       if (selectedEquipment || step === 'asset-selection' || step === 'problem-selection') {
          // Path with equipment
@@ -845,7 +867,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/80 backdrop-blur-md"
+        className="absolute inset-0 bg-black/90"
         onClick={onClose}
       />
 
@@ -975,17 +997,30 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     exit={{ opacity: 0, x: -20 }}
                     className="space-y-6"
                   >
-                    {groups.map((group, gi) => (
+                    {groups.map((group, gi) => {
+                      const gradient = GROUP_COLORS[group.name];
+                      return (
                       <div key={group.name}>
                         <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-3 px-1">{group.name}</h3>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                           {group.items.map((sub) => {
                             const Icon = sub.icon;
-                            return (
+                            return gradient ? (
                               <button
                                 key={sub.id}
                                 onClick={() => handleSubCategorySelect(sub)}
-                                className="flex items-center gap-3 p-3.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] hover:bg-[var(--bg-active)] hover:border-[var(--border-strong)] transition-all text-left"
+                                className={`flex items-center gap-3 p-3.5 rounded-xl bg-gradient-to-br ${gradient} text-left overflow-hidden active:opacity-80 transition-opacity`}
+                              >
+                                <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+                                  <Icon className="w-5 h-5 text-white" />
+                                </div>
+                                <span className="text-sm font-medium text-white leading-tight">{sub.label}</span>
+                              </button>
+                            ) : (
+                              <button
+                                key={sub.id}
+                                onClick={() => handleSubCategorySelect(sub)}
+                                className="flex items-center gap-3 p-3.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] hover:bg-[var(--bg-active)] hover:border-[var(--border-strong)] overflow-hidden transition-colors text-left"
                               >
                                 <div className="w-9 h-9 rounded-lg bg-[var(--bg-hover)] flex items-center justify-center shrink-0">
                                   <Icon className="w-5 h-5 text-[var(--text-primary)]" />
@@ -996,7 +1031,8 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                           })}
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </motion.div>
                 );
               }
@@ -1286,7 +1322,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                 )}
 
                 {/* Service Mission Details (Tech without Equipment) */}
-                {selectedCategory?.id === 'TECH' && !selectedEquipment && (
+                {selectedCategory?.id === 'TECHNICIENS' && !selectedEquipment && (
                   <div className="space-y-6 bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
                     <h3 className="text-[var(--text-primary)] font-medium flex items-center gap-2 border-b border-[var(--border)] pb-3">
                       <Calendar className="w-5 h-5 text-purple-400" />
@@ -1430,8 +1466,8 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                                   ))}
                                   {savedEventTypes.length > 0 && (
                                     <optgroup label="Vos types personnalisés" className="bg-[var(--bg-hover)] text-[var(--text-muted)]">
-                                      {savedEventTypes.map(type => (
-                                        <option key={type} className="bg-[var(--bg-hover)] text-[var(--text-primary)]" value={type}>{type}</option>
+                                      {savedEventTypes.map((type, i) => (
+                                        <option key={`saved-${i}-${type}`} className="bg-[var(--bg-hover)] text-[var(--text-primary)]" value={type}>{type}</option>
                                       ))}
                                     </optgroup>
                                   )}
@@ -1828,8 +1864,8 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                                   ))}
                                   {savedEventTypes.length > 0 && (
                                     <optgroup label="Vos types personnalisés" className="bg-[var(--bg-hover)] text-[var(--text-muted)]">
-                                      {savedEventTypes.map(type => (
-                                        <option key={type} className="bg-[var(--bg-hover)] text-[var(--text-primary)]" value={type}>{type}</option>
+                                      {savedEventTypes.map((type, i) => (
+                                        <option key={`saved-${i}-${type}`} className="bg-[var(--bg-hover)] text-[var(--text-primary)]" value={type}>{type}</option>
                                       ))}
                                     </optgroup>
                                   )}
@@ -1906,12 +1942,12 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                         {/* Icon/Avatar */}
                         <div className={cn(
                           "w-16 h-16 rounded-2xl flex items-center justify-center border border-[var(--border)] shadow-lg flex-shrink-0",
-                          selectedCategory?.id === 'STAFFING' 
+                          selectedCategory?.id === 'PERSONNEL' 
                             ? "bg-gradient-to-br from-purple-500/20 to-pink-500/20" 
                             : "bg-gradient-to-br from-blue-500/20 to-cyan-500/20"
                         )}>
-                          {selectedCategory?.id === 'STAFFING' ? (
-                            <Users className={cn("w-8 h-8", selectedCategory?.id === 'STAFFING' ? "text-purple-400" : "text-blue-400")} />
+                          {selectedCategory?.id === 'PERSONNEL' ? (
+                            <Users className={cn("w-8 h-8", selectedCategory?.id === 'PERSONNEL' ? "text-purple-400" : "text-blue-400")} />
                           ) : (
                             <Wrench className="w-8 h-8 text-blue-400" />
                           )}
@@ -1922,7 +1958,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                           <div className="flex items-center gap-2 mb-1">
                             <span className={cn(
                               "text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border",
-                              selectedCategory?.id === 'STAFFING' 
+                              selectedCategory?.id === 'PERSONNEL' 
                                 ? "bg-purple-500/10 border-purple-500/20 text-purple-300" 
                                 : "bg-blue-500/10 border-blue-500/20 text-blue-300"
                             )}>
@@ -1949,7 +1985,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                                 : selectedSubCategory?.label || "Mission personnalisée"}
                           </h3>
                           <p className="text-[var(--text-muted)] text-sm">
-                            {selectedCategory?.id === 'STAFFING' 
+                            {selectedCategory?.id === 'PERSONNEL' 
                               ? "Renfort d'équipe" 
                               : selectedEquipment 
                                 ? `Intervention sur ${selectedEquipment.brand} ${selectedEquipment.model}`
@@ -2002,7 +2038,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     </div>
 
                     {/* Time & Duration (Staffing OR Tech Service) */}
-                    {(selectedCategory?.id === 'STAFFING' || (selectedCategory?.id === 'TECH' && !selectedEquipment)) && (
+                    {(selectedCategory?.id === 'PERSONNEL' || (selectedCategory?.id === 'TECHNICIENS' && !selectedEquipment)) && (
                       <div className="grid grid-cols-2 gap-4">
                         <div className="flex items-start gap-3">
                           <div className="w-8 h-8 rounded-lg bg-[var(--bg-card)] flex items-center justify-center flex-shrink-0">
@@ -2023,7 +2059,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                           <div>
                             <p className="text-sm font-medium text-[var(--text-muted)] mb-0.5">Durée</p>
                             <p className="text-[var(--text-primary)] font-medium">{staffingDuration}h</p>
-                            {selectedCategory?.id === 'STAFFING' && (
+                            {selectedCategory?.id === 'PERSONNEL' && (
                               <p className="text-[var(--text-muted)] text-sm">x{staffingCount} personne{parseInt(staffingCount) > 1 ? 's' : ''}</p>
                             )}
                           </div>
@@ -2032,7 +2068,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     )}
 
                     {/* Mission Context (Event Type, Equipment Provided) */}
-                    {(eventType || equipmentProvided) && (selectedCategory?.id === 'TECH' && !selectedEquipment) && (
+                    {(eventType || equipmentProvided) && (selectedCategory?.id === 'TECHNICIENS' && !selectedEquipment) && (
                       <div className="flex flex-wrap gap-2">
                          {eventType && (
                            <span className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-medium flex items-center gap-1.5">
@@ -2056,7 +2092,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     {(description || selectedProblem) && (
                       <div className="p-4 bg-[var(--bg-card)] rounded-xl border border-[var(--border)]">
                         <p className="text-sm font-medium text-[var(--text-muted)] mb-2">
-                          {selectedCategory?.id === 'STAFFING' ? 'Instructions & Notes' : 'Description du problème'}
+                          {selectedCategory?.id === 'PERSONNEL' ? 'Instructions & Notes' : 'Description du problème'}
                         </p>
                         {selectedProblem && (
                           <div className="mb-2 pb-2 border-b border-[var(--border)]">
@@ -2117,7 +2153,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                             ? `${selectedProblem.priceRange.min}€ - ${selectedProblem.priceRange.max}€`
                             : selectedStaffingRole
                               ? `${(parseFloat(staffingDuration) * parseFloat(servicePrice || '0') * parseInt(staffingCount)).toFixed(0)}€`
-                              : (selectedCategory?.id === 'TECH' && !selectedEquipment && servicePrice)
+                              : (selectedCategory?.id === 'TECHNICIENS' && !selectedEquipment && servicePrice)
                                 ? `${(parseFloat(staffingDuration || '0') * parseFloat(servicePrice || '0')).toFixed(0)}€`
                                 : 'Sur devis'
                           }
@@ -2147,11 +2183,11 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                   <div className="flex items-center gap-4 mb-4">
                     <div className={cn(
                       "w-12 h-12 rounded-xl flex items-center justify-center",
-                      selectedCategory?.id === 'PERSONNEL' || selectedCategory?.id === 'STAFFING'
+                      selectedCategory?.id === 'PERSONNEL'
                         ? "bg-purple-500/20"
                         : "bg-blue-500/20"
                     )}>
-                      {selectedCategory?.icon && <selectedCategory.icon className={cn("w-6 h-6", selectedCategory?.id === 'PERSONNEL' || selectedCategory?.id === 'STAFFING' ? "text-purple-400" : "text-blue-400")} />}
+                      {selectedCategory?.icon && <selectedCategory.icon className={cn("w-6 h-6", selectedCategory?.id === 'PERSONNEL' ? "text-purple-400" : "text-blue-400")} />}
                     </div>
                     <div>
                       <h3 className="font-bold text-[var(--text-primary)]">
@@ -2369,7 +2405,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setAddMediaModalOpen(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/90"
             />
             
             <motion.div

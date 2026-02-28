@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CreateMissionWizard, type CategoryId } from '@/components/mission/CreateMissionWizard';
+import SOSExtraLauncher from '@/components/mission/SOSExtraLauncher';
 import { COMING_SOON_CATEGORIES } from '@/data/categories';
 import { clsx } from 'clsx';
 import { useStore } from '@/store/useStore';
@@ -37,6 +38,7 @@ import InvoicesTab from './tabs/InvoicesTab';
 import PayslipsTab from './tabs/PayslipsTab';
 import PremiumTab from './tabs/PremiumTab';
 import StockTab from './tabs/StockTab';
+import DPAETab from './tabs/DPAETab';
 import MissionDetailsModal from './missions/MissionDetailsModal';
 import Sidebar from './Sidebar';
 import SettingsModal from '../shared/SettingsModal';
@@ -67,6 +69,7 @@ export default function PatronDashboard() {
       '/patron/factures': 'INVOICES',
       '/patron/planning': 'PLANNING',
       '/patron/stock': 'STOCK',
+      '/patron/dpae': 'DPAE',
     };
     return tabMap[path] || 'DASHBOARD';
   };
@@ -80,6 +83,7 @@ export default function PatronDashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   const [isMissionModalOpen, setIsMissionModalOpen] = useState(false);
+  const [showSOSExtra, setShowSOSExtra] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [globalSearch, setGlobalSearch] = useState('');
@@ -125,7 +129,10 @@ export default function PatronDashboard() {
 
   const hasSearchResults = searchResults.missions.length > 0 || searchResults.team.length > 0 || searchResults.invoices.length > 0;
 
-  const handleQuickAction = (category: string) => { setSelectedCategory(category as CategoryId); setShowNewRequestModal(true); };
+  const handleQuickAction = (category: string) => {
+    if (category === 'PERSONNEL') { setShowSOSExtra(true); return; }
+    setSelectedCategory(category as CategoryId); setShowNewRequestModal(true);
+  };
   const handleMissionClick = (mission: Mission) => { setSelectedMission(mission); setIsMissionModalOpen(true); };
   const handleTabChange = (tab: string) => { setActiveTab(tab); setIsMobileMenuOpen(false); };
 
@@ -519,6 +526,7 @@ export default function PatronDashboard() {
           {activeTab === 'PAYSLIPS' && <PayslipsTab />}
           {activeTab === 'PREMIUM' && <PremiumTab />}
           {activeTab === 'STOCK' && <StockTab />}
+          {activeTab === 'DPAE' && <DPAETab />}
           {activeTab === 'INVOICES' && <InvoicesTab />}
         </div>
       </div>
@@ -535,6 +543,9 @@ export default function PatronDashboard() {
       </AnimatePresence>
       <AnimatePresence>
         {showVenueDashboard && <VenueDashboard onClose={() => setShowVenueDashboard(false)} initialView={venueDashboardView} />}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showSOSExtra && <SOSExtraLauncher isOpen={true} onClose={() => setShowSOSExtra(false)} />}
       </AnimatePresence>
     </div>
   );

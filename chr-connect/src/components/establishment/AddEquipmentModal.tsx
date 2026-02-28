@@ -352,9 +352,11 @@ export function AddEquipmentModal({
   };
 
   return (
+    <>
     <AnimatePresence>
       {isOpen && (
         <motion.div
+          key="add-equipment-modal"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -891,6 +893,7 @@ export function AddEquipmentModal({
           </motion.div>
         </motion.div>
       )}
+    </AnimatePresence>
 
       {/* Media Selection Modal */}
       <AnimatePresence>
@@ -1000,6 +1003,6 @@ export function AddEquipmentModal({
         onSave={handleSaveDocument}
         readonly={false}
       />
-    </AnimatePresence>
+    </>
   );
 }
