@@ -14,7 +14,7 @@ import DispatchSearchingOverlay from '@/components/provider/DispatchSearchingOve
 import { useMissionDispatch } from '@/hooks/useMissionDispatch';
 import { useMissionDispatchStore } from '@/store/useMissionDispatchStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, Bell, User, X, Briefcase, UserCircle, ChevronDown, Power, Menu, CheckCircle } from 'lucide-react';
+import { LayoutDashboard, Bell, User, X, Briefcase, UserCircle, ChevronDown, Power, Menu, CheckCircle, AlertTriangle, MapPin, Euro } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SIMULATED_PROFILES } from '@/constants/profiles';
 import WorkerDashboard from '@/components/provider/WorkerDashboard';
@@ -35,6 +35,9 @@ export default function Home() {
   const status = useMissionEngine((s) => s.status);
   const resetMission = useMissionEngine((s) => s.resetMission);
   const [showAvailabilityPrompt, setShowAvailabilityPrompt] = useState(false);
+  const [lastMissionSummary, setLastMissionSummary] = useState<{ title: string; venue: string; price: string } | null>(null);
+  const [showNavWarning, setShowNavWarning] = useState(false);
+  const [pendingRoute, setPendingRoute] = useState<string | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -53,10 +56,23 @@ export default function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Callback when a mission ends (STAFF or TECH) — prompt availability
-  const handleMissionEnd = () => {
+  const handleMissionEnd = (summary?: { title: string; venue: string; price: string }) => {
+    setLastMissionSummary(summary || null);
     resetMission();          // engine → IDLE
     setIsOnAir(false);       // prevent dispatch auto-restart
     setShowAvailabilityPrompt(true);
+  };
+
+  // Navigation guard: intercept nav when a mission is active
+  const handleNavClick = (route: string, itemId: string, closeMobileMenu?: () => void) => {
+    if (status !== 'IDLE' && itemId !== 'MISSIONS') {
+      setPendingRoute(route);
+      setShowNavWarning(true);
+      if (closeMobileMenu) closeMobileMenu();
+      return;
+    }
+    router.push(route);
+    if (closeMobileMenu) closeMobileMenu();
   };
 
   // Mission dispatch system
@@ -120,7 +136,7 @@ export default function Home() {
             return (
               <button
                 key={item.id}
-                onClick={() => !disabled && router.push(item.route)}
+                onClick={() => !disabled && handleNavClick(item.route, item.id)}
                 disabled={disabled}
                 className={clsx(
                   "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all",
@@ -161,7 +177,7 @@ export default function Home() {
                   return (
                     <button
                       key={item.id}
-                      onClick={() => { if (!disabled) { router.push(item.route); setIsMobileMenuOpen(false); } }}
+                      onClick={() => { if (!disabled) handleNavClick(item.route, item.id, () => setIsMobileMenuOpen(false)); }}
                       disabled={disabled}
                       className={clsx(
                         "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all",
@@ -355,24 +371,44 @@ export default function Home() {
                       initial={{ opacity: 0, scale: 0.9, y: 20 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                      className="bg-[var(--bg-card)] rounded-2xl w-full max-w-sm p-6 space-y-6 border border-[var(--border)] shadow-2xl"
+                      className="bg-[var(--bg-card)] rounded-2xl w-full max-w-sm p-6 space-y-5 border border-[var(--border)] shadow-2xl"
                     >
                       <div className="flex flex-col items-center text-center space-y-4">
                         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
                           <CheckCircle className="w-8 h-8 text-green-600" />
                         </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-[var(--text-primary)]">Mission terminée !</h3>
-                          <p className="text-sm text-[var(--text-secondary)] mt-2">
-                            Voulez-vous rester disponible pour de nouvelles missions ?
-                          </p>
-                        </div>
+                        <h3 className="text-xl font-bold text-[var(--text-primary)]">Mission terminée !</h3>
                       </div>
+
+                      {/* Mission summary recap */}
+                      {lastMissionSummary && (
+                        <div className="bg-[var(--bg-hover)] rounded-xl p-4 space-y-3">
+                          <div className="flex items-center gap-3">
+                            <Briefcase className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
+                            <span className="text-sm font-medium text-[var(--text-primary)] truncate">{lastMissionSummary.title}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <MapPin className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
+                            <span className="text-sm text-[var(--text-secondary)]">{lastMissionSummary.venue}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Euro className="w-4 h-4 text-green-500 shrink-0" />
+                            <span className="text-sm font-bold text-green-500">{lastMissionSummary.price}</span>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="border-t border-[var(--border)]" />
+
+                      <p className="text-sm text-[var(--text-secondary)] text-center">
+                        Voulez-vous rester disponible pour de nouvelles missions ?
+                      </p>
                       <div className="flex flex-col gap-3">
                         <button
                           onClick={() => {
                             setIsOnAir(true);
                             setShowAvailabilityPrompt(false);
+                            setLastMissionSummary(null);
                           }}
                           className="w-full h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-sm transition-colors shadow-lg shadow-green-900/20"
                         >
@@ -381,11 +417,65 @@ export default function Home() {
                         <button
                           onClick={() => {
                             setShowAvailabilityPrompt(false);
+                            setLastMissionSummary(null);
                             router.push('/prestataire/tableau-de-bord');
                           }}
                           className="w-full h-12 rounded-xl border border-[var(--border)] text-[var(--text-secondary)] font-medium text-sm hover:bg-[var(--bg-hover)] transition-colors"
                         >
                           Non, me déconnecter
+                        </button>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Navigation warning modal when mission is active */}
+              <AnimatePresence>
+                {showNavWarning && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                      className="bg-[var(--bg-card)] rounded-2xl w-full max-w-sm p-6 space-y-5 border border-[var(--border)] shadow-2xl"
+                    >
+                      <div className="flex flex-col items-center text-center space-y-4">
+                        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center">
+                          <AlertTriangle className="w-8 h-8 text-amber-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-[var(--text-primary)]">Mission en cours</h3>
+                          <p className="text-sm text-[var(--text-secondary)] mt-2">
+                            Vous avez une mission active. Voulez-vous vraiment quitter ?
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-3">
+                        <button
+                          onClick={() => setShowNavWarning(false)}
+                          className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-colors shadow-lg shadow-blue-900/20"
+                        >
+                          Rester sur la mission
+                        </button>
+                        <button
+                          onClick={() => {
+                            resetMission();
+                            setIsOnAir(false);
+                            setShowNavWarning(false);
+                            if (pendingRoute) {
+                              router.push(pendingRoute);
+                              setPendingRoute(null);
+                            }
+                          }}
+                          className="w-full h-12 rounded-xl border border-red-500/30 text-red-500 font-medium text-sm hover:bg-red-500/10 transition-colors"
+                        >
+                          Quitter la mission
                         </button>
                       </div>
                     </motion.div>

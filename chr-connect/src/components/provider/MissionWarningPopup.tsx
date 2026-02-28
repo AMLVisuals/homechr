@@ -19,22 +19,22 @@ export default function MissionWarningPopup({
   onDismiss,
 }: MissionWarningPopupProps) {
   const [mounted, setMounted] = useState(false);
-  const [remainingMinutes, setRemainingMinutes] = useState(5);
+  const [remainingSeconds, setRemainingSeconds] = useState(300);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Countdown for suspension timer
+  // Countdown for suspension timer (1s precision)
   useEffect(() => {
     if (type !== 'suspension' || !suspendedUntil) return;
 
     const update = () => {
       const diff = Math.max(0, suspendedUntil - Date.now());
-      setRemainingMinutes(Math.ceil(diff / 60000));
+      setRemainingSeconds(Math.ceil(diff / 1000));
     };
     update();
-    const interval = setInterval(update, 10000);
+    const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
   }, [type, suspendedUntil]);
 
@@ -90,7 +90,7 @@ export default function MissionWarningPopup({
                 <p className={`text-sm leading-relaxed ${isWarning ? 'text-amber-200/70' : 'text-red-200/70'}`}>
                   {isWarning
                     ? 'Vous avez refusé 3 missions consécutives. Encore 2 refus et votre compte sera temporairement suspendu.'
-                    : `Vous avez refusé trop de missions consécutives. Votre disponibilité est suspendue pour ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}.`
+                    : `Vous avez refusé trop de missions consécutives. Votre disponibilité est suspendue pour ${Math.floor(remainingSeconds / 60)}m ${(remainingSeconds % 60).toString().padStart(2, '0')}s.`
                   }
                 </p>
               </div>

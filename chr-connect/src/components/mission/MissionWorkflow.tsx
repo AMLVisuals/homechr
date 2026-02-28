@@ -27,8 +27,14 @@ const QuoteBuilderUltimate = dynamic(() => import('@/components/provider/QuoteBu
 // Mock images for fallback
 const MOCK_BEFORE = "https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=800&auto=format&fit=crop";
 
+interface MissionSummary {
+  title: string;
+  venue: string;
+  price: string;
+}
+
 interface MissionWorkflowProps {
-  onMissionEnd?: () => void;
+  onMissionEnd?: (summary?: MissionSummary) => void;
 }
 
 export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) {
@@ -53,6 +59,8 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
   const [showQuickNote, setShowQuickNote] = useState(false);
   const [quickNote, setQuickNote] = useState('');
 
+  // TECH flow: auto-accept countdown
+  const [autoAcceptCountdown, setAutoAcceptCountdown] = useState<number | null>(null);
   // TECH flow: diagnostic note
   const [diagNote, setDiagNote] = useState('');
   // TECH flow: quote builder
@@ -99,6 +107,30 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
 
     return () => clearInterval(interval);
   }, [status, activeMissionId, setStatus, resetMission]);
+
+  // TECH flow: simulate patron acceptance after 8s
+  useEffect(() => {
+    if (status !== 'AWAITING_QUOTE_RESPONSE' || !activeMissionId) {
+      setAutoAcceptCountdown(null);
+      return;
+    }
+
+    const DELAY = 8;
+    setAutoAcceptCountdown(DELAY);
+
+    const countdownInterval = setInterval(() => {
+      setAutoAcceptCountdown(prev => (prev !== null && prev > 0) ? prev - 1 : 0);
+    }, 1000);
+
+    const timeout = setTimeout(() => {
+      updateMission(activeMissionId, { status: 'IN_PROGRESS' });
+    }, DELAY * 1000);
+
+    return () => {
+      clearInterval(countdownInterval);
+      clearTimeout(timeout);
+    };
+  }, [status, activeMissionId, updateMission]);
 
   // Real Geolocation or Simulation when ON_WAY
   const [distance, setDistance] = useState(1200); // meters
@@ -163,7 +195,11 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
       updateMission(activeMissionId, { status: 'PENDING_VALIDATION' });
     }
     if (onMissionEnd) {
-      onMissionEnd();
+      onMissionEnd({
+        title: activeMission?.title || 'Mission',
+        venue: activeMission?.venue || 'Établissement',
+        price: String(activeMission?.price ?? '85.00 €'),
+      });
     } else {
       resetMission();
     }
@@ -287,7 +323,13 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
     return (
       <QuoteBuilderUltimate
         isOpen={true}
-        onClose={() => { setShowQuoteBuilder(false); setStatus('DIAGNOSING'); }}
+        onClose={() => {
+          setShowQuoteBuilder(false);
+          // Only revert to DIAGNOSING if user cancelled (not after submit)
+          if (useMissionEngine.getState().status === 'QUOTE_BUILDING') {
+            setStatus('DIAGNOSING');
+          }
+        }}
         onSubmit={handleQuoteSubmit}
         providerId="current-worker"
         providerName="Vous"
@@ -579,6 +621,12 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Vérification en cours...</span>
                 </div>
+
+                {autoAcceptCountdown !== null && autoAcceptCountdown > 0 && (
+                  <p className="text-xs text-blue-500 italic">
+                    Simulation : le patron accepte dans {autoAcceptCountdown}s...
+                  </p>
+                )}
               </div>
             </motion.div>
           )}
@@ -787,7 +835,22 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
                  </div>
               </div>
 
-              <Button onClick={onMissionEnd || resetMission} size="lg" variant="outline" className="w-full h-14 rounded-2xl border-gray-200">
+              <Button
+                onClick={() => {
+                  if (onMissionEnd) {
+                    onMissionEnd({
+                      title: activeMission?.title || 'Mission',
+                      venue: activeMission?.venue || 'Établissement',
+                      price: String(activeMission?.price ?? '85.00 €'),
+                    });
+                  } else {
+                    resetMission();
+                  }
+                }}
+                size="lg"
+                variant="outline"
+                className="w-full h-14 rounded-2xl border-gray-200"
+              >
                 Retour à la carte
               </Button>
             </motion.div>
