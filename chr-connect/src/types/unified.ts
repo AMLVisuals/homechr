@@ -8,6 +8,7 @@
 import type { EquipmentCategory, EquipmentStatus, Equipment } from './equipment';
 import type { Mission, MissionType } from './missions';
 import type { Venue } from './venue';
+import { APP_CONFIG } from '@/config/appConfig';
 
 // ============================================================================
 // UNIFIED MISSION - Maintenance & Staffing unified
@@ -589,7 +590,7 @@ export interface FinancialConfig {
 }
 
 export const DEFAULT_FINANCIAL_CONFIG: FinancialConfig = {
-  platformFeeRate: 0.15,
+  platformFeeRate: APP_CONFIG.PLATFORM_FEE_RATE,
   platformFeeMinimum: 5,
   travelZones: TRAVEL_ZONES,
   defaultTVARate: 'STANDARD',

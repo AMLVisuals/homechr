@@ -47,6 +47,7 @@ import type {
 } from '@/types/unified';
 
 import { TVA_RATES } from '@/types/unified';
+import { APP_CONFIG } from '@/config/appConfig';
 
 // ============================================================================
 // TYPES
@@ -1544,7 +1545,7 @@ export function QuoteBuilderModal({
                 <p className="text-xl font-bold text-blue-400">{formatPrice(totals.adjustedTTC)}</p>
               </div>
               <div className="border-l border-[var(--border)] pl-4">
-                <p className="text-xs text-[var(--text-muted)]">Commission (15%)</p>
+                <p className="text-xs text-[var(--text-muted)]">Commission ({APP_CONFIG.PLATFORM_FEE_PERCENT}%)</p>
                 <p className="text-lg font-bold text-red-400">-{formatPrice(totals.platformFeeAmount)}</p>
               </div>
               <div>

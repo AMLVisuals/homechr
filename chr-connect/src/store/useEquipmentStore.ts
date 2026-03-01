@@ -8,6 +8,7 @@ import type {
   EquipmentFilters
 } from '@/types/equipment';
 import { generateQRCodeUrl } from '@/lib/ai-service.mock';
+import { APP_CONFIG } from '@/config/appConfig';
 
 // ============================================================================
 // EQUIPMENT STORE - Zustand Store for Equipment Management
@@ -59,7 +60,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
   {
     id: 'eq_001',
     venueId: 'v1',
-    ownerId: 'patron_001',
+    ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
     category: 'COFFEE_MACHINE',
     brand: 'La Marzocco',
     model: 'Linea PB',
@@ -91,12 +92,12 @@ const INITIAL_EQUIPMENT: Equipment[] = [
     qrCodeUrl: generateQRCodeUrl('eq_001'),
     createdAt: '2022-03-15T10:00:00Z',
     updatedAt: '2024-09-15T14:30:00Z',
-    createdBy: 'patron_001',
+    createdBy: APP_CONFIG.DEFAULT_OWNER_ID,
   },
   {
     id: 'eq_002',
     venueId: 'v1',
-    ownerId: 'patron_001',
+    ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
     category: 'FRIDGE',
     brand: 'Hoshizaki',
     model: 'HR-78MA',
@@ -129,12 +130,12 @@ const INITIAL_EQUIPMENT: Equipment[] = [
     qrCodeUrl: generateQRCodeUrl('eq_002'),
     createdAt: '2021-06-20T10:00:00Z',
     updatedAt: '2024-08-10T11:00:00Z',
-    createdBy: 'patron_001',
+    createdBy: APP_CONFIG.DEFAULT_OWNER_ID,
   },
   {
     id: 'eq_003',
     venueId: 'v1',
-    ownerId: 'patron_001',
+    ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
     category: 'OVEN',
     brand: 'Rational',
     model: 'iCombi Pro 10-1/1',
@@ -165,7 +166,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
     qrCodeUrl: generateQRCodeUrl('eq_003'),
     createdAt: '2023-01-10T10:00:00Z',
     updatedAt: '2024-12-01T09:00:00Z',
-    createdBy: 'patron_001',
+    createdBy: APP_CONFIG.DEFAULT_OWNER_ID,
     metadata: {
       lastFault: 'Ne chauffe plus en mode vapeur',
       faultReportedAt: '2024-12-01T08:30:00Z',
@@ -174,7 +175,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
   {
     id: 'eq_004',
     venueId: 'v1',
-    ownerId: 'patron_001',
+    ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
     category: 'DISHWASHER',
     brand: 'Winterhalter',
     model: 'PT-500',
@@ -206,7 +207,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
     qrCodeUrl: generateQRCodeUrl('eq_004'),
     createdAt: '2022-08-15T10:00:00Z',
     updatedAt: '2024-11-15T16:00:00Z',
-    createdBy: 'patron_001',
+    createdBy: APP_CONFIG.DEFAULT_OWNER_ID,
     metadata: {
       warningReason: 'Maintenance préventive recommandée',
     },
@@ -214,7 +215,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
   {
     id: 'eq_005',
     venueId: 'v1',
-    ownerId: 'patron_001',
+    ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
     category: 'ICE_MACHINE',
     brand: 'Hoshizaki',
     model: 'IM-240',
@@ -245,12 +246,12 @@ const INITIAL_EQUIPMENT: Equipment[] = [
     qrCodeUrl: generateQRCodeUrl('eq_005'),
     createdAt: '2023-05-01T10:00:00Z',
     updatedAt: '2024-11-01T10:00:00Z',
-    createdBy: 'patron_001',
+    createdBy: APP_CONFIG.DEFAULT_OWNER_ID,
   },
   {
     id: 'eq_006',
     venueId: 'v1',
-    ownerId: 'patron_001',
+    ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
     category: 'BEER_TAP',
     brand: 'Lindr',
     model: 'KONTAKT 40/K',
@@ -281,7 +282,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
     qrCodeUrl: generateQRCodeUrl('eq_006'),
     createdAt: '2023-02-01T10:00:00Z',
     updatedAt: '2024-10-15T14:00:00Z',
-    createdBy: 'patron_001',
+    createdBy: APP_CONFIG.DEFAULT_OWNER_ID,
   },
 
   // ============================================================================
@@ -290,7 +291,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
   {
     id: 'eq_ambroisie_001',
     venueId: 'v3',
-    ownerId: 'patron_001',
+    ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
     category: 'COLD_ROOM',
     brand: 'Dagard',
     model: 'Positive Walk-In 12m³',
@@ -330,7 +331,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
     qrCodeUrl: generateQRCodeUrl('eq_ambroisie_001'),
     createdAt: '2019-06-15T10:00:00Z',
     updatedAt: '2024-09-20T14:30:00Z',
-    createdBy: 'patron_001',
+    createdBy: APP_CONFIG.DEFAULT_OWNER_ID,
     metadata: {
       temperatureSetpoint: '+2°C',
       haccomplianceDate: '2024-09-20',
@@ -340,7 +341,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
   {
     id: 'eq_ambroisie_002',
     venueId: 'v3',
-    ownerId: 'patron_001',
+    ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
     category: 'COLD_ROOM',
     brand: 'Dagard',
     model: 'Négative Walk-In 6m³',
@@ -373,7 +374,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
     qrCodeUrl: generateQRCodeUrl('eq_ambroisie_002'),
     createdAt: '2019-06-15T10:00:00Z',
     updatedAt: '2024-09-20T14:30:00Z',
-    createdBy: 'patron_001',
+    createdBy: APP_CONFIG.DEFAULT_OWNER_ID,
     metadata: {
       temperatureSetpoint: '-22°C',
       refrigerantCharge: '5.8kg R404A',
@@ -382,7 +383,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
   {
     id: 'eq_ambroisie_003',
     venueId: 'v3',
-    ownerId: 'patron_001',
+    ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
     category: 'OVEN',
     brand: 'Bonnet Thirode',
     model: 'Maestro 20 GN 2/1 GAZ',
@@ -422,7 +423,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
     qrCodeUrl: generateQRCodeUrl('eq_ambroisie_003'),
     createdAt: '2021-03-10T10:00:00Z',
     updatedAt: '2024-10-15T11:00:00Z',
-    createdBy: 'patron_001',
+    createdBy: APP_CONFIG.DEFAULT_OWNER_ID,
     metadata: {
       energyType: 'GAZ_NATUREL',           // ← Type d'énergie = GAZ
       gasConnection: 'G20 - 20mbar',        // Type raccordement gaz
@@ -434,7 +435,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
   {
     id: 'eq_ambroisie_004',
     venueId: 'v3',
-    ownerId: 'patron_001',
+    ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
     category: 'COOKING',
     brand: 'Bonnet Thirode',
     model: 'Piano Central 6 Feux GAZ',
@@ -466,7 +467,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
     qrCodeUrl: generateQRCodeUrl('eq_ambroisie_004'),
     createdAt: '2020-09-01T10:00:00Z',
     updatedAt: '2024-08-20T14:00:00Z',
-    createdBy: 'patron_001',
+    createdBy: APP_CONFIG.DEFAULT_OWNER_ID,
     metadata: {
       energyType: 'GAZ_NATUREL',
       gasConnection: 'G20 - 20mbar',
@@ -477,7 +478,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
   {
     id: 'eq_ambroisie_005',
     venueId: 'v3',
-    ownerId: 'patron_001',
+    ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
     category: 'COFFEE_MACHINE',
     brand: 'Victoria Arduino',
     model: 'Black Eagle Maverick T3',
@@ -509,12 +510,12 @@ const INITIAL_EQUIPMENT: Equipment[] = [
     qrCodeUrl: generateQRCodeUrl('eq_ambroisie_005'),
     createdAt: '2023-06-01T10:00:00Z',
     updatedAt: '2024-11-01T10:00:00Z',
-    createdBy: 'patron_001',
+    createdBy: APP_CONFIG.DEFAULT_OWNER_ID,
   },
   {
     id: 'eq_ambroisie_006',
     venueId: 'v3',
-    ownerId: 'patron_001',
+    ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
     category: 'DISHWASHER',
     brand: 'Meiko',
     model: 'M-iClean UL',
@@ -546,12 +547,12 @@ const INITIAL_EQUIPMENT: Equipment[] = [
     qrCodeUrl: generateQRCodeUrl('eq_ambroisie_006'),
     createdAt: '2022-01-15T10:00:00Z',
     updatedAt: '2024-10-10T14:00:00Z',
-    createdBy: 'patron_001',
+    createdBy: APP_CONFIG.DEFAULT_OWNER_ID,
   },
   {
     id: 'eq_ambroisie_007',
     venueId: 'v3',
-    ownerId: 'patron_001',
+    ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
     category: 'VENTILATION',
     brand: 'Halton',
     model: 'Capture Jet KVL-UV',
@@ -583,7 +584,7 @@ const INITIAL_EQUIPMENT: Equipment[] = [
     qrCodeUrl: generateQRCodeUrl('eq_ambroisie_007'),
     createdAt: '2019-06-15T10:00:00Z',
     updatedAt: '2024-09-15T14:00:00Z',
-    createdBy: 'patron_001',
+    createdBy: APP_CONFIG.DEFAULT_OWNER_ID,
     metadata: {
       warningReason: 'Remplacement lampes UV recommandé',
       lastUvChange: '2023-03-15',

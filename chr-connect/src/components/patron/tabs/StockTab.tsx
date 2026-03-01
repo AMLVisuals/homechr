@@ -1,14 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Plus, Package, Wine, UtensilsCrossed, Paintbrush, Wrench,
-  AlertTriangle, X, Trash2, Edit3, Check,
+  AlertTriangle, X, Trash2, Edit3, Check, Crown, TrendingDown, BarChart3, Truck,
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { SkeletonTable } from '@/components/shared/Skeleton';
+import EmptyState from '@/components/shared/EmptyState';
 import { useStockStore, StockCategory, StockItem } from '@/store/useStockStore';
 import { useVenuesStore } from '@/store/useVenuesStore';
+import { useStore } from '@/store/useStore';
 
 const CATEGORIES: { id: StockCategory | 'ALL'; label: string; icon: React.ElementType }[] = [
   { id: 'ALL', label: 'Tout', icon: Package },
@@ -19,8 +22,10 @@ const CATEGORIES: { id: StockCategory | 'ALL'; label: string; icon: React.Elemen
 ];
 
 export default function StockTab() {
+  const { isPremium } = useStore();
   const { items, addItem, updateItem, removeItem } = useStockStore();
   const { activeVenueId } = useVenuesStore();
+  const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<StockCategory | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -74,10 +79,69 @@ export default function StockTab() {
     setShowAddModal(false);
   };
 
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleQuantityChange = (item: StockItem, delta: number) => {
     const newQty = Math.max(0, item.quantity + delta);
     updateItem(item.id, { quantity: newQty });
   };
+
+  if (!isPremium) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="h-full flex items-center justify-center p-4"
+      >
+        <div className="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-8 text-center shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 blur-3xl rounded-full -mr-10 -mt-10" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-yellow-500/10 blur-3xl rounded-full -ml-10 -mb-10" />
+
+          <div className="relative">
+            <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-r from-amber-400 to-yellow-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
+              <Crown className="w-8 h-8 text-black" />
+            </div>
+
+            <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
+              Fonctionnalite Premium
+            </h3>
+            <p className="text-[var(--text-secondary)] text-sm mb-6">
+              La gestion de stock est reservee aux abonnes Premium.
+            </p>
+
+            <div className="space-y-3 text-left mb-8">
+              {[
+                { icon: TrendingDown, text: 'Alertes automatiques en cas de stock bas' },
+                { icon: BarChart3, text: 'Suivi en temps reel de votre inventaire' },
+                { icon: Truck, text: 'Gestion des fournisseurs et prix unitaires' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--bg-hover)] border border-[var(--border)]">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+                    <item.icon className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <span className="text-sm text-[var(--text-primary)] font-medium">{item.text}</span>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('set-patron-tab', { detail: 'PREMIUM' }))}
+              className="w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-400 to-yellow-500 text-black hover:from-amber-300 hover:to-yellow-400 transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
+            >
+              <Crown className="w-4 h-4" />
+              Passer Premium — 100 EUR/mois
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  if (isLoading) return <SkeletonTable />;
 
   return (
     <div className="h-full flex flex-col">
@@ -215,9 +279,14 @@ export default function StockTab() {
           })}
 
           {filteredItems.length === 0 && (
-            <div className="col-span-2 text-center py-20 text-[var(--text-muted)]">
-              <Package className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p>Aucun article trouvé.</p>
+            <div className="col-span-2">
+              <EmptyState
+                icon={Package}
+                title="Aucun article en stock"
+                description="Ajoutez votre premier article pour commencer à gérer votre inventaire."
+                actionLabel="Ajouter un article"
+                onAction={() => setShowAddModal(true)}
+              />
             </div>
           )}
         </div>

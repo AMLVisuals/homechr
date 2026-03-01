@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/store/useStore';
+import { useNotificationsStore, formatTimeAgo } from '@/store/useNotificationsStore';
 import { useMissionEngine } from '@/store/mission-engine';
 import { usePathname, useRouter } from 'next/navigation';
 import RoleSwitcher from '@/components/RoleSwitcher';
@@ -25,13 +26,10 @@ const NAV_ITEMS = [
   { id: 'MISSIONS', label: 'Missions', icon: Briefcase, route: '/prestataire/mes-missions', alwaysEnabled: false },
 ];
 
-const NOTIFICATIONS = [
-  { id: 1, title: 'Expert en route', desc: "L'expert Plombier arrivera dans 15 min.", time: 'Il y a 2 min', unread: true },
-  { id: 2, title: 'Mission Terminée', desc: 'La réparation du four a été validée.', time: 'Hier', unread: false },
-];
-
 export default function Home() {
   const { userRole, setUserRole, isOnAir, toggleOnAir, setIsOnAir } = useStore();
+  const { notifications, markAsRead, markAllAsRead } = useNotificationsStore();
+  const unreadCount = notifications.filter((n) => !n.read).length;
   const status = useMissionEngine((s) => s.status);
   const resetMission = useMissionEngine((s) => s.resetMission);
   const [showAvailabilityPrompt, setShowAvailabilityPrompt] = useState(false);
@@ -271,23 +269,23 @@ export default function Home() {
             <div className="relative">
               <button onClick={() => setShowNotifications(!showNotifications)} className="w-10 h-10 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] flex items-center justify-center transition-colors relative">
                 <Bell className="w-5 h-5 text-[var(--text-secondary)]" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
+                {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />}
               </button>
               <AnimatePresence>
                 {showNotifications && (
                   <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} className="absolute top-full right-0 mt-2 w-80 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden backdrop-blur-xl z-50" style={{ boxShadow: 'var(--shadow-lg)' }}>
                     <div className="p-4 border-b border-[var(--border)] flex justify-between items-center">
                       <h3 className="font-bold text-sm text-[var(--text-primary)]">Notifications</h3>
-                      <button className="text-xs text-blue-500 hover:text-blue-400">Tout marquer lu</button>
+                      <button onClick={markAllAsRead} className="text-xs text-blue-500 hover:text-blue-400">Tout marquer lu</button>
                     </div>
                     <div className="max-h-[300px] overflow-y-auto">
-                      {NOTIFICATIONS.map((notif) => (
-                        <div key={notif.id} className={clsx("p-4 border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer", notif.unread && "bg-blue-500/5")}>
+                      {notifications.map((notif) => (
+                        <div key={notif.id} onClick={() => markAsRead(notif.id)} className={clsx("p-4 border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer", !notif.read && "bg-blue-500/5")}>
                           <div className="flex justify-between items-start mb-1">
-                            <h4 className={clsx("text-sm font-bold", notif.unread ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]")}>{notif.title}</h4>
-                            <span className="text-[10px] text-[var(--text-muted)]">{notif.time}</span>
+                            <h4 className={clsx("text-sm font-bold", !notif.read ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]")}>{notif.title}</h4>
+                            <span className="text-[10px] text-[var(--text-muted)]">{formatTimeAgo(notif.time)}</span>
                           </div>
-                          <p className="text-xs text-[var(--text-secondary)]">{notif.desc}</p>
+                          <p className="text-xs text-[var(--text-secondary)]">{notif.description}</p>
                         </div>
                       ))}
                     </div>

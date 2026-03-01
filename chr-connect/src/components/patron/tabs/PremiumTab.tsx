@@ -4,9 +4,10 @@ import { motion } from 'framer-motion';
 import { Zap, FileText, Infinity, Package, CheckCircle2, Crown, X, Headphones, Shield, Star, ScrollText } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { clsx } from 'clsx';
+import { APP_CONFIG } from '@/config/appConfig';
 
 const PREMIUM_FEATURES = [
-  { icon: Infinity, label: 'Missions illimitées', desc: 'Plus de frais de 20€ par mise en relation — créez autant de missions que nécessaire' },
+  { icon: Infinity, label: 'Missions illimitées', desc: `Plus de frais de ${APP_CONFIG.MISSION_FEE}€ par mise en relation — créez autant de missions que nécessaire` },
   { icon: FileText, label: 'Fiches de paie', desc: 'Création de bulletins de paie complets en quelques clics' },
   { icon: ScrollText, label: 'DPAE + contrat de travail', desc: 'Déclaration URSSAF automatique + CDD d\'usage auto-généré' },
   { icon: Package, label: 'Gestion de stock', desc: 'Suivi inventaire par établissement avec alertes seuil bas' },
@@ -15,7 +16,7 @@ const PREMIUM_FEATURES = [
 ];
 
 const COMPARISON_ROWS = [
-  { label: 'Création de missions', free: '20€/mission', premium: 'Illimité, 0€' },
+  { label: 'Création de missions', free: `${APP_CONFIG.MISSION_FEE}€/mission`, premium: 'Illimité, 0€' },
   { label: 'Gestion des équipements', free: true, premium: true },
   { label: 'Planning & calendrier', free: true, premium: true },
   { label: 'Gestion d\'équipe', free: true, premium: true },
@@ -73,7 +74,7 @@ export default function PremiumTab() {
                 <p className="text-[var(--text-secondary)] text-sm">Abonnement actif</p>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-bold text-[var(--text-primary)]">100€</span>
+                <span className="text-2xl font-bold text-[var(--text-primary)]">{APP_CONFIG.PREMIUM_MONTHLY_PRICE}€</span>
                 <span className="text-[var(--text-secondary)] text-sm">/mois</span>
               </div>
             </div>
@@ -141,7 +142,7 @@ export default function PremiumTab() {
               <div>
                 <h2 className="text-2xl font-bold text-[var(--text-primary)]">CHR Connect Premium</h2>
                 <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-4xl font-bold text-[var(--text-primary)]">100€</span>
+                  <span className="text-4xl font-bold text-[var(--text-primary)]">{APP_CONFIG.PREMIUM_MONTHLY_PRICE}€</span>
                   <span className="text-[var(--text-secondary)]">/mois</span>
                 </div>
               </div>

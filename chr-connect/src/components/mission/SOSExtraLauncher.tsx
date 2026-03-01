@@ -10,6 +10,7 @@ import { useEstablishment } from '@/contexts/EstablishmentContext';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useCalendarStore } from '@/store/calendarStore';
 import { useStore } from '@/store/useStore';
+import { APP_CONFIG } from '@/config/appConfig';
 
 interface SOSExtraLauncherProps {
   isOpen: boolean;
@@ -491,7 +492,7 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
                   <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex items-start gap-3">
                     <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-[var(--text-primary)]">Frais de mise en relation : 20€</p>
+                      <p className="text-sm font-medium text-[var(--text-primary)]">Frais de mise en relation : {APP_CONFIG.MISSION_FEE}€</p>
                       <p className="text-xs text-[var(--text-muted)] mt-1">Passez en Premium pour des missions illimitees sans frais</p>
                     </div>
                   </div>
@@ -505,7 +506,7 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
                   onClick={handleSubmit}
                   className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-lg shadow-lg shadow-red-500/20 active:shadow-md transition-shadow"
                 >
-                  {isPremium ? 'Publier la mission' : 'Publier — 20€'}
+                  {isPremium ? 'Publier la mission' : `Publier — ${APP_CONFIG.MISSION_FEE}€`}
                 </motion.button>
               </div>
             </motion.div>

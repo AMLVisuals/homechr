@@ -1,6 +1,6 @@
 export interface DPAEDeclaration {
   id: string;
-  missionId: string;
+  missionId?: string;
 
   // Employeur
   employerSiret: string;
@@ -34,7 +34,7 @@ export interface DPAEDeclaration {
 export interface DPAEContract {
   id: string;
   declarationId: string;
-  missionId: string;
+  missionId?: string;
   generatedAt: string;
   htmlContent: string;
   status: 'DRAFT' | 'SIGNED' | 'SENT';

@@ -11,13 +11,14 @@ import { DPAEDeclaration } from '@/types/dpae';
 import { useDPAEStore } from '@/store/useDPAEStore';
 import { Mission } from '@/types/missions';
 import { downloadContract, printContract } from '@/lib/dpae-contract-generator';
+import { APP_CONFIG } from '@/config/appConfig';
 
 type DPAEStep = 'employer' | 'employee' | 'contract' | 'submitting' | 'done';
 
 interface DPAEWizardProps {
   isOpen: boolean;
   onClose: () => void;
-  mission: Mission;
+  mission?: Mission;
   establishmentName?: string;
   establishmentAddress?: string;
   establishmentSiret?: string;
@@ -35,25 +36,25 @@ export default function DPAEWizard({
   const [step, setStep] = useState<DPAEStep>('employer');
 
   // Employer fields (pre-filled)
-  const [employerName, setEmployerName] = useState(establishmentName || mission.venue || '');
+  const [employerName, setEmployerName] = useState(establishmentName || mission?.venue || '');
   const [employerSiret, setEmployerSiret] = useState(establishmentSiret || '');
   const [employerAddress, setEmployerAddress] = useState(establishmentAddress || '');
-  const [employerAPE, setEmployerAPE] = useState('5610A'); // Restaurants, default
+  const [employerAPE, setEmployerAPE] = useState<string>(APP_CONFIG.DEFAULT_APE_CODE); // Restaurants, default
 
   // Employee fields
-  const [employeeLastName, setEmployeeLastName] = useState(mission.pendingWorker?.name?.split(' ').pop() || mission.provider?.name?.split(' ').pop() || '');
-  const [employeeFirstName, setEmployeeFirstName] = useState(mission.pendingWorker?.name?.split(' ')[0] || mission.provider?.name?.split(' ')[0] || '');
+  const [employeeLastName, setEmployeeLastName] = useState(mission?.pendingWorker?.name?.split(' ').pop() || mission?.provider?.name?.split(' ').pop() || '');
+  const [employeeFirstName, setEmployeeFirstName] = useState(mission?.pendingWorker?.name?.split(' ')[0] || mission?.provider?.name?.split(' ')[0] || '');
   const [employeeBirthDate, setEmployeeBirthDate] = useState('');
   const [employeeSSN, setEmployeeSSN] = useState('');
   const [employeeNationality, setEmployeeNationality] = useState('Française');
 
   // Contract fields (pre-filled from mission)
-  const [startDate, setStartDate] = useState(mission.date?.split(' ')[0] || new Date().toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState(mission?.date?.split(' ')[0] || new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState('');
-  const [workHours, setWorkHours] = useState(mission.date?.split(' ')[1] || '09:00 - 17:00');
-  const [hourlyRate, setHourlyRate] = useState('11.88'); // SMIC horaire approx
+  const [workHours, setWorkHours] = useState(mission?.date?.split(' ')[1] || '09:00 - 17:00');
+  const [hourlyRate, setHourlyRate] = useState(String(APP_CONFIG.SMIC_HOURLY_RATE)); // SMIC horaire approx
   const [jobTitle, setJobTitle] = useState(
-    mission.provider?.bio || mission.pendingWorker?.specialty || mission.title || ''
+    mission?.provider?.bio || mission?.pendingWorker?.specialty || mission?.title || ''
   );
 
   const [createdDeclaration, setCreatedDeclaration] = useState<DPAEDeclaration | null>(null);
@@ -70,7 +71,7 @@ export default function DPAEWizard({
 
     const declaration: DPAEDeclaration = {
       id: `dpae-${Date.now()}`,
-      missionId: mission.id,
+      missionId: mission?.id,
       employerSiret,
       employerName,
       employerAddress,
@@ -99,7 +100,7 @@ export default function DPAEWizard({
       addContract({
         id: `contract-${Date.now()}`,
         declarationId: declaration.id,
-        missionId: mission.id,
+        missionId: mission?.id,
         generatedAt: new Date().toISOString(),
         htmlContent: '',
         status: 'DRAFT',

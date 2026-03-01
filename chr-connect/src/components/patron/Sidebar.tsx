@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, Receipt, Warehouse,
-  CreditCard, Calendar, Settings, User, Crown, Briefcase, Package,
+  CreditCard, Calendar, Settings, User, Crown, Briefcase, Package, FileText,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -13,6 +13,7 @@ export const NAV_ITEMS = [
   { id: 'MISSIONS', icon: Briefcase, label: 'Missions', path: '/patron/missions' },
   { id: 'TEAM', icon: Users, label: 'Mon Équipe', path: '/patron/mon-equipe' },
   { id: 'PAYSLIPS', icon: Receipt, label: 'Bulletin de paie', path: '/patron/bulletins-paie', premium: true },
+  { id: 'DPAE', icon: FileText, label: 'DPAE', path: '/patron/dpae', premium: true },
   { id: 'STOCK', icon: Package, label: 'Stock', path: '/patron/stock', premium: true },
   { id: 'GARAGE', icon: Warehouse, label: 'Mes équipements', path: '/patron/equipements' },
   { id: 'INVOICES', icon: CreditCard, label: 'Mes factures', path: '/patron/factures' },

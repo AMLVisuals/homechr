@@ -1,7 +1,9 @@
-import { useState } from 'react';
-import { Search, Filter, Download, Eye, X, FileText, Clock, AlertCircle, DollarSign } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Filter, Download, Eye, X, FileText, Clock, AlertCircle, DollarSign, Receipt } from 'lucide-react';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SkeletonTable } from '@/components/shared/Skeleton';
+import EmptyState from '@/components/shared/EmptyState';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useVenuesStore } from '@/store/useVenuesStore';
 import { InvoiceDetailView } from '../billing/InvoiceDetailView';
@@ -10,6 +12,7 @@ import { Invoice } from '@/types/missions';
 export default function InvoicesTab() {
   const { missions } = useMissionsStore();
   const { activeVenueId } = useVenuesStore();
+  const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
@@ -59,6 +62,11 @@ export default function InvoicesTab() {
     }
   };
 
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleDownload = (e: React.MouseEvent, invoice: any) => {
     e.stopPropagation();
     // Simulate download
@@ -69,6 +77,8 @@ export default function InvoicesTab() {
     link.click();
     document.body.removeChild(link);
   };
+
+  if (isLoading) return <SkeletonTable />;
 
   return (
     <div className="h-full flex flex-col relative overflow-hidden">
@@ -199,6 +209,13 @@ export default function InvoicesTab() {
 
           {/* Invoices List */}
           <div className="space-y-3 pb-20 px-4 md:px-0">
+            {filteredInvoices.length === 0 && (
+              <EmptyState
+                icon={Receipt}
+                title="Aucune facture"
+                description="Les factures apparaîtront ici après vos premières missions complétées."
+              />
+            )}
             {filteredInvoices.map((invoice) => (
               <motion.div 
                 key={invoice.id}

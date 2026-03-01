@@ -1,3 +1,4 @@
+import { APP_CONFIG } from '@/config/appConfig';
 
 export type PricingCategory = 'COOLING' | 'PLUMBING' | 'ELEC' | 'KITCHEN' | 'COFFEE' | 'STAFF' | 'DEFAULT';
 
@@ -53,7 +54,7 @@ export const calculatePrice = (category: string, options: PricingOptions): Price
   
   // Fixed costs
   const travelCost = 50;
-  const platformFee = 15;
+  const platformFee = APP_CONFIG.PLATFORM_FEE_PERCENT;
   
   // Calculate multipliers
   let multiplier = 1;

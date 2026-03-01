@@ -11,6 +11,7 @@ import { EquipmentForm } from '@/components/equipment/EquipmentForm';
 import TeamMemberModal from '@/components/patron/team/TeamMemberModal';
 import { Equipment } from '@/types/equipment';
 import { TeamMember } from '@/types/missions';
+import { APP_CONFIG } from '@/config/appConfig';
 
 interface VenueDetailsProps {
   venue: Venue;
@@ -358,7 +359,7 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
             onClose={() => setEditingEquipment(undefined)}
             editingEquipment={editingEquipment}
             venueId={venue.id}
-            ownerId={editingEquipment.ownerId || 'patron_001'}
+            ownerId={editingEquipment.ownerId || APP_CONFIG.DEFAULT_OWNER_ID}
           />
         )}
       </AnimatePresence>

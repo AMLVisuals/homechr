@@ -236,16 +236,6 @@ export function ScheduleMaintenanceModal({
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    console.log('Scheduling maintenance:', {
-      equipment: selectedEquipment,
-      type: maintenanceType,
-      date: selectedDate,
-      time: selectedTime,
-      recurrence,
-      notes,
-      notifyBefore,
-    });
-
     setIsSubmitting(false);
     onSuccess?.();
     handleClose();

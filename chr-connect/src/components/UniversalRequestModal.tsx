@@ -258,7 +258,7 @@ export default function UniversalRequestModal() {
             {/* Media Hub */}
             <section>
                <h3 className="text-sm font-bold text-[var(--text-secondary)] mb-3 uppercase tracking-wider">Preuves & Symptômes</h3>
-               <MediaHub onMediaAdd={(type, data) => console.log(type, data)} />
+               <MediaHub onMediaAdd={() => {}} />
             </section>
 
             {/* Smart Tags & Description */}

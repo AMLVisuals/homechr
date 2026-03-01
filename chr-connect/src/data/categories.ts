@@ -1,8 +1,8 @@
-import { 
-  Users, Wrench, Building2, Calculator, Scale 
+import {
+  Users, Wrench, Building2, Scale
 } from 'lucide-react';
 
-export type CategoryId = 'PERSONNEL' | 'TECHNICIENS' | 'BATIMENTS' | 'COMPTABILITE' | 'JURIDIQUE' | 'STAFFING' | 'TECH' | 'MAINTENANCE';
+export type CategoryId = 'PERSONNEL' | 'TECHNICIENS' | 'BATIMENTS' | 'JURIDIQUE' | 'STAFFING' | 'TECH' | 'MAINTENANCE';
 
 export interface Service {
   id: string;
@@ -18,7 +18,7 @@ export interface Category {
   services: Service[];
 }
 
-export const COMING_SOON_CATEGORIES: CategoryId[] = ['BATIMENTS', 'COMPTABILITE', 'JURIDIQUE'];
+export const COMING_SOON_CATEGORIES: CategoryId[] = ['BATIMENTS', 'JURIDIQUE'];
 
 export const CATEGORIES: Category[] = [
   {
@@ -97,24 +97,6 @@ export const CATEGORIES: Category[] = [
       { id: 'decorateur', label: 'Décorateur' },
       { id: 'paysagiste', label: 'Paysagiste' },
       { id: 'menuisier_metal', label: 'Menuisier métallier' },
-    ]
-  },
-  {
-    id: 'COMPTABILITE',
-    label: 'Comptabilité',
-    description: 'Gestion financière',
-    icon: Calculator,
-    services: [
-      { id: 'comptable', label: 'Comptable' },
-      { id: 'expert_comptable', label: 'Expert-comptable' },
-      { id: 'aide_comptable', label: 'Aide-comptable' },
-      { id: 'controleur_gestion', label: 'Contrôleur de gestion' },
-      { id: 'analyste_financier', label: 'Analyste financier' },
-      { id: 'responsable_paie', label: 'Responsable paie' },
-      { id: 'expert_fiscal', label: 'Expert en optimisation fiscale CHR' },
-      { id: 'consultant_stocks', label: 'Consultant en gestion de stocks' },
-      { id: 'expert_couts', label: 'Expert en coûts matières' },
-      { id: 'expert_rentabilite', label: 'Expert en rentabilité restaurant' },
     ]
   },
   {

@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Filter, Wrench, ChefHat, Monitor, Hammer,
-  Clock, MapPin, CheckCircle2, AlertCircle, XCircle, MoreVertical, ArrowRight, UserCheck
+  Clock, MapPin, CheckCircle2, AlertCircle, XCircle, MoreVertical, ArrowRight, UserCheck, ClipboardList
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { SkeletonTable } from '@/components/shared/Skeleton';
+import EmptyState from '@/components/shared/EmptyState';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useVenuesStore } from '@/store/useVenuesStore';
 import { Mission } from '@/types/missions';
@@ -33,6 +35,7 @@ interface MissionsTabProps {
 export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
   const { missions } = useMissionsStore();
   const { activeVenueId } = useVenuesStore();
+  const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
@@ -78,9 +81,16 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
     return m.status === filter;
   });
 
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const getIcon = (iconName: string) => {
     return ICON_MAP[iconName] || Wrench;
   };
+
+  if (isLoading) return <SkeletonTable />;
 
   return (
     <div className="h-full flex flex-col">
@@ -233,9 +243,13 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
           ))}
           
           {filteredMissions.length === 0 && (
-            <div className="text-center py-20 text-[var(--text-muted)]">
-              <p>Aucune mission trouvée pour ce filtre.</p>
-            </div>
+            <EmptyState
+              icon={ClipboardList}
+              title="Aucune mission"
+              description="Créez votre première mission pour trouver un prestataire."
+              actionLabel="Créer une mission"
+              onAction={() => window.dispatchEvent(new CustomEvent('open-create-mission'))}
+            />
           )}
         </div>
       </div>

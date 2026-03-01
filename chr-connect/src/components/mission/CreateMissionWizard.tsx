@@ -47,7 +47,6 @@ import {
   Camera,
   Upload,
   Scale,
-  Calculator,
   Crown,
   CreditCard,
 } from 'lucide-react';
@@ -69,6 +68,7 @@ import { AddEquipmentModal } from '@/components/establishment/AddEquipmentModal'
 import { EquipmentDetailsModal } from '@/components/equipment/EquipmentDetailsModal';
 import { DocumentViewer } from '@/components/shared/DocumentViewer';
 import { MediaCaptureModal, type CaptureMode } from '@/components/shared/MediaCaptureModal';
+import { APP_CONFIG } from '@/config/appConfig';
 
 // ============================================================================
 // TYPES
@@ -93,7 +93,7 @@ type WizardStep =
   | 'payment'
   | 'success';
 
-export type CategoryId = 'PERSONNEL' | 'TECHNICIENS' | 'BATIMENTS' | 'COMPTABILITE' | 'JURIDIQUE' | 'STAFFING' | 'TECH' | 'MAINTENANCE';
+export type CategoryId = 'PERSONNEL' | 'TECHNICIENS' | 'BATIMENTS' | 'JURIDIQUE' | 'STAFFING' | 'TECH' | 'MAINTENANCE';
 
 interface CategoryDef {
   id: CategoryId;
@@ -216,25 +216,6 @@ const CATEGORIES: CategoryDef[] = [
       { id: 'decorateur', label: 'Décorateur', icon: PenTool },
       { id: 'paysagiste', label: 'Paysagiste', icon: Hammer },
       { id: 'menuisier_metal', label: 'Menuisier métallier', icon: Hammer },
-    ]
-  },
-  {
-    id: 'COMPTABILITE',
-    label: 'Comptabilité',
-    description: 'Gestion financière',
-    icon: Calculator,
-    color: 'from-blue-500 to-cyan-500',
-    subCategories: [
-      { id: 'comptable', label: 'Comptable', icon: Euro },
-      { id: 'expert_comptable', label: 'Expert-comptable', icon: Euro },
-      { id: 'aide_comptable', label: 'Aide-comptable', icon: Euro },
-      { id: 'controleur_gestion', label: 'Contrôleur de gestion', icon: Euro },
-      { id: 'analyste_financier', label: 'Analyste financier', icon: Euro },
-      { id: 'responsable_paie', label: 'Responsable paie', icon: Euro },
-      { id: 'expert_fiscal', label: 'Expert en optimisation fiscale CHR', icon: Euro },
-      { id: 'consultant_stocks', label: 'Consultant en gestion de stocks', icon: Euro },
-      { id: 'expert_couts', label: 'Expert en coûts matières', icon: Euro },
-      { id: 'expert_rentabilite', label: 'Expert en rentabilité restaurant', icon: Euro },
     ]
   },
   {
@@ -830,7 +811,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
   };
 
   // Calculate progress
-  const getProgress = () => {
+  const getProgressInfo = () => {
     let steps: WizardStep[] = [];
 
     if (selectedCategory?.id === 'PERSONNEL') {
@@ -850,12 +831,22 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
       steps = ['category', 'subcategory', 'details', 'summary'];
     }
 
+    // Include payment step for free users
+    if (!isPremium) {
+      steps = [...steps, 'payment'];
+    }
+
     if (defaultCategory) {
       steps = steps.filter(s => s !== 'category');
     }
 
     const currentIndex = steps.indexOf(step);
-    return Math.max(0, currentIndex) / (steps.length - 1);
+    const safeIndex = Math.max(0, currentIndex);
+    return {
+      progress: safeIndex / (steps.length - 1),
+      currentStep: safeIndex + 1,
+      totalSteps: steps.length,
+    };
   };
 
   if (!isOpen) return null;
@@ -918,18 +909,24 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         </div>
 
         {/* Progress Bar */}
-        {step !== 'success' && (
-          <div className="px-6 pt-4">
-            <div className="h-1 bg-[var(--bg-active)] rounded-full overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
-                initial={{ width: 0 }}
-                animate={{ width: `${getProgress() * 100}%` }}
-                transition={{ duration: 0.3 }}
-              />
+        {step !== 'success' && (() => {
+          const { progress, currentStep, totalSteps } = getProgressInfo();
+          return (
+            <div className="px-6 pt-4">
+              <div className="h-1.5 bg-[var(--bg-hover)] rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress * 100}%` }}
+                  transition={{ duration: 0.35, ease: 'easeInOut' }}
+                />
+              </div>
+              <p className="text-xs text-[var(--text-muted)] text-right mt-1.5">
+                {`\u00C9tape ${currentStep} sur ${totalSteps}`}
+              </p>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
@@ -2200,7 +2197,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                   <div className="border-t border-[var(--border)] pt-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-[var(--text-secondary)]">Frais de mise en relation</span>
-                      <span className="text-lg font-bold text-[var(--text-primary)]">20,00 €</span>
+                      <span className="text-lg font-bold text-[var(--text-primary)]">{APP_CONFIG.MISSION_FEE.toFixed(2).replace('.', ',')} €</span>
                     </div>
                     <p className="text-xs text-[var(--text-muted)]">
                       Ce frais unique couvre la recherche et la mise en relation avec un prestataire qualifié pour cette mission.
@@ -2232,7 +2229,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                   ) : (
                     <>
                       <CreditCard className="w-5 h-5" />
-                      Payer 20€ et publier la mission
+                      Payer {APP_CONFIG.MISSION_FEE}€ et publier la mission
                     </>
                   )}
                 </button>
@@ -2245,7 +2242,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     </div>
                     <div>
                       <h4 className="font-bold text-[var(--text-primary)]">Passez au Premium</h4>
-                      <p className="text-sm text-amber-400 font-medium">100€/mois</p>
+                      <p className="text-sm text-amber-400 font-medium">{APP_CONFIG.PREMIUM_MONTHLY_PRICE}€/mois</p>
                     </div>
                   </div>
                   <p className="text-sm text-[var(--text-secondary)] mb-3">

@@ -9,7 +9,7 @@ interface DPAEState {
   updateDeclaration: (id: string, updates: Partial<DPAEDeclaration>) => void;
   submitToURSSAF: (declarationId: string) => Promise<void>;
   addContract: (contract: DPAEContract) => void;
-  getDeclarationByMission: (missionId: string) => DPAEDeclaration | undefined;
+  getDeclarationByMission: (missionId: string | undefined) => DPAEDeclaration | undefined;
 }
 
 export const useDPAEStore = create<DPAEState>((set, get) => ({
@@ -54,5 +54,5 @@ export const useDPAEStore = create<DPAEState>((set, get) => ({
     set((state) => ({ contracts: [...state.contracts, contract] })),
 
   getDeclarationByMission: (missionId) =>
-    get().declarations.find((d) => d.missionId === missionId),
+    missionId ? get().declarations.find((d) => d.missionId === missionId) : undefined,
 }));

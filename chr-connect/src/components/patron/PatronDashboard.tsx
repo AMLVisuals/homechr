@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -9,7 +9,7 @@ import {
   Wrench, ChefHat, Monitor, Hammer, Ruler,
   Clock, MapPin, Star, CreditCard, X,
   ArrowUpRight, AlertCircle, CheckCircle2, User, LogOut,
-  Warehouse, QrCode, Menu, Scale, Calculator, Receipt, Crown,
+  Warehouse, QrCode, Menu, Scale, Receipt, Crown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CreateMissionWizard, type CategoryId } from '@/components/mission/CreateMissionWizard';
@@ -17,6 +17,7 @@ import SOSExtraLauncher from '@/components/mission/SOSExtraLauncher';
 import { COMING_SOON_CATEGORIES } from '@/data/categories';
 import { clsx } from 'clsx';
 import { useStore } from '@/store/useStore';
+import { useNotificationsStore, formatTimeAgo } from '@/store/useNotificationsStore';
 import { useMissionEngine } from '@/store/mission-engine';
 import { useCalendarStore } from '@/store/calendarStore';
 import LiveMissionTracker from '@/components/mission/LiveMissionTracker';
@@ -25,9 +26,10 @@ import VenueDashboard from '../venues/VenueDashboard';
 import { useVenuesStore } from '@/store/useVenuesStore';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { Mission } from '@/types/missions';
+import { APP_CONFIG } from '@/config/appConfig';
 
 const ICON_MAP: Record<string, any> = {
-  Wrench, ChefHat, Monitor, Hammer, Users, Calendar, Scale, Calculator
+  Wrench, ChefHat, Monitor, Hammer, Users, Calendar, Scale
 };
 
 import { GaragePage } from '../equipment';
@@ -88,6 +90,7 @@ export default function PatronDashboard() {
   const [showSettings, setShowSettings] = useState(false);
   const [globalSearch, setGlobalSearch] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const { status } = useMissionEngine();
   const { team } = useMissionsStore();
 
@@ -102,6 +105,29 @@ export default function PatronDashboard() {
 
     window.addEventListener('set-patron-tab', handleSetPatronTab as EventListener);
     return () => window.removeEventListener('set-patron-tab', handleSetPatronTab as EventListener);
+  }, []);
+
+  useEffect(() => {
+    const handleOpenCreateMission = () => {
+      setShowNewRequestModal(true);
+    };
+
+    window.addEventListener('open-create-mission', handleOpenCreateMission);
+    return () => window.removeEventListener('open-create-mission', handleOpenCreateMission);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      if (e.key === 'Escape') {
+        searchInputRef.current?.blur();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const activeMissions = useMemo(() => {
@@ -136,11 +162,8 @@ export default function PatronDashboard() {
   const handleMissionClick = (mission: Mission) => { setSelectedMission(mission); setIsMissionModalOpen(true); };
   const handleTabChange = (tab: string) => { setActiveTab(tab); setIsMobileMenuOpen(false); };
 
-  const NOTIFICATIONS = [
-    { id: 1, title: 'Mission Validée', desc: 'Jean D. a accepté la mission "Four Mixte"', time: 'Il y a 2 min', unread: true },
-    { id: 2, title: 'Nouvelle Candidature', desc: '3 profils pour "Extra Chef de Partie"', time: 'Il y a 15 min', unread: true },
-    { id: 3, title: 'Rappel Facture', desc: 'Facture #INV-2024-004 arrive à échéance', time: 'Il y a 1h', unread: false },
-  ];
+  const { notifications, markAsRead, markAllAsRead } = useNotificationsStore();
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <div className="flex h-screen bg-[var(--bg-app)] text-[var(--text-primary)] overflow-hidden font-sans" style={{ height: '100dvh' }}>
@@ -191,14 +214,18 @@ export default function PatronDashboard() {
             <div className="relative hidden md:block">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
               <input
+                ref={searchInputRef}
                 type="text"
                 placeholder="Rechercher..."
                 value={globalSearch}
                 onChange={(e) => setGlobalSearch(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
                 onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                className="bg-[var(--bg-input)] border border-[var(--border)] rounded-full pl-10 pr-4 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-all w-64"
+                className="bg-[var(--bg-input)] border border-[var(--border)] rounded-full pl-10 pr-16 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-all w-64"
               />
+              <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-0.5 text-[10px] text-[var(--text-muted)] bg-[var(--bg-hover)] px-1.5 py-0.5 rounded border border-[var(--border)] pointer-events-none">
+                Ctrl+K
+              </kbd>
               {globalSearch.trim() && isSearchFocused && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden z-50 w-80">
                   {!hasSearchResults ? (
@@ -255,23 +282,23 @@ export default function PatronDashboard() {
             <div className="relative">
               <button onClick={() => setShowNotifications(!showNotifications)} className="w-10 h-10 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] flex items-center justify-center transition-colors relative">
                 <Bell className="w-5 h-5 text-[var(--text-secondary)]" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
+                {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />}
               </button>
               <AnimatePresence>
                 {showNotifications && (
                   <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} className="absolute top-full right-0 mt-2 w-80 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden backdrop-blur-xl z-50" style={{ boxShadow: 'var(--shadow-lg)' }}>
                     <div className="p-4 border-b border-[var(--border)] flex justify-between items-center">
                       <h3 className="font-bold text-sm text-[var(--text-primary)]">Notifications</h3>
-                      <button className="text-xs text-blue-500 hover:text-blue-400">Tout marquer lu</button>
+                      <button onClick={markAllAsRead} className="text-xs text-blue-500 hover:text-blue-400">Tout marquer lu</button>
                     </div>
                     <div className="max-h-[300px] overflow-y-auto">
-                      {NOTIFICATIONS.map((notif) => (
-                        <div key={notif.id} className={clsx("p-4 border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer", notif.unread && "bg-blue-500/5")}>
+                      {notifications.map((notif) => (
+                        <div key={notif.id} onClick={() => markAsRead(notif.id)} className={clsx("p-4 border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer", !notif.read && "bg-blue-500/5")}>
                           <div className="flex justify-between items-start mb-1">
-                            <h4 className={clsx("text-sm font-bold", notif.unread ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]")}>{notif.title}</h4>
-                            <span className="text-[10px] text-[var(--text-muted)]">{notif.time}</span>
+                            <h4 className={clsx("text-sm font-bold", !notif.read ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]")}>{notif.title}</h4>
+                            <span className="text-[10px] text-[var(--text-muted)]">{formatTimeAgo(notif.time)}</span>
                           </div>
-                          <p className="text-xs text-[var(--text-secondary)]">{notif.desc}</p>
+                          <p className="text-xs text-[var(--text-secondary)]">{notif.description}</p>
                         </div>
                       ))}
                     </div>
@@ -380,12 +407,11 @@ export default function PatronDashboard() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                   {[
                     { id: 'PERSONNEL', label: 'Personnel / Extra', desc: 'Renforts salle et cuisine', icon: Users, gradient: 'from-purple-500 to-pink-500' },
                     { id: 'TECHNICIENS', label: 'Techniciens', desc: 'Maintenance et équipements', icon: Wrench, gradient: 'from-orange-500 to-red-500' },
                     { id: 'BATIMENTS', label: 'Bâtiments', desc: 'Rénovation et construction', icon: Hammer, gradient: 'from-emerald-500 to-teal-500' },
-                    { id: 'COMPTABILITE', label: 'Comptabilité', desc: 'Gestion financière', icon: Calculator, gradient: 'from-blue-500 to-cyan-500' },
                     { id: 'JURIDIQUE', label: 'Juridique', desc: 'Conseil et conformité', icon: Scale, gradient: 'from-amber-500 to-yellow-500' },
                   ].map((cat) => {
                     const isComingSoon = COMING_SOON_CATEGORIES.includes(cat.id as any);
@@ -519,8 +545,8 @@ export default function PatronDashboard() {
             </div>
           )}
 
-          {activeTab === 'GARAGE' && <GaragePage venueId={activeVenue?.id || 'v1'} ownerId="patron_001" venueName={activeVenue?.name} onBack={() => setActiveTab('TEAM')} />}
-          {activeTab === 'MISSIONS' && <MissionsTab onMissionClick={(m) => console.log(m)} />}
+          {activeTab === 'GARAGE' && <GaragePage venueId={activeVenue?.id || 'v1'} ownerId={APP_CONFIG.DEFAULT_OWNER_ID} venueName={activeVenue?.name} onBack={() => setActiveTab('TEAM')} />}
+          {activeTab === 'MISSIONS' && <MissionsTab onMissionClick={() => {}} />}
           {activeTab === 'PLANNING' && <PlanningTab />}
           {activeTab === 'TEAM' && <TeamTab />}
           {activeTab === 'PAYSLIPS' && <PayslipsTab />}

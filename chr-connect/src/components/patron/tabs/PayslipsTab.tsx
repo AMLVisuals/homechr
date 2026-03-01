@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Search, Filter, Download, Calendar, User, Receipt, DollarSign, CheckCircle, RefreshCw, PlusCircle } from 'lucide-react';
+import { Search, Filter, Download, Calendar, User, Receipt, DollarSign, CheckCircle, RefreshCw, PlusCircle, Crown, FileCheck, ShieldCheck, Calculator, FileText } from 'lucide-react';
 import { clsx } from 'clsx';
+import { SkeletonTable } from '@/components/shared/Skeleton';
+import EmptyState from '@/components/shared/EmptyState';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useVenuesStore } from '@/store/useVenuesStore';
 import { usePayslipsStore } from '@/store/usePayslipsStore';
@@ -19,10 +21,16 @@ export default function PayslipsTab() {
   const { isPremium } = useStore();
   const [filter, setFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isTabLoading, setIsTabLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showUpsellModal, setShowUpsellModal] = useState(false);
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [selectedPayslip, setSelectedPayslip] = useState<Payslip | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsTabLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (activeVenueId) {
@@ -107,6 +115,60 @@ export default function PayslipsTab() {
   const handlePayslipClick = (payslip: Payslip) => {
     setSelectedPayslip(payslip);
   };
+
+  if (!isPremium) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="h-full flex items-center justify-center p-4"
+      >
+        <div className="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-8 text-center shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 blur-3xl rounded-full -mr-10 -mt-10" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-yellow-500/10 blur-3xl rounded-full -ml-10 -mb-10" />
+
+          <div className="relative">
+            <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-r from-amber-400 to-yellow-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
+              <Crown className="w-8 h-8 text-black" />
+            </div>
+
+            <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
+              Fonctionnalite Premium
+            </h3>
+            <p className="text-[var(--text-secondary)] text-sm mb-6">
+              Les bulletins de paie sont reserves aux abonnes Premium.
+            </p>
+
+            <div className="space-y-3 text-left mb-8">
+              {[
+                { icon: FileCheck, text: 'Generation automatique des fiches de paie' },
+                { icon: Calculator, text: 'Calcul automatique des charges et cotisations' },
+                { icon: ShieldCheck, text: 'Conformite legale et archivage securise' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--bg-hover)] border border-[var(--border)]">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+                    <item.icon className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <span className="text-sm text-[var(--text-primary)] font-medium">{item.text}</span>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('set-patron-tab', { detail: 'PREMIUM' }))}
+              className="w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-400 to-yellow-500 text-black hover:from-amber-300 hover:to-yellow-400 transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
+            >
+              <Crown className="w-4 h-4" />
+              Passer Premium — 100 EUR/mois
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  if (isTabLoading) return <SkeletonTable />;
 
   return (
     <div className="h-full flex flex-col relative overflow-hidden">
@@ -315,18 +377,11 @@ export default function PayslipsTab() {
 
           <div className="space-y-3">
             {filteredPayslips.length === 0 ? (
-              <div className="text-center py-12 text-[var(--text-secondary)]">
-                <Receipt className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>Aucun bulletin de paie trouvé</p>
-                {isPremium && (
-                  <button
-                    onClick={() => setShowCreateWizard(true)}
-                    className="mt-4 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-colors"
-                  >
-                    Créer un bulletin
-                  </button>
-                )}
-              </div>
+              <EmptyState
+                icon={FileText}
+                title="Aucun bulletin de paie"
+                description="Les bulletins de paie apparaîtront ici après vos premières missions."
+              />
             ) : (
               filteredPayslips.map((payslip, index) => (
                 <motion.div

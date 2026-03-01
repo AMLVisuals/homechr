@@ -1,5 +1,6 @@
 import { Mission, MissionType } from '@/types/missions';
 import type { Quote, QuoteItem, MissionWithFinancials } from '@/types/unified';
+import { APP_CONFIG } from '@/config/appConfig';
 
 // Paris center
 const CENTER_LAT = 48.8566;
@@ -318,7 +319,7 @@ export const EXAMPLE_QUOTE: Quote = {
   providerId: 'provider_froid_001',
   providerName: 'FroidExpress Paris',
 
-  clientId: 'patron_001',
+  clientId: APP_CONFIG.DEFAULT_OWNER_ID,
   clientName: 'Chef Bernard Pacaud',
   establishmentId: 'v3',
   establishmentName: "L'Ambroisie",
@@ -335,7 +336,7 @@ export const EXAMPLE_QUOTE: Quote = {
   totalTVA: 153.75,
   totalTTC: 1046.25,
 
-  platformFeeRate: 0.15,
+  platformFeeRate: APP_CONFIG.PLATFORM_FEE_RATE,
   platformFeeAmount: 133.88,
   providerNetAmount: 758.62,
 

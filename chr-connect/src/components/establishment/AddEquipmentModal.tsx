@@ -27,6 +27,7 @@ import { DocumentManager } from '../equipment/DocumentManager';
 import { DocumentViewer } from '@/components/shared/DocumentViewer';
 import { MediaCaptureModal, type CaptureMode } from '@/components/shared/MediaCaptureModal';
 import type { EquipmentCategory, Equipment, EquipmentDocument, ImageAnnotation } from '@/types/equipment';
+import { APP_CONFIG } from '@/config/appConfig';
 
 // ============================================================================
 // TYPES
@@ -302,7 +303,7 @@ export function AddEquipmentModal({
       // Create equipment in the store (Single Source of Truth)
       const newEquipment = addEquipment({
         venueId: targetVenueId,
-        ownerId: 'patron_001', // TODO: Get from auth context
+        ownerId: APP_CONFIG.DEFAULT_OWNER_ID, // TODO: Get from auth context
         category,
         brand: brand || 'Non spécifié',
         model: model || 'Non spécifié',
@@ -322,11 +323,9 @@ export function AddEquipmentModal({
           type: 'OVERVIEW' as const,
           uploadedAt: new Date().toISOString(),
         })),
-        createdBy: 'patron_001',
+        createdBy: APP_CONFIG.DEFAULT_OWNER_ID,
         metadata: notes ? { notes } : undefined,
       });
-
-      console.log('Equipment added to store:', newEquipment);
 
       setIsSubmitting(false);
       onSuccess?.(newEquipment);

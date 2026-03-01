@@ -9,8 +9,7 @@ export const defaultPayslipProvider: PayslipProviderInterface = {
 
 export const createPayslipProvider = (config: PayslipProviderConfig): PayslipProviderInterface => ({
   name: config.name || 'Custom Provider',
-  generatePayslip: async (request) => {
-    console.log('Generating payslip:', request);
+  generatePayslip: async () => {
     return { success: false, message: 'Not implemented' };
   },
   getPayslipPdf: async () => new Blob(),
