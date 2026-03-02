@@ -59,8 +59,6 @@ export interface Subscription {
 
 export interface RevenueMetrics {
   caMTD: number;          // CA du mois en cours
-  mrr: number;            // Monthly Recurring Revenue
-  commissions: number;    // Commissions plateforme
   matchingFees: number;   // Frais de mise en relation
   subscriptionRevenue: number; // Revenus abonnements
   growthPercent: number;  // Croissance vs mois precedent

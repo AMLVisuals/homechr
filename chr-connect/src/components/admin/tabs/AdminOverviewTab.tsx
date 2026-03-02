@@ -37,9 +37,7 @@ const statCards = [
 
 const revenueDetails = [
   { label: 'Frais de mise en relation', value: MOCK_REVENUE.matchingFees },
-  { label: 'Abonnements', value: MOCK_REVENUE.subscriptionRevenue },
-  { label: 'Commissions', value: MOCK_REVENUE.commissions },
-  { label: 'MRR', value: MOCK_REVENUE.mrr },
+  { label: 'Abonnements Premium', value: MOCK_REVENUE.subscriptionRevenue },
 ];
 
 export default function AdminOverviewTab() {

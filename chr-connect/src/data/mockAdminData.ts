@@ -157,9 +157,7 @@ export const MOCK_SUBSCRIPTIONS: Subscription[] = [
 ];
 
 export const MOCK_REVENUE: RevenueMetrics = {
-  caMTD: 12450,
-  mrr: 8400,
-  commissions: 2450,
+  caMTD: 10000,
   matchingFees: 3200,
   subscriptionRevenue: 6800,
   growthPercent: 11.2,
