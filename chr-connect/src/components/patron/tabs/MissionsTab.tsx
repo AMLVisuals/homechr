@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Filter, Wrench, ChefHat, Monitor, Hammer,
-  Clock, MapPin, CheckCircle2, AlertCircle, XCircle, MoreVertical, ArrowRight, UserCheck, ClipboardList
+  Clock, MapPin, CheckCircle2, AlertCircle, XCircle, MoreVertical, ArrowRight, UserCheck, ClipboardList, Plus
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SkeletonTable } from '@/components/shared/Skeleton';
@@ -253,6 +253,14 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
           )}
         </div>
       </div>
+
+      {/* Mobile FAB */}
+      <button
+        onClick={() => window.dispatchEvent(new CustomEvent('open-create-mission'))}
+        className="md:hidden fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30 flex items-center justify-center active:scale-95 transition-transform"
+      >
+        <Plus className="w-6 h-6" />
+      </button>
 
       <AnimatePresence>
         {isModalOpen && selectedMission && (

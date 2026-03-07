@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Search, Filter, Download, Calendar, User, Receipt, DollarSign, CheckCircle, RefreshCw, PlusCircle, Crown, FileCheck, ShieldCheck, Calculator, FileText } from 'lucide-react';
+import { Search, Filter, Download, Calendar, User, Receipt, DollarSign, CheckCircle, RefreshCw, PlusCircle, Plus, Crown, FileCheck, ShieldCheck, Calculator, FileText } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SkeletonTable } from '@/components/shared/Skeleton';
 import EmptyState from '@/components/shared/EmptyState';
@@ -183,15 +183,14 @@ export default function PayslipsTab() {
               <p className="text-sm md:text-base text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 font-medium animate-pulse">Gérez les fiches de paie de votre équipe</p>
             </div>
 
-            <div className="flex items-center gap-2 w-full md:w-auto">
-              {/* Create button */}
+            <div className="hidden md:flex items-center gap-2 w-full md:w-auto">
+              {/* Create button - desktop only */}
               <button
                 onClick={handleCreateClick}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-sm font-bold transition-all shadow-lg shadow-blue-900/20 shrink-0"
               >
                 <PlusCircle className="w-4 h-4" />
-                <span className="hidden sm:inline">Nouveau bulletin</span>
-                <span className="sm:hidden">Créer</span>
+                Nouveau bulletin
                 {!isPremium && <PremiumBadge />}
               </button>
 
@@ -435,6 +434,14 @@ export default function PayslipsTab() {
           </div>
         </div>
       </div>
+
+      {/* Mobile FAB */}
+      <button
+        onClick={handleCreateClick}
+        className="md:hidden fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30 flex items-center justify-center active:scale-95 transition-transform"
+      >
+        <Plus className="w-6 h-6" />
+      </button>
 
       {/* Premium Upsell Modal */}
       <PremiumUpsellModal isOpen={showUpsellModal} onClose={() => setShowUpsellModal(false)} />

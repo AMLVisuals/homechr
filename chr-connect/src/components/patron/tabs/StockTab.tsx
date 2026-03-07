@@ -166,7 +166,7 @@ export default function StockTab() {
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-blue-500/25 transition-all flex items-center gap-2"
+            className="hidden md:flex px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-blue-500/25 transition-all items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             Ajouter
@@ -291,6 +291,14 @@ export default function StockTab() {
           )}
         </div>
       </div>
+
+      {/* Mobile FAB */}
+      <button
+        onClick={() => setShowAddModal(true)}
+        className="md:hidden fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30 flex items-center justify-center active:scale-95 transition-transform"
+      >
+        <Plus className="w-6 h-6" />
+      </button>
 
       {/* Add Item Modal */}
       <AnimatePresence>
