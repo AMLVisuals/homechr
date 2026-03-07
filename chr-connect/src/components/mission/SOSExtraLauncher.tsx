@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Users, ChefHat, Wine, Martini, Utensils, Shield,
   X, Minus, Plus, Check, ArrowLeft, Clock, AlertCircle,
+  Building2, ChevronDown,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useEstablishment } from '@/contexts/EstablishmentContext';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useCalendarStore } from '@/store/calendarStore';
@@ -105,11 +107,12 @@ function toMissionDate(date: Date): string {
 }
 
 export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherProps) {
-  const { currentEstablishment } = useEstablishment();
+  const { currentEstablishment, establishments, setCurrentEstablishmentId } = useEstablishment();
   const { addMission } = useMissionsStore();
   const { addEvent } = useCalendarStore();
   const isPremium = useStore((s) => s.isPremium);
 
+  const [showVenueDropdown, setShowVenueDropdown] = useState(false);
   const [step, setStep] = useState<1 | 2 | 3 | 'success'>(1);
   const [selectedPosteId, setSelectedPosteId] = useState<string | null>(null);
   const [isNow, setIsNow] = useState(true);
@@ -294,7 +297,7 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className="absolute inset-0 p-4 flex flex-col"
             >
-              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2 mt-2">Quand ?</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2 mt-2">Détails</h2>
               <p className="text-sm text-[var(--text-muted)] mb-6">
                 {poste && (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-secondary)] text-xs font-medium">
@@ -304,7 +307,59 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
               </p>
 
               <div className="space-y-6 max-w-lg mx-auto w-full overflow-y-auto">
-                {/* Now / Later toggle */}
+                {/* Establishment selector */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[var(--text-secondary)]">Établissement concerné</label>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowVenueDropdown(!showVenueDropdown)}
+                      className="w-full flex items-center gap-3 p-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-left hover:border-purple-500/50 transition-colors"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                        <Building2 className="w-5 h-5 text-purple-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[var(--text-primary)] font-medium truncate">{currentEstablishment?.name || 'Sélectionner'}</p>
+                        {currentEstablishment?.address && (
+                          <p className="text-[var(--text-muted)] text-xs truncate">{currentEstablishment.address}</p>
+                        )}
+                      </div>
+                      {establishments.length > 1 && (
+                        <ChevronDown className={cn("w-5 h-5 text-[var(--text-muted)] transition-transform", showVenueDropdown && "rotate-180")} />
+                      )}
+                    </button>
+                    {showVenueDropdown && establishments.length > 1 && (
+                      <>
+                        <div className="fixed inset-0 z-[10]" onClick={() => setShowVenueDropdown(false)} />
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-xl shadow-2xl z-[11] overflow-hidden max-h-48 overflow-y-auto">
+                          {establishments.map((venue) => (
+                            <button
+                              key={venue.id}
+                              onClick={() => {
+                                setCurrentEstablishmentId(venue.id);
+                                setShowVenueDropdown(false);
+                              }}
+                              className={cn(
+                                'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors',
+                                venue.id === currentEstablishment?.id
+                                  ? 'bg-purple-500/10 text-[var(--text-primary)]'
+                                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
+                              )}
+                            >
+                              <Building2 className="w-4 h-4 flex-shrink-0" />
+                              <span className="text-sm font-medium truncate">{venue.name}</span>
+                              {venue.id === currentEstablishment?.id && (
+                                <Check className="w-4 h-4 text-purple-500 ml-auto flex-shrink-0" />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Now / Later toggle - hidden, kept for data model */}
                 <div className="flex gap-2 p-1 bg-[var(--bg-hover)] rounded-xl">
                   <button
                     onClick={() => setIsNow(true)}

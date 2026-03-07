@@ -872,44 +872,10 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                 {step === 'success' && 'Demande envoyée !'}
               </h1>
               {currentEstablishment && step !== 'success' && (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowVenueDropdown(!showVenueDropdown)}
-                    className="text-xs text-[var(--text-muted)] flex items-center gap-1 hover:text-[var(--text-secondary)] transition-colors"
-                  >
-                    <MapPin className="w-3 h-3" />
-                    {currentEstablishment.name}
-                    {establishments.length > 1 && <ChevronDown className={cn("w-3 h-3 transition-transform", showVenueDropdown && "rotate-180")} />}
-                  </button>
-                  {showVenueDropdown && establishments.length > 1 && (
-                    <>
-                      <div className="fixed inset-0 z-[10]" onClick={() => setShowVenueDropdown(false)} />
-                      <div className="absolute top-full left-0 mt-1 w-64 bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-xl shadow-2xl z-[11] overflow-hidden">
-                        {establishments.map((venue) => (
-                          <button
-                            key={venue.id}
-                            onClick={() => {
-                              setCurrentEstablishmentId(venue.id);
-                              setShowVenueDropdown(false);
-                            }}
-                            className={cn(
-                              'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors',
-                              venue.id === currentEstablishment.id
-                                ? 'bg-blue-500/10 text-[var(--text-primary)]'
-                                : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
-                            )}
-                          >
-                            <Building2 className="w-4 h-4 flex-shrink-0" />
-                            <span className="text-sm font-medium truncate">{venue.name}</span>
-                            {venue.id === currentEstablishment.id && (
-                              <Check className="w-4 h-4 text-blue-500 ml-auto flex-shrink-0" />
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
+                <p className="text-xs text-[var(--text-muted)] flex items-center gap-1">
+                  <MapPin className="w-3 h-3" />
+                  {currentEstablishment.name}
+                </p>
               )}
             </div>
           </div>
@@ -1353,6 +1319,58 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                       </div>
                     )}
 
+                    {/* Establishment selector */}
+                    <div className="space-y-2">
+                      <label className="block text-[var(--text-primary)] font-medium">Établissement concerné</label>
+                      <div className="relative">
+                        <button
+                          onClick={() => setShowVenueDropdown(!showVenueDropdown)}
+                          className="w-full flex items-center gap-3 p-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-left hover:border-orange-500/50 transition-colors"
+                        >
+                          <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center flex-shrink-0">
+                            <Building2 className="w-5 h-5 text-orange-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[var(--text-primary)] font-medium truncate">{currentEstablishment?.name || 'Sélectionner'}</p>
+                            {currentEstablishment?.address && (
+                              <p className="text-[var(--text-muted)] text-xs truncate">{currentEstablishment.address}</p>
+                            )}
+                          </div>
+                          {establishments.length > 1 && (
+                            <ChevronDown className={cn("w-5 h-5 text-[var(--text-muted)] transition-transform", showVenueDropdown && "rotate-180")} />
+                          )}
+                        </button>
+                        {showVenueDropdown && establishments.length > 1 && (
+                          <>
+                            <div className="fixed inset-0 z-[10]" onClick={() => setShowVenueDropdown(false)} />
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-xl shadow-2xl z-[11] overflow-hidden max-h-48 overflow-y-auto">
+                              {establishments.map((venue) => (
+                                <button
+                                  key={venue.id}
+                                  onClick={() => {
+                                    setCurrentEstablishmentId(venue.id);
+                                    setShowVenueDropdown(false);
+                                  }}
+                                  className={cn(
+                                    'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors',
+                                    venue.id === currentEstablishment?.id
+                                      ? 'bg-orange-500/10 text-[var(--text-primary)]'
+                                      : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
+                                  )}
+                                >
+                                  <Building2 className="w-4 h-4 flex-shrink-0" />
+                                  <span className="text-sm font-medium truncate">{venue.name}</span>
+                                  {venue.id === currentEstablishment?.id && (
+                                    <Check className="w-4 h-4 text-orange-500 ml-auto flex-shrink-0" />
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
                     {/* Problem Description — the main input */}
                     <div className="space-y-3">
                       <label className="block text-[var(--text-primary)] font-medium">
@@ -1496,6 +1514,58 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
+                {/* Establishment selector */}
+                <div className="space-y-2">
+                  <label className="block text-[var(--text-primary)] font-medium">Établissement concerné</label>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowVenueDropdown(!showVenueDropdown)}
+                      className="w-full flex items-center gap-3 p-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-left hover:border-purple-500/50 transition-colors"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                        <Building2 className="w-5 h-5 text-purple-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[var(--text-primary)] font-medium truncate">{currentEstablishment?.name || 'Sélectionner'}</p>
+                        {currentEstablishment?.address && (
+                          <p className="text-[var(--text-muted)] text-xs truncate">{currentEstablishment.address}</p>
+                        )}
+                      </div>
+                      {establishments.length > 1 && (
+                        <ChevronDown className={cn("w-5 h-5 text-[var(--text-muted)] transition-transform", showVenueDropdown && "rotate-180")} />
+                      )}
+                    </button>
+                    {showVenueDropdown && establishments.length > 1 && (
+                      <>
+                        <div className="fixed inset-0 z-[10]" onClick={() => setShowVenueDropdown(false)} />
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-xl shadow-2xl z-[11] overflow-hidden max-h-48 overflow-y-auto">
+                          {establishments.map((venue) => (
+                            <button
+                              key={venue.id}
+                              onClick={() => {
+                                setCurrentEstablishmentId(venue.id);
+                                setShowVenueDropdown(false);
+                              }}
+                              className={cn(
+                                'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors',
+                                venue.id === currentEstablishment?.id
+                                  ? 'bg-purple-500/10 text-[var(--text-primary)]'
+                                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
+                              )}
+                            >
+                              <Building2 className="w-4 h-4 flex-shrink-0" />
+                              <span className="text-sm font-medium truncate">{venue.name}</span>
+                              {venue.id === currentEstablishment?.id && (
+                                <Check className="w-4 h-4 text-purple-500 ml-auto flex-shrink-0" />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
                 {/* Role Selection */}
                 <div>
                   <label className="block text-[var(--text-primary)] font-medium mb-3">
