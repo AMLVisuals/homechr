@@ -115,9 +115,9 @@ export default function StockTab() {
 
             <div className="space-y-3 text-left mb-8">
               {[
+                { icon: Package, text: 'Gerez votre stock rapidement et simplement' },
                 { icon: TrendingDown, text: 'Alertes automatiques en cas de stock bas' },
                 { icon: BarChart3, text: 'Suivi en temps reel de votre inventaire' },
-                { icon: Truck, text: 'Gestion des fournisseurs et prix unitaires' },
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--bg-hover)] border border-[var(--border)]">
                   <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
@@ -133,7 +133,7 @@ export default function StockTab() {
               className="w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-400 to-yellow-500 text-black hover:from-amber-300 hover:to-yellow-400 transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
             >
               <Crown className="w-4 h-4" />
-              Passer Premium — 100 EUR/mois
+              Passer Premium
             </button>
           </div>
         </div>

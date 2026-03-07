@@ -160,7 +160,7 @@ export default function PayslipsTab() {
               className="w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-400 to-yellow-500 text-black hover:from-amber-300 hover:to-yellow-400 transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
             >
               <Crown className="w-4 h-4" />
-              Passer Premium — 100 EUR/mois
+              Passer Premium
             </button>
           </div>
         </div>

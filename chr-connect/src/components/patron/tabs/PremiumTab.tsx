@@ -1,32 +1,18 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Zap, FileText, Infinity, Package, CheckCircle2, Crown, X, Headphones, Shield, Star, ScrollText } from 'lucide-react';
+import { Zap, FileText, Infinity, Package, CheckCircle2, Crown, Headphones, ScrollText } from 'lucide-react';
 import { useStore } from '@/store/useStore';
-import { clsx } from 'clsx';
 import { APP_CONFIG } from '@/config/appConfig';
 
 const PREMIUM_FEATURES = [
   { icon: Infinity, label: 'Missions illimitées', desc: `Plus de frais de ${APP_CONFIG.MISSION_FEE}€ par mise en relation — créez autant de missions que nécessaire` },
   { icon: FileText, label: 'Fiches de paie', desc: 'Création de bulletins de paie complets en quelques clics' },
-  { icon: ScrollText, label: 'DPAE + contrat de travail', desc: 'Déclaration URSSAF automatique + CDD d\'usage auto-généré' },
+  { icon: ScrollText, label: 'DPAE', desc: 'Déclaration préalable à l\'embauche URSSAF en quelques clics' },
   { icon: Package, label: 'Gestion de stock', desc: 'Suivi inventaire par établissement avec alertes seuil bas' },
   { icon: Headphones, label: 'Support dédié', desc: 'Un manager dédié à votre écoute + chat prioritaire' },
-  { icon: Shield, label: 'Garantie intervention', desc: 'Remplacement garanti sous 2h en cas d\'annulation prestataire' },
 ];
 
-const COMPARISON_ROWS = [
-  { label: 'Création de missions', free: `${APP_CONFIG.MISSION_FEE}€/mission`, premium: 'Illimité, 0€' },
-  { label: 'Gestion des équipements', free: true, premium: true },
-  { label: 'Planning & calendrier', free: true, premium: true },
-  { label: 'Gestion d\'équipe', free: true, premium: true },
-  { label: 'Suivi des factures', free: true, premium: true },
-  { label: 'Fiches de paie', free: false, premium: true },
-  { label: 'DPAE + contrat CDD auto', free: false, premium: true },
-  { label: 'Gestion de stock', free: false, premium: true },
-  { label: 'Support dédié & prioritaire', free: false, premium: true },
-  { label: 'Garantie intervention 2h', free: false, premium: true },
-];
 
 export default function PremiumTab() {
   const { isPremium, setPremium } = useStore();
@@ -88,12 +74,18 @@ export default function PremiumTab() {
               ))}
             </div>
 
-            <div className="pt-4 border-t border-[var(--border)]">
+            <div className="pt-4 border-t border-[var(--border)] flex items-center justify-between">
               <button
                 onClick={handleCancel}
                 className="text-sm text-[var(--text-muted)] hover:text-red-400 transition-colors"
               >
                 Annuler l'abonnement
+              </button>
+              <button
+                onClick={handleCancel}
+                className="px-3 py-1.5 rounded-lg border border-dashed border-amber-500/30 text-xs text-amber-400/60 hover:text-amber-400 hover:border-amber-500/50 transition-colors"
+              >
+                Dev: Repasser Gratuit
               </button>
             </div>
           </motion.div>
@@ -108,14 +100,6 @@ export default function PremiumTab() {
       <div className="max-w-5xl mx-auto space-y-10">
         {/* Hero */}
         <div className="text-center space-y-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-400/20 to-yellow-500/20 border border-amber-500/30 text-amber-400 text-sm font-bold mx-auto"
-          >
-            <Star className="w-4 h-4" />
-            Offre de lancement
-          </motion.div>
           <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent">
             Passez à la vitesse supérieure
           </h1>
@@ -124,16 +108,15 @@ export default function PremiumTab() {
           </p>
         </div>
 
-        {/* Plan Card + Features */}
-        <div className="grid md:grid-cols-2 gap-8 items-start">
-          {/* Plan Card */}
+        {/* Plan Card */}
+        <div className="max-w-lg mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-[var(--bg-card)] border border-amber-500/30 rounded-3xl overflow-hidden shadow-xl shadow-amber-900/10 relative"
           >
             <div className="absolute top-0 right-0 p-4">
-              <div className="bg-amber-500 text-black text-xs font-bold px-3 py-1 rounded-full">POPULAIRE</div>
+              <div className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">{APP_CONFIG.PREMIUM_TRIAL_DAYS}J GRATUITS</div>
             </div>
             <div className="p-8 space-y-6">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
@@ -141,10 +124,11 @@ export default function PremiumTab() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-[var(--text-primary)]">CHR Connect Premium</h2>
-                <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-4xl font-bold text-[var(--text-primary)]">{APP_CONFIG.PREMIUM_MONTHLY_PRICE}€</span>
-                  <span className="text-[var(--text-secondary)]">/mois</span>
+                <div className="flex items-baseline gap-2 mt-2">
+                  <span className="text-4xl font-bold text-green-400">Gratuit</span>
+                  <span className="text-[var(--text-secondary)]">pendant {APP_CONFIG.PREMIUM_TRIAL_DAYS} jours</span>
                 </div>
+                <p className="text-sm text-[var(--text-muted)] mt-1">puis {APP_CONFIG.PREMIUM_MONTHLY_PRICE}€/mois — sans engagement</p>
               </div>
 
               <div className="space-y-4 pt-4 border-t border-[var(--border)]">
@@ -166,96 +150,22 @@ export default function PremiumTab() {
                 className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 text-black font-bold hover:from-amber-300 hover:to-yellow-400 transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
               >
                 <Zap className="w-5 h-5" />
-                Passer au Premium
+                Essayer gratuitement {APP_CONFIG.PREMIUM_TRIAL_DAYS} jours
               </button>
+              <p className="text-xs text-[var(--text-muted)] text-center">Aucune carte bancaire requise</p>
             </div>
           </motion.div>
-
-          {/* Features Detail */}
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold text-[var(--text-primary)]">Pourquoi passer Premium ?</h3>
-            <div className="grid gap-4">
-              {PREMIUM_FEATURES.map((feature, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + i * 0.05 }}
-                  className="bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border)] flex gap-4"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-[var(--bg-hover)] flex items-center justify-center shrink-0">
-                    <feature.icon className="w-6 h-6 text-[var(--text-primary)]" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-[var(--text-primary)]">{feature.label}</h4>
-                    <p className="text-sm text-[var(--text-secondary)]">{feature.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
         </div>
 
-        {/* Comparison Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-[var(--bg-card)] rounded-3xl border border-[var(--border)] overflow-hidden"
-        >
-          <div className="p-6 md:p-8 border-b border-[var(--border)]">
-            <h3 className="text-xl font-bold text-[var(--text-primary)]">Comparatif des offres</h3>
-            <p className="text-sm text-[var(--text-secondary)] mt-1">Tout ce qui est inclus dans chaque formule</p>
-          </div>
-
-          {/* Table Header */}
-          <div className="grid grid-cols-[1fr_80px_80px] md:grid-cols-[1fr_120px_120px] px-6 md:px-8 py-4 bg-[var(--bg-hover)] text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-            <span>Fonctionnalité</span>
-            <span className="text-center">Gratuit</span>
-            <span className="text-center bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">Premium</span>
-          </div>
-
-          {/* Table Rows */}
-          {COMPARISON_ROWS.map((row, i) => (
-            <div
-              key={i}
-              className={clsx(
-                "grid grid-cols-[1fr_80px_80px] md:grid-cols-[1fr_120px_120px] px-6 md:px-8 py-3.5 items-center",
-                i % 2 === 0 ? "bg-transparent" : "bg-[var(--bg-hover)]/50",
-                i < COMPARISON_ROWS.length - 1 && "border-b border-[var(--border)]"
-              )}
-            >
-              <span className="text-sm text-[var(--text-primary)] font-medium">{row.label}</span>
-              <span className="flex justify-center">
-                {typeof row.free === 'string' ? (
-                  <span className="text-xs font-medium text-orange-400">{row.free}</span>
-                ) : row.free ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-400" />
-                ) : (
-                  <X className="w-5 h-5 text-[var(--text-muted)]" />
-                )}
-              </span>
-              <span className="flex justify-center">
-                {typeof row.premium === 'string' ? (
-                  <span className="text-xs font-medium text-amber-400">{row.premium}</span>
-                ) : (
-                  <CheckCircle2 className="w-5 h-5 text-amber-400" />
-                )}
-              </span>
-            </div>
-          ))}
-
-          {/* CTA Bottom */}
-          <div className="p-6 md:p-8 bg-gradient-to-r from-amber-500/5 to-yellow-500/5 border-t border-amber-500/20">
-            <button
-              onClick={handleUpgrade}
-              className="w-full md:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 text-black font-bold hover:from-amber-300 hover:to-yellow-400 transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 mx-auto"
-            >
-              <Zap className="w-5 h-5" />
-              Commencer l'essai gratuit
-            </button>
-          </div>
-        </motion.div>
+        {/* Dev Mode Toggle */}
+        <div className="flex justify-center">
+          <button
+            onClick={handleUpgrade}
+            className="px-4 py-2 rounded-lg border border-dashed border-amber-500/30 text-xs text-amber-400/60 hover:text-amber-400 hover:border-amber-500/50 transition-colors"
+          >
+            Dev: Passer Premium
+          </button>
+        </div>
       </div>
     </div>
   );

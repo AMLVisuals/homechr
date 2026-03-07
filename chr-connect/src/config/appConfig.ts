@@ -6,6 +6,7 @@ export const APP_CONFIG = {
   // Tarification
   MISSION_FEE: 20, // Frais de mise en relation (free tier), en euros
   PREMIUM_MONTHLY_PRICE: 100, // Abonnement premium mensuel, en euros
+  PREMIUM_TRIAL_DAYS: 7, // Durée essai gratuit, en jours
   PLATFORM_FEE_PERCENT: 15, // Commission plateforme (%)
   PLATFORM_FEE_RATE: 0.15, // Commission plateforme (décimal)
 
