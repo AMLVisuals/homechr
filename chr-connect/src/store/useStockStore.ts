@@ -16,11 +16,20 @@ export interface StockItem {
   lastUpdated: string;
 }
 
+export interface StockHistoryEntry {
+  id: string;
+  timestamp: string;
+  changes: { itemId: string; itemName: string; oldQty: number; newQty: number }[];
+}
+
 interface StockState {
   items: StockItem[];
+  history: StockHistoryEntry[];
+  lastValidatedAt: string | null;
   addItem: (item: StockItem) => void;
   updateItem: (id: string, updates: Partial<StockItem>) => void;
   removeItem: (id: string) => void;
+  applyChanges: (changes: Record<string, number>) => void;
 }
 
 const INITIAL_ITEMS: StockItem[] = [
@@ -40,6 +49,8 @@ export const useStockStore = create<StockState>()(
   persist(
     (set) => ({
       items: INITIAL_ITEMS,
+      history: [],
+      lastValidatedAt: null,
       addItem: (item) => set((state) => ({ items: [...state.items, item] })),
       updateItem: (id, updates) =>
         set((state) => ({
@@ -49,7 +60,40 @@ export const useStockStore = create<StockState>()(
         })),
       removeItem: (id) =>
         set((state) => ({ items: state.items.filter((item) => item.id !== id) })),
+      applyChanges: (changes) =>
+        set((state) => {
+          const now = new Date().toISOString();
+          const today = now.split('T')[0];
+          const changeEntries: StockHistoryEntry['changes'] = [];
+
+          const updatedItems = state.items.map((item) => {
+            if (changes[item.id] !== undefined && changes[item.id] !== item.quantity) {
+              changeEntries.push({
+                itemId: item.id,
+                itemName: item.name,
+                oldQty: item.quantity,
+                newQty: changes[item.id],
+              });
+              return { ...item, quantity: changes[item.id], lastUpdated: today };
+            }
+            return item;
+          });
+
+          if (changeEntries.length === 0) return state;
+
+          const entry: StockHistoryEntry = {
+            id: `h-${Date.now()}`,
+            timestamp: now,
+            changes: changeEntries,
+          };
+
+          return {
+            items: updatedItems,
+            history: [entry, ...state.history].slice(0, 50),
+            lastValidatedAt: now,
+          };
+        }),
     }),
-    { name: 'stock-storage-v1' }
+    { name: 'stock-storage-v2' }
   )
 );
