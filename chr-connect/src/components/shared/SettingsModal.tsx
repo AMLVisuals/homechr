@@ -1,8 +1,9 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sun, Moon, Crown, ChevronRight } from 'lucide-react';
+import { X, Sun, Moon, Crown, ChevronRight, LogOut } from 'lucide-react';
 import { useStore } from '@/store/useStore';
+import { useRouter } from 'next/navigation';
 import PremiumBadge from './PremiumBadge';
 
 interface SettingsModalProps {
@@ -11,7 +12,14 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-  const { theme, setTheme, isPremium, setPremium } = useStore();
+  const { theme, setTheme, isPremium, setPremium, setUserRole } = useStore();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    onClose();
+    setUserRole(null);
+    router.push('/');
+  };
 
   return (
     <AnimatePresence>
@@ -132,7 +140,14 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </div>
 
             {/* Footer */}
-            <div className="p-5 border-t border-[var(--border)]">
+            <div className="p-5 border-t border-[var(--border)] space-y-3">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-red-400 hover:text-red-500 hover:bg-red-500/10 border border-red-500/20 transition-colors text-sm font-medium"
+              >
+                <LogOut className="w-4 h-4" />
+                Déconnexion
+              </button>
               <p className="text-xs text-[var(--text-muted)] text-center">CHR Connect v1.0</p>
             </div>
           </motion.div>

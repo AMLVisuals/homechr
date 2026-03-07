@@ -15,7 +15,7 @@ import DispatchSearchingOverlay from '@/components/provider/DispatchSearchingOve
 import { useMissionDispatch } from '@/hooks/useMissionDispatch';
 import { useMissionDispatchStore } from '@/store/useMissionDispatchStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, Bell, User, X, Briefcase, UserCircle, ChevronDown, Power, Menu, CheckCircle, AlertTriangle, MapPin, Euro } from 'lucide-react';
+import { LayoutDashboard, Bell, User, X, Briefcase, UserCircle, ChevronDown, Power, Menu, CheckCircle, AlertTriangle, MapPin, Euro, LogOut } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SIMULATED_PROFILES } from '@/constants/profiles';
 import WorkerDashboard from '@/components/provider/WorkerDashboard';
@@ -153,8 +153,8 @@ export default function Home() {
         </nav>
         <div className="p-4 border-t border-[var(--border)]">
           <button onClick={() => { setUserRole(null); router.push('/'); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all">
-            <User className="w-5 h-5" />
-            Changer de rôle
+            <LogOut className="w-5 h-5" />
+            Déconnexion
           </button>
         </div>
       </aside>

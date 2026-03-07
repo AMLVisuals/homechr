@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Briefcase, Check, ChevronRight, ArrowLeft } from 'lucide-react';
+import { User, Briefcase, Check, ChevronRight, ArrowLeft, Mail, Lock, Phone, UserPlus, LogIn } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import DocumentUploader from './DocumentUploader';
 import DropZonePro from './DropZonePro';
@@ -12,15 +12,57 @@ import { getRequiredDocuments, DocumentRequirement } from '@/config/documents';
 
 export default function RoleSwitcher() {
   const { setUserRole } = useStore();
-  const [step, setStep] = useState<'role' | 'category' | 'services' | 'verification'>('role');
+  const [step, setStep] = useState<'role' | 'auth' | 'category' | 'services' | 'verification'>('role');
   const [selectedRole, setSelectedRole] = useState<'PATRON' | 'WORKER' | null>(null);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [docStatuses, setDocStatuses] = useState<Record<string, 'idle' | 'uploading' | 'pending' | 'verified'>>({});
 
+  // Auth form state
+  const [authForm, setAuthForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+  const [authError, setAuthError] = useState('');
+
   const handleRoleSelect = (role: 'PATRON' | 'WORKER') => {
     setSelectedRole(role);
-    setStep(role === 'WORKER' ? 'category' : 'verification');
+    setAuthMode('login');
+    setAuthError('');
+    setAuthForm({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+    setStep('auth');
+  };
+
+  const handleLogin = () => {
+    setAuthError('');
+    if (!authForm.email || !authForm.password) {
+      setAuthError('Veuillez remplir tous les champs.');
+      return;
+    }
+    // Mock login — any email/password works
+    if (selectedRole) {
+      setUserRole(selectedRole);
+    }
+  };
+
+  const handleRegister = () => {
+    setAuthError('');
+    if (!authForm.name || !authForm.email || !authForm.phone || !authForm.password || !authForm.confirmPassword) {
+      setAuthError('Veuillez remplir tous les champs.');
+      return;
+    }
+    if (authForm.password !== authForm.confirmPassword) {
+      setAuthError('Les mots de passe ne correspondent pas.');
+      return;
+    }
+    if (authForm.password.length < 6) {
+      setAuthError('Le mot de passe doit contenir au moins 6 caractères.');
+      return;
+    }
+    // Mock register — go to next step
+    if (selectedRole === 'WORKER') {
+      setStep('category');
+    } else {
+      setStep('verification');
+    }
   };
 
   const handleCategorySelect = (category: any) => {
@@ -82,6 +124,159 @@ export default function RoleSwitcher() {
                 icon={User}
                 onClick={() => handleRoleSelect('WORKER')}
               />
+            </motion.div>
+          )}
+
+          {step === 'auth' && (
+            <motion.div
+              key="auth"
+              initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}
+              className="glass-strong rounded-3xl p-4 md:p-8 max-w-md mx-auto"
+            >
+              <button
+                onClick={() => { setStep('role'); setSelectedRole(null); }}
+                className="mb-3 md:mb-4 flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="text-xs md:text-sm">Retour</span>
+              </button>
+
+              <div className="text-center mb-6">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center mx-auto mb-3">
+                  {selectedRole === 'PATRON' ? <Briefcase className="w-7 h-7 text-white" /> : <User className="w-7 h-7 text-white" />}
+                </div>
+                <h2 className="text-xl md:text-2xl font-bold text-[var(--text-primary)]">
+                  {selectedRole === 'PATRON' ? 'Espace Demandeur' : 'Espace Prestataire'}
+                </h2>
+              </div>
+
+              {/* Toggle login / register */}
+              <div className="flex rounded-xl bg-[var(--bg-hover)] p-1 mb-6">
+                <button
+                  onClick={() => { setAuthMode('login'); setAuthError(''); }}
+                  className={clsx(
+                    "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2",
+                    authMode === 'login'
+                      ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm"
+                      : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                  )}
+                >
+                  <LogIn className="w-4 h-4" />
+                  Se connecter
+                </button>
+                <button
+                  onClick={() => { setAuthMode('register'); setAuthError(''); }}
+                  className={clsx(
+                    "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2",
+                    authMode === 'register'
+                      ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm"
+                      : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                  )}
+                >
+                  <UserPlus className="w-4 h-4" />
+                  Créer un compte
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {authMode === 'register' && (
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                    <input
+                      type="text"
+                      placeholder="Nom complet"
+                      value={authForm.name}
+                      onChange={(e) => setAuthForm(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-colors"
+                    />
+                  </div>
+                )}
+
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                  <input
+                    type="email"
+                    placeholder="Adresse email"
+                    value={authForm.email}
+                    onChange={(e) => setAuthForm(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-colors"
+                  />
+                </div>
+
+                {authMode === 'register' && (
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                    <input
+                      type="tel"
+                      placeholder="Téléphone"
+                      value={authForm.phone}
+                      onChange={(e) => setAuthForm(prev => ({ ...prev, phone: e.target.value }))}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-colors"
+                    />
+                  </div>
+                )}
+
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                  <input
+                    type="password"
+                    placeholder="Mot de passe"
+                    value={authForm.password}
+                    onChange={(e) => setAuthForm(prev => ({ ...prev, password: e.target.value }))}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-colors"
+                  />
+                </div>
+
+                {authMode === 'register' && (
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                    <input
+                      type="password"
+                      placeholder="Confirmer le mot de passe"
+                      value={authForm.confirmPassword}
+                      onChange={(e) => setAuthForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-colors"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {authError && (
+                <p className="mt-3 text-xs text-red-500 text-center">{authError}</p>
+              )}
+
+              <button
+                onClick={authMode === 'login' ? handleLogin : handleRegister}
+                className="mt-6 w-full py-3 md:py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2 text-sm md:text-base"
+              >
+                {authMode === 'login' ? 'Se connecter' : 'Créer mon compte'}
+                <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+
+              <button
+                onClick={() => {
+                  if (selectedRole) {
+                    if (authMode === 'login') {
+                      setUserRole(selectedRole);
+                    } else {
+                      if (selectedRole === 'WORKER') {
+                        setStep('category');
+                      } else {
+                        setStep('verification');
+                      }
+                    }
+                  }
+                }}
+                className="mt-3 text-[10px] md:text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] mx-auto block"
+              >
+                Dev Mode: Skip Auth
+              </button>
+
+              {authMode === 'login' && (
+                <button className="mt-2 text-xs text-blue-500 hover:text-blue-400 mx-auto block transition-colors">
+                  Mot de passe oublié ?
+                </button>
+              )}
             </motion.div>
           )}
 
@@ -190,7 +385,7 @@ export default function RoleSwitcher() {
               className="glass-strong rounded-3xl p-4 md:p-8 max-w-xl mx-auto md:max-h-[90vh] md:overflow-y-auto custom-scrollbar"
             >
               <button 
-                onClick={() => setStep(selectedRole === 'WORKER' ? 'services' : 'role')}
+                onClick={() => setStep(selectedRole === 'WORKER' ? 'services' : 'auth')}
                 className="mb-3 md:mb-4 flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />

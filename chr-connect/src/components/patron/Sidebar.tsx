@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, Receipt, Warehouse,
-  CreditCard, Calendar, Settings, User, Crown, Briefcase, Package, FileText,
+  CreditCard, Calendar, Settings, Crown, Briefcase, Package, FileText, LogOut,
 } from 'lucide-react';
+import { useStore } from '@/store/useStore';
 import { clsx } from 'clsx';
 
 export const NAV_ITEMS = [
@@ -28,6 +29,13 @@ interface SidebarProps {
 
 export default function Sidebar({ activeTab, onSettingsClick, layoutId = 'activeTabDesktop' }: SidebarProps) {
   const router = useRouter();
+  const { setUserRole } = useStore();
+
+  const handleLogout = () => {
+    setUserRole(null);
+    router.push('/');
+  };
+
   return (
     <>
       <div
@@ -70,13 +78,20 @@ export default function Sidebar({ activeTab, onSettingsClick, layoutId = 'active
         ))}
       </nav>
 
-      <div className="p-4 border-t border-[var(--border)]">
+      <div className="p-4 border-t border-[var(--border)] space-y-1">
         <button
           onClick={onSettingsClick}
           className="w-full flex items-center gap-3 p-3 rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
         >
           <Settings className="w-5 h-5" />
           <span className="text-sm font-medium">Paramètres</span>
+        </button>
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 p-3 rounded-xl text-red-400 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+        >
+          <LogOut className="w-5 h-5" />
+          <span className="text-sm font-medium">Déconnexion</span>
         </button>
       </div>
     </>

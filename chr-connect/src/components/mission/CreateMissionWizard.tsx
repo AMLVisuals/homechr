@@ -33,7 +33,6 @@ import {
   Clock,
   Send,
   Check,
-  Calendar,
   Users,
   MapPin,
   Snowflake,
@@ -49,6 +48,7 @@ import {
   Scale,
   Crown,
   CreditCard,
+  ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { COMING_SOON_CATEGORIES } from '@/data/categories';
@@ -269,13 +269,14 @@ const EQUIPMENT_ICONS: Record<EquipmentCategory, React.ElementType> = {
 import { useCalendarStore } from '@/store/calendarStore';
 
 export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultDate }: CreateMissionWizardProps) {
-  const { currentEstablishment, equipment } = useEstablishment();
+  const { currentEstablishment, establishments, setCurrentEstablishmentId, equipment } = useEstablishment();
   const { addMission } = useMissionsStore();
   const { addEvent } = useCalendarStore();
   const { reportFault } = useEquipmentStore();
   const isPremium = useStore((s) => s.isPremium);
 
   // Wizard State
+  const [showVenueDropdown, setShowVenueDropdown] = useState(false);
   const [step, setStep] = useState<WizardStep>(() => {
     if (defaultCategory) {
       const category = CATEGORIES.find(c => c.id === defaultCategory);
@@ -525,8 +526,8 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
       // Staffing flow - go to staffing config
       setStep('staffing-config');
     } else if (selectedCategory?.id === 'TECHNICIENS') {
-      // Tech flow - ask for mission type (Equipment vs Service)
-      setStep('mission-type-selection');
+      // Tech flow - go directly to details (simplified)
+      setStep('details');
     } else if (subCategory.equipmentCategories && subCategory.equipmentCategories.length > 0) {
       // Has equipment mapping - go to asset selection
       setStep('asset-selection');
@@ -633,10 +634,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         if (selectedEquipment) {
           setStep('problem-selection');
           setSelectedProblem(null);
-        } else if (selectedCategory?.id === 'TECHNICIENS') {
-          setStep('mission-type-selection');
         } else {
           setStep('subcategory');
+          setSelectedSubCategory(null);
         }
         break;
       case 'staffing-config':
@@ -647,6 +647,8 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
       case 'summary':
         if (selectedCategory?.id === 'PERSONNEL') {
           setStep('staffing-config');
+        } else if (selectedCategory?.id === 'TECHNICIENS') {
+          setStep('details');
         } else {
           setStep('details');
         }
@@ -692,7 +694,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
           status: 'SEARCHING' as const,
           location: { lat: 48.8566, lng: 2.3522 },
           category: 'STAFFING' as const,
-          date: `${staffingDate} ${staffingTime}`,
+          date: new Date().toISOString(),
         };
 
         addMission(createdMission);
@@ -700,9 +702,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         // Equipment mission
         reportFault(selectedEquipment.id, selectedProblem.id, description || selectedProblem.label);
 
-        // Determine date: either staffingDate (if set via wizard default) or today?
-        // If staffingDate is set, use it.
-        const missionDate = staffingDate ? `${staffingDate} ${staffingTime}` : undefined;
+        const missionDate = new Date().toISOString();
 
         createdMission = {
           id: missionId,
@@ -742,13 +742,8 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
               price = `${servicePrice}€`;
             }
           }
-          
-          if (staffingDate) {
-            date = `${staffingDate} ${staffingTime}`;
-          }
-        } else if (staffingDate) {
-            date = `${staffingDate} ${staffingTime}`;
         }
+        date = new Date().toISOString();
 
         createdMission = {
           id: missionId,
@@ -781,19 +776,21 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         }
       }
 
-      // Add to Calendar if date is present
-      if (createdMission && createdMission.date) {
-        const [dateStr, timeStr] = createdMission.date.split(' ');
-        
+      // Add to Calendar
+      if (createdMission) {
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0];
+        const timeStr = now.toTimeString().slice(0, 5);
+
         let eventType: any = 'OTHER';
         if (selectedCategory?.id === 'PERSONNEL') eventType = 'STAFFING';
         else if (selectedCategory?.id === 'MAINTENANCE') eventType = 'MAINTENANCE';
         else if (selectedCategory?.id === 'TECHNICIENS') eventType = 'EVENT';
-        
+
         addEvent({
           title: createdMission.title,
           date: dateStr,
-          time: timeStr || '09:00',
+          time: timeStr,
           type: eventType,
           description: createdMission.description,
           venueId: currentEstablishment.id,
@@ -817,14 +814,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
     if (selectedCategory?.id === 'PERSONNEL') {
       steps = ['category', 'subcategory', 'staffing-config', 'summary'];
     } else if (selectedCategory?.id === 'TECHNICIENS') {
-      // Tech specific path handling
-      if (selectedEquipment || step === 'asset-selection' || step === 'problem-selection') {
-         // Path with equipment
-         steps = ['category', 'subcategory', 'mission-type-selection', 'asset-selection', 'problem-selection', 'details', 'summary'];
-      } else {
-         // Path without equipment (Service)
-         steps = ['category', 'subcategory', 'mission-type-selection', 'details', 'summary'];
-      }
+      steps = ['category', 'subcategory', 'details', 'summary'];
     } else if (selectedSubCategory?.equipmentCategories) {
       steps = ['category', 'subcategory', 'asset-selection', 'problem-selection', 'details', 'summary'];
     } else {
@@ -852,70 +842,98 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/90"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-2xl max-h-[90vh] bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl shadow-2xl overflow-hidden flex flex-col"
-      >
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] bg-[var(--bg-app)] flex flex-col"
+    >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
           <div className="flex items-center gap-3">
             {step !== 'category' && step !== 'success' && (
               <button
                 onClick={handleBack}
-                className="w-10 h-10 rounded-full bg-[var(--bg-card)] flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
+                className="w-10 h-10 rounded-full bg-[var(--bg-hover)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 text-[var(--text-primary)]" />
+                <ArrowLeft className="w-5 h-5" />
               </button>
             )}
             <div>
-              <h2 className="text-xl font-bold text-[var(--text-primary)]">
+              <h1 className="text-lg font-bold text-[var(--text-primary)]">
                 {step === 'category' && 'Nouvelle Demande'}
                 {step === 'subcategory' && selectedCategory?.label}
                 {step === 'asset-selection' && 'Sélectionnez l\'équipement'}
                 {step === 'problem-selection' && 'Quel est le problème ?'}
-                {step === 'details' && 'Détails supplémentaires'}
+                {step === 'details' && (selectedCategory?.id === 'TECHNICIENS' && !selectedEquipment ? 'Votre demande' : 'Détails supplémentaires')}
                 {step === 'staffing-config' && 'Configuration du staffing'}
                 {step === 'summary' && 'Récapitulatif'}
                 {step === 'payment' && 'Paiement'}
                 {step === 'success' && 'Demande envoyée !'}
-              </h2>
+              </h1>
               {currentEstablishment && step !== 'success' && (
-                <p className="text-[var(--text-muted)] text-sm flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
-                  {currentEstablishment.name}
-                </p>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowVenueDropdown(!showVenueDropdown)}
+                    className="text-xs text-[var(--text-muted)] flex items-center gap-1 hover:text-[var(--text-secondary)] transition-colors"
+                  >
+                    <MapPin className="w-3 h-3" />
+                    {currentEstablishment.name}
+                    {establishments.length > 1 && <ChevronDown className={cn("w-3 h-3 transition-transform", showVenueDropdown && "rotate-180")} />}
+                  </button>
+                  {showVenueDropdown && establishments.length > 1 && (
+                    <>
+                      <div className="fixed inset-0 z-[10]" onClick={() => setShowVenueDropdown(false)} />
+                      <div className="absolute top-full left-0 mt-1 w-64 bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-xl shadow-2xl z-[11] overflow-hidden">
+                        {establishments.map((venue) => (
+                          <button
+                            key={venue.id}
+                            onClick={() => {
+                              setCurrentEstablishmentId(venue.id);
+                              setShowVenueDropdown(false);
+                            }}
+                            className={cn(
+                              'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors',
+                              venue.id === currentEstablishment.id
+                                ? 'bg-blue-500/10 text-[var(--text-primary)]'
+                                : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
+                            )}
+                          >
+                            <Building2 className="w-4 h-4 flex-shrink-0" />
+                            <span className="text-sm font-medium truncate">{venue.name}</span>
+                            {venue.id === currentEstablishment.id && (
+                              <Check className="w-4 h-4 text-blue-500 ml-auto flex-shrink-0" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-full bg-[var(--bg-card)] flex items-center justify-center hover:bg-[var(--bg-active)] transition-colors"
+            className="w-10 h-10 rounded-full bg-[var(--bg-hover)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
-            <X className="w-5 h-5 text-[var(--text-muted)]" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Progress Bar */}
         {step !== 'success' && (() => {
           const { progress, currentStep, totalSteps } = getProgressInfo();
+          const gradientColor = selectedCategory?.id === 'TECHNICIENS'
+            ? 'from-orange-500 to-red-500'
+            : selectedCategory?.id === 'PERSONNEL'
+              ? 'from-purple-500 to-pink-500'
+              : 'from-blue-500 to-purple-500';
           return (
-            <div className="px-6 pt-4">
+            <div className="px-4 pt-4">
               <div className="h-1.5 bg-[var(--bg-hover)] rounded-full overflow-hidden">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                  className={`h-full bg-gradient-to-r ${gradientColor} rounded-full`}
                   initial={{ width: 0 }}
                   animate={{ width: `${progress * 100}%` }}
                   transition={{ duration: 0.35, ease: 'easeInOut' }}
@@ -929,7 +947,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         })()}
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 max-w-2xl mx-auto w-full">
           <AnimatePresence mode="wait">
             {/* STEP: Category Selection */}
             {step === 'category' && (
@@ -1318,221 +1336,47 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                   </div>
                 )}
 
-                {/* Service Mission Details (Tech without Equipment) */}
+                {/* Service Mission Details (Tech) — simplified like Personnel */}
                 {selectedCategory?.id === 'TECHNICIENS' && !selectedEquipment && (
-                  <div className="space-y-6 bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
-                    <h3 className="text-[var(--text-primary)] font-medium flex items-center gap-2 border-b border-[var(--border)] pb-3">
-                      <Calendar className="w-5 h-5 text-purple-400" />
-                      Détails de la prestation
-                    </h3>
-                    
-                    {/* Date & Time */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-[var(--text-secondary)] text-sm font-medium mb-2">Date</label>
-                        <input
-                          type="date"
-                          value={staffingDate}
-                          onChange={(e) => setStaffingDate(e.target.value)}
-                          className="w-full p-3 bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-purple-500/50 [color-scheme:dark]"
-                        />
+                  <>
+                    {/* Selected subcategory summary card */}
+                    {selectedSubCategory && (
+                      <div className="flex items-center gap-4 p-4 rounded-xl bg-orange-500/20 border border-orange-500/50">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                          {(() => { const Icon = selectedSubCategory.icon; return <Icon className="w-6 h-6 text-white" />; })()}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-[var(--text-primary)] font-medium">{selectedSubCategory.label}</p>
+                          <p className="text-[var(--text-muted)] text-sm">Intervention technique</p>
+                        </div>
+                        <Check className="w-5 h-5 text-orange-400" />
                       </div>
-                      <div>
-                        <label className="block text-[var(--text-secondary)] text-sm font-medium mb-2">Heure de début</label>
-                        <input
-                          type="time"
-                          value={staffingTime}
-                          onChange={(e) => setStaffingTime(e.target.value)}
-                          className="w-full p-3 bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-purple-500/50 [color-scheme:dark]"
-                        />
-                      </div>
+                    )}
+
+                    {/* Problem Description — the main input */}
+                    <div className="space-y-3">
+                      <label className="block text-[var(--text-primary)] font-medium">
+                        Décrivez votre problème <span className="text-red-400">*</span>
+                      </label>
+                      <textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder={
+                          selectedSubCategory?.id === 'plombier' ? "Ex: J'ai une fuite d'eau sous l'évier de la cuisine, je ne sais pas d'où ça vient..." :
+                          selectedSubCategory?.id === 'electricien' ? "Ex: Plusieurs prises ne fonctionnent plus dans la salle, les plombs sautent..." :
+                          selectedSubCategory?.id === 'tech_froid' ? "Ex: La chambre froide ne descend plus en température depuis ce matin..." :
+                          selectedSubCategory?.id === 'tech_chaud' ? "Ex: Le four ne chauffe plus correctement, la résistance semble HS..." :
+                          selectedSubCategory?.id === 'tech_cafe' ? "Ex: La machine à café fait un bruit anormal et ne produit plus de vapeur..." :
+                          selectedSubCategory?.id === 'tech_lave_vaisselle' ? "Ex: Le lave-vaisselle ne vidange plus, l'eau stagne au fond..." :
+                          selectedSubCategory?.id === 'tech_biere' ? "Ex: La pression de la tireuse est trop faible, la bière mousse beaucoup..." :
+                          "Décrivez votre problème le plus précisément possible..."
+                        }
+                        rows={4}
+                        className="w-full p-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none focus:outline-none focus:border-orange-500/50"
+                      />
                     </div>
 
-                    {/* Duration & Budget - Sliders */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-end">
-                          <label className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-blue-400" />
-                            Durée estimée
-                          </label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="number"
-                              min="0.5"
-                              step="0.5"
-                              value={staffingDuration}
-                              onChange={(e) => setStaffingDuration(e.target.value)}
-                              className="w-16 p-1 text-right bg-transparent border-b border-[var(--border-strong)] text-[var(--text-primary)] font-bold focus:outline-none focus:border-blue-500"
-                            />
-                            <span className="text-sm font-normal text-[var(--text-muted)]">h</span>
-                          </div>
-                        </div>
-                        <div className="relative pt-1">
-                          <input
-                            type="range"
-                            min="1"
-                            max="12"
-                            step="0.5"
-                            value={staffingDuration}
-                            onChange={(e) => setStaffingDuration(e.target.value)}
-                            className="w-full h-2 bg-[var(--bg-active)] rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                          />
-                          <div className="flex justify-between text-[10px] text-[var(--text-muted)] mt-2 font-medium uppercase tracking-wider">
-                            <span>1h</span>
-                            <span>4h</span>
-                            <span>8h</span>
-                            <span>12h</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                         <div className="flex justify-between items-end">
-                          <label className="text-[var(--text-secondary)] text-sm font-medium flex items-center gap-2">
-                            <Euro className="w-4 h-4 text-purple-400" />
-                            Taux horaire
-                          </label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="number"
-                              min="0"
-                              step="1"
-                              value={servicePrice || '0'}
-                              onChange={(e) => setServicePrice(e.target.value)}
-                              className="w-16 p-1 text-right bg-transparent border-b border-[var(--border-strong)] text-[var(--text-primary)] font-bold focus:outline-none focus:border-purple-500"
-                            />
-                            <span className="text-sm font-normal text-[var(--text-muted)]">€/h</span>
-                          </div>
-                        </div>
-                        <div className="relative pt-1">
-                          <input
-                            type="range"
-                            min="0"
-                            max="200"
-                            step="1"
-                            value={servicePrice || '0'}
-                            onChange={(e) => setServicePrice(e.target.value)}
-                            className="w-full h-2 bg-[var(--bg-active)] rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400 transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                          />
-                          <div className="flex justify-between text-[10px] text-[var(--text-muted)] mt-2 font-medium uppercase tracking-wider">
-                            <span>0€</span>
-                            <span>50€</span>
-                            <span>100€</span>
-                            <span>200€</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Total Calculation Display */}
-                    <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-[var(--border)] flex items-center justify-between">
-                      <div>
-                        <span className="text-[var(--text-muted)] text-sm font-medium">Total estimé de la prestation</span>
-                        <p className="text-[var(--text-muted)] text-xs mt-1">
-                          {staffingDuration}h × {servicePrice || 0}€/h
-                        </p>
-                      </div>
-                      <div className="text-right">
-                         <span className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
-                            {(parseFloat(staffingDuration || '0') * parseFloat(servicePrice || '0')).toFixed(0)}€
-                         </span>
-                      </div>
-                    </div>
-                    
-                    {/* Mission Context Section */}
-                    <div className="pt-4 border-t border-[var(--border)] space-y-6">
-                       <h4 className="text-[var(--text-primary)] font-medium flex items-center gap-2">
-                          <Zap className="w-4 h-4 text-yellow-400" />
-                          Contexte de la mission
-                       </h4>
-                       
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative">
-                          {/* Event Type */}
-                          <div>
-                             <label className="block text-[var(--text-secondary)] text-sm font-medium mb-2">Type d'événement</label>
-                             {!isCustomEventType ? (
-                               <select 
-                                  value={eventType}
-                                  onChange={(e) => handleEventTypeChange(e.target.value)}
-                                  className="w-full p-3 bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-blue-500/50 appearance-none"
-                               >
-                                  <option className="bg-[var(--bg-hover)]" disabled value="">Sélectionner un type...</option>
-                                  {DEFAULT_EVENT_TYPES.map(type => (
-                                    <option key={type} className="bg-[var(--bg-hover)]" value={type}>{type}</option>
-                                  ))}
-                                  {savedEventTypes.length > 0 && (
-                                    <optgroup label="Vos types personnalisés" className="bg-[var(--bg-hover)] text-[var(--text-muted)]">
-                                      {savedEventTypes.map((type, i) => (
-                                        <option key={`saved-${i}-${type}`} className="bg-[var(--bg-hover)] text-[var(--text-primary)]" value={type}>{type}</option>
-                                      ))}
-                                    </optgroup>
-                                  )}
-                                  <option className="bg-[var(--bg-hover)] font-medium text-blue-400" value="custom_new">+ Autre / Nouveau...</option>
-                               </select>
-                             ) : (
-                               <div className="flex gap-2">
-                                 <input
-                                   type="text"
-                                   value={customEventType}
-                                   onChange={(e) => setCustomEventType(e.target.value)}
-                                   placeholder="Ex: Festival, Vernissage..."
-                                   autoFocus
-                                   className="flex-1 p-3 bg-[var(--bg-active)] border border-blue-500/50 rounded-xl text-[var(--text-primary)] focus:outline-none"
-                                   onKeyDown={(e) => {
-                                     if (e.key === 'Enter') {
-                                       e.preventDefault();
-                                       saveCustomEventType();
-                                     }
-                                   }}
-                                 />
-                                 <button
-                                   onClick={saveCustomEventType}
-                                   disabled={!customEventType.trim()}
-                                   className="px-4 bg-blue-500 rounded-xl text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
-                                 >
-                                   OK
-                                 </button>
-                                 <button
-                                   onClick={() => setIsCustomEventType(false)}
-                                   className="px-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] hover:bg-[var(--bg-active)] transition-colors"
-                                 >
-                                   Annuler
-                                 </button>
-                               </div>
-                             )}
-                          </div>
-
-                          {/* Equipment Status Toggle */}
-                          <div className="flex flex-col justify-end">
-                             <div 
-                                onClick={() => setEquipmentProvided(!equipmentProvided)}
-                                className={cn(
-                                   "w-full p-3 rounded-xl border flex items-center gap-3 cursor-pointer transition-all select-none",
-                                   equipmentProvided 
-                                      ? "bg-green-500/10 border-green-500/50" 
-                                      : "bg-[var(--bg-card)] border-[var(--border)] hover:bg-[var(--bg-active)]"
-                                )}
-                             >
-                                <div className={cn(
-                                   "w-5 h-5 rounded flex items-center justify-center border transition-colors",
-                                   equipmentProvided ? "bg-green-500 border-green-500" : "border-[var(--border-strong)]"
-                                )}>
-                                   {equipmentProvided && <Check className="w-3 h-3 text-black" />}
-                                </div>
-                                <div>
-                                   <span className={cn("text-sm font-medium", equipmentProvided ? "text-green-400" : "text-[var(--text-primary)]")}>
-                                      Matériel fourni sur place
-                                   </span>
-                                   <p className="text-[10px] text-[var(--text-muted)]">
-                                      {equipmentProvided ? "Le prestataire vient les mains vides" : "Le prestataire doit apporter son matériel"}
-                                   </p>
-                                </div>
-                             </div>
-                          </div>
-                       </div>
-                    </div>
-                  </div>
+                  </>
                 )}
 
                 {/* Media Upload (Photos & Videos) */}
@@ -1607,7 +1451,8 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                   </p>
                 </div>
 
-                {/* Description */}
+                {/* Description (only for equipment-based flow, Tech service has its own) */}
+                {!(selectedCategory?.id === 'TECHNICIENS' && !selectedEquipment) && (
                 <div>
                   <label className="block text-[var(--text-primary)] font-medium mb-2">
                     Description {(!selectedProblem || selectedProblem.id === 'other') && <span className="text-red-400">*</span>}
@@ -1616,8 +1461,8 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder={
-                      !selectedProblem 
-                        ? "Décrivez votre besoin en détail..." 
+                      !selectedProblem
+                        ? "Décrivez votre besoin en détail..."
                         : selectedProblem.id === 'other'
                           ? "Veuillez décrire le problème rencontré..."
                           : "Ajoutez des détails supplémentaires (optionnel)..."
@@ -1626,6 +1471,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                     className="w-full p-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none focus:outline-none focus:border-blue-500/50"
                   />
                 </div>
+                )}
 
                 {/* Price Estimate */}
                 {selectedProblem && (
@@ -1685,34 +1531,12 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                   </div>
                 </div>
 
-                {/* DETAILS FORM (Adapted from Tech AV) */}
+                {/* DETAILS FORM */}
                 <div className="space-y-6 bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
                     <h3 className="text-[var(--text-primary)] font-medium flex items-center gap-2 border-b border-[var(--border)] pb-3">
-                      <Calendar className="w-5 h-5 text-purple-400" />
+                      <Clock className="w-5 h-5 text-purple-400" />
                       Détails de la prestation
                     </h3>
-                    
-                    {/* Date & Time */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-[var(--text-secondary)] text-sm font-medium mb-2">Date</label>
-                        <input
-                          type="date"
-                          value={staffingDate}
-                          onChange={(e) => setStaffingDate(e.target.value)}
-                          className="w-full p-3 bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-purple-500/50 [color-scheme:dark]"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[var(--text-secondary)] text-sm font-medium mb-2">Heure de début</label>
-                        <input
-                          type="time"
-                          value={staffingTime}
-                          onChange={(e) => setStaffingTime(e.target.value)}
-                          className="w-full p-3 bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-purple-500/50 [color-scheme:dark]"
-                        />
-                      </div>
-                    </div>
 
                     {/* Duration, People & Rate */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -2034,19 +1858,16 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                       )}
                     </div>
 
-                    {/* Time & Duration (Staffing OR Tech Service) */}
+                    {/* Duration (Staffing OR Tech Service) */}
                     {(selectedCategory?.id === 'PERSONNEL' || (selectedCategory?.id === 'TECHNICIENS' && !selectedEquipment)) && (
                       <div className="grid grid-cols-2 gap-4">
                         <div className="flex items-start gap-3">
                           <div className="w-8 h-8 rounded-lg bg-[var(--bg-card)] flex items-center justify-center flex-shrink-0">
-                            <Calendar className="w-4 h-4 text-[var(--text-muted)]" />
+                            <Zap className="w-4 h-4 text-orange-400" />
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-[var(--text-muted)] mb-0.5">Date & Heure</p>
-                            <p className="text-[var(--text-primary)] font-medium capitalize">
-                              {staffingDate ? new Date(staffingDate).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }) : 'Non défini'}
-                            </p>
-                            <p className="text-[var(--text-muted)] text-sm">{staffingTime || '--:--'}</p>
+                            <p className="text-sm font-medium text-[var(--text-muted)] mb-0.5">Disponibilité</p>
+                            <p className="text-[var(--text-primary)] font-medium">Maintenant</p>
                           </div>
                         </div>
                         <div className="flex items-start gap-3">
@@ -2292,19 +2113,25 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
 
         {/* Footer */}
         {step !== 'category' && step !== 'success' && step !== 'payment' && (
-          <div className="p-6 border-t border-[var(--border)]">
+          <div className="p-4 border-t border-[var(--border)] max-w-2xl mx-auto w-full">
             {step === 'details' && (
               <button
                 onClick={handleContinueToSummary}
                 disabled={
-                  (!selectedProblem && !description.trim() && !selectedEquipment) ||
-                  (selectedProblem?.id === 'other' && !description.trim())
+                  selectedCategory?.id === 'TECHNICIENS' && !selectedEquipment
+                    ? !description.trim()
+                    : (!selectedProblem && !description.trim() && !selectedEquipment) ||
+                      (selectedProblem?.id === 'other' && !description.trim())
                 }
                 className={cn(
                   'w-full py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2',
-                  ((selectedProblem || description.trim() || selectedCategory?.id !== 'MAINTENANCE') && !(selectedProblem?.id === 'other' && !description.trim()))
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/25'
-                    : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
+                  selectedCategory?.id === 'TECHNICIENS' && !selectedEquipment
+                    ? description.trim()
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:shadow-lg hover:shadow-orange-500/25'
+                      : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
+                    : ((selectedProblem || description.trim() || selectedCategory?.id !== 'MAINTENANCE') && !(selectedProblem?.id === 'other' && !description.trim()))
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/25'
+                      : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
                 )}
               >
                 Continuer
@@ -2315,10 +2142,10 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
             {step === 'staffing-config' && (
               <button
                 onClick={handleContinueToSummary}
-                disabled={!selectedStaffingRole || !staffingDate || !staffingTime}
+                disabled={!selectedStaffingRole}
                 className={cn(
                   'w-full py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2',
-                  (selectedStaffingRole && staffingDate && staffingTime)
+                  selectedStaffingRole
                     ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:shadow-purple-500/25'
                     : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
                 )}
@@ -2363,7 +2190,6 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
             )}
           </div>
         )}
-      </motion.div>
 
       {/* Add Equipment Modal - Opens when user clicks "Je ne trouve pas mon équipement" */}
       <AddEquipmentModal
@@ -2478,6 +2304,6 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         onCapture={handleCapture}
         initialMode={captureMode}
       />
-    </div>
+    </motion.div>
   );
 }
