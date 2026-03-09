@@ -30,9 +30,6 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
   const dispatchStatus = useMissionDispatchStore((s) => s.status);
   const currentProposal = useMissionDispatchStore((s) => s.currentProposal);
   const countdown = useMissionDispatchStore((s) => s.countdown);
-  const consecutiveRefusals = useMissionDispatchStore((s) => s.consecutiveRefusals);
-  const showWarning = useMissionDispatchStore((s) => s.showWarning);
-  const suspendedUntil = useMissionDispatchStore((s) => s.suspendedUntil);
 
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -78,7 +75,6 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
   // Start dispatch cycle: SEARCHING phase
   const startSearching = useCallback(() => {
     const store = getDispatchActions();
-    if (store.status === 'SUSPENDED' && store.checkSuspension()) return;
     if (store.status === 'PROPOSING') return;
 
     store.setStatus('SEARCHING');
@@ -110,26 +106,13 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
     }, 2500);
   }, [buildQueue, clearSearchTimeout]);
 
-  // Refuse current mission
+  // Refuse current mission → go offline immediately (no penalty)
   const handleRefuse = useCallback(() => {
     clearCountdown();
-
-    const { shouldSuspend } = getDispatchActions().refuseProposal();
-
-    if (shouldSuspend) {
-      getDispatchActions().suspend();
-      setIsOnAir(false);
-      return;
-    }
-
-    // Cooldown 2s before next proposal
-    setTimeout(() => {
-      const s = getDispatchActions();
-      if (s.status === 'COOLDOWN') {
-        s.proposeNext();
-      }
-    }, 2000);
-  }, [clearCountdown, setIsOnAir]);
+    clearSearchTimeout();
+    getDispatchActions().refuseProposal();
+    setIsOnAir(false);
+  }, [clearCountdown, clearSearchTimeout, setIsOnAir]);
 
   // Start countdown timer
   const handleRefuseRef = useRef(handleRefuse);
@@ -146,12 +129,13 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
     }, 1000);
   }, [clearCountdown]);
 
-  // Accept current mission → goes to AWAITING_PATRON_CONFIRMATION
+  // Accept current mission → goes to AWAITING_PATRON_CONFIRMATION + offline
   const handleAccept = useCallback(() => {
     const { currentProposal: proposal } = getDispatchActions();
     if (!proposal) return;
 
     clearCountdown();
+    clearSearchTimeout();
     const flowType = getMissionFlowType(proposal);
 
     // Store pending worker info on the mission for patron review
@@ -170,9 +154,12 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
     setFlowType(flowType);
     getDispatchActions().acceptProposal();
 
+    // Go offline (worker is now busy with a mission)
+    setIsOnAir(false);
+
     // Set engine to awaiting patron confirmation
     useMissionEngine.getState().setStatus('AWAITING_PATRON_CONFIRMATION');
-  }, [clearCountdown, updateMission, startMission, setFlowType]);
+  }, [clearCountdown, clearSearchTimeout, updateMission, startMission, setFlowType, setIsOnAir]);
 
   // Watch for PROPOSING state to start countdown
   useEffect(() => {
@@ -183,12 +170,10 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
   }, [dispatchStatus, currentProposal, startCountdown, clearCountdown]);
 
   // Main trigger: isOnAir + engine IDLE + enabled (on MISSIONS view) → start/restart dispatch
-  // Also handles remount after navigation (old timeout was cleared by unmount cleanup)
   useEffect(() => {
     if (enabled && isOnAir && engineStatus === 'IDLE') {
       const s = getDispatchActions();
-      // Start if IDLE, or restart if stuck in SEARCHING/COOLDOWN (stale from previous mount)
-      if (s.status !== 'PROPOSING' && s.status !== 'SUSPENDED') {
+      if (s.status !== 'PROPOSING') {
         startSearching();
       }
     }
@@ -229,20 +214,12 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
     };
   }, [clearCountdown, clearSearchTimeout]);
 
-  const dismissWarning = useCallback(() => {
-    getDispatchActions().dismissWarning();
-  }, []);
-
   return {
     dispatchStatus,
     currentProposal,
     countdown,
-    consecutiveRefusals,
-    showWarning,
-    suspendedUntil,
     handleAccept,
     handleRefuse,
-    dismissWarning,
     restartSearch: startSearching,
   };
 }

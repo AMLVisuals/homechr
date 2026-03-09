@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { Mission } from '@/types/missions';
 
-export type DispatchStatus = 'IDLE' | 'SEARCHING' | 'PROPOSING' | 'COOLDOWN' | 'SUSPENDED';
+export type DispatchStatus = 'IDLE' | 'SEARCHING' | 'PROPOSING' | 'COOLDOWN';
 
 interface MissionDispatchState {
   // State machine
@@ -14,25 +14,15 @@ interface MissionDispatchState {
   // Countdown
   countdown: number; // seconds remaining (30s max)
 
-  // Refusal tracking
-  consecutiveRefusals: number;
-  showWarning: boolean; // true after 3rd refusal
-
-  // Suspension
-  suspendedUntil: number | null; // timestamp
-
   // Actions
   setStatus: (status: DispatchStatus) => void;
   setQueue: (missions: Mission[]) => void;
   proposeNext: () => void;
   acceptProposal: () => void;
-  refuseProposal: () => { shouldSuspend: boolean; shouldWarn: boolean };
+  refuseProposal: () => void;
   setCountdown: (seconds: number) => void;
   decrementCountdown: () => number;
-  dismissWarning: () => void;
   reset: () => void;
-  suspend: () => void;
-  checkSuspension: () => boolean; // returns true if still suspended
 }
 
 const INITIAL_STATE = {
@@ -40,9 +30,6 @@ const INITIAL_STATE = {
   queue: [] as Mission[],
   currentProposal: null as Mission | null,
   countdown: 30,
-  consecutiveRefusals: 0,
-  showWarning: false,
-  suspendedUntil: null as number | null,
 };
 
 export const useMissionDispatchStore = create<MissionDispatchState>((set, get) => ({
@@ -71,26 +58,15 @@ export const useMissionDispatchStore = create<MissionDispatchState>((set, get) =
     set({
       status: 'IDLE',
       currentProposal: null,
-      consecutiveRefusals: 0,
       queue: [],
     });
   },
 
   refuseProposal: () => {
-    const { consecutiveRefusals } = get();
-    const newCount = consecutiveRefusals + 1;
-
-    const shouldWarn = newCount === 3;
-    const shouldSuspend = newCount >= 5;
-
     set({
       currentProposal: null,
-      consecutiveRefusals: newCount,
-      showWarning: shouldWarn,
-      status: shouldSuspend ? 'SUSPENDED' : 'COOLDOWN',
+      status: 'IDLE',
     });
-
-    return { shouldSuspend, shouldWarn };
   },
 
   setCountdown: (seconds) => set({ countdown: seconds }),
@@ -100,28 +76,6 @@ export const useMissionDispatchStore = create<MissionDispatchState>((set, get) =
     const next = Math.max(0, current - 1);
     set({ countdown: next });
     return next;
-  },
-
-  dismissWarning: () => set({ showWarning: false }),
-
-  suspend: () => {
-    const suspendedUntil = Date.now() + 5 * 60 * 1000; // 5 minutes
-    set({
-      status: 'SUSPENDED',
-      suspendedUntil,
-      currentProposal: null,
-      queue: [],
-    });
-  },
-
-  checkSuspension: () => {
-    const { suspendedUntil } = get();
-    if (!suspendedUntil) return false;
-    if (Date.now() >= suspendedUntil) {
-      set({ suspendedUntil: null, status: 'IDLE', consecutiveRefusals: 0 });
-      return false;
-    }
-    return true;
   },
 
   reset: () => set(INITIAL_STATE),

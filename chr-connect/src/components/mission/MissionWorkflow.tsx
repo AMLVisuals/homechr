@@ -108,7 +108,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
     return () => clearInterval(interval);
   }, [status, activeMissionId, setStatus, resetMission]);
 
-  // PATRON CONFIRMATION: poll store for patron response
+  // PATRON CONFIRMATION: simulate patron accepting after DELAY seconds
   const [patronConfirmCountdown, setPatronConfirmCountdown] = useState<number | null>(null);
   useEffect(() => {
     if (status !== 'AWAITING_PATRON_CONFIRMATION' || !activeMissionId) {
@@ -123,16 +123,22 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
       setPatronConfirmCountdown(prev => (prev !== null && prev > 0) ? prev - 1 : 0);
     }, 1000);
 
-    // Poll store for patron decision
+    // Simulate patron confirmation after DELAY
+    const autoConfirmTimeout = setTimeout(() => {
+      if (activeMissionId) {
+        updateMission(activeMissionId, { status: 'ON_WAY' });
+      }
+      setStatus('ACCEPTED');
+    }, DELAY * 1000);
+
+    // Also poll store for real patron decision (if patron is also connected)
     const pollInterval = setInterval(() => {
       const currentMission = useMissionsStore.getState().missions.find(m => m.id === activeMissionId);
       if (!currentMission) return;
 
       if (currentMission.status === 'ON_WAY') {
-        // Patron confirmed → proceed
         setStatus('ACCEPTED');
       } else if (currentMission.status === 'SEARCHING') {
-        // Patron refused → back to idle
         resetMission();
       }
     }, 1000);
@@ -140,8 +146,9 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
     return () => {
       clearInterval(countdownInterval);
       clearInterval(pollInterval);
+      clearTimeout(autoConfirmTimeout);
     };
-  }, [status, activeMissionId, setStatus, resetMission]);
+  }, [status, activeMissionId, setStatus, resetMission, updateMission]);
 
   // TECH flow: simulate patron acceptance after 8s
   useEffect(() => {
@@ -216,18 +223,10 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
     if (activeMissionId) updateMission(activeMissionId, { status: 'ON_SITE' });
   };
 
-  // STAFF flow: skip photo, go directly to IN_PROGRESS
+  // STAFF flow: "Démarrer la mission" → mission goes IN_PROGRESS, worker is done
   const handleStartStaffMission = () => {
-    setStatus('IN_PROGRESS');
     if (activeMissionId) {
       updateMission(activeMissionId, { status: 'IN_PROGRESS' });
-    }
-  };
-
-  // STAFF flow: finish work → PENDING_VALIDATION + signal mission end
-  const handleStaffFinishWork = () => {
-    if (activeMissionId) {
-      updateMission(activeMissionId, { status: 'PENDING_VALIDATION' });
     }
     if (onMissionEnd) {
       onMissionEnd({
@@ -518,18 +517,18 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
               className="h-full flex flex-col p-4"
             >
               <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
-                <div className="w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-10 h-10 text-orange-600" />
+                <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-10 h-10 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900">Arrivé sur site</h3>
-                  <p className="text-[var(--text-muted)] mt-2">
-                    Vous êtes sur place. Lancez votre service dès que vous êtes prêt.
+                  <h3 className="text-2xl font-bold text-gray-900">Vous êtes sur place</h3>
+                  <p className="text-[var(--text-muted)] mt-2 max-w-xs mx-auto">
+                    Présentez-vous au patron et démarrez la mission quand vous êtes prêt.
                   </p>
                 </div>
               </div>
-              <Button onClick={handleStartStaffMission} size="lg" className="w-full h-14 text-lg font-bold bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-900/20 rounded-2xl">
-                <ArrowRight className="mr-2 w-5 h-5" /> Commencer le service
+              <Button onClick={handleStartStaffMission} size="lg" className="w-full h-14 text-lg font-bold bg-green-600 hover:bg-green-700 shadow-xl shadow-green-900/20 rounded-2xl">
+                <CheckCircle className="mr-2 w-5 h-5" /> Démarrer la mission
               </Button>
             </motion.div>
           )}
@@ -698,36 +697,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
             </motion.div>
           )}
 
-          {/* === STAFF: IN_PROGRESS STATE (ultra-minimal) === */}
-          {status === 'IN_PROGRESS' && flowType === 'STAFF' && (
-            <motion.div
-              key="in-progress-staff"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.05 }}
-              className="h-full flex flex-col p-6 items-center justify-center text-center"
-            >
-              <div className="flex-1 flex flex-col items-center justify-center space-y-6">
-                <div className="w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center relative">
-                  <div className="absolute inset-0 bg-orange-100 rounded-full animate-pulse opacity-30" />
-                  <CheckCircle className="w-10 h-10 text-orange-600" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900">Service en cours</h3>
-                  <p className="text-[var(--text-muted)] mt-2 max-w-xs mx-auto">
-                    {activeMission?.venue || 'Établissement'}
-                  </p>
-                  {activeMission?.title && (
-                    <p className="text-sm text-[var(--text-secondary)] mt-1">{activeMission.title}</p>
-                  )}
-                </div>
-              </div>
-
-              <Button onClick={handleStaffFinishWork} size="lg" className="w-full h-14 text-lg font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-xl shadow-orange-900/20 rounded-2xl">
-                Terminer le service
-              </Button>
-            </motion.div>
-          )}
+          {/* STAFF flow: IN_PROGRESS is never shown (worker exits at ON_SITE → Démarrer) */}
 
           {/* === TECH: IN_PROGRESS STATE (repair after quote accepted) === */}
           {status === 'IN_PROGRESS' && flowType === 'TECH' && (

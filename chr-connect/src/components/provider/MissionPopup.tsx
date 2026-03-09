@@ -9,13 +9,11 @@ import { Mission } from '@/types/missions';
 interface MissionPopupProps {
   mission: Mission | null;
   countdown: number;
-  consecutiveRefusals: number;
   onAccept: () => void;
   onRefuse: () => void;
 }
 
 const COUNTDOWN_MAX = 30;
-const REFUSAL_DOTS = 5;
 
 // SVG ring countdown
 function CountdownRing({ seconds }: { seconds: number }) {
@@ -53,28 +51,9 @@ function CountdownRing({ seconds }: { seconds: number }) {
   );
 }
 
-// Refusal dots indicator
-function RefusalDots({ count }: { count: number }) {
-  return (
-    <div className="flex items-center gap-1.5 justify-center">
-      {Array.from({ length: REFUSAL_DOTS }).map((_, i) => (
-        <div
-          key={i}
-          className={`w-2 h-2 rounded-full transition-all duration-300 ${
-            i < count
-              ? 'bg-red-500 scale-110'
-              : 'bg-white/20'
-          }`}
-        />
-      ))}
-    </div>
-  );
-}
-
 export default function MissionPopup({
   mission,
   countdown,
-  consecutiveRefusals,
   onAccept,
   onRefuse,
 }: MissionPopupProps) {
@@ -176,16 +155,6 @@ export default function MissionPopup({
                   <p className="text-sm text-white/60 text-center line-clamp-2 mb-4">
                     {mission.description}
                   </p>
-                )}
-
-                {/* Refusal dots */}
-                {consecutiveRefusals > 0 && (
-                  <div className="mb-4">
-                    <RefusalDots count={consecutiveRefusals} />
-                    <p className="text-[10px] text-white/30 text-center mt-1">
-                      {consecutiveRefusals}/5 refus consécutifs
-                    </p>
-                  </div>
                 )}
               </div>
 
