@@ -133,12 +133,18 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
   const [duration, setDuration] = useState(4);
   const [count, setCount] = useState(1);
   const [rate, setRate] = useState(13);
+  const [isNow, setIsNow] = useState(true);
+  const [customDate, setCustomDate] = useState('');
+  const [customTime, setCustomTime] = useState('');
 
   const poste = ALL_POSTES.find(p => p.id === selectedPosteId);
 
   const startDate = useMemo(() => {
+    if (!isNow && customDate && customTime) {
+      return new Date(`${customDate}T${customTime}`);
+    }
     return roundToNextQuarter(new Date());
-  }, []);
+  }, [isNow, customDate, customTime]);
 
   const total = count * duration * rate;
 
@@ -162,8 +168,12 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
       venueId: currentEstablishment.id,
       type: 'staff' as const,
       price: `${total}€ est.`,
-      urgent: true,
-      description: `SOS Extra : Besoin urgent de ${count} ${poste.label.toLowerCase()} pour ${duration}h`,
+      urgent: isNow,
+      scheduled: !isNow,
+      scheduledDate: !isNow ? startDate.toISOString() : undefined,
+      description: isNow
+        ? `SOS Extra : Besoin urgent de ${count} ${poste.label.toLowerCase()} pour ${duration}h`
+        : `Extra planifié : ${count} ${poste.label.toLowerCase()} pour ${duration}h — ${formatDate(startDate)} à ${formatTime(startDate)}`,
       status: 'SEARCHING' as const,
       location: { lat: 48.8566, lng: 2.3522 },
       category: 'STAFFING' as const,
@@ -367,12 +377,66 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
                   </div>
                 </div>
 
-                {/* Timing info */}
-                <div className="text-center py-3 px-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
-                  <p className="text-sm text-[var(--text-secondary)]">Demarrage prevu</p>
-                  <p className="text-lg font-bold text-[var(--text-primary)]">
-                    {formatDate(roundToNextQuarter(new Date()))} a {formatTime(roundToNextQuarter(new Date()))}
-                  </p>
+                {/* Timing toggle */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-[var(--text-secondary)]">Quand ?</label>
+                  <div className="flex bg-[var(--bg-hover)] rounded-xl border border-[var(--border)] p-1">
+                    <button
+                      onClick={() => setIsNow(true)}
+                      className={cn(
+                        "flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2",
+                        isNow
+                          ? "bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-sm"
+                          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                      )}
+                    >
+                      <Clock className="w-4 h-4" />
+                      Maintenant
+                    </button>
+                    <button
+                      onClick={() => setIsNow(false)}
+                      className={cn(
+                        "flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2",
+                        !isNow
+                          ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-sm"
+                          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                      )}
+                    >
+                      <Clock className="w-4 h-4" />
+                      Plus tard
+                    </button>
+                  </div>
+
+                  {isNow ? (
+                    <div className="text-center py-3 px-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                      <p className="text-sm text-[var(--text-secondary)]">Démarrage prévu</p>
+                      <p className="text-lg font-bold text-[var(--text-primary)]">
+                        {formatDate(roundToNextQuarter(new Date()))} à {formatTime(roundToNextQuarter(new Date()))}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-[var(--text-muted)] mb-1 block">Date</label>
+                        <input
+                          type="date"
+                          value={customDate}
+                          onChange={e => setCustomDate(e.target.value)}
+                          min={new Date().toISOString().split('T')[0]}
+                          className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-3 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-blue-500/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-[var(--text-muted)] mb-1 block">Heure</label>
+                        <input
+                          type="time"
+                          value={customTime}
+                          onChange={e => setCustomTime(e.target.value)}
+                          className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-3 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-blue-500/50"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Duration */}
@@ -450,7 +514,13 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setStep(3)}
-                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-lg shadow-lg shadow-red-500/20 active:shadow-md transition-shadow"
+                  disabled={!isNow && (!customDate || !customTime)}
+                  className={cn(
+                    "w-full py-4 rounded-2xl font-bold text-lg shadow-lg transition-shadow",
+                    !isNow && (!customDate || !customTime)
+                      ? "bg-[var(--bg-hover)] text-[var(--text-muted)] cursor-not-allowed shadow-none"
+                      : "bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-red-500/20 active:shadow-md"
+                  )}
                 >
                   Suivant
                 </motion.button>
@@ -488,7 +558,9 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
                   <div className="p-4 space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-[var(--text-secondary)]">Quand</span>
-                      <span className="text-sm font-medium text-[var(--text-primary)]">Maintenant ({formatTime(startDate)})</span>
+                      <span className="text-sm font-medium text-[var(--text-primary)]">
+                        {isNow ? `Maintenant (${formatTime(startDate)})` : `${formatDate(startDate)} à ${formatTime(startDate)}`}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-[var(--text-secondary)]">Duree</span>

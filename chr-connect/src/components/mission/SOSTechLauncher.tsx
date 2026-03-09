@@ -129,12 +129,18 @@ export default function SOSTechLauncher({ isOpen, onClose }: SOSTechLauncherProp
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [description, setDescription] = useState('');
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [isNow, setIsNow] = useState(true);
+  const [customDate, setCustomDate] = useState('');
+  const [customTime, setCustomTime] = useState('');
 
   const specialty = ALL_SPECIALTIES.find(s => s.id === selectedSpecialtyId);
 
   const startDate = useMemo(() => {
+    if (!isNow && customDate && customTime) {
+      return new Date(`${customDate}T${customTime}`);
+    }
     return roundToNextQuarter(new Date());
-  }, []);
+  }, [isNow, customDate, customTime]);
 
   const placeholder = selectedSpecialtyId
     ? (PLACEHOLDERS[selectedSpecialtyId] ?? DEFAULT_PLACEHOLDER)
@@ -188,8 +194,12 @@ export default function SOSTechLauncher({ isOpen, onClose }: SOSTechLauncherProp
       venueId: currentEstablishment.id,
       type: (missionTypeMap[specialty.id] || 'cold') as MissionType,
       price: isPremium ? 'Inclus' : `${APP_CONFIG.MISSION_FEE}€`,
-      urgent: true,
-      description: `SOS Tech : ${specialty.label} — ${description}`,
+      urgent: isNow,
+      scheduled: !isNow,
+      scheduledDate: !isNow ? startDate.toISOString() : undefined,
+      description: isNow
+        ? `SOS Tech : ${specialty.label} — ${description}`
+        : `Tech planifié : ${specialty.label} — ${description} — ${formatDate(startDate)} à ${formatTime(startDate)}`,
       status: 'SEARCHING' as const,
       location: { lat: 48.8566, lng: 2.3522 },
       category: 'MAINTENANCE' as const,
@@ -392,12 +402,66 @@ export default function SOSTechLauncher({ isOpen, onClose }: SOSTechLauncherProp
                   </div>
                 </div>
 
-                {/* Timing info */}
-                <div className="text-center py-3 px-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl">
-                  <p className="text-sm text-[var(--text-secondary)]">Intervention prévue</p>
-                  <p className="text-lg font-bold text-[var(--text-primary)]">
-                    {formatDate(roundToNextQuarter(new Date()))} à {formatTime(roundToNextQuarter(new Date()))}
-                  </p>
+                {/* Timing toggle */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-[var(--text-secondary)]">Quand ?</label>
+                  <div className="flex bg-[var(--bg-hover)] rounded-xl border border-[var(--border)] p-1">
+                    <button
+                      onClick={() => setIsNow(true)}
+                      className={cn(
+                        "flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2",
+                        isNow
+                          ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-sm"
+                          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                      )}
+                    >
+                      <Clock className="w-4 h-4" />
+                      Maintenant
+                    </button>
+                    <button
+                      onClick={() => setIsNow(false)}
+                      className={cn(
+                        "flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2",
+                        !isNow
+                          ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-sm"
+                          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                      )}
+                    >
+                      <Clock className="w-4 h-4" />
+                      Plus tard
+                    </button>
+                  </div>
+
+                  {isNow ? (
+                    <div className="text-center py-3 px-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl">
+                      <p className="text-sm text-[var(--text-secondary)]">Intervention prévue</p>
+                      <p className="text-lg font-bold text-[var(--text-primary)]">
+                        {formatDate(roundToNextQuarter(new Date()))} à {formatTime(roundToNextQuarter(new Date()))}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-[var(--text-muted)] mb-1 block">Date</label>
+                        <input
+                          type="date"
+                          value={customDate}
+                          onChange={e => setCustomDate(e.target.value)}
+                          min={new Date().toISOString().split('T')[0]}
+                          className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-3 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-orange-500/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-[var(--text-muted)] mb-1 block">Heure</label>
+                        <input
+                          type="time"
+                          value={customTime}
+                          onChange={e => setCustomTime(e.target.value)}
+                          className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-3 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-orange-500/50"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}
@@ -433,10 +497,10 @@ export default function SOSTechLauncher({ isOpen, onClose }: SOSTechLauncherProp
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setStep(3)}
-                  disabled={!description.trim()}
+                  disabled={!description.trim() || (!isNow && (!customDate || !customTime))}
                   className={cn(
                     'w-full py-4 rounded-2xl font-bold text-lg shadow-lg transition-shadow',
-                    description.trim()
+                    description.trim() && (isNow || (customDate && customTime))
                       ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-orange-500/20 active:shadow-md'
                       : 'bg-[var(--bg-hover)] text-[var(--text-muted)] cursor-not-allowed shadow-none'
                   )}
@@ -477,7 +541,9 @@ export default function SOSTechLauncher({ isOpen, onClose }: SOSTechLauncherProp
                   <div className="p-4 space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-[var(--text-secondary)]">Quand</span>
-                      <span className="text-sm font-medium text-[var(--text-primary)]">Maintenant ({formatTime(startDate)})</span>
+                      <span className="text-sm font-medium text-[var(--text-primary)]">
+                        {isNow ? `Maintenant (${formatTime(startDate)})` : `${formatDate(startDate)} à ${formatTime(startDate)}`}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-[var(--text-secondary)]">Établissement</span>

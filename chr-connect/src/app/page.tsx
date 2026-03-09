@@ -23,7 +23,7 @@ import WorkerDashboard from '@/components/provider/WorkerDashboard';
 const NAV_ITEMS = [
   { id: 'DASHBOARD', label: 'Tableau de bord', icon: LayoutDashboard, route: '/prestataire/tableau-de-bord', alwaysEnabled: true },
   { id: 'PROFILE', label: 'Mon Profil', icon: UserCircle, route: '/prestataire/mon-profil', alwaysEnabled: true },
-  { id: 'MISSIONS', label: 'Missions', icon: Briefcase, route: '/prestataire/mes-missions', alwaysEnabled: false },
+  { id: 'MISSIONS', label: 'Missions', icon: Briefcase, route: '/prestataire/mes-missions', alwaysEnabled: true },
 ];
 
 export default function Home() {
@@ -91,11 +91,8 @@ export default function Home() {
 
   const isSuspended = dispatchStatus === 'SUSPENDED';
 
-  useEffect(() => {
-    if (!isAvailable && workerView === 'MISSIONS' && !showAvailabilityPrompt) {
-      router.push('/prestataire/mon-profil');
-    }
-  }, [isAvailable, workerView, router, showAvailabilityPrompt]);
+  // No forced redirect — missions view is always accessible
+  // Dispatch only activates when isOnAir is true
 
   useEffect(() => {
     if (pathname !== '/') return;
@@ -243,13 +240,9 @@ export default function Home() {
                 disabled={isSuspended}
                 onClick={() => {
                   if (isAvailable) {
-                    // Going offline: reset dispatch
                     useMissionDispatchStore.getState().reset();
                   }
                   toggleOnAir();
-                  if (!isAvailable) {
-                    router.push('/prestataire/mes-missions');
-                  }
                 }}
                 className={clsx(
                   "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all font-medium text-xs",
@@ -323,12 +316,14 @@ export default function Home() {
                   <MissionRadar
                     authorizedCategories={currentProfile.authorizedCategories}
                   />
-                  {/* Dispatch overlay — blocks map interactions during all active dispatch phases */}
-                  <DispatchSearchingOverlay
-                    visible={dispatchStatus === 'SEARCHING' || dispatchStatus === 'COOLDOWN' || dispatchStatus === 'PROPOSING'}
-                    isCooldown={dispatchStatus === 'COOLDOWN'}
-                    minimal={dispatchStatus === 'PROPOSING'}
-                  />
+                  {/* Dispatch overlay — only when online and dispatching */}
+                  {isAvailable && (
+                    <DispatchSearchingOverlay
+                      visible={dispatchStatus === 'SEARCHING' || dispatchStatus === 'COOLDOWN' || dispatchStatus === 'PROPOSING'}
+                      isCooldown={dispatchStatus === 'COOLDOWN'}
+                      minimal={dispatchStatus === 'PROPOSING'}
+                    />
+                  )}
                 </div>
               )}
               {/* Mission proposal popup */}

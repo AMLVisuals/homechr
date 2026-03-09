@@ -58,8 +58,9 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
   const buildQueue = useCallback((): Mission[] => {
     const currentMissions = useMissionsStore.getState().missions;
     const cats = categoriesRef.current;
+    // Only dispatch immediate missions (not scheduled/planned)
     const searching = currentMissions.filter(
-      (m) => m.status === 'SEARCHING' && m.type && cats.includes(m.type)
+      (m) => m.status === 'SEARCHING' && m.type && cats.includes(m.type) && !m.scheduled
     );
 
     return [...searching].sort((a, b) => {

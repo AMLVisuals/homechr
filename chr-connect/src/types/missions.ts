@@ -153,6 +153,10 @@ export interface Mission {
     hoursWorked?: number;
   };
 
+  // Scheduling
+  scheduled?: boolean; // true = planned for later, false/undefined = immediate
+  scheduledDate?: string; // ISO date string for planned missions
+
   // Relation fee (entremetteur model)
   paidRelationFee?: boolean;
   relationFeeAmount?: number;

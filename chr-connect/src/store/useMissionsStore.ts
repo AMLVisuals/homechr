@@ -454,6 +454,51 @@ const INITIAL_MISSIONS: Mission[] = [
     matchScore: 97,
     attributes: { role: ['bartender'], serviceType: 'evening', establishmentType: ['hotel'], urgency: true }
   },
+  // === PLANNED / SCHEDULED missions ===
+  {
+    id: 'm15',
+    title: 'Serveur - 2 personne(s)',
+    expert: 'En attente',
+    status: 'SEARCHING',
+    date: '2026-03-12 11:00',
+    category: 'STAFFING',
+    iconName: 'ChefHat',
+    color: 'orange',
+    price: '240€ est.',
+    description: 'Extra planifié : 2 serveurs pour 4h — mercredi 12 mars à 11:00',
+    location: { lat: 48.8610, lng: 2.3420, address: 'Salle Restaurant' },
+    venue: 'Le Comptoir du Panthéon',
+    venueId: 'v9',
+    type: 'staff',
+    urgent: false,
+    scheduled: true,
+    scheduledDate: '2026-03-12T11:00:00',
+    distance: '1.1 km',
+    matchScore: 88,
+    attributes: { role: ['waiter'], serviceType: 'lunch', urgency: false }
+  },
+  {
+    id: 'm16',
+    title: 'Technicien Froid - Intervention',
+    expert: 'En attente',
+    status: 'SEARCHING',
+    date: '2026-03-14 09:00',
+    category: 'MAINTENANCE',
+    iconName: 'Wrench',
+    color: 'blue',
+    price: '20€',
+    description: 'Tech planifié : Technicien Froid — Entretien préventif chambre froide — vendredi 14 mars à 09:00',
+    location: { lat: 48.8570, lng: 2.3510, address: 'Cuisine Sous-sol' },
+    venue: 'Brasserie du Marais',
+    venueId: 'v3',
+    type: 'cold',
+    urgent: false,
+    scheduled: true,
+    scheduledDate: '2026-03-14T09:00:00',
+    distance: '1.2 km',
+    matchScore: 93,
+    attributes: { interventionType: ['maintenance'], equipment: ['cold_room'], urgency: false }
+  },
 ];
 
 export const useMissionsStore = create<MissionsState>()(
