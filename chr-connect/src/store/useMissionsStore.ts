@@ -2,9 +2,15 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Mission, Review, Invoice, InvoiceItem, Provider, TeamMember } from '@/types/missions';
 
+// Schedule statuses per member per day
+export type ScheduleStatus = 'PRESENT' | 'CONGE' | 'MALADIE';
+// { "2026-03-09": { "t1": "PRESENT", "t2": "CONGE" } }
+type TeamSchedule = Record<string, Record<string, ScheduleStatus>>;
+
 interface MissionsState {
   missions: Mission[];
   team: TeamMember[];
+  teamSchedule: TeamSchedule;
   addMission: (mission: Mission) => void;
   updateMission: (id: string, updates: Partial<Mission>) => void;
   addReview: (missionId: string, review: Review) => void;
@@ -17,6 +23,7 @@ interface MissionsState {
   addTeamMember: (member: TeamMember) => void;
   updateTeamMember: (id: string, updates: Partial<TeamMember>) => void;
   removeTeamMember: (id: string) => void;
+  setScheduleStatus: (date: string, memberId: string, status: ScheduleStatus | null) => void;
 }
 
 // Initial Mock Team Data
@@ -454,6 +461,7 @@ export const useMissionsStore = create<MissionsState>()(
     (set, get) => ({
       missions: INITIAL_MISSIONS,
       team: INITIAL_TEAM,
+      teamSchedule: {},
       addMission: (mission) => set((state) => ({ 
         missions: [mission, ...state.missions] 
       })),
@@ -594,7 +602,21 @@ export const useMissionsStore = create<MissionsState>()(
       })),
       removeTeamMember: (id) => set((state) => ({
         team: state.team.filter((t) => t.id !== id)
-      }))
+      })),
+      setScheduleStatus: (date, memberId, status) => set((state) => {
+        const dayData = { ...(state.teamSchedule[date] || {}) };
+        if (status === null) {
+          delete dayData[memberId];
+        } else {
+          dayData[memberId] = status;
+        }
+        return {
+          teamSchedule: {
+            ...state.teamSchedule,
+            [date]: dayData
+          }
+        };
+      })
     }),
     {
       name: 'missions-storage-v7', // v7: force refresh — staff flow simplification
