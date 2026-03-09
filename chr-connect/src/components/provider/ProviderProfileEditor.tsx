@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  User, Briefcase, Award, Image as ImageIcon,
+  User, Briefcase, Award,
   Save, Eye, Check, History, Receipt
 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -10,7 +10,6 @@ import ProviderProfileModal from '../shared/ProviderProfileModal';
 import IdentityTab from './tabs/IdentityTab';
 import SkillsTab from './tabs/SkillsTab';
 import ExperienceTab from './tabs/ExperienceTab';
-import PortfolioTab from './tabs/PortfolioTab';
 import { HistoryTab } from './tabs/HistoryTab';
 import { PayslipsTab } from './tabs/PayslipsTab';
 
@@ -18,7 +17,6 @@ const TABS = [
   { id: 'IDENTITY' as const, label: 'Identité', icon: User },
   { id: 'SKILLS' as const, label: 'Compétences', icon: Award },
   { id: 'EXPERIENCE' as const, label: 'Expérience', icon: Briefcase },
-  { id: 'PORTFOLIO' as const, label: 'Portfolio', icon: ImageIcon },
   { id: 'HISTORY' as const, label: 'Historique', icon: History },
   { id: 'PAYSLIPS' as const, label: 'Fiches de paie', icon: Receipt },
 ];
@@ -92,13 +90,6 @@ export default function ProviderProfileEditor() {
       steps.push({ label: 'Certifications', completed: true });
     } else {
       steps.push({ label: 'Ajouter une certification', completed: false });
-    }
-
-    if (profile.portfolio.length >= 1) {
-      score += 10;
-      steps.push({ label: 'Portfolio', completed: true });
-    } else {
-      steps.push({ label: 'Ajouter au portfolio', completed: false });
     }
 
     return { score, steps };
@@ -232,7 +223,6 @@ export default function ProviderProfileEditor() {
             {activeTab === 'IDENTITY' && <IdentityTab profile={profile} setProfile={setProfile} />}
             {activeTab === 'SKILLS' && <SkillsTab profile={profile} setProfile={setProfile} />}
             {activeTab === 'EXPERIENCE' && <ExperienceTab profile={profile} setProfile={setProfile} />}
-            {activeTab === 'PORTFOLIO' && <PortfolioTab profile={profile} setProfile={setProfile} />}
             {activeTab === 'HISTORY' && <HistoryTab />}
             {activeTab === 'PAYSLIPS' && <PayslipsTab />}
           </motion.div>
