@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { CreateMissionWizard, type CategoryId } from '@/components/mission/CreateMissionWizard';
 import SOSExtraLauncher from '@/components/mission/SOSExtraLauncher';
+import SOSTechLauncher from '@/components/mission/SOSTechLauncher';
 import { COMING_SOON_CATEGORIES } from '@/data/categories';
 import { clsx } from 'clsx';
 import { useStore } from '@/store/useStore';
@@ -86,6 +87,7 @@ export default function PatronDashboard() {
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   const [isMissionModalOpen, setIsMissionModalOpen] = useState(false);
   const [showSOSExtra, setShowSOSExtra] = useState(false);
+  const [showSOSTech, setShowSOSTech] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [globalSearch, setGlobalSearch] = useState('');
@@ -157,6 +159,7 @@ export default function PatronDashboard() {
 
   const handleQuickAction = (category: string) => {
     if (category === 'PERSONNEL') { setShowSOSExtra(true); return; }
+    if (category === 'TECHNICIENS') { setShowSOSTech(true); return; }
     setSelectedCategory(category as CategoryId); setShowNewRequestModal(true);
   };
   const handleMissionClick = (mission: Mission) => { setSelectedMission(mission); setIsMissionModalOpen(true); };
@@ -572,6 +575,9 @@ export default function PatronDashboard() {
       </AnimatePresence>
       <AnimatePresence>
         {showSOSExtra && <SOSExtraLauncher isOpen={true} onClose={() => setShowSOSExtra(false)} />}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showSOSTech && <SOSTechLauncher isOpen={true} onClose={() => setShowSOSTech(false)} />}
       </AnimatePresence>
     </div>
   );

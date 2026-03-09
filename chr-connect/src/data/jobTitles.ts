@@ -5,6 +5,10 @@ export const JOB_TITLES = [
   "Directeur de Salle", "Maître d'Hôtel", "Chef de Rang", "Serveur", "Commis de Salle", "Barman", "Mixologue", "Sommelier", "Garçon de Café", "Hôte/Hôtesse d'Accueil",
   // Maintenance & Technique
   "Agent de Maintenance", "Plombier", "Électricien", "Frigoriste", "Technicien CVC", "Peintre en Bâtiment",
+  // Animation
+  "DJ",
+  // Entretien
+  "Agent d'Entretien",
   // Management & Autres
   "Gérant", "Directeur d'Exploitation", "Manager", "Économe", "Réceptionniste", "Voiturier", "Agent de Sécurité"
 ].sort();

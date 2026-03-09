@@ -1,6 +1,6 @@
 export type MissionType = 
   | 'cold' | 'hot' | 'plumbing' | 'electricity' | 'coffee' | 'beer' // Maintenance
-  | 'staff' | 'security' | 'cleaning' // Staffing
+  | 'staff' | 'security' | 'cleaning' | 'dj' | 'aide_menagere' // Staffing
   | 'light' | 'video' | 'sound' | 'pos' | 'network' // Tech
   | 'architecture' | 'decoration' | 'painting' | 'carpentry' // Bâtiment
   | 'MAINTENANCE' | 'STAFFING' | 'CONSULTING' | 'OTHER'; // Legacy/Patron types

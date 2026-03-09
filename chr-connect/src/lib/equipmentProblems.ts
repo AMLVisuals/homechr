@@ -1139,6 +1139,36 @@ export const STAFFING_NEEDS: StaffingNeed[] = [
     requiredCertifications: ['CQP APS obligatoire', 'Carte professionnelle valide'],
     dressCode: 'Costume noir ou tenue établissement',
   },
+
+  // ============================================================================
+  // ANIMATION
+  // ============================================================================
+  {
+    id: 'DJ',
+    subcategoryId: 'dj',
+    role: 'DJ',
+    description: 'Animation musicale, mix live, gestion ambiance sonore.',
+    urgency: 'planned',
+    typicalDuration: '4-6h',
+    hourlyRate: { min: 25, max: 60 },
+    requiredSkills: ['Mix DJ', 'Lecture de piste', 'Gestion sono', 'Programmation musicale'],
+    dressCode: 'Tenue adaptée à l\'événement',
+  },
+
+  // ============================================================================
+  // ENTRETIEN
+  // ============================================================================
+  {
+    id: 'AGENT_ENTRETIEN',
+    subcategoryId: 'aide_menagere',
+    role: 'Agent d\'entretien',
+    description: 'Nettoyage des locaux, entretien sanitaires, remise en état.',
+    urgency: 'planned',
+    typicalDuration: '3-6h',
+    hourlyRate: { min: 12, max: 16 },
+    requiredSkills: ['Nettoyage professionnel', 'Utilisation produits', 'Organisation'],
+    dressCode: 'Tenue de travail fournie ou personnelle',
+  },
 ];
 
 // ============================================================================

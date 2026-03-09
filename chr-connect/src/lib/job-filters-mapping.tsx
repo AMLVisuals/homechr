@@ -293,6 +293,66 @@ export const JOB_FILTERS_MAPPING: Record<string, JobFilterConfig> = {
     ]
   },
 
+  // DJ
+  'dj': {
+    jobId: 'dj',
+    categories: [
+      {
+        id: 'musicStyle',
+        label: 'Style musical',
+        isMultiSelect: true,
+        options: [
+          { id: 'house', label: 'House / Deep', value: 'house', icon: <Music className="w-4 h-4 text-fuchsia-500" /> },
+          { id: 'techno', label: 'Techno', value: 'techno' },
+          { id: 'hiphop', label: 'Hip-Hop / RnB', value: 'hiphop' },
+          { id: 'disco', label: 'Disco / Funk', value: 'disco' },
+          { id: 'variete', label: 'Variété / Ambiance', value: 'variete' },
+          { id: 'latino', label: 'Latino', value: 'latino' }
+        ]
+      },
+      {
+        id: 'eventType',
+        label: 'Type d\'événement',
+        options: [
+          { id: 'club', label: 'Soirée Club', value: 'club' },
+          { id: 'brunch', label: 'Brunch / Afterwork', value: 'brunch' },
+          { id: 'private', label: 'Privé / Mariage', value: 'private' },
+          { id: 'corporate', label: 'Corporate', value: 'corporate' }
+        ]
+      }
+    ]
+  },
+
+  // AIDE MÉNAGÈRE
+  'aide_menagere': {
+    jobId: 'aide_menagere',
+    categories: [
+      {
+        id: 'cleaningType',
+        label: 'Type de nettoyage',
+        isMultiSelect: true,
+        options: [
+          { id: 'daily', label: 'Entretien quotidien', value: 'daily', icon: <Sparkles className="w-4 h-4 text-cyan-400" /> },
+          { id: 'deep', label: 'Nettoyage en profondeur', value: 'deep' },
+          { id: 'post_event', label: 'Après événement', value: 'post_event' },
+          { id: 'windows', label: 'Vitres', value: 'windows' },
+          { id: 'sanitary', label: 'Désinfection', value: 'sanitary' }
+        ]
+      },
+      {
+        id: 'areas',
+        label: 'Zones',
+        isMultiSelect: true,
+        options: [
+          { id: 'dining', label: 'Salle / Restaurant', value: 'dining' },
+          { id: 'kitchen', label: 'Cuisine', value: 'kitchen' },
+          { id: 'restrooms', label: 'Sanitaires', value: 'restrooms' },
+          { id: 'terrace', label: 'Terrasse', value: 'terrace' }
+        ]
+      }
+    ]
+  },
+
   // ========================================================================
   // 3. TECH & AUDIOVISUEL
   // ========================================================================

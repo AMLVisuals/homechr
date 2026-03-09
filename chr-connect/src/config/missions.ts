@@ -115,6 +115,33 @@ export const MISSIONS: Record<string, MissionDefinition> = {
     ]
   },
 
+  'dj': {
+    id: 'dj',
+    label: 'DJ',
+    pricingModel: 'STAFFING_HOURLY',
+    tags: ["Soirée à thème", "Brunch DJ", "Événement privé", "Nouvel An", "Opening", "Fermeture de saison", "Anniversaire"],
+    formFields: [
+      { id: 'eventType', label: "Type d'événement", type: 'select', options: ['Soirée Club', 'Brunch / Afterwork', 'Mariage / Privé', 'Événement corporate', 'Festival / Plein air'], required: true },
+      { id: 'musicStyle', label: "Style musical", type: 'multiselect', options: ['House / Deep', 'Techno', 'Hip-Hop / RnB', 'Disco / Funk', 'Années 80-90', 'Latino', 'Variété / Ambiance', 'Électro généraliste'] },
+      { id: 'equipment', label: "Matériel sur place", type: 'radio', options: ['Cabine DJ complète', 'Partiel (préciser)', 'Rien (DJ apporte tout)'], required: true },
+      { id: 'duration', label: "Durée du set", type: 'select', options: ['2h', '3h', '4h', '5h+'] },
+      { id: 'guests', label: "Nombre de convives attendus", type: 'number', suffix: 'pers.' }
+    ]
+  },
+  'aide_menagere': {
+    id: 'aide_menagere',
+    label: 'Agent d\'entretien',
+    pricingModel: 'STAFFING_HOURLY',
+    tags: ["Ménage quotidien", "Nettoyage en profondeur", "Après événement", "Remise en état", "Vitres", "Désinfection"],
+    formFields: [
+      { id: 'cleaningType', label: "Type de prestation", type: 'select', options: ['Entretien quotidien', 'Nettoyage en profondeur', 'Remise en état après événement', 'Vitres / Surfaces vitrées', 'Désinfection sanitaire'], required: true },
+      { id: 'areas', label: "Zones à nettoyer", type: 'multiselect', options: ['Salle / Restaurant', 'Cuisine', 'Toilettes / Sanitaires', 'Terrasse', 'Bureaux / Réserve', 'Chambres (hôtel)'] },
+      { id: 'surface', label: "Surface approximative", type: 'number', suffix: 'm²' },
+      { id: 'equipment', label: "Matériel de nettoyage", type: 'radio', options: ['Fourni sur place', 'À apporter par le prestataire'], required: true },
+      { id: 'frequency', label: "Fréquence souhaitée", type: 'select', options: ['Ponctuel (une fois)', 'Quotidien', 'Hebdomadaire', 'Mensuel'] }
+    ]
+  },
+
   // --- MAINTENANCE ---
   'cold': {
     id: 'cold',

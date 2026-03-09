@@ -48,6 +48,10 @@ export const CATEGORIES: Category[] = [
       { id: 'groom', label: 'Groom / Valet', group: 'Accueil & Hôtellerie' },
       // Sécurité
       { id: 'securite', label: 'Sécurité / Videur', group: 'Sécurité' },
+      // Animation
+      { id: 'dj', label: 'DJ', group: 'Animation' },
+      // Entretien
+      { id: 'aide_menagere', label: 'Agent d\'entretien', group: 'Entretien' },
     ]
   },
   {

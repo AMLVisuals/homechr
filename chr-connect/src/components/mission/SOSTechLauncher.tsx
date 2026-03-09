@@ -3,9 +3,10 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  User, Users, ChefHat, Wine, Martini, Utensils, Shield,
-  X, Minus, Plus, Check, ArrowLeft, Clock, AlertCircle,
-  Building2, ChevronDown, Music, SprayCan,
+  Wrench, Snowflake, Flame, Utensils, Coffee, Beer, Zap, Monitor, Wifi,
+  Mic, Lightbulb, Video,
+  X, ArrowLeft, Clock, AlertCircle, Building2, ChevronDown, Check,
+  Camera, Upload,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEstablishment } from '@/contexts/EstablishmentContext';
@@ -13,84 +14,80 @@ import { useMissionsStore } from '@/store/useMissionsStore';
 import { useCalendarStore } from '@/store/calendarStore';
 import { useStore } from '@/store/useStore';
 import { APP_CONFIG } from '@/config/appConfig';
+import type { MissionType } from '@/types/missions';
 
-interface SOSExtraLauncherProps {
+interface SOSTechLauncherProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-interface Poste {
+interface Specialty {
   id: string;
   label: string;
-  icon: typeof User;
-  rate: number;
-  range: string;
+  icon: typeof Wrench;
 }
 
-const GROUPS: { name: string; color: string; postes: Poste[] }[] = [
+const GROUPS: { name: string; color: string; specialties: Specialty[] }[] = [
   {
-    name: 'Salle',
-    color: 'from-purple-500 to-pink-500',
-    postes: [
-      { id: 'serveur', label: 'Serveur / Limonadier', icon: User, rate: 15, range: '12-18€/h' },
-      { id: 'chef_rang', label: 'Chef de Rang / Maitre d\'hotel', icon: User, rate: 19, range: '15-22€/h' },
-      { id: 'commis_salle', label: 'Commis de salle', icon: User, rate: 13, range: '11-15€/h' },
-      { id: 'manager_salle', label: 'Manager de salle', icon: User, rate: 20, range: '18-25€/h' },
+    name: 'Froid & Climatisation',
+    color: 'from-sky-500 to-blue-600',
+    specialties: [
+      { id: 'tech_froid', label: 'Technicien Froid', icon: Snowflake },
+      { id: 'tech_ventilation', label: 'Technicien Ventilation / CVC', icon: Wrench },
     ],
   },
   {
-    name: 'Bar',
-    color: 'from-amber-500 to-yellow-500',
-    postes: [
-      { id: 'barman', label: 'Barman / Mixologue', icon: Martini, rate: 17, range: '14-20€/h' },
-      { id: 'sommelier', label: 'Sommelier / Caviste', icon: Wine, rate: 28, range: '20-35€/h' },
-    ],
-  },
-  {
-    name: 'Cuisine',
+    name: 'Cuisson & Chaud',
     color: 'from-orange-500 to-red-500',
-    postes: [
-      { id: 'chef_cuisine', label: 'Chef de Cuisine', icon: ChefHat, rate: 40, range: '30-50€/h' },
-      { id: 'chef_partie', label: 'Chef de Partie', icon: ChefHat, rate: 23, range: '18-28€/h' },
-      { id: 'cuisinier', label: 'Cuisinier', icon: ChefHat, rate: 16, range: '13-20€/h' },
-      { id: 'patissier', label: 'Patissier', icon: ChefHat, rate: 21, range: '16-26€/h' },
-      { id: 'boulanger', label: 'Boulanger', icon: ChefHat, rate: 18, range: '14-22€/h' },
-      { id: 'plongeur', label: 'Plongeur', icon: Utensils, rate: 13, range: '11-14€/h' },
+    specialties: [
+      { id: 'tech_chaud', label: 'Technicien Chaud', icon: Flame },
     ],
   },
   {
-    name: 'Accueil & Hotellerie',
+    name: 'Équipement cuisine',
     color: 'from-emerald-500 to-teal-500',
-    postes: [
-      { id: 'hotesse', label: 'Hote / Hotesse d\'accueil', icon: User, rate: 16, range: '13-18€/h' },
-      { id: 'gouvernante', label: 'Gouvernante / Femme de chambre', icon: User, rate: 15, range: '12-18€/h' },
-      { id: 'groom', label: 'Groom / Valet', icon: User, rate: 14, range: '12-16€/h' },
+    specialties: [
+      { id: 'tech_lave_vaisselle', label: 'Technicien Lave-vaisselle', icon: Utensils },
+      { id: 'tech_cafe', label: 'Technicien Machine à Café', icon: Coffee },
+      { id: 'tech_biere', label: 'Technicien Pompe à Bière', icon: Beer },
     ],
   },
   {
-    name: 'Securite',
-    color: 'from-slate-500 to-zinc-600',
-    postes: [
-      { id: 'securite', label: 'Securite / Videur', icon: Shield, rate: 20, range: '15-25€/h' },
+    name: 'Électricité & Plomberie',
+    color: 'from-yellow-500 to-amber-600',
+    specialties: [
+      { id: 'electricien', label: 'Électricien', icon: Zap },
+      { id: 'plombier', label: 'Plombier', icon: Wrench },
     ],
   },
   {
-    name: 'Animation',
-    color: 'from-fuchsia-500 to-purple-600',
-    postes: [
-      { id: 'dj', label: 'DJ', icon: Music, rate: 43, range: '25-60€/h' },
+    name: 'Caisse & IT',
+    color: 'from-violet-500 to-purple-600',
+    specialties: [
+      { id: 'tech_pos', label: 'Technicien Caisse / POS', icon: Monitor },
+      { id: 'tech_reseau', label: 'Technicien Réseau / WiFi', icon: Wifi },
     ],
   },
   {
-    name: 'Entretien',
-    color: 'from-cyan-500 to-blue-500',
-    postes: [
-      { id: 'aide_menagere', label: 'Agent d\'entretien', icon: SprayCan, rate: 14, range: '12-16€/h' },
+    name: 'Événementiel / AV',
+    color: 'from-pink-500 to-rose-600',
+    specialties: [
+      { id: 'ingenieur_son', label: 'Ingénieur Son', icon: Mic },
+      { id: 'ingenieur_lumiere', label: 'Ingénieur Lumière', icon: Lightbulb },
+      { id: 'tech_video', label: 'Technicien Vidéo', icon: Video },
     ],
   },
 ];
 
-const ALL_POSTES = GROUPS.flatMap(g => g.postes.map(p => ({ ...p, color: g.color })));
+const ALL_SPECIALTIES = GROUPS.flatMap(g => g.specialties.map(s => ({ ...s, color: g.color })));
+
+const PLACEHOLDERS: Record<string, string> = {
+  tech_froid: 'Ex: La chambre froide ne descend plus en température...',
+  plombier: 'Ex: Fuite d\'eau sous l\'évier de la cuisine...',
+  electricien: 'Ex: Plusieurs prises ne fonctionnent plus, les plombs sautent...',
+};
+
+const DEFAULT_PLACEHOLDER = 'Décrivez votre problème le plus précisément possible...';
 
 function roundToNextQuarter(date: Date): Date {
   const d = new Date(date);
@@ -120,7 +117,7 @@ function toMissionDate(date: Date): string {
   return `${y}-${m}-${d} ${h}:${min}`;
 }
 
-export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherProps) {
+export default function SOSTechLauncher({ isOpen, onClose }: SOSTechLauncherProps) {
   const { currentEstablishment, establishments, setCurrentEstablishmentId } = useEstablishment();
   const { addMission } = useMissionsStore();
   const { addEvent } = useCalendarStore();
@@ -128,48 +125,77 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
 
   const [showVenueDropdown, setShowVenueDropdown] = useState(false);
   const [step, setStep] = useState<1 | 2 | 3 | 'success'>(1);
-  const [selectedPosteId, setSelectedPosteId] = useState<string | null>(null);
+  const [selectedSpecialtyId, setSelectedSpecialtyId] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [duration, setDuration] = useState(4);
-  const [count, setCount] = useState(1);
-  const [rate, setRate] = useState(13);
+  const [description, setDescription] = useState('');
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
 
-  const poste = ALL_POSTES.find(p => p.id === selectedPosteId);
+  const specialty = ALL_SPECIALTIES.find(s => s.id === selectedSpecialtyId);
 
   const startDate = useMemo(() => {
     return roundToNextQuarter(new Date());
   }, []);
 
-  const total = count * duration * rate;
+  const placeholder = selectedSpecialtyId
+    ? (PLACEHOLDERS[selectedSpecialtyId] ?? DEFAULT_PLACEHOLDER)
+    : DEFAULT_PLACEHOLDER;
 
-  const handleSelectPoste = (id: string) => {
-    const p = ALL_POSTES.find(x => x.id === id);
-    if (p) setRate(p.rate);
-    setSelectedPosteId(id);
+  const handleSelectSpecialty = (id: string) => {
+    setSelectedSpecialtyId(id);
     setStep(2);
   };
 
+  const handleMediaUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.accept = 'image/*,video/*';
+    input.onchange = (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.files) {
+        setMediaFiles(prev => [...prev, ...Array.from(target.files!)]);
+      }
+    };
+    input.click();
+  };
+
   const handleSubmit = () => {
-    if (!currentEstablishment || !poste) return;
+    if (!currentEstablishment || !specialty) return;
 
     const missionId = `mission_${Date.now()}`;
     const missionDate = toMissionDate(startDate);
 
+    const missionTypeMap: Record<string, string> = {
+      tech_froid: 'cold',
+      tech_ventilation: 'cold',
+      tech_chaud: 'hot',
+      tech_lave_vaisselle: 'cold',
+      tech_cafe: 'coffee',
+      tech_biere: 'beer',
+      electricien: 'electricity',
+      plombier: 'plumbing',
+      tech_pos: 'pos',
+      tech_reseau: 'network',
+      ingenieur_son: 'sound',
+      ingenieur_lumiere: 'light',
+      tech_video: 'video',
+    };
+
     const mission = {
       id: missionId,
-      title: `${poste.label} - ${count} personne(s)`,
+      title: `${specialty.label} - Intervention`,
       venue: currentEstablishment.name,
       venueId: currentEstablishment.id,
-      type: 'staff' as const,
-      price: `${total}€ est.`,
+      type: (missionTypeMap[specialty.id] || 'cold') as MissionType,
+      price: isPremium ? 'Inclus' : `${APP_CONFIG.MISSION_FEE}€`,
       urgent: true,
-      description: `SOS Extra : Besoin urgent de ${count} ${poste.label.toLowerCase()} pour ${duration}h`,
+      description: `SOS Tech : ${specialty.label} — ${description}`,
       status: 'SEARCHING' as const,
       location: { lat: 48.8566, lng: 2.3522 },
-      category: 'STAFFING' as const,
+      category: 'MAINTENANCE' as const,
       date: missionDate,
       paidRelationFee: !isPremium,
-      relationFeeAmount: isPremium ? 0 : 20,
+      relationFeeAmount: isPremium ? 0 : APP_CONFIG.MISSION_FEE,
     };
 
     addMission(mission);
@@ -179,7 +205,7 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
       title: mission.title,
       date: dateStr,
       time: timeStr || '09:00',
-      type: 'STAFFING',
+      type: 'MAINTENANCE',
       description: mission.description,
       venueId: currentEstablishment.id,
       location: currentEstablishment.name,
@@ -218,10 +244,10 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
           )}
           <div>
             <h1 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-red-500" />
-              SOS Extra
+              <AlertCircle className="w-5 h-5 text-orange-500" />
+              SOS Technicien
             </h1>
-            <p className="text-xs text-[var(--text-muted)]">Mission express en 3 clics</p>
+            <p className="text-xs text-[var(--text-muted)]">Intervention express en 3 clics</p>
           </div>
         </div>
         <button
@@ -238,7 +264,7 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
           {[1, 2, 3].map(s => (
             <div key={s} className="flex-1 h-1.5 rounded-full overflow-hidden bg-[var(--bg-hover)]">
               <motion.div
-                className="h-full bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
+                className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full"
                 initial={{ width: '0%' }}
                 animate={{ width: (step as number) >= s ? '100%' : '0%' }}
                 transition={{ duration: 0.3 }}
@@ -251,7 +277,7 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
       {/* Content */}
       <div className="flex-1 overflow-hidden relative">
         <AnimatePresence mode="wait" custom={step === 1 ? -1 : 1}>
-          {/* Step 1: Poste selection */}
+          {/* Step 1: Specialty selection */}
           {step === 1 && (
             <motion.div
               key="step1"
@@ -264,25 +290,24 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
               className="absolute inset-0 p-4 flex flex-col"
             >
               <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2 mt-2">De quoi avez-vous besoin ?</h2>
-              <p className="text-sm text-[var(--text-muted)] mb-4">Choisissez le metier</p>
+              <p className="text-sm text-[var(--text-muted)] mb-4">Choisissez la spécialité</p>
 
               <div className="flex-1 overflow-y-auto custom-scrollbar space-y-5 max-w-lg mx-auto w-full pb-4">
                 {GROUPS.map(group => (
                   <div key={group.name}>
                     <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2 px-1">{group.name}</h3>
                     <div className="grid grid-cols-2 gap-2">
-                      {group.postes.map(p => (
+                      {group.specialties.map(s => (
                         <button
-                          key={p.id}
-                          onClick={() => handleSelectPoste(p.id)}
+                          key={s.id}
+                          onClick={() => handleSelectSpecialty(s.id)}
                           className={`rounded-2xl bg-gradient-to-br ${group.color} p-3.5 flex items-center gap-3 text-left overflow-hidden active:opacity-80 transition-opacity`}
                         >
                           <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-                            <p.icon className="w-4 h-4 text-white" />
+                            <s.icon className="w-4 h-4 text-white" />
                           </div>
                           <div className="min-w-0">
-                            <h4 className="text-sm font-bold text-white leading-tight truncate">{p.label}</h4>
-                            <p className="text-[11px] text-white/60">{p.range}</p>
+                            <h4 className="text-sm font-bold text-white leading-tight truncate">{s.label}</h4>
                           </div>
                         </button>
                       ))}
@@ -293,7 +318,7 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
             </motion.div>
           )}
 
-          {/* Step 2: When */}
+          {/* Step 2: Describe the problem */}
           {step === 2 && (
             <motion.div
               key="step2"
@@ -305,11 +330,11 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className="absolute inset-0 p-4 flex flex-col"
             >
-              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2 mt-2">Détails</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2 mt-2">Décrivez le problème</h2>
               <p className="text-sm text-[var(--text-muted)] mb-6">
-                {poste && (
+                {specialty && (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-secondary)] text-xs font-medium">
-                    <poste.icon className="w-3.5 h-3.5" /> {poste.label}
+                    <specialty.icon className="w-3.5 h-3.5" /> {specialty.label}
                   </span>
                 )}
               </p>
@@ -321,10 +346,10 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
                   <div className="relative">
                     <button
                       onClick={() => setShowVenueDropdown(!showVenueDropdown)}
-                      className="w-full flex items-center gap-3 p-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-left hover:border-purple-500/50 transition-colors"
+                      className="w-full flex items-center gap-3 p-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-left hover:border-orange-500/50 transition-colors"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
-                        <Building2 className="w-5 h-5 text-purple-400" />
+                      <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center flex-shrink-0">
+                        <Building2 className="w-5 h-5 text-orange-400" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[var(--text-primary)] font-medium truncate">{currentEstablishment?.name || 'Sélectionner'}</p>
@@ -350,14 +375,14 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
                               className={cn(
                                 'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors',
                                 venue.id === currentEstablishment?.id
-                                  ? 'bg-purple-500/10 text-[var(--text-primary)]'
+                                  ? 'bg-orange-500/10 text-[var(--text-primary)]'
                                   : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
                               )}
                             >
                               <Building2 className="w-4 h-4 flex-shrink-0" />
                               <span className="text-sm font-medium truncate">{venue.name}</span>
                               {venue.id === currentEstablishment?.id && (
-                                <Check className="w-4 h-4 text-purple-500 ml-auto flex-shrink-0" />
+                                <Check className="w-4 h-4 text-orange-500 ml-auto flex-shrink-0" />
                               )}
                             </button>
                           ))}
@@ -368,80 +393,38 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
                 </div>
 
                 {/* Timing info */}
-                <div className="text-center py-3 px-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
-                  <p className="text-sm text-[var(--text-secondary)]">Demarrage prevu</p>
+                <div className="text-center py-3 px-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl">
+                  <p className="text-sm text-[var(--text-secondary)]">Intervention prévue</p>
                   <p className="text-lg font-bold text-[var(--text-primary)]">
-                    {formatDate(roundToNextQuarter(new Date()))} a {formatTime(roundToNextQuarter(new Date()))}
+                    {formatDate(roundToNextQuarter(new Date()))} à {formatTime(roundToNextQuarter(new Date()))}
                   </p>
                 </div>
 
-                {/* Duration */}
-                <div>
-                  <label className="text-sm font-medium text-[var(--text-secondary)] mb-2 block">Duree</label>
-                  <div className="flex items-center justify-center gap-4">
-                    <button
-                      onClick={() => setDuration(Math.max(1, duration - 1))}
-                      className="w-12 h-12 rounded-xl bg-[var(--bg-hover)] border border-[var(--border)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-all active:scale-95"
-                    >
-                      <Minus className="w-5 h-5" />
-                    </button>
-                    <div className="text-center min-w-[80px]">
-                      <span className="text-4xl font-bold text-[var(--text-primary)]">{duration}</span>
-                      <span className="text-lg text-[var(--text-muted)] ml-1">h</span>
-                    </div>
-                    <button
-                      onClick={() => setDuration(Math.min(12, duration + 1))}
-                      className="w-12 h-12 rounded-xl bg-[var(--bg-hover)] border border-[var(--border)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-all active:scale-95"
-                    >
-                      <Plus className="w-5 h-5" />
-                    </button>
-                  </div>
+                {/* Description */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[var(--text-secondary)]">Description du problème <span className="text-red-400">*</span></label>
+                  <textarea
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                    placeholder={placeholder}
+                    rows={4}
+                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-orange-500/50 resize-none"
+                  />
                 </div>
 
-                {/* Count */}
-                <div>
-                  <label className="text-sm font-medium text-[var(--text-secondary)] mb-2 block">Nombre de personnes</label>
-                  <div className="flex items-center justify-center gap-4">
-                    <button
-                      onClick={() => setCount(Math.max(1, count - 1))}
-                      className="w-12 h-12 rounded-xl bg-[var(--bg-hover)] border border-[var(--border)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-all active:scale-95"
-                    >
-                      <Minus className="w-5 h-5" />
-                    </button>
-                    <div className="text-center min-w-[80px]">
-                      <span className="text-4xl font-bold text-[var(--text-primary)]">{count}</span>
-                      <span className="text-lg text-[var(--text-muted)] ml-1">pers.</span>
-                    </div>
-                    <button
-                      onClick={() => setCount(Math.min(10, count + 1))}
-                      className="w-12 h-12 rounded-xl bg-[var(--bg-hover)] border border-[var(--border)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-all active:scale-95"
-                    >
-                      <Plus className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Rate */}
-                <div>
-                  <label className="text-sm font-medium text-[var(--text-secondary)] mb-2 block">Tarif horaire{poste && <span className="text-[var(--text-muted)] font-normal"> (marche : {poste.range})</span>}</label>
-                  <div className="flex items-center justify-center gap-4">
-                    <button
-                      onClick={() => setRate(Math.max(1, rate - 1))}
-                      className="w-12 h-12 rounded-xl bg-[var(--bg-hover)] border border-[var(--border)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-all active:scale-95"
-                    >
-                      <Minus className="w-5 h-5" />
-                    </button>
-                    <div className="text-center min-w-[80px]">
-                      <span className="text-4xl font-bold text-[var(--text-primary)]">{rate}</span>
-                      <span className="text-lg text-[var(--text-muted)] ml-1">€/h</span>
-                    </div>
-                    <button
-                      onClick={() => setRate(rate + 1)}
-                      className="w-12 h-12 rounded-xl bg-[var(--bg-hover)] border border-[var(--border)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-all active:scale-95"
-                    >
-                      <Plus className="w-5 h-5" />
-                    </button>
-                  </div>
+                {/* Media upload */}
+                <div className="space-y-2">
+                  <button
+                    onClick={handleMediaUpload}
+                    className="w-full flex items-center justify-center gap-2 p-3 bg-[var(--bg-card)] border border-dashed border-[var(--border)] rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-orange-500/50 transition-colors"
+                  >
+                    <Camera className="w-4 h-4" />
+                    <Upload className="w-4 h-4" />
+                    <span className="text-sm font-medium">Ajouter des photos/vidéos</span>
+                  </button>
+                  {mediaFiles.length > 0 && (
+                    <p className="text-xs text-[var(--text-muted)]">{mediaFiles.length} fichier{mediaFiles.length > 1 ? 's' : ''} sélectionné{mediaFiles.length > 1 ? 's' : ''}</p>
+                  )}
                 </div>
               </div>
 
@@ -450,7 +433,13 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setStep(3)}
-                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-lg shadow-lg shadow-red-500/20 active:shadow-md transition-shadow"
+                  disabled={!description.trim()}
+                  className={cn(
+                    'w-full py-4 rounded-2xl font-bold text-lg shadow-lg transition-shadow',
+                    description.trim()
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-orange-500/20 active:shadow-md'
+                      : 'bg-[var(--bg-hover)] text-[var(--text-muted)] cursor-not-allowed shadow-none'
+                  )}
                 >
                   Suivant
                 </motion.button>
@@ -459,7 +448,7 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
           )}
 
           {/* Step 3: Payment */}
-          {step === 3 && poste && (
+          {step === 3 && specialty && (
             <motion.div
               key="step3"
               custom={1}
@@ -476,13 +465,13 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
               <div className="space-y-4 max-w-lg mx-auto w-full">
                 {/* Recap card */}
                 <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden" style={{ boxShadow: 'var(--shadow-card)' }}>
-                  <div className={`bg-gradient-to-r ${poste.color} p-4 flex items-center gap-3`}>
+                  <div className={`bg-gradient-to-r ${specialty.color} p-4 flex items-center gap-3`}>
                     <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                      <poste.icon className="w-5 h-5 text-white" />
+                      <specialty.icon className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-white text-lg">{poste.label}</h3>
-                      <p className="text-sm text-white/70">{rate}€/h</p>
+                      <h3 className="font-bold text-white text-lg">{specialty.label}</h3>
+                      <p className="text-sm text-white/70">Intervention</p>
                     </div>
                   </div>
                   <div className="p-4 space-y-3">
@@ -491,23 +480,22 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
                       <span className="text-sm font-medium text-[var(--text-primary)]">Maintenant ({formatTime(startDate)})</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-[var(--text-secondary)]">Duree</span>
-                      <span className="text-sm font-medium text-[var(--text-primary)]">{duration}h</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-[var(--text-secondary)]">Personnes</span>
-                      <span className="text-sm font-medium text-[var(--text-primary)]">{count}</span>
-                    </div>
-                    <div className="border-t border-[var(--border)] my-2" />
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-[var(--text-muted)]">
-                        {count} pers. × {duration}h × {rate}€/h
+                      <span className="text-sm text-[var(--text-secondary)]">Établissement</span>
+                      <span className="text-sm font-medium text-[var(--text-primary)] truncate ml-4 text-right">
+                        {currentEstablishment?.name || '—'}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-base font-bold text-[var(--text-primary)]">Total estimé</span>
-                      <span className="text-2xl font-bold text-[var(--text-primary)]">{total}€</span>
+                    <div className="border-t border-[var(--border)] my-2" />
+                    <div>
+                      <span className="text-sm text-[var(--text-secondary)]">Description</span>
+                      <p className="text-sm text-[var(--text-primary)] mt-1 line-clamp-3">{description}</p>
                     </div>
+                    {mediaFiles.length > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-[var(--text-secondary)]">Pièces jointes</span>
+                        <span className="text-sm font-medium text-[var(--text-primary)]">{mediaFiles.length} fichier{mediaFiles.length > 1 ? 's' : ''}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -577,7 +565,7 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
                 transition={{ delay: 0.3 }}
                 className="text-2xl font-bold text-[var(--text-primary)] mb-2"
               >
-                Mission publiee !
+                Mission publiée !
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
@@ -585,7 +573,7 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
                 transition={{ delay: 0.4 }}
                 className="text-[var(--text-muted)] text-center"
               >
-                Recherche en cours...
+                Recherche d&apos;un technicien en cours...
               </motion.p>
             </motion.div>
           )}

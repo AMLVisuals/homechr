@@ -49,6 +49,8 @@ import {
   Crown,
   CreditCard,
   ChevronDown,
+  Music,
+  SprayCan,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { COMING_SOON_CATEGORIES } from '@/data/categories';
@@ -123,6 +125,8 @@ const GROUP_COLORS: Record<string, string> = {
   'Cuisine': 'from-orange-500 to-red-500',
   'Accueil & Hôtellerie': 'from-emerald-500 to-teal-500',
   'Sécurité': 'from-slate-500 to-zinc-600',
+  'Animation': 'from-fuchsia-500 to-purple-600',
+  'Entretien': 'from-cyan-500 to-blue-500',
   // TECHNICIENS
   'Froid & Climatisation': 'from-sky-500 to-blue-600',
   'Cuisson & Chaud': 'from-orange-500 to-red-500',
@@ -165,6 +169,10 @@ const CATEGORIES: CategoryDef[] = [
       { id: 'groom', label: 'Groom / Valet', icon: User, group: 'Accueil & Hôtellerie' },
       // Sécurité
       { id: 'securite', label: 'Sécurité / Videur', icon: Shield, group: 'Sécurité' },
+      // Animation
+      { id: 'dj', label: 'DJ', icon: Music, group: 'Animation' },
+      // Entretien
+      { id: 'aide_menagere', label: 'Agent d\'entretien', icon: SprayCan, group: 'Entretien' },
     ]
   },
   {
