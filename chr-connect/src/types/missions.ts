@@ -72,6 +72,20 @@ export interface Provider {
   siret?: string;
 }
 
+export type CandidateStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
+
+export interface MissionCandidate {
+  id: string;
+  name: string;
+  specialty: string;
+  rating: number;
+  avatar?: string;
+  completedMissions: number;
+  appliedAt: string; // ISO date
+  status: CandidateStatus;
+  message?: string; // Optional motivation message
+}
+
 export interface Mission {
   id: string;
   title: string;
@@ -156,6 +170,9 @@ export interface Mission {
   // Scheduling
   scheduled?: boolean; // true = planned for later, false/undefined = immediate
   scheduledDate?: string; // ISO date string for planned missions
+
+  // Candidature system (planned missions)
+  candidates?: MissionCandidate[];
 
   // Relation fee (entremetteur model)
   paidRelationFee?: boolean;

@@ -6,8 +6,12 @@ import { useRouter } from 'next/navigation';
 import {
   ChevronLeft, ChevronRight, TrendingUp, TrendingDown,
   Star, FileText, Euro, CheckCircle2, Clock, MapPin,
+  CalendarClock, UserPlus, CheckCircle, XCircle, DollarSign, Building2, X,
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useMissionsStore } from '@/store/useMissionsStore';
+import { Mission } from '@/types/missions';
+import { AnimatePresence } from 'framer-motion';
 
 // ── Mock data ────────────────────────────────────────────────────────────────
 
@@ -44,6 +48,8 @@ interface WorkerDashboardProps {
 
 export default function WorkerDashboard({ currentProfile }: WorkerDashboardProps) {
   const router = useRouter();
+  const { missions, removeCandidate } = useMissionsStore();
+  const [openCandidature, setOpenCandidature] = useState<Mission | null>(null);
 
   // Month navigation
   const now = new Date();
@@ -180,6 +186,209 @@ export default function WorkerDashboard({ currentProfile }: WorkerDashboardProps
           </div>
         </motion.div>
       </div>
+
+      {/* Mes candidatures */}
+      {(() => {
+        const myCandidatures = missions.filter(m =>
+          m.scheduled && m.candidates?.some(c => c.id === 'worker-self')
+        );
+        if (myCandidatures.length === 0) return null;
+        return (
+          <div className="bg-[var(--bg-card)] rounded-3xl border border-[var(--border)] overflow-hidden" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="p-5 border-b border-[var(--border)] flex justify-between items-center">
+              <h3 className="font-bold text-[var(--text-primary)] flex items-center gap-2">
+                <CalendarClock className="w-4 h-4 text-purple-500" />
+                Mes candidatures
+              </h3>
+              <span className="text-xs font-bold text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full">
+                {myCandidatures.length}
+              </span>
+            </div>
+            <div className="divide-y divide-[var(--border)]">
+              {myCandidatures.map((mission) => {
+                const myCandidate = mission.candidates?.find(c => c.id === 'worker-self');
+                const status = myCandidate?.status || 'PENDING';
+                return (
+                  <div
+                    key={mission.id}
+                    onClick={() => setOpenCandidature(mission)}
+                    className="p-4 hover:bg-[var(--bg-hover)] transition-colors cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={clsx(
+                        "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+                        status === 'ACCEPTED' ? "bg-green-500/10" : status === 'REJECTED' ? "bg-red-500/10" : "bg-purple-500/10"
+                      )}>
+                        {status === 'ACCEPTED' ? (
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        ) : status === 'REJECTED' ? (
+                          <XCircle className="w-5 h-5 text-red-500" />
+                        ) : (
+                          <UserPlus className="w-5 h-5 text-purple-500" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-sm text-[var(--text-primary)] truncate group-hover:text-blue-400 transition-colors">{mission.title}</h4>
+                        <div className="flex items-center gap-2 mt-1 text-xs text-[var(--text-muted)]">
+                          <MapPin className="w-3 h-3 shrink-0" />
+                          <span className="truncate">{mission.venue}</span>
+                          <span className="w-1 h-1 rounded-full bg-[var(--text-muted)] shrink-0" />
+                          <Clock className="w-3 h-3 shrink-0" />
+                          <span className="shrink-0">{mission.scheduledDate ? new Date(mission.scheduledDate).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="font-bold text-sm text-[var(--text-primary)]">{mission.price}</div>
+                        <span className={clsx(
+                          "text-[10px] font-bold uppercase px-2 py-0.5 rounded-full",
+                          status === 'ACCEPTED' ? "bg-green-500/20 text-green-400" :
+                          status === 'REJECTED' ? "bg-red-500/20 text-red-400" :
+                          "bg-purple-500/20 text-purple-400"
+                        )}>
+                          {status === 'ACCEPTED' ? 'Acceptée' : status === 'REJECTED' ? 'Refusée' : 'En attente'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Modal détail candidature */}
+      <AnimatePresence>
+        {openCandidature && (() => {
+          const myCandidate = openCandidature.candidates?.find(c => c.id === 'worker-self');
+          const status = myCandidate?.status || 'PENDING';
+          return (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setOpenCandidature(null)}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000]"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[480px] md:max-h-[80vh] bg-[var(--bg-card)] rounded-3xl border border-[var(--border)] shadow-2xl z-[1001] overflow-hidden flex flex-col"
+              >
+                {/* Header */}
+                <div className="p-6 border-b border-[var(--border)]">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={clsx(
+                          "px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase",
+                          status === 'ACCEPTED' ? "bg-green-500/20 text-green-400" :
+                          status === 'REJECTED' ? "bg-red-500/20 text-red-400" :
+                          "bg-purple-500/20 text-purple-400"
+                        )}>
+                          {status === 'ACCEPTED' ? 'Acceptée' : status === 'REJECTED' ? 'Refusée' : 'En attente de réponse'}
+                        </span>
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-500/20 text-blue-400">
+                          Planifiée
+                        </span>
+                      </div>
+                      <h2 className="text-xl font-bold text-[var(--text-primary)]">{openCandidature.title}</h2>
+                    </div>
+                    <button onClick={() => setOpenCandidature(null)} className="p-2 rounded-xl hover:bg-[var(--bg-hover)] transition-colors">
+                      <X className="w-5 h-5 text-[var(--text-muted)]" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Body */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-5">
+                  {/* Infos grille */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-[var(--bg-hover)] rounded-2xl p-4 border border-[var(--border)] flex flex-col items-center text-center">
+                      <CalendarClock className="w-5 h-5 text-blue-400 mb-1.5" />
+                      <span className="text-sm font-bold text-[var(--text-primary)]">
+                        {openCandidature.scheduledDate ? new Date(openCandidature.scheduledDate).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }) : '—'}
+                      </span>
+                      <span className="text-[10px] text-[var(--text-muted)] uppercase mt-0.5">
+                        {openCandidature.scheduledDate ? new Date(openCandidature.scheduledDate).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                      </span>
+                    </div>
+                    <div className="bg-[var(--bg-hover)] rounded-2xl p-4 border border-[var(--border)] flex flex-col items-center text-center">
+                      <DollarSign className="w-5 h-5 text-green-400 mb-1.5" />
+                      <span className="text-sm font-bold text-[var(--text-primary)]">{openCandidature.price}</span>
+                      <span className="text-[10px] text-[var(--text-muted)] uppercase mt-0.5">Rémunération</span>
+                    </div>
+                  </div>
+
+                  {/* Établissement */}
+                  <div className="bg-[var(--bg-hover)] rounded-2xl p-4 border border-[var(--border)]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                        {(openCandidature.venue || 'C').charAt(0)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-sm text-[var(--text-primary)]">{openCandidature.venue || 'Client'}</h4>
+                        <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] mt-0.5">
+                          <MapPin className="w-3 h-3" />
+                          <span>{openCandidature.distance || '—'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  {openCandidature.description && (
+                    <div>
+                      <h4 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Description</h4>
+                      <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{openCandidature.description}</p>
+                    </div>
+                  )}
+
+                  {/* Candidature envoyée le */}
+                  {myCandidate && (
+                    <div className="bg-[var(--bg-hover)] rounded-2xl p-4 border border-[var(--border)]">
+                      <h4 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Ma candidature</h4>
+                      <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+                        <Clock className="w-4 h-4 text-[var(--text-muted)]" />
+                        <span>Envoyée le {new Date(myCandidate.appliedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer actions */}
+                <div className="p-6 border-t border-[var(--border)]">
+                  {status === 'PENDING' ? (
+                    <button
+                      onClick={() => {
+                        removeCandidate(openCandidature.id, 'worker-self');
+                        setOpenCandidature(null);
+                      }}
+                      className="w-full py-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-bold hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      Annuler ma candidature
+                    </button>
+                  ) : status === 'ACCEPTED' ? (
+                    <div className="w-full py-3.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-bold flex items-center justify-center gap-2">
+                      <CheckCircle className="w-4 h-4" />
+                      Candidature acceptée
+                    </div>
+                  ) : (
+                    <div className="w-full py-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-bold flex items-center justify-center gap-2">
+                      <XCircle className="w-4 h-4" />
+                      Candidature refusée
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </>
+          );
+        })()}
+      </AnimatePresence>
 
       {/* Two-column grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

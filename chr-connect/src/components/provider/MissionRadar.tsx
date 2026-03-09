@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mission } from '@/types/missions';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { MissionSheet } from './mission-sheet';
-import { Locate, CalendarClock, MapPin, Clock, ChevronUp, ChevronDown } from 'lucide-react';
+import { Locate, CalendarClock, MapPin, Clock, ChevronUp, ChevronDown, CheckCircle, UserPlus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const MapComponent = dynamic(() => import('./MapComponent'), {
@@ -28,7 +28,7 @@ function formatScheduledDate(dateStr?: string): string {
 }
 
 export default function MissionRadar({ authorizedCategories }: { authorizedCategories?: string[] }) {
-  const { missions } = useMissionsStore();
+  const { missions, addCandidate, removeCandidate } = useMissionsStore();
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   const [mapCenter, setMapCenter] = useState({ lat: 48.8566, lng: 2.3522 });
   const [userLocation, setUserLocation] = useState({ lat: 48.8566, lng: 2.3522 });
@@ -195,15 +195,40 @@ export default function MissionRadar({ authorizedCategories }: { authorizedCateg
                     </div>
 
                     <div className="mt-3">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedMission(mission);
-                        }}
-                        className="w-full py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold hover:bg-blue-500/20 transition-colors"
-                      >
-                        Se positionner
-                      </button>
+                      {mission.candidates?.some(c => c.id === 'worker-self') ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeCandidate(mission.id, 'worker-self');
+                          }}
+                          className="w-full py-2.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold flex items-center justify-center gap-2 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition-colors group"
+                        >
+                          <CheckCircle className="w-3.5 h-3.5 group-hover:hidden" />
+                          <X className="w-3.5 h-3.5 hidden group-hover:block" />
+                          <span className="group-hover:hidden">Candidature envoyée</span>
+                          <span className="hidden group-hover:inline">Annuler candidature</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addCandidate(mission.id, {
+                              id: 'worker-self',
+                              name: 'Alexandre P.',
+                              specialty: 'Expert qualifié',
+                              rating: 4.9,
+                              avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop',
+                              completedMissions: 42,
+                              appliedAt: new Date().toISOString(),
+                              status: 'PENDING',
+                            });
+                          }}
+                          className="w-full py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold hover:bg-blue-500/20 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <UserPlus className="w-3.5 h-3.5" />
+                          Se positionner
+                        </button>
+                      )}
                     </div>
                   </motion.div>
                 ))

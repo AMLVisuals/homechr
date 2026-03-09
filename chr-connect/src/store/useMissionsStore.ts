@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Mission, Review, Invoice, InvoiceItem, Provider, TeamMember } from '@/types/missions';
+import { Mission, MissionCandidate, Review, Invoice, InvoiceItem, Provider, TeamMember } from '@/types/missions';
 
 // Schedule statuses per member per day
 export type ScheduleStatus = 'PRESENT' | 'CONGE' | 'MALADIE';
@@ -24,6 +24,10 @@ interface MissionsState {
   updateTeamMember: (id: string, updates: Partial<TeamMember>) => void;
   removeTeamMember: (id: string) => void;
   setScheduleStatus: (date: string, memberId: string, status: ScheduleStatus | null) => void;
+  addCandidate: (missionId: string, candidate: MissionCandidate) => void;
+  removeCandidate: (missionId: string, candidateId: string) => void;
+  selectCandidate: (missionId: string, candidateId: string) => void;
+  rejectCandidate: (missionId: string, candidateId: string) => void;
 }
 
 // Initial Mock Team Data
@@ -475,7 +479,30 @@ const INITIAL_MISSIONS: Mission[] = [
     scheduledDate: '2026-03-12T11:00:00',
     distance: '1.1 km',
     matchScore: 88,
-    attributes: { role: ['waiter'], serviceType: 'lunch', urgency: false }
+    attributes: { role: ['waiter'], serviceType: 'lunch', urgency: false },
+    candidates: [
+      {
+        id: 'cand-1',
+        name: 'Thomas R.',
+        specialty: 'Serveur expérimenté',
+        rating: 4.8,
+        avatar: 'https://i.pravatar.cc/150?u=thomas',
+        completedMissions: 35,
+        appliedAt: '2026-03-09T10:30:00',
+        status: 'PENDING' as const,
+        message: 'Disponible et motivé, 5 ans d\'expérience en restauration étoilée.',
+      },
+      {
+        id: 'cand-2',
+        name: 'Camille L.',
+        specialty: 'Serveuse / Cheffe de rang',
+        rating: 4.6,
+        avatar: 'https://i.pravatar.cc/150?u=camille',
+        completedMissions: 22,
+        appliedAt: '2026-03-09T14:15:00',
+        status: 'PENDING' as const,
+      },
+    ],
   },
   {
     id: 'm16',
@@ -661,10 +688,59 @@ export const useMissionsStore = create<MissionsState>()(
             [date]: dayData
           }
         };
-      })
+      }),
+      addCandidate: (missionId, candidate) => set((state) => ({
+        missions: state.missions.map(m => {
+          if (m.id !== missionId) return m;
+          const existing = m.candidates || [];
+          if (existing.some(c => c.id === candidate.id)) return m;
+          return { ...m, candidates: [...existing, candidate] };
+        })
+      })),
+      removeCandidate: (missionId, candidateId) => set((state) => ({
+        missions: state.missions.map(m => {
+          if (m.id !== missionId) return m;
+          return { ...m, candidates: (m.candidates || []).filter(c => c.id !== candidateId) };
+        })
+      })),
+      selectCandidate: (missionId, candidateId) => set((state) => ({
+        missions: state.missions.map(m => {
+          if (m.id !== missionId) return m;
+          const candidates = (m.candidates || []).map(c => ({
+            ...c,
+            status: c.id === candidateId ? 'ACCEPTED' as const : 'REJECTED' as const
+          }));
+          const selected = candidates.find(c => c.id === candidateId);
+          return {
+            ...m,
+            candidates,
+            status: 'SCHEDULED' as const,
+            provider: selected ? {
+              id: selected.id,
+              name: selected.name,
+              rating: selected.rating,
+              completedMissions: selected.completedMissions,
+              bio: selected.specialty,
+              phone: '+33 6 00 00 00 00',
+              avatar: selected.avatar,
+            } : m.provider,
+          };
+        })
+      })),
+      rejectCandidate: (missionId, candidateId) => set((state) => ({
+        missions: state.missions.map(m => {
+          if (m.id !== missionId) return m;
+          return {
+            ...m,
+            candidates: (m.candidates || []).map(c =>
+              c.id === candidateId ? { ...c, status: 'REJECTED' as const } : c
+            )
+          };
+        })
+      }))
     }),
     {
-      name: 'missions-storage-v7', // v7: force refresh — staff flow simplification
+      name: 'missions-storage-v8', // v8: candidature system for planned missions
     }
   )
 );

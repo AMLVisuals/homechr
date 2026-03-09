@@ -1,9 +1,10 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Clock, DollarSign, X, ArrowRight, Navigation, Share2, ShieldCheck, Building2, ImageIcon, Info, Camera, CheckCircle, Wrench, QrCode } from 'lucide-react';
+import { MapPin, Clock, DollarSign, X, ArrowRight, Navigation, Share2, ShieldCheck, Building2, ImageIcon, Info, Camera, CheckCircle, Wrench, QrCode, CalendarClock, UserPlus, XCircle } from 'lucide-react';
 import { Mission } from '@/types/missions';
 import { useState } from 'react';
+import { clsx } from 'clsx';
 import { EstablishmentSheet } from './EstablishmentSheet';
 import { DocumentViewer } from '@/components/shared/DocumentViewer';
 import { useVenuesStore } from '@/store/useVenuesStore';
@@ -25,12 +26,17 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
   const [selectedDocument, setSelectedDocument] = useState<EquipmentDocument | null>(null);
   const [isEstablishmentOpen, setIsEstablishmentOpen] = useState(false);
   const [isEquipmentOpen, setIsEquipmentOpen] = useState(false);
+  const [hasApplied, setHasApplied] = useState(false);
 
   const { startMission } = useMissionEngine();
-  const { updateMission } = useMissionsStore();
+  const { updateMission, addCandidate, removeCandidate } = useMissionsStore();
   const { getVenue } = useVenuesStore();
   const { equipment } = useEquipmentStore();
   const venueDetails = mission?.venueId ? getVenue(mission.venueId) : undefined;
+
+  // Check if worker already applied to this planned mission
+  const alreadyApplied = hasApplied || (mission?.candidates?.some(c => c.id === 'worker-self') ?? false);
+  const isPlanned = mission?.scheduled === true;
 
   // Find linked equipment for this mission (simulated - in real app would use mission.machineId)
   const linkedEquipment = mission?.venueId
@@ -57,6 +63,27 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
       }
     });
     onClose(); // Close the sheet to reveal the workflow
+  };
+
+  const handleCancelApply = () => {
+    if (!mission) return;
+    removeCandidate(mission.id, 'worker-self');
+    setHasApplied(false);
+  };
+
+  const handleApply = () => {
+    if (!mission || alreadyApplied) return;
+    addCandidate(mission.id, {
+      id: 'worker-self',
+      name: 'Alexandre P.',
+      specialty: 'Expert qualifié',
+      rating: 4.9,
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop',
+      completedMissions: 42,
+      appliedAt: new Date().toISOString(),
+      status: 'PENDING',
+    });
+    setHasApplied(true);
   };
 
   const handleShare = () => {
@@ -298,7 +325,7 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
               
               {/* Actions */}
               <div className="grid grid-cols-4 gap-3">
-                <button 
+                <button
                   onClick={handleShare}
                   className="col-span-1 flex flex-col items-center justify-center bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-xl transition-colors relative"
                 >
@@ -311,13 +338,39 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
                   )}
                 </button>
 
-                <button 
-                  onClick={handleAccept}
-                  className="col-span-3 font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-blue-900/20"
-                >
-                  <span>Accepter la mission</span>
-                  <ArrowRight className="h-5 w-5" />
-                </button>
+                {isPlanned ? (
+                  alreadyApplied ? (
+                    <>
+                      <div className="col-span-2 font-bold py-4 rounded-xl flex items-center justify-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400">
+                        <CheckCircle className="h-5 w-5" />
+                        <span>Candidature envoyée</span>
+                      </div>
+                      <button
+                        onClick={handleCancelApply}
+                        className="col-span-1 font-bold py-4 rounded-xl flex items-center justify-center gap-2 bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--text-secondary)] hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition-colors active:scale-95"
+                      >
+                        <XCircle className="h-5 w-5" />
+                        <span className="text-xs">Annuler</span>
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={handleApply}
+                      className="col-span-3 font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white shadow-purple-900/20"
+                    >
+                      <UserPlus className="h-5 w-5" />
+                      <span>Se positionner</span>
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={handleAccept}
+                    className="col-span-3 font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-blue-900/20"
+                  >
+                    <span>Accepter la mission</span>
+                    <ArrowRight className="h-5 w-5" />
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Filter, Wrench, ChefHat, Monitor, Hammer,
-  Clock, MapPin, CheckCircle2, AlertCircle, XCircle, MoreVertical, ArrowRight, UserCheck, ClipboardList, Plus
+  Clock, MapPin, CheckCircle2, AlertCircle, XCircle, MoreVertical, ArrowRight, UserCheck, ClipboardList, Plus, Users
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SkeletonTable } from '@/components/shared/Skeleton';
@@ -14,6 +14,7 @@ import { useVenuesStore } from '@/store/useVenuesStore';
 import { Mission } from '@/types/missions';
 import MissionDetailsModal from '../missions/MissionDetailsModal';
 import WorkerValidationModal from '../WorkerValidationModal';
+import CandidateReviewModal from '../CandidateReviewModal';
 
 const ICON_MAP: Record<string, any> = {
   Wrench, ChefHat, Monitor, Hammer
@@ -42,11 +43,19 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [validationMission, setValidationMission] = useState<Mission | null>(null);
   const [isValidationOpen, setIsValidationOpen] = useState(false);
+  const [candidateMission, setCandidateMission] = useState<Mission | null>(null);
+  const [isCandidateOpen, setIsCandidateOpen] = useState(false);
 
   const handleMissionClick = (mission: Mission) => {
     if (mission.status === 'AWAITING_PATRON_CONFIRMATION') {
       setValidationMission(mission);
       setIsValidationOpen(true);
+      return;
+    }
+    // Open candidate review for planned missions with candidates
+    if (mission.scheduled && mission.candidates && mission.candidates.length > 0) {
+      setCandidateMission(mission);
+      setIsCandidateOpen(true);
       return;
     }
     setSelectedMission(mission);
@@ -71,7 +80,9 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
     }
 
     if (filter === 'ACTION_REQUIRED') {
-      return ['PENDING_VALIDATION', 'QUOTE_SENT', 'AWAITING_PATRON_CONFIRMATION'].includes(m.status);
+      const hasActionStatus = ['PENDING_VALIDATION', 'QUOTE_SENT', 'AWAITING_PATRON_CONFIRMATION'].includes(m.status);
+      const hasPendingCandidates = m.scheduled && m.candidates && m.candidates.some(c => c.status === 'PENDING') && m.status !== 'SCHEDULED';
+      return hasActionStatus || hasPendingCandidates;
     }
 
     if (filter === 'IN_PROGRESS') {
@@ -149,7 +160,7 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
               className="bg-[var(--bg-card)] rounded-xl p-4 md:p-6 border border-[var(--border)] hover:border-[var(--border-strong)] transition-all cursor-pointer group relative overflow-hidden"
             >
               {/* Action required dot */}
-              {(['PENDING_VALIDATION', 'QUOTE_SENT', 'AWAITING_PATRON_CONFIRMATION'] as string[]).includes(mission.status) && (
+              {((['PENDING_VALIDATION', 'QUOTE_SENT', 'AWAITING_PATRON_CONFIRMATION'] as string[]).includes(mission.status) || (mission.scheduled && mission.candidates && mission.candidates.some(c => c.status === 'PENDING') && mission.status !== 'SCHEDULED')) && (
                 <div className="absolute top-3 right-3 w-3 h-3 rounded-full bg-orange-500 animate-pulse z-10" />
               )}
 
@@ -158,6 +169,16 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
                 <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-b border-amber-500/30 px-4 py-1.5 flex items-center gap-2">
                   <UserCheck className="w-3.5 h-3.5 text-amber-400" />
                   <span className="text-xs font-bold text-amber-400">Prestataire trouvé — Confirmez</span>
+                </div>
+              )}
+
+              {/* Candidates banner for planned missions */}
+              {mission.scheduled && mission.candidates && mission.candidates.filter(c => c.status === 'PENDING').length > 0 && mission.status !== 'SCHEDULED' && (
+                <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 border-b border-purple-500/30 px-4 py-1.5 flex items-center gap-2">
+                  <Users className="w-3.5 h-3.5 text-purple-400" />
+                  <span className="text-xs font-bold text-purple-400">
+                    {mission.candidates.filter(c => c.status === 'PENDING').length} candidature{mission.candidates.filter(c => c.status === 'PENDING').length > 1 ? 's' : ''} — Consultez
+                  </span>
                 </div>
               )}
 
@@ -276,6 +297,12 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
         mission={validationMission ? missions.find(m => m.id === validationMission.id) || validationMission : null}
         isOpen={isValidationOpen}
         onClose={() => setIsValidationOpen(false)}
+      />
+
+      <CandidateReviewModal
+        mission={candidateMission ? missions.find(m => m.id === candidateMission.id) || candidateMission : null}
+        isOpen={isCandidateOpen}
+        onClose={() => setIsCandidateOpen(false)}
       />
     </div>
   );
