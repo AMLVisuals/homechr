@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Receipt, Download, Calendar, Clock, Search,
+  Receipt, Download, Calendar, Clock,
   X, ChevronDown, FileText,
 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -18,12 +18,49 @@ const STATUS_FILTERS: { key: PayslipStatus | 'ALL'; label: string }[] = [
   { key: 'PROCESSING', label: 'En cours' },
 ];
 
+function formatMonthLabel(year: number, month: number): string {
+  const date = new Date(year, month);
+  return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+}
+
+function generateMonthOptions() {
+  const now = new Date();
+  const options: { year: number; month: number; label: string }[] = [];
+  for (let i = 36; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    options.push({
+      year: d.getFullYear(),
+      month: d.getMonth(),
+      label: d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }),
+    });
+  }
+  return options.reverse();
+}
+
 export function PayslipsTab() {
+  const now = new Date();
   const { payslips, fetchPayslips, downloadPayslipPdf, isLoading } = usePayslipsStore();
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<PayslipStatus | 'ALL'>('ALL');
-  const [search, setSearch] = useState('');
   const [selectedPayslip, setSelectedPayslip] = useState<Payslip | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  const monthOptions = useMemo(() => generateMonthOptions(), []);
+  const isCurrentMonth = selectedYear === now.getFullYear() && selectedMonth === now.getMonth();
+  const currentLabel = formatMonthLabel(selectedYear, selectedMonth);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setIsPickerOpen(false);
+      }
+    }
+    if (isPickerOpen) document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [isPickerOpen]);
 
   useEffect(() => {
     fetchPayslips();
@@ -31,18 +68,16 @@ export function PayslipsTab() {
 
   const filtered = useMemo(() => {
     let list = payslips.filter(p => !p.isDeleted);
+    // Filtre par mois
+    list = list.filter(p => {
+      const d = new Date(p.issueDate);
+      return d.getFullYear() === selectedYear && d.getMonth() === selectedMonth;
+    });
     if (statusFilter !== 'ALL') {
       list = list.filter(p => p.status === statusFilter);
     }
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(p =>
-        p.number.toLowerCase().includes(q) ||
-        p.period.toLowerCase().includes(q)
-      );
-    }
     return list.sort((a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
-  }, [payslips, statusFilter, search]);
+  }, [payslips, statusFilter, selectedYear, selectedMonth]);
 
   const totalNet = useMemo(() => filtered.reduce((sum, p) => sum + p.netAmount, 0), [filtered]);
 
@@ -67,25 +102,50 @@ export function PayslipsTab() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <Receipt className="w-5 h-5 text-purple-500" />
-          Mes fiches de paie
-        </h2>
-        <p className="text-sm text-[var(--text-secondary)] mt-1">Consultez et téléchargez vos bulletins de salaire</p>
-      </div>
-
-      {/* Search */}
-      <div className="relative">
-        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
-        <input
-          type="text"
-          placeholder="Rechercher par numéro ou période..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-all"
-        />
+      {/* Month Picker Dropdown */}
+      <div ref={pickerRef} className="relative">
+        <button
+          onClick={() => setIsPickerOpen(!isPickerOpen)}
+          className="w-full flex items-center justify-between bg-[var(--bg-card)] border border-[var(--border)] rounded-xl px-4 py-3 hover:border-[var(--border-strong)] transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-blue-400" />
+            <span className="font-bold text-[var(--text-primary)] capitalize">{currentLabel}</span>
+            {isCurrentMonth && <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">Mois en cours</span>}
+          </div>
+          <ChevronDown className={clsx("w-4 h-4 text-[var(--text-muted)] transition-transform", isPickerOpen && "rotate-180")} />
+        </button>
+        <AnimatePresence>
+          {isPickerOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.15 }}
+              className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-xl overflow-hidden z-30 max-h-64 overflow-y-auto custom-scrollbar"
+            >
+              {monthOptions.map((opt) => {
+                const isSelected = opt.year === selectedYear && opt.month === selectedMonth;
+                const isCurrent = opt.year === now.getFullYear() && opt.month === now.getMonth();
+                return (
+                  <button
+                    key={`${opt.year}-${opt.month}`}
+                    onClick={() => { setSelectedYear(opt.year); setSelectedMonth(opt.month); setIsPickerOpen(false); }}
+                    className={clsx(
+                      "w-full text-left px-4 py-2.5 text-sm transition-colors capitalize flex items-center justify-between",
+                      isSelected
+                        ? "bg-blue-600/10 text-blue-400 font-bold"
+                        : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                    )}
+                  >
+                    <span>{opt.label}</span>
+                    {isCurrent && <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">Actuel</span>}
+                  </button>
+                );
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Filters */}

@@ -1,8 +1,8 @@
 import {
-  Users, Wrench, Building2, Scale
+  Users, Wrench, Building2
 } from 'lucide-react';
 
-export type CategoryId = 'PERSONNEL' | 'TECHNICIENS' | 'BATIMENTS' | 'JURIDIQUE' | 'STAFFING' | 'TECH' | 'MAINTENANCE';
+export type CategoryId = 'PERSONNEL' | 'TECHNICIENS' | 'BATIMENTS' | 'STAFFING' | 'TECH' | 'MAINTENANCE';
 
 export interface Service {
   id: string;
@@ -18,7 +18,7 @@ export interface Category {
   services: Service[];
 }
 
-export const COMING_SOON_CATEGORIES: CategoryId[] = ['BATIMENTS', 'JURIDIQUE'];
+export const COMING_SOON_CATEGORIES: CategoryId[] = ['BATIMENTS'];
 
 export const CATEGORIES: Category[] = [
   {
@@ -101,23 +101,6 @@ export const CATEGORIES: Category[] = [
       { id: 'decorateur', label: 'Décorateur' },
       { id: 'paysagiste', label: 'Paysagiste' },
       { id: 'menuisier_metal', label: 'Menuisier métallier' },
-    ]
-  },
-  {
-    id: 'JURIDIQUE',
-    label: 'Juridique',
-    description: 'Conseil et conformité',
-    icon: Scale,
-    services: [
-      { id: 'avocat_travail', label: 'Avocat droit du travail' },
-      { id: 'juriste_rh', label: 'Juriste RH' },
-      { id: 'avocat_societes', label: 'Avocat droit des sociétés' },
-      { id: 'notaire', label: 'Notaire' },
-      { id: 'avocat_licences', label: 'Avocat spécialisé licences (IV, III, II, I)' },
-      { id: 'expert_hygiene', label: 'Expert en hygiène et sécurité alimentaire' },
-      { id: 'juriste_haccp', label: 'Juriste en conformité sanitaire (HACCP)' },
-      { id: 'expert_assurances', label: 'Expert en assurances professionnelles' },
-      { id: 'consultant_pi', label: 'Consultant en propriété intellectuelle' },
     ]
   }
 ];

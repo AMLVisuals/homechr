@@ -45,7 +45,6 @@ import {
   Trash2,
   Camera,
   Upload,
-  Scale,
   Crown,
   CreditCard,
   ChevronDown,
@@ -226,24 +225,6 @@ const CATEGORIES: CategoryDef[] = [
       { id: 'menuisier_metal', label: 'Menuisier métallier', icon: Hammer },
     ]
   },
-  {
-    id: 'JURIDIQUE',
-    label: 'Juridique',
-    description: 'Conseil et conformité',
-    icon: Scale,
-    color: 'from-amber-500 to-yellow-500',
-    subCategories: [
-      { id: 'avocat_travail', label: 'Avocat droit du travail', icon: Scale },
-      { id: 'juriste_rh', label: 'Juriste RH', icon: Scale },
-      { id: 'avocat_societes', label: 'Avocat droit des sociétés', icon: Scale },
-      { id: 'notaire', label: 'Notaire', icon: Scale },
-      { id: 'avocat_licences', label: 'Avocat spécialisé licences (IV, III, II, I)', icon: Scale },
-      { id: 'expert_hygiene', label: 'Expert en hygiène et sécurité alimentaire', icon: ShieldCheck },
-      { id: 'juriste_haccp', label: 'Juriste en conformité sanitaire (HACCP)', icon: ShieldCheck },
-      { id: 'expert_assurances', label: 'Expert en assurances professionnelles', icon: ShieldCheck },
-      { id: 'consultant_pi', label: 'Consultant en propriété intellectuelle', icon: Scale },
-    ]
-  }
 ];
 
 // ============================================================================

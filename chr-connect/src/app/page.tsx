@@ -204,10 +204,6 @@ export default function Home() {
                           <MapPin className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
                           <span className="text-sm text-[var(--text-secondary)]">{lastMissionSummary.venue}</span>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <Euro className="w-4 h-4 text-green-500 shrink-0" />
-                          <span className="text-sm font-bold text-green-500">{lastMissionSummary.price}</span>
-                        </div>
                       </div>
                     )}
                     <div className="border-t border-[var(--border)]" />

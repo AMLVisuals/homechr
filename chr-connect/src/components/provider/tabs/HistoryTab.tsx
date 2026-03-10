@@ -1,13 +1,15 @@
-import React from 'react';
-import { Calendar, MapPin, Clock, ArrowRight, CheckCircle, ChevronRight, Euro } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { Calendar, MapPin, Clock, ArrowRight, CheckCircle, ChevronRight, ChevronDown, Euro } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { clsx } from 'clsx';
 
 const MOCK_HISTORY = [
   {
     id: 'M-1204',
     title: "Réparation Machine à Glaçons",
     venue: "Le Perchoir Marais",
-    date: "Aujourd'hui, 10:30",
+    date: "10 Mar 2026, 10:30",
+    isoDate: "2026-03-10",
     duration: "1h 45min",
     amount: "145.00 €",
     status: "COMPLETED",
@@ -22,7 +24,8 @@ const MOCK_HISTORY = [
     id: 'M-1198',
     title: "Installation Vitrine Réfrigérée",
     venue: "La Felicità",
-    date: "Hier, 14:15",
+    date: "07 Mar 2026, 14:15",
+    isoDate: "2026-03-07",
     duration: "3h 00min",
     amount: "280.00 €",
     status: "COMPLETED",
@@ -37,7 +40,8 @@ const MOCK_HISTORY = [
     id: 'M-1150',
     title: "Maintenance Préventive",
     venue: "Big Mamma",
-    date: "05 Déc, 09:00",
+    date: "15 Fév 2026, 09:00",
+    isoDate: "2026-02-15",
     duration: "2h 30min",
     amount: "210.00 €",
     status: "COMPLETED",
@@ -47,16 +51,80 @@ const MOCK_HISTORY = [
         before: "https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop",
         after: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop"
     }
+  },
+  {
+    id: 'M-1120',
+    title: "Dépannage Chambre Froide",
+    venue: "Bouillon Chartier",
+    date: "28 Jan 2026, 16:00",
+    isoDate: "2026-01-28",
+    duration: "2h 15min",
+    amount: "195.00 €",
+    status: "COMPLETED",
+    image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=300&auto=format&fit=crop",
+    report: {
+        text: "Fuite de gaz réfrigérant détectée et réparée. Recharge effectuée.",
+        before: "https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop",
+        after: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop"
+    }
   }
 ];
 
+function formatMonthLabel(year: number, month: number): string {
+  const date = new Date(year, month);
+  return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+}
+
+function generateMonthOptions() {
+  const now = new Date();
+  const options: { year: number; month: number; label: string }[] = [];
+  // 3 ans en arrière jusqu'au mois en cours
+  for (let i = 36; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    options.push({
+      year: d.getFullYear(),
+      month: d.getMonth(),
+      label: d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }),
+    });
+  }
+  return options.reverse(); // plus récent en haut
+}
+
 export function HistoryTab() {
-  const [selectedMission, setSelectedMission] = React.useState<typeof MOCK_HISTORY[0] | null>(null);
+  const now = new Date();
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [selectedMission, setSelectedMission] = useState<typeof MOCK_HISTORY[0] | null>(null);
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  const monthOptions = useMemo(() => generateMonthOptions(), []);
+
+  // Fermer le picker au clic extérieur
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setIsPickerOpen(false);
+      }
+    }
+    if (isPickerOpen) document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [isPickerOpen]);
+
+  const filtered = useMemo(() => {
+    return MOCK_HISTORY.filter(m => {
+      const d = new Date(m.isoDate);
+      return d.getFullYear() === selectedYear && d.getMonth() === selectedMonth;
+    });
+  }, [selectedYear, selectedMonth]);
+
+  const isCurrentMonth = selectedYear === now.getFullYear() && selectedMonth === now.getMonth();
+  const currentLabel = formatMonthLabel(selectedYear, selectedMonth);
 
   if (selectedMission) {
       return (
           <div className="h-full flex flex-col">
-              <button 
+              <button
                 onClick={() => setSelectedMission(null)}
                 className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-6 transition-colors"
               >
@@ -133,45 +201,102 @@ export function HistoryTab() {
 
   return (
     <div className="space-y-4">
-      {MOCK_HISTORY.map((mission, index) => (
-        <motion.div
-          key={mission.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1 }}
-          onClick={() => setSelectedMission(mission)}
-          className="bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-xl p-4 cursor-pointer transition-all group"
+      {/* Month Picker Dropdown */}
+      <div ref={pickerRef} className="relative">
+        <button
+          onClick={() => setIsPickerOpen(!isPickerOpen)}
+          className="w-full flex items-center justify-between bg-[var(--bg-card)] border border-[var(--border)] rounded-xl px-4 py-3 hover:border-[var(--border-strong)] transition-colors"
         >
-          <div className="flex gap-4">
-            <div className="w-16 h-16 rounded-lg overflow-hidden bg-[var(--bg-active)] shrink-0">
-              <img src={mission.image} alt="" className="w-full h-full object-cover" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex justify-between items-start mb-1">
-                <h3 className="font-bold text-[var(--text-primary)] truncate pr-4">{mission.title}</h3>
-                <span className="text-green-400 font-mono font-bold">{mission.amount}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-2">
-                <MapPin className="w-3 h-3" />
-                <span className="truncate">{mission.venue}</span>
-                <span className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
-                <span>{mission.date}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                 <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-[10px] font-bold border border-green-500/20">
-                    TERMINÉE
-                 </span>
-                 <span className="text-xs text-[var(--text-muted)] flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> {mission.duration}
-                 </span>
-              </div>
-            </div>
-            <div className="flex items-center text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors">
-                <ChevronRight className="w-5 h-5" />
-            </div>
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-blue-400" />
+            <span className="font-bold text-[var(--text-primary)] capitalize">{currentLabel}</span>
+            {isCurrentMonth && <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">Mois en cours</span>}
           </div>
-        </motion.div>
-      ))}
+          <ChevronDown className={clsx("w-4 h-4 text-[var(--text-muted)] transition-transform", isPickerOpen && "rotate-180")} />
+        </button>
+        <AnimatePresence>
+          {isPickerOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.15 }}
+              className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-xl overflow-hidden z-30 max-h-64 overflow-y-auto custom-scrollbar"
+            >
+              {monthOptions.map((opt) => {
+                const isSelected = opt.year === selectedYear && opt.month === selectedMonth;
+                const isCurrent = opt.year === now.getFullYear() && opt.month === now.getMonth();
+                return (
+                  <button
+                    key={`${opt.year}-${opt.month}`}
+                    onClick={() => { setSelectedYear(opt.year); setSelectedMonth(opt.month); setIsPickerOpen(false); }}
+                    className={clsx(
+                      "w-full text-left px-4 py-2.5 text-sm transition-colors capitalize flex items-center justify-between",
+                      isSelected
+                        ? "bg-blue-600/10 text-blue-400 font-bold"
+                        : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                    )}
+                  >
+                    <span>{opt.label}</span>
+                    {isCurrent && <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">Actuel</span>}
+                  </button>
+                );
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Results */}
+      {filtered.length === 0 ? (
+        <div className="text-center py-12">
+          <Calendar className="w-10 h-10 text-[var(--text-muted)] mx-auto mb-3" />
+          <p className="text-[var(--text-muted)] text-sm">Aucune mission ce mois-ci</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">{filtered.length} mission{filtered.length > 1 ? 's' : ''}</p>
+          {filtered.map((mission, index) => (
+            <motion.div
+              key={mission.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              onClick={() => setSelectedMission(mission)}
+              className="bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-xl p-4 cursor-pointer transition-all group"
+            >
+              <div className="flex gap-4">
+                <div className="w-16 h-16 rounded-lg overflow-hidden bg-[var(--bg-active)] shrink-0">
+                  <img src={mission.image} alt="" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="font-bold text-[var(--text-primary)] truncate pr-4">{mission.title}</h3>
+                    <span className="text-green-400 font-mono font-bold">{mission.amount}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-2">
+                    <MapPin className="w-3 h-3" />
+                    <span className="truncate">{mission.venue}</span>
+                    <span className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
+                    <span>{mission.date}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                     <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-[10px] font-bold border border-green-500/20">
+                        TERMINÉE
+                     </span>
+                     <span className="text-xs text-[var(--text-muted)] flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> {mission.duration}
+                     </span>
+                  </div>
+                </div>
+                <div className="flex items-center text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors">
+                    <ChevronRight className="w-5 h-5" />
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

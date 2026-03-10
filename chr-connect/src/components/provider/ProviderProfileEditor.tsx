@@ -11,7 +11,7 @@ import { PayslipsTab } from './tabs/PayslipsTab';
 
 const TABS = [
   { id: 'IDENTITY' as const, label: 'Identité', icon: ShieldCheck, color: 'text-violet-400' },
-  { id: 'CV' as const, label: 'CV', icon: FileText, color: 'text-blue-400' },
+  { id: 'CV' as const, label: 'Documents', icon: FileText, color: 'text-blue-400' },
   { id: 'HISTORY_PAY' as const, label: 'Historique & Paie', icon: History, color: 'text-amber-400' },
 ];
 
@@ -40,9 +40,14 @@ export default function ProviderProfileEditor() {
 
   // Document uploads state
   const [selectedDocType, setSelectedDocType] = useState<DocType>('CNI');
-  const [identityFile, setIdentityFile] = useState<File | null>(null);
+  const [identityFileRecto, setIdentityFileRecto] = useState<File | null>(null);
+  const [identityFileVerso, setIdentityFileVerso] = useState<File | null>(null);
   const [carteVitaleFile, setCarteVitaleFile] = useState<File | null>(null);
   const [cvFile, setCvFile] = useState<File | null>(null);
+  const [kbisFile, setKbisFile] = useState<File | null>(null);
+  const [urssafFile, setUrssafFile] = useState<File | null>(null);
+  const [rcProFile, setRcProFile] = useState<File | null>(null);
+  const [decennaleFile, setDecennaleFile] = useState<File | null>(null);
   const [historyView, setHistoryView] = useState<'history' | 'payslips'>('history');
 
   return (
@@ -106,13 +111,36 @@ export default function ProviderProfileEditor() {
                   })}
                 </div>
 
-                {/* Upload zone */}
-                <UploadZone
-                  file={identityFile}
-                  onFileChange={setIdentityFile}
-                  label={`Téléverser votre ${DOC_OPTIONS.find(d => d.id === selectedDocType)?.label}`}
-                  accept="image/*,.pdf"
-                />
+                {/* Upload zone(s) — recto/verso uniquement pour CNI */}
+                {selectedDocType === 'CNI' ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-bold text-[var(--text-secondary)] mb-2 block uppercase tracking-wide">Recto</label>
+                      <UploadZone
+                        file={identityFileRecto}
+                        onFileChange={setIdentityFileRecto}
+                        label="Recto"
+                        accept="image/*,.pdf"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-[var(--text-secondary)] mb-2 block uppercase tracking-wide">Verso</label>
+                      <UploadZone
+                        file={identityFileVerso}
+                        onFileChange={setIdentityFileVerso}
+                        label="Verso"
+                        accept="image/*,.pdf"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <UploadZone
+                    file={identityFileRecto}
+                    onFileChange={setIdentityFileRecto}
+                    label={`Téléverser votre ${DOC_OPTIONS.find(d => d.id === selectedDocType)?.label}`}
+                    accept="image/*,.pdf"
+                  />
+                )}
               </div>
 
               {/* Carte Vitale */}
@@ -134,20 +162,58 @@ export default function ProviderProfileEditor() {
 
         {activeTab === 'CV' && (
           <TabContent key="cv">
-            <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-5" style={{ boxShadow: 'var(--shadow-card)' }}>
-              <h3 className="font-bold text-[var(--text-primary)] mb-2 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-blue-400" />
-                Curriculum Vitae
-              </h3>
-              <p className="text-sm text-[var(--text-muted)] mb-4">
-                Ajoutez votre CV pour augmenter vos chances d&apos;être sélectionné sur les missions planifiées.
-              </p>
-              <UploadZone
-                file={cvFile}
-                onFileChange={setCvFile}
-                label="Téléverser votre CV"
-                accept=".pdf,.doc,.docx"
-              />
+            <div className="space-y-4">
+              {/* CV */}
+              <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-5" style={{ boxShadow: 'var(--shadow-card)' }}>
+                <h3 className="font-bold text-[var(--text-primary)] mb-2 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-blue-400" />
+                  Curriculum Vitae
+                </h3>
+                <p className="text-sm text-[var(--text-muted)] mb-4">
+                  Augmentez vos chances d&apos;être sélectionné sur les missions planifiées.
+                </p>
+                <UploadZone file={cvFile} onFileChange={setCvFile} label="Téléverser votre CV" accept=".pdf,.doc,.docx" />
+              </div>
+
+              {/* Documents obligatoires */}
+              <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-5" style={{ boxShadow: 'var(--shadow-card)' }}>
+                <h3 className="font-bold text-[var(--text-primary)] mb-1 flex items-center gap-2">
+                  <FileCheck className="w-5 h-5 text-emerald-400" />
+                  Documents obligatoires
+                </h3>
+                <p className="text-sm text-[var(--text-muted)] mb-5">
+                  Requis pour exercer en tant que prestataire indépendant.
+                </p>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-[var(--text-secondary)] mb-2 block">Extrait KBIS ou K <span className="text-xs text-[var(--text-muted)]">(moins de 3 mois)</span></label>
+                    <UploadZone file={kbisFile} onFileChange={setKbisFile} label="Téléverser votre KBIS" accept=".pdf,image/*" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-[var(--text-secondary)] mb-2 block">Attestation de vigilance URSSAF</label>
+                    <UploadZone file={urssafFile} onFileChange={setUrssafFile} label="Téléverser votre attestation URSSAF" accept=".pdf,image/*" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-[var(--text-secondary)] mb-2 block">Assurance RC Professionnelle</label>
+                    <UploadZone file={rcProFile} onFileChange={setRcProFile} label="Téléverser votre attestation RC Pro" accept=".pdf,image/*" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Documents métier */}
+              <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-5" style={{ boxShadow: 'var(--shadow-card)' }}>
+                <h3 className="font-bold text-[var(--text-primary)] mb-1 flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-amber-400" />
+                  Documents métier <span className="text-xs font-normal text-[var(--text-muted)]">(selon votre activité)</span>
+                </h3>
+                <p className="text-sm text-[var(--text-muted)] mb-5">
+                  Habilitations et garanties spécifiques à votre domaine d&apos;intervention.
+                </p>
+                <div>
+                  <label className="text-sm font-medium text-[var(--text-secondary)] mb-2 block">Garantie décennale <span className="text-xs text-[var(--text-muted)]">(bâtiment, plomberie, électricité)</span></label>
+                  <UploadZone file={decennaleFile} onFileChange={setDecennaleFile} label="Téléverser votre attestation décennale" accept=".pdf,image/*" />
+                </div>
+              </div>
             </div>
           </TabContent>
         )}

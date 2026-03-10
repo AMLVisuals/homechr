@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type MissionStatus = 'IDLE' | 'ACCEPTED' | 'ON_WAY' | 'ON_SITE' | 'IN_PROGRESS' | 'COMPLETED' | 'DIAGNOSING' | 'QUOTE_BUILDING' | 'AWAITING_QUOTE_RESPONSE' | 'AWAITING_PATRON_CONFIRMATION';
+export type MissionStatus = 'IDLE' | 'ACCEPTED' | 'ON_WAY' | 'ON_SITE' | 'IN_PROGRESS' | 'PENDING_VALIDATION' | 'COMPLETED' | 'DIAGNOSING' | 'QUOTE_BUILDING' | 'AWAITING_QUOTE_RESPONSE' | 'AWAITING_PATRON_CONFIRMATION';
 
 interface Coordinates {
   lat: number;

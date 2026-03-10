@@ -225,19 +225,38 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
 
   // STAFF flow: "Démarrer la mission" → mission goes IN_PROGRESS, worker is done
   const handleStartStaffMission = () => {
+    setStatus('IN_PROGRESS');
     if (activeMissionId) {
       updateMission(activeMissionId, { status: 'IN_PROGRESS' });
     }
-    if (onMissionEnd) {
-      onMissionEnd({
-        title: activeMission?.title || 'Mission',
-        venue: activeMission?.venue || 'Établissement',
-        price: String(activeMission?.price ?? '85.00 €'),
-      });
-    } else {
-      resetMission();
+  };
+
+  const handleEndStaffMission = () => {
+    setStatus('PENDING_VALIDATION');
+    if (activeMissionId) {
+      updateMission(activeMissionId, { status: 'PENDING_VALIDATION' as any });
     }
   };
+
+  // Simulate patron validation after 10 seconds (mock)
+  useEffect(() => {
+    if (status !== 'PENDING_VALIDATION') return;
+    const timeout = setTimeout(() => {
+      if (activeMissionId) {
+        updateMission(activeMissionId, { status: 'COMPLETED' });
+      }
+      if (onMissionEnd) {
+        onMissionEnd({
+          title: activeMission?.title || 'Mission',
+          venue: activeMission?.venue || 'Établissement',
+          price: '',
+        });
+      } else {
+        resetMission();
+      }
+    }, 10000);
+    return () => clearTimeout(timeout);
+  }, [status]);
 
   // TECH flow: transition ON_SITE → DIAGNOSING
   const handleStartDiagnosis = () => {
@@ -697,7 +716,72 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
             </motion.div>
           )}
 
-          {/* STAFF flow: IN_PROGRESS is never shown (worker exits at ON_SITE → Démarrer) */}
+          {/* === STAFF: IN_PROGRESS STATE === */}
+          {status === 'IN_PROGRESS' && flowType === 'STAFF' && (
+            <motion.div
+              key="in-progress-staff"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              className="h-full flex flex-col p-4"
+            >
+              <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
+                <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center relative">
+                  <Clock className="w-10 h-10 text-green-600" />
+                  <motion.div
+                    className="absolute inset-0 rounded-full border-4 border-green-400/30"
+                    animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Mission en cours</h3>
+                  <p className="text-[var(--text-muted)] mt-2 max-w-xs mx-auto">
+                    Votre mission est en cours. Signalez la fin quand vous avez terminé.
+                  </p>
+                </div>
+                {startTime && (
+                  <div className="bg-green-50 px-4 py-2 rounded-full text-sm font-medium text-green-700 flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Début : {new Date(startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                )}
+              </div>
+              <Button onClick={handleEndStaffMission} size="lg" className="w-full h-14 text-lg font-bold bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-900/20 rounded-2xl">
+                <CheckCircle className="mr-2 w-5 h-5" /> Signaler la fin de mission
+              </Button>
+            </motion.div>
+          )}
+
+          {/* === PENDING_VALIDATION STATE (STAFF — waiting for patron to confirm) === */}
+          {status === 'PENDING_VALIDATION' && (
+            <motion.div
+              key="pending-validation"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="h-full flex flex-col p-6 items-center justify-center text-center space-y-6"
+            >
+              <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center relative">
+                <Clock className="w-10 h-10 text-amber-600" />
+                <motion.div
+                  className="absolute inset-0 rounded-full border-4 border-amber-400/30"
+                  animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">En attente de validation</h3>
+                <p className="text-[var(--text-muted)] mt-2 max-w-xs mx-auto">
+                  Le patron doit confirmer que la mission est bien terminée. Vous serez notifié dès validation.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 px-4 py-2 rounded-full">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Validation en cours...</span>
+              </div>
+            </motion.div>
+          )}
 
           {/* === TECH: IN_PROGRESS STATE (repair after quote accepted) === */}
           {status === 'IN_PROGRESS' && flowType === 'TECH' && (
@@ -861,14 +945,10 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
                 <p className="text-[var(--text-muted)] mt-2">Le rapport a été transmis au client.</p>
               </div>
 
-              <div className="w-full bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-                 <div className="flex justify-between items-center pb-4 border-b border-gray-50">
+              <div className="w-full bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                 <div className="flex justify-between items-center">
                    <span className="text-[var(--text-muted)]">Temps total</span>
                    <span className="font-mono font-bold text-lg">{elapsedTime}</span>
-                 </div>
-                 <div className="flex justify-between items-center">
-                   <span className="text-[var(--text-muted)]">Gain estimé</span>
-                   <span className="font-bold text-lg text-green-600">85.00 €</span>
                  </div>
               </div>
 

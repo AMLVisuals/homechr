@@ -303,7 +303,7 @@ export function AddEquipmentModal({
       // Create equipment in the store (Single Source of Truth)
       const newEquipment = addEquipment({
         venueId: targetVenueId,
-        ownerId: APP_CONFIG.DEFAULT_OWNER_ID, // TODO: Get from auth context
+        ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
         category,
         brand: brand || 'Non spécifié',
         model: model || 'Non spécifié',

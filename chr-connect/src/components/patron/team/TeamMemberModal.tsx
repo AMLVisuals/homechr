@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { X, User, Briefcase, Building, Mail, Phone, Tag, Camera, Upload } from 'lucide-react';
+import { X, User, Briefcase, Building, Mail, Phone, Camera, Upload } from 'lucide-react';
 import { TeamMember } from '@/types/missions';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useVenuesStore } from '@/store/useVenuesStore';
@@ -30,7 +30,6 @@ export default function TeamMemberModal({ member, isOpen, onClose, venueId }: Te
     status: 'AVAILABLE'
   });
 
-  const [tagInput, setTagInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -77,24 +76,6 @@ export default function TeamMemberModal({ member, isOpen, onClose, venueId }: Te
       } as TeamMember);
     }
     onClose();
-  };
-
-  const handleAddTag = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && tagInput.trim()) {
-      e.preventDefault();
-      setFormData(prev => ({
-        ...prev,
-        tags: [...(prev.tags || []), tagInput.trim()]
-      }));
-      setTagInput('');
-    }
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags?.filter(tag => tag !== tagToRemove)
-    }));
   };
 
   if (!isOpen) return null;
@@ -235,31 +216,6 @@ export default function TeamMemberModal({ member, isOpen, onClose, venueId }: Te
                   placeholder="+33 6..."
                 />
               </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Compétences / Tags</label>
-            <div className="relative">
-              <Tag className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
-              <input 
-                type="text" 
-                value={tagInput}
-                onChange={e => setTagInput(e.target.value)}
-                onKeyDown={handleAddTag}
-                className="w-full bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-lg pl-10 pr-4 py-2 text-[var(--text-primary)] focus:outline-none focus:border-blue-500"
-                placeholder="Appuyez sur Entrée pour ajouter..."
-              />
-            </div>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {formData.tags?.map(tag => (
-                <span key={tag} className="flex items-center gap-1 px-2 py-1 bg-blue-500/10 text-blue-400 rounded-lg text-xs border border-blue-500/20">
-                  {tag}
-                  <button type="button" onClick={() => removeTag(tag)} className="hover:text-[var(--text-primary)]">
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
             </div>
           </div>
 
