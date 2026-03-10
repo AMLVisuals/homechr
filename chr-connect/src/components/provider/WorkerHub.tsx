@@ -5,13 +5,78 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import {
   UserCircle, Briefcase, Power, BarChart3,
-  Star, CheckCircle2, ChevronRight, Euro, ChevronLeft,
+  Star, CheckCircle2, ChevronRight, Euro, ChevronLeft, Check, ChevronDown,
 } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useStore } from '@/store/useStore';
 import { useMissionDispatchStore } from '@/store/useMissionDispatchStore';
 import { useState } from 'react';
+
+// Rôles disponibles groupés par domaine HORECA
+const ROLE_GROUPS = [
+  {
+    label: 'Salle & Service',
+    roles: [
+      { id: 'serveur', label: 'Serveur' },
+      { id: 'chef_de_rang', label: 'Chef de rang' },
+      { id: 'maitre_hotel', label: "Maître d'hôtel" },
+      { id: 'runner', label: 'Runner' },
+      { id: 'sommelier', label: 'Sommelier' },
+      { id: 'hotesse', label: "Hôte/Hôtesse d'accueil" },
+      { id: 'vestiairiste', label: 'Vestiairiste' },
+    ],
+  },
+  {
+    label: 'Bar & Boissons',
+    roles: [
+      { id: 'barman', label: 'Barman' },
+      { id: 'mixologue', label: 'Mixologue' },
+      { id: 'barista', label: 'Barista' },
+    ],
+  },
+  {
+    label: 'Cuisine',
+    roles: [
+      { id: 'chef_cuisine', label: 'Chef cuisinier' },
+      { id: 'sous_chef', label: 'Sous-chef' },
+      { id: 'chef_de_partie', label: 'Chef de partie' },
+      { id: 'commis', label: 'Commis de cuisine' },
+      { id: 'patissier', label: 'Pâtissier' },
+      { id: 'boulanger', label: 'Boulanger' },
+      { id: 'pizzaiolo', label: 'Pizzaiolo' },
+      { id: 'rotisseur', label: 'Rôtisseur' },
+      { id: 'poissonnier', label: 'Poissonnier' },
+      { id: 'garde_manger', label: 'Garde-manger' },
+      { id: 'ecailler', label: 'Écailler' },
+      { id: 'plongeur', label: 'Plongeur' },
+      { id: 'traiteur', label: 'Traiteur' },
+    ],
+  },
+  {
+    label: 'Hôtellerie',
+    roles: [
+      { id: 'receptionniste', label: 'Réceptionniste' },
+      { id: 'concierge', label: 'Concierge' },
+      { id: 'night_auditor', label: 'Night auditor' },
+      { id: 'gouvernante', label: 'Gouvernant(e)' },
+      { id: 'femme_chambre', label: 'Femme/Valet de chambre' },
+      { id: 'bagagiste', label: 'Bagagiste' },
+      { id: 'voiturier', label: 'Voiturier' },
+      { id: 'room_service', label: 'Room service' },
+    ],
+  },
+  {
+    label: 'Événementiel & Autres',
+    roles: [
+      { id: 'dj', label: 'DJ' },
+      { id: 'videur', label: 'Videur / Sécurité' },
+      { id: 'livreur', label: 'Livreur' },
+      { id: 'magasinier', label: 'Magasinier / Économe' },
+    ],
+  },
+];
 
 interface WorkerHubProps {
   currentProfile: { id: string; name: string; specialty: string; authorizedCategories: string[] };
@@ -56,6 +121,11 @@ export default function WorkerHub({ currentProfile, onGoOnline }: WorkerHubProps
   const stats = MONTHLY_DATA[monthKey] || { revenue: 0, missions: 0, rating: 0 };
 
   const firstName = currentProfile.name.split(' ')[0];
+  const { workerSkills, toggleWorkerSkill } = useStore();
+  const [rolesOpen, setRolesOpen] = useState(false);
+
+  // Résumé des rôles sélectionnés pour l'affichage fermé
+  const selectedLabels = ROLE_GROUPS.flatMap(g => g.roles).filter(r => workerSkills.includes(r.id)).map(r => r.label);
 
   return (
     <div className="max-w-lg mx-auto space-y-5 pb-4">
@@ -72,10 +142,87 @@ export default function WorkerHub({ currentProfile, onGoOnline }: WorkerHubProps
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">
             Bienvenue, {firstName}
           </h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-0.5">
-            {currentProfile.specialty}
-          </p>
         </div>
+      </div>
+
+      {/* ── Mes rôles (dépliant) ─────────── */}
+      <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] overflow-hidden" style={{ boxShadow: 'var(--shadow-card)' }}>
+        <button
+          onClick={() => setRolesOpen(!rolesOpen)}
+          className="w-full flex items-center justify-between p-4 hover:bg-[var(--bg-hover)] transition-colors"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
+              <Briefcase className="w-5 h-5 text-white" />
+            </div>
+            <div className="text-left min-w-0">
+              <h3 className="font-bold text-sm text-[var(--text-primary)]">Mes rôles</h3>
+              {selectedLabels.length > 0 ? (
+                <p className="text-xs text-[var(--text-muted)] mt-0.5 truncate">
+                  {selectedLabels.length <= 3
+                    ? selectedLabels.join(', ')
+                    : `${selectedLabels.slice(0, 3).join(', ')} +${selectedLabels.length - 3}`
+                  }
+                </p>
+              ) : (
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">Sélectionnez vos compétences</p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {selectedLabels.length > 0 && (
+              <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
+                {selectedLabels.length}
+              </span>
+            )}
+            <motion.div animate={{ rotate: rolesOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+              <ChevronDown className="w-5 h-5 text-[var(--text-muted)]" />
+            </motion.div>
+          </div>
+        </button>
+
+        <AnimatePresence initial={false}>
+          {rolesOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="px-4 pb-4 space-y-4 border-t border-[var(--border)] pt-3">
+                {ROLE_GROUPS.map((group) => (
+                  <div key={group.label}>
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-[var(--text-muted)] mb-2">
+                      {group.label}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {group.roles.map((role) => {
+                        const isActive = workerSkills.includes(role.id);
+                        return (
+                          <motion.button
+                            key={role.id}
+                            whileTap={{ scale: 0.93 }}
+                            onClick={() => toggleWorkerSkill(role.id)}
+                            className={clsx(
+                              "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all border",
+                              isActive
+                                ? "bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20"
+                                : "bg-[var(--bg-hover)] text-[var(--text-secondary)] border-[var(--border)] hover:border-blue-400/50"
+                            )}
+                          >
+                            {isActive && <Check className="w-3 h-3" />}
+                            {role.label}
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* ── Se rendre disponible ─────────── */}
