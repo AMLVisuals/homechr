@@ -12,6 +12,7 @@ import Webcam from 'react-webcam';
 import RichMissionReport from './RichMissionReport';
 import { cn } from '@/lib/utils';
 import { FinalQuote } from '@/components/provider/QuoteBuilderUltimate';
+import MissionStartGate from '@/components/compliance/MissionStartGate';
 
 // Dynamic imports
 const MissionMap = dynamic(() => import('./MissionMap'), {
@@ -43,7 +44,8 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
     uploadEvidence, submitReport, addInterimNote, addInterimMedia,
     addDiagnosticNote, addDiagnosticPhoto, diagnosticData,
     venueLocation, technicianLocation, startTime,
-    resetMission, activeMissionId, flowType
+    resetMission, activeMissionId, flowType,
+    dpaeStatus, complianceVerified, canTransitionToInProgress
   } = useMissionEngine();
 
   const { updateMission, generateInvoice, missions } = useMissionsStore();
@@ -545,8 +547,26 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
                     Présentez-vous au patron et démarrez la mission quand vous êtes prêt.
                   </p>
                 </div>
+                {/* Gate DPAE : bloque si DPAE pas validée */}
+                {!canTransitionToInProgress().allowed && (
+                  <MissionStartGate
+                    flowType={flowType}
+                    dpaeStatus={dpaeStatus}
+                    complianceVerified={complianceVerified}
+                  />
+                )}
               </div>
-              <Button onClick={handleStartStaffMission} size="lg" className="w-full h-14 text-lg font-bold bg-green-600 hover:bg-green-700 shadow-xl shadow-green-900/20 rounded-2xl">
+              <Button
+                onClick={handleStartStaffMission}
+                disabled={!canTransitionToInProgress().allowed}
+                size="lg"
+                className={cn(
+                  "w-full h-14 text-lg font-bold shadow-xl rounded-2xl",
+                  canTransitionToInProgress().allowed
+                    ? "bg-green-600 hover:bg-green-700 shadow-green-900/20"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed shadow-none"
+                )}
+              >
                 <CheckCircle className="mr-2 w-5 h-5" /> Démarrer la mission
               </Button>
             </motion.div>
@@ -570,8 +590,27 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
                     Commencez le diagnostic de l'équipement.
                   </p>
                 </div>
+                {/* Gate Compliance : bloque si documents non vérifiés */}
+                {!canTransitionToInProgress().allowed && (
+                  <MissionStartGate
+                    flowType={flowType}
+                    dpaeStatus={dpaeStatus}
+                    complianceVerified={complianceVerified}
+                    complianceReason={canTransitionToInProgress().reason}
+                  />
+                )}
               </div>
-              <Button onClick={handleStartDiagnosis} size="lg" className="w-full h-14 text-lg font-bold bg-purple-600 hover:bg-purple-700 shadow-xl shadow-purple-900/20 rounded-2xl">
+              <Button
+                onClick={handleStartDiagnosis}
+                disabled={!canTransitionToInProgress().allowed}
+                size="lg"
+                className={cn(
+                  "w-full h-14 text-lg font-bold shadow-xl rounded-2xl",
+                  canTransitionToInProgress().allowed
+                    ? "bg-purple-600 hover:bg-purple-700 shadow-purple-900/20"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed shadow-none"
+                )}
+              >
                 <Stethoscope className="mr-2 w-5 h-5" /> Commencer le diagnostic
               </Button>
             </motion.div>

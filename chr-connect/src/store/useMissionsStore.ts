@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Mission, MissionCandidate, Review, Invoice, InvoiceItem, Provider, TeamMember } from '@/types/missions';
+import type { DPAEMissionStatus } from '@/types/compliance';
 
 // Schedule statuses per member per day
 export type ScheduleStatus = 'PRESENT' | 'CONGE' | 'MALADIE';
@@ -28,6 +29,7 @@ interface MissionsState {
   removeCandidate: (missionId: string, candidateId: string) => void;
   selectCandidate: (missionId: string, candidateId: string) => void;
   rejectCandidate: (missionId: string, candidateId: string) => void;
+  updateDpaeStatus: (missionId: string, status: DPAEMissionStatus, receiptId?: string) => void;
 }
 
 // Initial Mock Team Data
@@ -737,6 +739,13 @@ export const useMissionsStore = create<MissionsState>()(
             )
           };
         })
+      })),
+      updateDpaeStatus: (missionId, dpaeStatus, dpaeReceiptId) => set((state) => ({
+        missions: state.missions.map(m =>
+          m.id === missionId
+            ? { ...m, dpaeStatus, ...(dpaeReceiptId ? { dpaeReceiptId } : {}) }
+            : m
+        )
       }))
     }),
     {

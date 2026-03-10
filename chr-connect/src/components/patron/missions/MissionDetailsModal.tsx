@@ -135,7 +135,9 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
       availability: {
         isAvailable: true,
         nextSlot: 'Aujourd\'hui 14h'
-      }
+      },
+      employmentCategory: mission.category === 'STAFFING' ? 'EXTRA_EMPLOYEE' : 'FREELANCE_TECHNICIAN',
+      complianceStatus: 'VERIFIED',
     };
 
     setSelectedProvider(fullProvider);

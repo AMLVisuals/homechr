@@ -69,4 +69,11 @@ export interface ProviderProfile {
     isAvailable: boolean;
     nextSlot?: string;
   };
+
+  // ── Conformité légale ──
+  employmentCategory: import('./compliance').EmploymentCategory;
+  complianceStatus: import('./compliance').ComplianceStatus;
+  siretNumber?: string;
+  kbisVerifiedAt?: string;
+  urssafVerifiedAt?: string;
 }

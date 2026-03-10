@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { DPAEMissionStatus } from '@/types/compliance';
 
 export type MissionStatus = 'IDLE' | 'ACCEPTED' | 'ON_WAY' | 'ON_SITE' | 'IN_PROGRESS' | 'PENDING_VALIDATION' | 'COMPLETED' | 'DIAGNOSING' | 'QUOTE_BUILDING' | 'AWAITING_QUOTE_RESPONSE' | 'AWAITING_PATRON_CONFIRMATION';
 
@@ -27,6 +28,10 @@ interface MissionState {
   } | null;
   startTime: number | null; // Timestamp when IN_PROGRESS started
 
+  // Compliance gates
+  dpaeStatus: DPAEMissionStatus;          // Pour missions STAFF
+  complianceVerified: boolean;             // Pour missions TECH (freelance)
+
   // Interim data collected during IN_PROGRESS
   interimData: {
     notes: string[];
@@ -43,6 +48,9 @@ interface MissionState {
   startMission: (missionId?: string) => void;
   setStatus: (status: MissionStatus) => void;
   setFlowType: (flowType: FlowType) => void;
+  setDpaeStatus: (status: DPAEMissionStatus) => void;
+  setComplianceVerified: (verified: boolean) => void;
+  canTransitionToInProgress: () => { allowed: boolean; reason?: string };
   updateLocation: (lat: number, lng: number) => void;
   setEta: (minutes: number) => void;
   uploadEvidence: (period: 'BEFORE' | 'AFTER', type: 'PHOTO' | 'VIDEO', url: string) => void;
@@ -58,7 +66,7 @@ interface MissionState {
 const INITIAL_TECH_LOC = { lat: 48.8675, lng: 2.3638 }; // Place de la République
 const VENUE_LOC = { lat: 48.8716, lng: 2.3013 }; // Champs-Élysées
 
-export const useMissionEngine = create<MissionState>((set) => ({
+export const useMissionEngine = create<MissionState>((set, get) => ({
   status: 'IDLE',
   activeMissionId: null,
   flowType: null,
@@ -68,6 +76,8 @@ export const useMissionEngine = create<MissionState>((set) => ({
   evidence: { before: null, after: null },
   report: null,
   startTime: null,
+  dpaeStatus: 'NOT_REQUIRED',
+  complianceVerified: false,
   interimData: { notes: [], media: [] },
   diagnosticData: { notes: [], photos: [] },
 
@@ -82,6 +92,38 @@ export const useMissionEngine = create<MissionState>((set) => ({
   }),
 
   setFlowType: (flowType) => set({ flowType }),
+
+  setDpaeStatus: (dpaeStatus) => set({ dpaeStatus }),
+
+  setComplianceVerified: (complianceVerified) => set({ complianceVerified }),
+
+  canTransitionToInProgress: () => {
+    const state = get();
+
+    // STAFF flow : DPAE obligatoire
+    if (state.flowType === 'STAFF') {
+      if (state.dpaeStatus !== 'VALIDATED' && state.dpaeStatus !== 'NOT_REQUIRED') {
+        return {
+          allowed: false,
+          reason: 'La DPAE doit être validée avant de démarrer la mission. Le patron doit effectuer la déclaration URSSAF.',
+        };
+      }
+      return { allowed: true };
+    }
+
+    // TECH flow : compliance freelance obligatoire
+    if (state.flowType === 'TECH') {
+      if (!state.complianceVerified) {
+        return {
+          allowed: false,
+          reason: 'Vos documents de conformité (KBIS, URSSAF, RC Pro) doivent être vérifiés.',
+        };
+      }
+      return { allowed: true };
+    }
+
+    return { allowed: true };
+  },
 
   updateLocation: (lat, lng) => set({ technicianLocation: { lat, lng } }),
 
@@ -133,6 +175,8 @@ export const useMissionEngine = create<MissionState>((set) => ({
     evidence: { before: null, after: null },
     report: null,
     startTime: null,
+    dpaeStatus: 'NOT_REQUIRED',
+    complianceVerified: false,
     interimData: { notes: [], media: [] },
     diagnosticData: { notes: [], photos: [] }
   })

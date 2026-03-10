@@ -101,6 +101,12 @@ export interface UnifiedMission {
     hourlyRate: number;
   };
 
+  // ── Conformité & DPAE ──
+  dpaeStatus: import('./compliance').DPAEMissionStatus;
+  dpaeReceiptId?: string;        // AEE (Accusé d'Enregistrement Électronique) URSSAF
+  actualHoursWorked?: number;
+  payslipUrl?: string;
+
   // Metadata
   requiredSkills: string[];
   estimatedDuration?: number;  // Minutes
@@ -253,6 +259,7 @@ export function legacyMissionToUnified(
       max: typeof mission.price === 'number' ? mission.price * 1.5 : (parseInt(String(mission.price)) || 100) * 1.5,
     },
     photos: mission.photos?.map(p => typeof p === 'string' ? p : p.url),
+    dpaeStatus: equipment ? 'NOT_REQUIRED' : 'PENDING',
     requiredSkills: mission.skills || [],
   };
 }
@@ -310,6 +317,7 @@ export function createMissionFromProblem(params: CreateMissionFromProblemParams)
     createdAt: new Date().toISOString(),
     estimatedPrice: params.estimatedPrice,
     photos: params.photos,
+    dpaeStatus: 'NOT_REQUIRED',
     requiredSkills: params.requiredSkills,
   };
 }

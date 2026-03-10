@@ -26,9 +26,14 @@ export interface DPAEDeclaration {
 
   // Status
   status: 'DRAFT' | 'SUBMITTED' | 'ACKNOWLEDGED' | 'ERROR';
-  urssafReference?: string;
+  urssafReference?: string;       // Numéro de référence URSSAF
+  aeeNumber?: string;             // Accusé d'Enregistrement Électronique
   submittedAt?: string;
+  acknowledgedAt?: string;        // Date de réception de l'AEE
   contractPdfUrl?: string;
+
+  // Lien avec la conformité mission
+  missionUnlocked?: boolean;      // true = la mission peut démarrer
 }
 
 export interface DPAEContract {

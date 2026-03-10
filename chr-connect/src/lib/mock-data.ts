@@ -392,6 +392,7 @@ export const MISSIONS_WITH_FINANCIALS: MissionWithFinancials[] = [
     activeQuoteId: 'quote_ambroisie_001',
     acceptedQuoteId: 'quote_ambroisie_001',
     paymentStatus: 'PENDING',
+    dpaeStatus: 'NOT_REQUIRED',
   },
   {
     id: 'mission_ambroisie_four_001',
@@ -423,6 +424,7 @@ export const MISSIONS_WITH_FINANCIALS: MissionWithFinancials[] = [
     travelCost: 45,
     quotes: [],
     paymentStatus: undefined,
+    dpaeStatus: 'NOT_REQUIRED',
   },
   {
     id: 'mission_ambroisie_staff_001',
@@ -472,6 +474,7 @@ export const MISSIONS_WITH_FINANCIALS: MissionWithFinancials[] = [
         attractivenessForProviders: 'MEDIUM',
       },
     },
+    dpaeStatus: 'PENDING',
   },
 ];
 

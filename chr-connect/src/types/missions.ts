@@ -178,6 +178,12 @@ export interface Mission {
   paidRelationFee?: boolean;
   relationFeeAmount?: number;
 
+  // ── Conformité & DPAE ──
+  dpaeStatus?: import('./compliance').DPAEMissionStatus;
+  dpaeReceiptId?: string;        // AEE URSSAF
+  actualHoursWorked?: number;
+  payslipUrl?: string;
+
   // Patron confirmation flow
   pendingWorker?: {
     id: string;
