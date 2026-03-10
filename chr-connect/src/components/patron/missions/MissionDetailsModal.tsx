@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, MapPin, Clock, Camera, Mic, Star, Send,
@@ -59,8 +60,11 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
   const [reviewMedia, setReviewMedia] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedProvider, setSelectedProvider] = useState<ProviderProfile | null>(null);
+  const [mounted, setMounted] = useState(false);
 
-  if (!isOpen || !mission) return null;
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!isOpen || !mission || !mounted) return null;
 
   const handleOpenProviderProfile = () => {
     if (!mission?.provider) return;
@@ -228,22 +232,22 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
 
   const statusInfo = getStatusInfo(mission.status);
 
-  return (
+  return createPortal(
     <>
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9998]"
       />
 
-      <motion.div 
-        initial={{ scale: 0.95, y: 20, opacity: 0 }}
-        animate={{ scale: 1, y: 0, opacity: 1 }}
-        exit={{ scale: 0.95, y: 20, opacity: 0 }}
-        className="relative w-full max-w-4xl bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+      <motion.div
+        initial={{ opacity: 0, y: '100%' }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: '100%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="fixed inset-x-0 bottom-0 top-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[560px] md:max-h-[80vh] md:rounded-3xl bg-[var(--bg-sidebar)] border-0 md:border border-[var(--border)] shadow-2xl z-[9999] overflow-hidden flex flex-col"
       >
         {/* Header */}
         <div className="p-6 border-b border-[var(--border)] flex items-center justify-between bg-[var(--bg-card)]">
@@ -934,7 +938,6 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
           </div>
         </div>
       </motion.div>
-    </div>
 
     {/* Components Overlay */}
     <FullScreenGallery 
@@ -988,6 +991,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
         establishmentName={mission.venue}
       />
     )}
-    </>
+    </>,
+    document.body
   );
 }
