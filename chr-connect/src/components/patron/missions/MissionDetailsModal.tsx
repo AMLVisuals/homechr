@@ -6,7 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, MapPin, Clock, Camera, Mic, Star, Send,
   User, Phone, MessageSquare, Video, Image as ImageIcon,
-  AlertCircle, Navigation, ChevronRight, CheckCircle2, Package, FileText
+  AlertCircle, Navigation, ChevronRight, CheckCircle2, Package, FileText,
+  XCircle, Users, Eye
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import FullScreenGallery from '@/components/shared/FullScreenGallery';
@@ -20,7 +21,7 @@ import { getMissionFlowType } from '@/lib/utils';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useStore } from '@/store/useStore';
 import { useDPAEStore } from '@/store/useDPAEStore';
-import { Mission } from '@/types/missions';
+import { Mission, MissionCandidate } from '@/types/missions';
 import DPAEWizard from '../dpae/DPAEWizard';
 
 interface MissionDetailsModalProps {
@@ -32,11 +33,11 @@ interface MissionDetailsModalProps {
 import { InvoiceDetailView } from '../billing/InvoiceDetailView';
 
 export default function MissionDetailsModal({ mission, isOpen, onClose }: MissionDetailsModalProps) {
-  const { addReview, generateInvoice, payInvoice, updateMission, rejectQuote, validateStaffMission, setPartsStatus } = useMissionsStore();
+  const { addReview, generateInvoice, payInvoice, updateMission, rejectQuote, validateStaffMission, setPartsStatus, selectCandidate, rejectCandidate } = useMissionsStore();
   const isPremium = useStore((s) => s.isPremium);
   const dpaeDeclaration = useDPAEStore((s) => mission ? s.getDeclarationByMission(mission.id) : undefined);
   const [showDPAEWizard, setShowDPAEWizard] = useState(false);
-  const [activeTab, setActiveTab] = useState<'DETAILS' | 'EVIDENCE' | 'PROVIDER' | 'INVOICE' | 'QUOTE'>('DETAILS');
+  const [activeTab, setActiveTab] = useState<'DETAILS' | 'EVIDENCE' | 'PROVIDER' | 'INVOICE' | 'QUOTE' | 'CANDIDATES'>('DETAILS');
   const [showRating, setShowRating] = useState(false);
   const [showProviderProfile, setShowProviderProfile] = useState(false);
   const [showDirectRequest, setShowDirectRequest] = useState(false);
@@ -147,6 +148,48 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
     setSelectedProvider(fullProvider);
     setShowProviderProfile(true);
   };
+
+  const handleViewCandidateProfile = (candidate: MissionCandidate) => {
+    const fullProvider: ProviderProfile = {
+      id: candidate.id,
+      firstName: candidate.name.split(' ')[0],
+      lastName: candidate.name.split(' ')[1] || '',
+      title: candidate.specialty,
+      bio: candidate.message || `${candidate.specialty} — ${candidate.completedMissions} missions réalisées`,
+      avatarUrl: candidate.avatar || '',
+      location: { city: 'Paris', latitude: 48.8566, longitude: 2.3522 },
+      stats: {
+        rating: candidate.rating,
+        missionsCompleted: candidate.completedMissions,
+        responseRate: 95,
+        onTimeRate: 98
+      },
+      skills: candidate.specialty ? [candidate.specialty] : [],
+      certifications: [
+        { id: '1', name: 'Certificat Professionnel', issuer: 'État', dateObtained: '2021', isVerified: true }
+      ],
+      portfolio: [],
+      experiences: [
+        { id: '1', role: candidate.specialty, company: 'Indépendant', startDate: '2020', description: `${candidate.completedMissions} missions réalisées sur CHR Connect` }
+      ],
+      reviews: [],
+      languages: ['Français'],
+      badges: candidate.rating >= 4.5 ? ['VERIFIED', 'TOP_RATED'] : ['VERIFIED'],
+      preferences: { radius: 30, minHourlyRate: 25, availabilityBadges: [] },
+      availability: { isAvailable: true },
+      cvUrl: '/mock-cv.pdf',
+      employmentCategory: mission?.category === 'STAFFING' ? 'EXTRA_EMPLOYEE' : 'FREELANCE_TECHNICIAN',
+      complianceStatus: 'VERIFIED',
+    };
+    setSelectedProvider(fullProvider);
+    setShowProviderProfile(true);
+  };
+
+  const candidates = mission?.candidates || [];
+  const requiredWorkers = mission?.requiredWorkers || 1;
+  const acceptedCandidates = candidates.filter(c => c.status === 'ACCEPTED').length;
+  const pendingCandidates = candidates.filter(c => c.status === 'PENDING').length;
+  const allSlotsFilled = acceptedCandidates >= requiredWorkers || mission?.status === 'SCHEDULED';
 
   const handleOpenGallery = (images: (string | { url: string })[], index: number) => {
     const imageUrls = images.map(img => typeof img === 'string' ? img : img.url);
@@ -524,6 +567,22 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                       >
                         Détails
                       </button>
+                      {candidates.length > 0 && (
+                        <button
+                          onClick={() => setActiveTab('CANDIDATES')}
+                          className={clsx(
+                            "flex-1 py-2 rounded-lg text-sm font-bold transition-all relative",
+                            activeTab === 'CANDIDATES' ? "bg-white text-black shadow-lg" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                          )}
+                        >
+                          Candidats
+                          {pendingCandidates > 0 && activeTab !== 'CANDIDATES' && (
+                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                              {pendingCandidates}
+                            </span>
+                          )}
+                        </button>
+                      )}
                       <button
                         onClick={() => setActiveTab('EVIDENCE')}
                         className={clsx(
@@ -855,6 +914,156 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                               <span className="text-xs font-medium text-green-400">
                                 DPAE envoyée — Réf. {dpaeDeclaration.urssafReference || 'En cours'}
                               </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* === CANDIDATES TAB === */}
+                      {activeTab === 'CANDIDATES' && (
+                        <div className="space-y-4">
+                          {/* Progress bar multi-sélection */}
+                          {requiredWorkers > 1 && (
+                            <div className="bg-[var(--bg-card)] rounded-xl p-3 border border-[var(--border)]">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  <Users className="w-4 h-4 text-purple-400" />
+                                  <span className="text-xs font-bold text-[var(--text-primary)]">
+                                    {acceptedCandidates} / {requiredWorkers} sélectionné{requiredWorkers > 1 ? 's' : ''}
+                                  </span>
+                                </div>
+                                {allSlotsFilled && (
+                                  <span className="text-[10px] font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
+                                    Complet
+                                  </span>
+                                )}
+                              </div>
+                              <div className="w-full h-2 bg-[var(--bg-active)] rounded-full overflow-hidden">
+                                <motion.div
+                                  className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${Math.min((acceptedCandidates / requiredWorkers) * 100, 100)}%` }}
+                                  transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                              {candidates.length} candidature{candidates.length > 1 ? 's' : ''}
+                            </h3>
+                            {pendingCandidates > 0 && !allSlotsFilled && (
+                              <span className="text-xs text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 font-bold">
+                                {pendingCandidates} en attente
+                              </span>
+                            )}
+                          </div>
+
+                          {candidates.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-12 text-center">
+                              <Users className="w-12 h-12 text-[var(--text-muted)] mb-3 opacity-40" />
+                              <p className="text-sm font-medium text-[var(--text-muted)]">Aucune candidature</p>
+                              <p className="text-xs text-[var(--text-muted)] mt-1">Les prestataires intéressés apparaîtront ici</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-3">
+                              {candidates.map((candidate) => {
+                                const isSelected = candidate.status === 'ACCEPTED';
+                                const isRejected = candidate.status === 'REJECTED';
+                                return (
+                                  <motion.div
+                                    key={candidate.id}
+                                    layout
+                                    className={clsx(
+                                      "rounded-2xl border p-4 transition-all",
+                                      isSelected
+                                        ? "border-green-500/30 bg-green-500/5"
+                                        : isRejected
+                                        ? "bg-[var(--bg-hover)] border-[var(--border)] opacity-50"
+                                        : "bg-[var(--bg-hover)] border-[var(--border)] hover:border-blue-500/30"
+                                    )}
+                                  >
+                                    <div className="flex items-start gap-3">
+                                      {/* Avatar */}
+                                      <div className="relative shrink-0">
+                                        <img
+                                          src={candidate.avatar || `https://i.pravatar.cc/150?u=${candidate.id}`}
+                                          alt={candidate.name}
+                                          className="w-12 h-12 rounded-full object-cover border-2 border-[var(--border)]"
+                                        />
+                                        {isSelected && (
+                                          <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                                            <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      {/* Info */}
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                          <h4 className="font-bold text-sm text-[var(--text-primary)]">{candidate.name}</h4>
+                                          {isSelected && (
+                                            <span className="text-[10px] font-bold text-green-400 uppercase bg-green-500/10 px-2 py-0.5 rounded-full">Sélectionné</span>
+                                          )}
+                                          {isRejected && (
+                                            <span className="text-[10px] font-bold text-red-400 uppercase bg-red-500/10 px-2 py-0.5 rounded-full">Refusé</span>
+                                          )}
+                                        </div>
+                                        <p className="text-xs text-[var(--text-secondary)] mt-0.5">{candidate.specialty}</p>
+
+                                        {/* Stats */}
+                                        <div className="flex items-center gap-3 mt-2">
+                                          <div className="flex items-center gap-1">
+                                            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                                            <span className="text-xs font-bold text-[var(--text-primary)]">{candidate.rating}</span>
+                                          </div>
+                                          <span className="text-xs text-[var(--text-muted)]">{candidate.completedMissions} missions</span>
+                                          <span className="text-xs text-[var(--text-muted)]">
+                                            {new Date(candidate.appliedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                          </span>
+                                        </div>
+
+                                        {/* Message candidat */}
+                                        {candidate.message && (
+                                          <p className="text-xs text-[var(--text-secondary)] mt-2 italic bg-[var(--bg-active)] rounded-lg p-2.5 border border-[var(--border)]">
+                                            &ldquo;{candidate.message}&rdquo;
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="flex gap-2 mt-3">
+                                      <button
+                                        onClick={() => handleViewCandidateProfile(candidate)}
+                                        className="flex-1 py-2.5 rounded-xl bg-[var(--bg-active)] border border-[var(--border)] text-[var(--text-secondary)] text-xs font-bold hover:bg-blue-500/10 hover:border-blue-500/30 hover:text-blue-400 transition-colors flex items-center justify-center gap-1.5"
+                                      >
+                                        <Eye className="w-3.5 h-3.5" />
+                                        Voir le profil
+                                      </button>
+                                      {!allSlotsFilled && candidate.status === 'PENDING' && (
+                                        <>
+                                          <button
+                                            onClick={() => rejectCandidate(mission.id, candidate.id)}
+                                            className="py-2.5 px-4 rounded-xl bg-[var(--bg-active)] border border-[var(--border)] text-[var(--text-secondary)] text-xs font-bold hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors flex items-center justify-center gap-1.5"
+                                          >
+                                            <XCircle className="w-3.5 h-3.5" />
+                                            Refuser
+                                          </button>
+                                          <button
+                                            onClick={() => selectCandidate(mission.id, candidate.id)}
+                                            className="py-2.5 px-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold hover:bg-green-500/20 transition-colors flex items-center justify-center gap-1.5"
+                                          >
+                                            <CheckCircle2 className="w-3.5 h-3.5" />
+                                            Choisir
+                                          </button>
+                                        </>
+                                      )}
+                                    </div>
+                                  </motion.div>
+                                );
+                              })}
                             </div>
                           )}
                         </div>

@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Star, MapPin, Award, Calendar, CheckCircle, Briefcase, Clock, MessageSquare, Plus, Video, SplitSquareHorizontal } from 'lucide-react';
+import { X, Star, MapPin, Award, Calendar, CheckCircle, Briefcase, Clock, MessageSquare, Plus, FileText, ChevronRight } from 'lucide-react';
 import { ProviderProfile, Review } from '@/types/provider';
 import { clsx } from 'clsx';
 import { ReviewFormModal } from '../provider/ReviewFormModal';
-import BeforeAfterSlider from '../BeforeAfterSlider';
+
 
 interface ProviderProfileModalProps {
   provider: ProviderProfile;
@@ -17,7 +17,7 @@ interface ProviderProfileModalProps {
 }
 
 export default function ProviderProfileModal({ provider, isOpen = true, onClose, onBook }: ProviderProfileModalProps) {
-  const [activeTab, setActiveTab] = useState<'ABOUT' | 'SKILLS' | 'PORTFOLIO' | 'REVIEWS'>('ABOUT');
+  const [activeTab, setActiveTab] = useState<'ABOUT' | 'SKILLS' | 'REVIEWS'>('ABOUT');
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [localReviews, setLocalReviews] = useState<Review[]>(provider?.reviews || []);
   const [mounted, setMounted] = useState(false);
@@ -38,7 +38,6 @@ export default function ProviderProfileModal({ provider, isOpen = true, onClose,
     setLocalReviews([newReview, ...localReviews]);
   };
 
-  const featuredWork = provider.portfolio?.filter(item => item.type === 'BEFORE_AFTER') || [];
 
   return createPortal(
     <>
@@ -129,13 +128,12 @@ export default function ProviderProfileModal({ provider, isOpen = true, onClose,
         <div className="flex border-b border-[var(--border)] px-6 overflow-x-auto shrink-0">
           {[
             { id: 'ABOUT', label: 'A propos' },
-            { id: 'SKILLS', label: 'Competences & CV' },
-            { id: 'PORTFOLIO', label: 'Portfolio' },
+            { id: 'SKILLS', label: 'Compétences & CV' },
             { id: 'REVIEWS', label: 'Avis' }
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as 'ABOUT' | 'SKILLS' | 'PORTFOLIO' | 'REVIEWS')}
+              onClick={() => setActiveTab(tab.id as 'ABOUT' | 'SKILLS' | 'REVIEWS')}
               className={clsx(
                 "px-6 py-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap",
                 activeTab === tab.id
@@ -157,29 +155,6 @@ export default function ProviderProfileModal({ provider, isOpen = true, onClose,
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
                 className="space-y-8"
               >
-                {featuredWork.length > 0 && (
-                  <section>
-                    <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-                      <SplitSquareHorizontal className="w-5 h-5 text-purple-400" />
-                      Mes plus belles realisations
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {featuredWork.map((work) => (
-                        <div key={work.id} className="space-y-2">
-                          <div className="rounded-xl overflow-hidden border border-[var(--border)] shadow-lg">
-                            <BeforeAfterSlider
-                              beforeImage={work.beforeUrl!}
-                              afterImage={work.url}
-                              aspectRatio="aspect-video"
-                            />
-                          </div>
-                          <p className="text-sm text-[var(--text-secondary)] font-medium text-center">{work.title}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-                )}
-
                 <section>
                   <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">Bio</h3>
                   <p className="text-[var(--text-secondary)] leading-relaxed text-base">
@@ -239,6 +214,28 @@ export default function ProviderProfileModal({ provider, isOpen = true, onClose,
                   </div>
                 </section>
 
+                {/* CV PDF */}
+                {provider.cvUrl && (
+                  <section>
+                    <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">CV</h3>
+                    <a
+                      href={provider.cvUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-4 bg-[var(--bg-hover)] rounded-xl border border-[var(--border)] hover:border-blue-500/30 hover:bg-blue-500/5 transition-all group"
+                    >
+                      <div className="w-10 h-10 bg-red-500/10 rounded-lg flex items-center justify-center border border-red-500/20">
+                        <FileText className="w-5 h-5 text-red-400" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-bold text-[var(--text-primary)] group-hover:text-blue-400 transition-colors">CV - {provider.firstName} {provider.lastName}</p>
+                        <p className="text-xs text-[var(--text-muted)]">Cliquez pour ouvrir le PDF</p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-[var(--text-muted)] group-hover:text-blue-400 transition-colors" />
+                    </a>
+                  </section>
+                )}
+
                 <section>
                   <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">Certifications & Documents</h3>
                   <div className="space-y-3">
@@ -289,53 +286,7 @@ export default function ProviderProfileModal({ provider, isOpen = true, onClose,
               </motion.div>
             )}
 
-            {activeTab === 'PORTFOLIO' && (
-              <motion.div
-                key="portfolio"
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {provider.portfolio.map(item => (
-                    <div key={item.id} className="group relative aspect-video bg-[var(--bg-hover)] rounded-xl overflow-hidden border border-[var(--border)]">
-                      {item.type === 'BEFORE_AFTER' ? (
-                         <div className="w-full h-full pointer-events-none">
-                            {/* Non-interactive preview for grid, or just static image with badge */}
-                            <BeforeAfterSlider
-                              beforeImage={item.beforeUrl!}
-                              afterImage={item.url}
-                              className="pointer-events-none"
-                            />
-                            <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md p-1.5 rounded-lg z-10 border border-[var(--border)]">
-                              <SplitSquareHorizontal className="w-4 h-4 text-[var(--text-primary)]" />
-                            </div>
-                         </div>
-                      ) : item.type === 'VIDEO' ? (
-                        <>
-                          <img src={item.url} alt={item.title} className="w-full h-full object-cover opacity-80" />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                             <div className="w-12 h-12 bg-[var(--bg-active)] backdrop-blur-md rounded-full flex items-center justify-center border border-[var(--border-strong)] group-hover:scale-110 transition-transform">
-                               <Video className="w-5 h-5 text-[var(--text-primary)] ml-1" />
-                             </div>
-                          </div>
-                        </>
-                      ) : (
-                        <img src={item.url} alt={item.title} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                      )}
 
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4 pointer-events-none">
-                        <h4 className="font-bold text-[var(--text-primary)]">{item.title}</h4>
-                        {item.description && <p className="text-sm text-[var(--text-secondary)]">{item.description}</p>}
-                      </div>
-                    </div>
-                  ))}
-                  {provider.portfolio.length === 0 && (
-                    <div className="col-span-full py-12 text-center text-[var(--text-muted)]">
-                      Aucun element dans le portfolio.
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
 
             {activeTab === 'REVIEWS' && (
               <motion.div

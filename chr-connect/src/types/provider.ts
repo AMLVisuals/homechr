@@ -70,6 +70,9 @@ export interface ProviderProfile {
     nextSlot?: string;
   };
 
+  // CV / Resume
+  cvUrl?: string;
+
   // ── Conformité légale ──
   employmentCategory: import('./compliance').EmploymentCategory;
   complianceStatus: import('./compliance').ComplianceStatus;

@@ -177,12 +177,7 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
       setIsValidationOpen(true);
       return;
     }
-    // Open candidate review for planned missions with candidates
-    if (mission.scheduled && mission.candidates && mission.candidates.length > 0) {
-      setCandidateMission(mission);
-      setIsCandidateOpen(true);
-      return;
-    }
+    // Always open MissionDetailsModal (candidates are now integrated inside it)
     setSelectedMission(mission);
     setIsModalOpen(true);
   };
@@ -221,7 +216,8 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
       if (filter === 'ACTION_REQUIRED') {
         const hasActionStatus = ['PENDING_VALIDATION', 'QUOTE_SENT', 'AWAITING_PATRON_CONFIRMATION', 'SEARCHING'].includes(m.status);
         const hasPendingCandidates = m.scheduled && m.candidates && m.candidates.some(c => c.status === 'PENDING') && m.status !== 'SCHEDULED';
-        return hasActionStatus || hasPendingCandidates;
+        const needsDPAE = m.category === 'STAFFING' && ['SCHEDULED', 'ON_WAY', 'ON_SITE', 'IN_PROGRESS'].includes(m.status) && m.dpaeStatus !== 'VALIDATED' && m.dpaeStatus !== 'NOT_REQUIRED';
+        return hasActionStatus || hasPendingCandidates || needsDPAE;
       }
 
       if (filter === 'IN_PROGRESS') {
