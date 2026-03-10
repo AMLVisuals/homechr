@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sun, Moon, Crown, ChevronRight, LogOut } from 'lucide-react';
 import { useStore } from '@/store/useStore';
@@ -14,6 +16,9 @@ interface SettingsModalProps {
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { theme, setTheme, isPremium, setPremium, setUserRole } = useStore();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const handleLogout = () => {
     onClose();
@@ -21,7 +26,9 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     router.push('/');
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -30,14 +37,14 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200]"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
           />
           <motion.div
             initial={{ opacity: 0, x: 300 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 300 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-y-0 right-0 w-full max-w-sm bg-[var(--bg-sidebar)] border-l border-[var(--border)] shadow-2xl z-[201] flex flex-col"
+            className="fixed inset-y-0 right-0 w-full max-w-sm bg-[var(--bg-sidebar)] border-l border-[var(--border)] shadow-2xl z-[9999] flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-[var(--border)]">
@@ -153,6 +160,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

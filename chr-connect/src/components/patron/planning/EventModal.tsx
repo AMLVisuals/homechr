@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X, Calendar, Clock, MapPin, AlignLeft, Tag, Building2, StickyNote, Camera, Video, Mic, Paperclip, StopCircle } from 'lucide-react';
 import { CalendarEvent, EventType, useCalendarStore } from '@/store/calendarStore';
@@ -47,6 +48,9 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
   });
 
   const [viewingDocument, setViewingDocument] = useState<EquipmentDocument | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (existingEvent) {
@@ -173,23 +177,24 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <motion.div 
+  return createPortal(
+    <>
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]"
       />
-      
-      <motion.div 
-        initial={{ scale: 0.95, y: 20, opacity: 0 }}
-        animate={{ scale: 1, y: 0, opacity: 1 }}
-        exit={{ scale: 0.95, y: 20, opacity: 0 }}
-        className="relative w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl shadow-2xl flex flex-col max-h-[90vh]"
+
+      <motion.div
+        initial={{ opacity: 0, y: '100%' }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: '100%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="fixed inset-x-0 bottom-0 top-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[560px] md:max-h-[80vh] md:rounded-3xl bg-[var(--bg-card)] border border-[var(--border)] shadow-2xl z-[9999] overflow-hidden flex flex-col"
       >
         <div className="p-6 border-b border-[var(--border)] flex items-center justify-between shrink-0">
           <h2 className="text-xl font-bold text-[var(--text-primary)]">
@@ -435,6 +440,7 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
         onSave={handleSaveDocument}
         readonly={false}
       />
-    </div>
+    </>,
+    document.body
   );
 }

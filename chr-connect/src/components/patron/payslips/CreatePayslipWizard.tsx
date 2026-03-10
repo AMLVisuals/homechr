@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, ChevronLeft, ChevronRight, User, Calendar, Clock,
@@ -16,10 +17,10 @@ import { PAYSLIP_PERIOD_LABELS } from '@/types/payslip';
 type WizardStep = 'employee' | 'period' | 'extras' | 'summary' | 'success';
 
 const STEPS: { id: WizardStep; label: string }[] = [
-  { id: 'employee', label: 'Employé' },
-  { id: 'period', label: 'Période' },
+  { id: 'employee', label: 'Employe' },
+  { id: 'period', label: 'Periode' },
   { id: 'extras', label: 'Primes' },
-  { id: 'summary', label: 'Résumé' },
+  { id: 'summary', label: 'Resume' },
 ];
 
 interface CreatePayslipWizardProps {
@@ -35,6 +36,9 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
   const [step, setStep] = useState<WizardStep>('employee');
   const [direction, setDirection] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   // Step 1: Employee
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
@@ -150,31 +154,31 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
     exit: (dir: number) => ({ x: dir > 0 ? -300 : 300, opacity: 0 }),
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  return createPortal(
     <>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200]"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
       />
 
       <motion.div
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: '100%' }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 50 }}
-        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[560px] md:max-h-[85vh] bg-[var(--bg-sidebar)] md:border md:border-[var(--border)] md:rounded-3xl shadow-2xl z-[201] flex flex-col overflow-hidden"
+        exit={{ opacity: 0, y: '100%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="fixed inset-x-0 bottom-0 top-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[560px] md:max-h-[85vh] md:rounded-3xl bg-[var(--bg-sidebar)] md:border md:border-[var(--border)] shadow-2xl z-[9999] flex flex-col overflow-hidden"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 md:p-6 border-b border-[var(--border)]">
           <div>
             <h2 className="text-lg md:text-xl font-bold text-[var(--text-primary)]">Nouveau bulletin de paie</h2>
             {step !== 'success' && (
-              <p className="text-xs text-[var(--text-muted)] mt-0.5">Étape {stepIndex + 1}/{STEPS.length}</p>
+              <p className="text-xs text-[var(--text-muted)] mt-0.5">Etape {stepIndex + 1}/{STEPS.length}</p>
             )}
           </div>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
@@ -220,7 +224,7 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                     <input
                       type="text"
-                      placeholder="Rechercher un employé..."
+                      placeholder="Rechercher un employe..."
                       value={employeeSearch}
                       onChange={(e) => setEmployeeSearch(e.target.value)}
                       className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500"
@@ -231,7 +235,7 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
                     {filteredTeam.length === 0 ? (
                       <div className="text-center py-8 text-[var(--text-muted)]">
                         <User className="w-12 h-12 mx-auto mb-2 opacity-40" />
-                        <p className="text-sm">Aucun employé trouvé</p>
+                        <p className="text-sm">Aucun employe trouve</p>
                       </div>
                     ) : (
                       filteredTeam.map((member) => (
@@ -260,7 +264,7 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
                             'text-[10px] px-2 py-0.5 rounded-full font-medium',
                             member.status === 'AVAILABLE' ? 'bg-green-500/10 text-green-400' : 'bg-orange-500/10 text-orange-400'
                           )}>
-                            {member.status === 'AVAILABLE' ? 'Dispo' : 'Occupé'}
+                            {member.status === 'AVAILABLE' ? 'Dispo' : 'Occupe'}
                           </span>
                           {selectedEmployeeId === member.id && (
                             <CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" />
@@ -277,7 +281,7 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
                 <div className="space-y-5">
                   {/* Period Type */}
                   <div>
-                    <label className="text-sm font-bold text-[var(--text-secondary)] mb-2 block">Type de période</label>
+                    <label className="text-sm font-bold text-[var(--text-secondary)] mb-2 block">Type de periode</label>
                     <div className="flex gap-2">
                       {(['MONTHLY', 'WEEKLY', 'BIWEEKLY'] as PayslipPeriodType[]).map((pt) => (
                         <button
@@ -299,7 +303,7 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
                   {/* Dates */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-sm font-bold text-[var(--text-secondary)] mb-2 block">Date début</label>
+                      <label className="text-sm font-bold text-[var(--text-secondary)] mb-2 block">Date debut</label>
                       <input
                         type="date"
                         value={startDate}
@@ -321,7 +325,7 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
                   {/* Hours & Rate */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-sm font-bold text-[var(--text-secondary)] mb-2 block">Heures travaillées</label>
+                      <label className="text-sm font-bold text-[var(--text-secondary)] mb-2 block">Heures travaillees</label>
                       <div className="relative">
                         <Clock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                         <input
@@ -374,7 +378,7 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
 
                   {/* Live calculation */}
                   <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4">
-                    <div className="text-xs text-[var(--text-secondary)] mb-1">Salaire brut estimé</div>
+                    <div className="text-xs text-[var(--text-secondary)] mb-1">Salaire brut estime</div>
                     <div className="text-2xl font-bold text-[var(--text-primary)]">{grossBase.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</div>
                     {overtimeTotal > 0 && (
                       <div className="text-xs text-blue-400 mt-1">+ {overtimeTotal.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€ heures sup.</div>
@@ -395,14 +399,14 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
                       </button>
                     </div>
                     {bonuses.length === 0 ? (
-                      <p className="text-xs text-[var(--text-muted)] text-center py-4">Aucune prime ajoutée</p>
+                      <p className="text-xs text-[var(--text-muted)] text-center py-4">Aucune prime ajoutee</p>
                     ) : (
                       <div className="space-y-2">
                         {bonuses.map((bonus) => (
                           <div key={bonus.id} className="flex items-center gap-2">
                             <input
                               type="text"
-                              placeholder="Libellé"
+                              placeholder="Libelle"
                               value={bonus.label}
                               onChange={(e) => updateBonus(bonus.id, 'label', e.target.value)}
                               className="flex-1 bg-[var(--bg-input)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500"
@@ -426,20 +430,20 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
                   {/* Deductions */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <label className="text-sm font-bold text-[var(--text-secondary)]">Déductions</label>
+                      <label className="text-sm font-bold text-[var(--text-secondary)]">Deductions</label>
                       <button onClick={addDeduction} className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors">
                         <Plus className="w-3.5 h-3.5" /> Ajouter
                       </button>
                     </div>
                     {deductions.length === 0 ? (
-                      <p className="text-xs text-[var(--text-muted)] text-center py-4">Aucune déduction ajoutée</p>
+                      <p className="text-xs text-[var(--text-muted)] text-center py-4">Aucune deduction ajoutee</p>
                     ) : (
                       <div className="space-y-2">
                         {deductions.map((ded) => (
                           <div key={ded.id} className="flex items-center gap-2">
                             <input
                               type="text"
-                              placeholder="Libellé"
+                              placeholder="Libelle"
                               value={ded.label}
                               onChange={(e) => updateDeduction(ded.id, 'label', e.target.value)}
                               className="flex-1 bg-[var(--bg-input)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500"
@@ -480,7 +484,7 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
                     )}
                     {deductionTotal > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-red-400">Déductions</span>
+                        <span className="text-red-400">Deductions</span>
                         <span className="text-red-400 font-medium">-{deductionTotal.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</span>
                       </div>
                     )}
@@ -489,7 +493,7 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
                       <span className="text-[var(--text-primary)] font-bold">{grossAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-[var(--text-secondary)]">Net estimé (~82%)</span>
+                      <span className="text-[var(--text-secondary)]">Net estime (~82%)</span>
                       <span className="text-blue-400 font-bold">{netAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</span>
                     </div>
                   </div>
@@ -556,18 +560,18 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
                           <span className="text-[var(--text-primary)] font-bold">{grossAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</span>
                         </div>
                         <div className="flex justify-between text-xs">
-                          <span className="text-[var(--text-muted)]">Impôts (~13%)</span>
+                          <span className="text-[var(--text-muted)]">Impots (~13%)</span>
                           <span className="text-[var(--text-secondary)]">-{taxAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</span>
                         </div>
                         <div className="flex justify-between text-xs">
-                          <span className="text-[var(--text-muted)]">Sécurité sociale (~5%)</span>
+                          <span className="text-[var(--text-muted)]">Securite sociale (~5%)</span>
                           <span className="text-[var(--text-secondary)]">-{socialSecurity.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</span>
                         </div>
                       </div>
 
                       <div className="border-t border-[var(--border)] pt-3">
                         <div className="flex justify-between">
-                          <span className="text-lg font-bold text-[var(--text-primary)]">Net à payer</span>
+                          <span className="text-lg font-bold text-[var(--text-primary)]">Net a payer</span>
                           <span className="text-2xl font-bold text-blue-400">{netAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</span>
                         </div>
                       </div>
@@ -593,7 +597,7 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
                     transition={{ delay: 0.3 }}
                     className="text-xl font-bold text-[var(--text-primary)] mb-2"
                   >
-                    Bulletin généré !
+                    Bulletin genere !
                   </motion.h3>
                   <motion.p
                     initial={{ opacity: 0, y: 10 }}
@@ -601,7 +605,7 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
                     transition={{ delay: 0.4 }}
                     className="text-sm text-[var(--text-secondary)] mb-8"
                   >
-                    Le bulletin de paie de {selectedEmployee?.name} a été créé avec succès.
+                    Le bulletin de paie de {selectedEmployee?.name} a ete cree avec succes.
                   </motion.p>
                   <motion.button
                     initial={{ opacity: 0, y: 10 }}
@@ -638,12 +642,12 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
                 {isGenerating ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Génération...
+                    Generation...
                   </>
                 ) : (
                   <>
                     <Receipt className="w-4 h-4" />
-                    Générer le bulletin
+                    Generer le bulletin
                   </>
                 )}
               </button>
@@ -660,6 +664,7 @@ export default function CreatePayslipWizard({ isOpen, onClose }: CreatePayslipWi
           </div>
         )}
       </motion.div>
-    </>
+    </>,
+    document.body
   );
 }

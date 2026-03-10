@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X, Calendar, Clock, MapPin, AlertCircle, FileText, CheckCircle, Building2 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -20,6 +21,9 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
   const { venues, activeVenueId } = useVenuesStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   // Form State
   const [title, setTitle] = useState('');
@@ -40,7 +44,7 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
     }
   }, [isOpen, activeVenueId, venues, selectedVenueId]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,21 +96,22 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
     }, 2000);
   };
 
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-      <motion.div 
+  return createPortal(
+    <>
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9998]"
       />
 
-      <motion.div 
-        initial={{ scale: 0.95, y: 20, opacity: 0 }}
-        animate={{ scale: 1, y: 0, opacity: 1 }}
-        exit={{ scale: 0.95, y: 20, opacity: 0 }}
-        className="relative w-full max-w-lg bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+      <motion.div
+        initial={{ opacity: 0, y: '100%' }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: '100%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="fixed inset-x-0 bottom-0 top-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[560px] md:max-h-[80vh] md:rounded-3xl bg-[var(--bg-sidebar)] border border-[var(--border)] shadow-2xl z-[9999] overflow-hidden flex flex-col"
       >
         {/* Success Overlay */}
         {showSuccess && (
@@ -274,6 +279,7 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
         </div>
 
       </motion.div>
-    </div>
+    </>,
+    document.body
   );
 }

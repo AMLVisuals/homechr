@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Wrench, Snowflake, Flame, Utensils, Coffee, Beer, Zap, Monitor, Wifi,
@@ -123,6 +124,9 @@ export default function SOSTechLauncher({ isOpen, onClose }: SOSTechLauncherProp
   const { addEvent } = useCalendarStore();
   const isPremium = useStore((s) => s.isPremium);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   const [showVenueDropdown, setShowVenueDropdown] = useState(false);
   const [step, setStep] = useState<1 | 2 | 3 | 'success'>(1);
   const [selectedSpecialtyId, setSelectedSpecialtyId] = useState<string | null>(null);
@@ -232,14 +236,14 @@ export default function SOSTechLauncher({ isOpen, onClose }: SOSTechLauncherProp
     exit: (direction: number) => ({ x: direction < 0 ? '100%' : '-100%', opacity: 0 }),
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[200] bg-[var(--bg-app)] flex flex-col"
+      className="fixed inset-0 z-[9999] bg-[var(--bg-app)] flex flex-col"
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
@@ -645,6 +649,7 @@ export default function SOSTechLauncher({ isOpen, onClose }: SOSTechLauncherProp
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 }

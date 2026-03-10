@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { AlertTriangle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,9 @@ export default function QuoteRejectionForm({
   const [reason, setReason] = useState<'too_expensive' | 'not_needed' | null>(null);
   const [comment, setComment] = useState('');
   const [acceptFees, setAcceptFees] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const canSubmit = reason && comment.trim().length >= 10 && acceptFees;
 
@@ -43,15 +47,24 @@ export default function QuoteRejectionForm({
     });
   };
 
-  return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onCancel} />
+  if (!mounted) return null;
+
+  return createPortal(
+    <>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[9998] bg-black/80 backdrop-blur-sm"
+        onClick={onCancel}
+      />
 
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
-        className="relative w-full max-w-lg bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden"
+        initial={{ opacity: 0, y: '100%' }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: '100%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="fixed inset-x-0 bottom-0 top-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-[9999] w-full md:w-[560px] bg-[var(--bg-sidebar)] border border-[var(--border)] md:rounded-2xl shadow-2xl overflow-hidden flex flex-col"
       >
         {/* Header */}
         <div className="p-5 border-b border-[var(--border)] flex items-center justify-between bg-red-500/5">
@@ -168,6 +181,7 @@ export default function QuoteRejectionForm({
           </Button>
         </div>
       </motion.div>
-    </div>
+    </>,
+    document.body
   );
 }

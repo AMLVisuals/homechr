@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Upload, X, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
 import { Mission } from '@/types/missions';
@@ -20,6 +21,9 @@ export function CompleteMissionForm({ mission, onComplete, onCancel, requireBefo
   const [afterPreview, setAfterPreview] = useState<string | null>(null);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const beforeInputRef = useRef<HTMLInputElement>(null);
   const afterInputRef = useRef<HTMLInputElement>(null);
@@ -57,13 +61,24 @@ export function CompleteMissionForm({ mission, onComplete, onCancel, requireBefo
     }, 1500);
   };
 
-  return (
-    <div className="fixed inset-0 z-[700] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-lg bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl overflow-hidden flex flex-col shadow-2xl max-h-[90vh]"
+  if (!mounted) return null;
+
+  return createPortal(
+    <>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[9998] bg-black/90 backdrop-blur-md"
+        onClick={onCancel}
+      />
+
+      <motion.div
+        initial={{ opacity: 0, y: '100%' }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: '100%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="fixed inset-x-0 bottom-0 top-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-[9999] w-full md:w-[560px] bg-[var(--bg-sidebar)] border border-[var(--border)] md:rounded-3xl overflow-hidden flex flex-col shadow-2xl md:max-h-[90vh]"
       >
         {/* Header */}
         <div className="p-6 border-b border-[var(--border)] flex justify-between items-center bg-[var(--bg-hover)]">
@@ -261,6 +276,7 @@ export function CompleteMissionForm({ mission, onComplete, onCancel, requireBefo
           </AnimatePresence>
         </div>
       </motion.div>
-    </div>
+    </>,
+    document.body
   );
 }

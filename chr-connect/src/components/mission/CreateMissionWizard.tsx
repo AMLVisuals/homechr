@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import ConnectedVenueCard from '@/components/venues/ConnectedVenueCard';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -263,6 +264,10 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
   const { addEvent } = useCalendarStore();
   const { reportFault } = useEquipmentStore();
   const isPremium = useStore((s) => s.isPremium);
+
+  // Portal mount guard
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   // Wizard State
   const [showVenueDropdown, setShowVenueDropdown] = useState(false);
@@ -828,14 +833,14 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
     };
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[200] bg-[var(--bg-app)] flex flex-col"
+      className="fixed inset-0 z-[9999] bg-[var(--bg-app)] flex flex-col"
     >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
@@ -2363,6 +2368,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         onCapture={handleCapture}
         initialMode={captureMode}
       />
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 }

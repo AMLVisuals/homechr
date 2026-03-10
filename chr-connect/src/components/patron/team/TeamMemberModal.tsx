@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X, User, Briefcase, Building, Mail, Phone, Camera, Upload } from 'lucide-react';
 import { TeamMember } from '@/types/missions';
@@ -31,6 +32,9 @@ export default function TeamMemberModal({ member, isOpen, onClose, venueId }: Te
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (member) {
@@ -78,15 +82,24 @@ export default function TeamMemberModal({ member, isOpen, onClose, venueId }: Te
     onClose();
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-[var(--bg-card)] w-full max-w-lg rounded-2xl border border-[var(--border)] overflow-hidden shadow-2xl"
+  return createPortal(
+    <>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9998]"
+      />
+
+      <motion.div
+        initial={{ opacity: 0, y: '100%' }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: '100%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="fixed inset-x-0 bottom-0 top-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[560px] md:max-h-[80vh] md:rounded-3xl bg-[var(--bg-card)] border border-[var(--border)] shadow-2xl z-[9999] overflow-hidden flex flex-col"
       >
         <div className="flex items-center justify-between p-6 border-b border-[var(--border)] bg-[var(--bg-sidebar)]">
           <h2 className="text-xl font-bold text-[var(--text-primary)]">
@@ -236,6 +249,7 @@ export default function TeamMemberModal({ member, isOpen, onClose, venueId }: Te
           </div>
         </form>
       </motion.div>
-    </div>
+    </>,
+    document.body
   );
 }

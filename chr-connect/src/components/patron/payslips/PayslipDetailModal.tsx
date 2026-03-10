@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Download, RefreshCw, Calendar, Clock,
@@ -22,6 +23,9 @@ export default function PayslipDetailModal({ payslip, isOpen, onClose }: Payslip
   const [isDownloading, setIsDownloading] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const statusInfo = PAYSLIP_STATUS_INFO[payslip.status];
 
@@ -62,7 +66,9 @@ export default function PayslipDetailModal({ payslip, isOpen, onClose }: Payslip
 
   const charges = payslip.grossAmount - payslip.netAmount;
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -71,15 +77,15 @@ export default function PayslipDetailModal({ payslip, isOpen, onClose }: Payslip
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200]"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
           />
 
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: '100%' }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[520px] md:max-h-[85vh] bg-[var(--bg-sidebar)] md:border md:border-[var(--border)] md:rounded-3xl shadow-2xl z-[201] flex flex-col overflow-hidden"
+            exit={{ opacity: 0, y: '100%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="fixed inset-x-0 bottom-0 top-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[520px] md:max-h-[85vh] md:rounded-3xl bg-[var(--bg-sidebar)] md:border md:border-[var(--border)] shadow-2xl z-[9999] flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 md:p-6 border-b border-[var(--border)]">
@@ -102,7 +108,7 @@ export default function PayslipDetailModal({ payslip, isOpen, onClose }: Payslip
               {/* Employee & Status */}
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-[var(--text-secondary)]">Employé</div>
+                  <div className="text-sm text-[var(--text-secondary)]">Employe</div>
                   <div className="text-lg font-bold text-[var(--text-primary)]">{payslip.employeeName}</div>
                 </div>
                 <div className="relative">
@@ -144,7 +150,7 @@ export default function PayslipDetailModal({ payslip, isOpen, onClose }: Payslip
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-[var(--bg-hover)] rounded-xl p-3">
                   <div className="flex items-center gap-2 text-[var(--text-secondary)] text-xs mb-1">
-                    <Calendar className="w-3.5 h-3.5" /> Période
+                    <Calendar className="w-3.5 h-3.5" /> Periode
                   </div>
                   <div className="text-sm font-medium text-[var(--text-primary)]">{PAYSLIP_PERIOD_LABELS[payslip.periodType]}</div>
                   <div className="text-xs text-[var(--text-muted)] mt-0.5">{payslip.startDate} → {payslip.endDate}</div>
@@ -163,7 +169,7 @@ export default function PayslipDetailModal({ payslip, isOpen, onClose }: Payslip
               {/* Breakdown */}
               <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
                 <div className="p-4 border-b border-[var(--border)] bg-gradient-to-r from-blue-600/5 to-transparent">
-                  <h3 className="text-sm font-bold text-[var(--text-secondary)]">Détail du bulletin</h3>
+                  <h3 className="text-sm font-bold text-[var(--text-secondary)]">Detail du bulletin</h3>
                 </div>
                 <div className="p-4 space-y-3">
                   {payslip.hoursWorked && payslip.hourlyRate && (
@@ -185,11 +191,11 @@ export default function PayslipDetailModal({ payslip, isOpen, onClose }: Payslip
                       <span className="text-[var(--text-primary)] font-bold">{payslip.grossAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-[var(--text-muted)]">Impôts</span>
+                      <span className="text-[var(--text-muted)]">Impots</span>
                       <span className="text-[var(--text-secondary)]">-{payslip.taxAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-[var(--text-muted)]">Sécurité sociale</span>
+                      <span className="text-[var(--text-muted)]">Securite sociale</span>
                       <span className="text-[var(--text-secondary)]">-{payslip.socialSecurity.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</span>
                     </div>
                     <div className="flex justify-between text-xs">
@@ -200,7 +206,7 @@ export default function PayslipDetailModal({ payslip, isOpen, onClose }: Payslip
 
                   <div className="border-t border-[var(--border-strong)] pt-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-[var(--text-primary)]">Net à payer</span>
+                      <span className="text-lg font-bold text-[var(--text-primary)]">Net a payer</span>
                       <span className="text-2xl font-bold text-blue-500">{payslip.netAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</span>
                     </div>
                   </div>
@@ -209,10 +215,10 @@ export default function PayslipDetailModal({ payslip, isOpen, onClose }: Payslip
 
               {/* Metadata */}
               <div className="text-xs text-[var(--text-muted)] space-y-1">
-                <div>Créé le : {new Date(payslip.createdAt).toLocaleDateString('fr-FR')}</div>
-                <div>Dernière mise à jour : {new Date(payslip.updatedAt).toLocaleDateString('fr-FR')}</div>
+                <div>Cree le : {new Date(payslip.createdAt).toLocaleDateString('fr-FR')}</div>
+                <div>Derniere mise a jour : {new Date(payslip.updatedAt).toLocaleDateString('fr-FR')}</div>
                 {payslip.externalReference && (
-                  <div>Réf. externe : {payslip.externalReference}</div>
+                  <div>Ref. externe : {payslip.externalReference}</div>
                 )}
               </div>
             </div>
@@ -229,7 +235,7 @@ export default function PayslipDetailModal({ payslip, isOpen, onClose }: Payslip
                 ) : (
                   <Download className="w-4 h-4" />
                 )}
-                Télécharger PDF
+                Telecharger PDF
               </button>
               <button
                 onClick={handleRegenerate}
@@ -237,12 +243,13 @@ export default function PayslipDetailModal({ payslip, isOpen, onClose }: Payslip
                 className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] text-[var(--text-secondary)] text-sm font-medium transition-colors disabled:opacity-50"
               >
                 <RefreshCw className={clsx('w-4 h-4', isRegenerating && 'animate-spin')} />
-                Régénérer
+                Regenerer
               </button>
             </div>
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

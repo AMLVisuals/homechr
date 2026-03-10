@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Zap, FileText, Download, Clock, Server, CheckCircle2, Crown } from 'lucide-react';
 import { useStore } from '@/store/useStore';
@@ -10,21 +12,26 @@ interface PremiumUpsellModalProps {
 }
 
 const PREMIUM_FEATURES = [
-  { icon: FileText, label: 'Création de bulletins de paie', desc: 'Générez des fiches de paie complètes en quelques clics' },
-  { icon: Download, label: 'Export PDF professionnel', desc: 'Téléchargez des bulletins au format PDF officiel' },
-  { icon: Clock, label: 'Historique complet', desc: 'Accédez à l\'historique illimité de tous vos bulletins' },
+  { icon: FileText, label: 'Creation de bulletins de paie', desc: 'Generez des fiches de paie completes en quelques clics' },
+  { icon: Download, label: 'Export PDF professionnel', desc: 'Telechargez des bulletins au format PDF officiel' },
+  { icon: Clock, label: 'Historique complet', desc: 'Accedez a l\'historique illimite de tous vos bulletins' },
   { icon: Server, label: 'API externe', desc: 'Connectez PayFit, Silae ou tout autre fournisseur de paie' },
 ];
 
 export default function PremiumUpsellModal({ isOpen, onClose }: PremiumUpsellModalProps) {
   const { setPremium } = useStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const handleUpgrade = () => {
     setPremium(true);
     onClose();
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -33,14 +40,14 @@ export default function PremiumUpsellModal({ isOpen, onClose }: PremiumUpsellMod
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200]"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[480px] md:max-h-[90vh] bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl shadow-2xl z-[201] flex flex-col overflow-hidden"
+            initial={{ opacity: 0, y: '100%' }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: '100%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="fixed inset-x-0 bottom-0 top-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[480px] md:max-h-[90vh] md:rounded-3xl bg-[var(--bg-sidebar)] border border-[var(--border)] shadow-2xl z-[9999] flex flex-col overflow-hidden"
           >
             {/* Header with gradient */}
             <div className="relative p-6 pb-8 bg-gradient-to-br from-amber-500/20 via-yellow-500/10 to-transparent">
@@ -57,7 +64,7 @@ export default function PremiumUpsellModal({ isOpen, onClose }: PremiumUpsellMod
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-[var(--text-primary)]">CHR Connect Pro</h2>
-                  <p className="text-sm text-amber-500">Débloquez toutes les fonctionnalités</p>
+                  <p className="text-sm text-amber-500">Debloquez toutes les fonctionnalites</p>
                 </div>
               </div>
 
@@ -101,12 +108,13 @@ export default function PremiumUpsellModal({ isOpen, onClose }: PremiumUpsellMod
                 onClick={onClose}
                 className="w-full py-2.5 text-sm text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
               >
-                Peut-être plus tard
+                Peut-etre plus tard
               </button>
             </div>
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

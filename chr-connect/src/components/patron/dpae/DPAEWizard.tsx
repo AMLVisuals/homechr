@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, ArrowLeft, ChevronRight, Building2, User, FileText,
@@ -33,7 +34,10 @@ export default function DPAEWizard({
   establishmentSiret = '',
 }: DPAEWizardProps) {
   const { createDeclaration, submitToURSSAF, addContract } = useDPAEStore();
+  const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState<DPAEStep>('employer');
+
+  useEffect(() => { setMounted(true); }, []);
 
   // Employer fields (pre-filled)
   const [employerName, setEmployerName] = useState(establishmentName || mission?.venue || '');
@@ -114,26 +118,27 @@ export default function DPAEWizard({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const stepIndex = step === 'employer' ? 0 : step === 'employee' ? 1 : step === 'contract' ? 2 : 3;
   const progress = Math.min(stepIndex / 3, 1);
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+  return createPortal(
+    <>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/80 backdrop-blur-md"
+        className="fixed inset-0 bg-black/80 backdrop-blur-md z-[9998]"
         onClick={onClose}
       />
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-lg max-h-[90vh] bg-[var(--bg-sidebar)] border border-[var(--border)] rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+        initial={{ opacity: 0, y: '100%' }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: '100%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="fixed inset-x-0 bottom-0 top-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[560px] md:max-h-[80vh] md:rounded-3xl bg-[var(--bg-sidebar)] border border-[var(--border)] shadow-2xl z-[9999] overflow-hidden flex flex-col"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
@@ -391,6 +396,7 @@ export default function DPAEWizard({
           </div>
         )}
       </motion.div>
-    </div>
+    </>,
+    document.body
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -14,6 +15,9 @@ interface FullScreenGalleryProps {
 
 export default function FullScreenGallery({ images, initialIndex = 0, isOpen, onClose }: FullScreenGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (isOpen) setCurrentIndex(initialIndex);
@@ -40,12 +44,12 @@ export default function FullScreenGallery({ images, initialIndex = 0, isOpen, on
     setCurrentIndex(newIndex);
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 backdrop-blur-xl">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-xl">
       {/* Close Button */}
-      <button 
+      <button
         onClick={onClose}
         className="absolute top-6 right-6 p-3 rounded-full bg-[var(--bg-active)] hover:bg-white/20 text-[var(--text-primary)] transition-colors z-50"
       >
@@ -53,7 +57,7 @@ export default function FullScreenGallery({ images, initialIndex = 0, isOpen, on
       </button>
 
       {/* Navigation Left */}
-      <button 
+      <button
         onClick={(e) => { e.stopPropagation(); navigate(-1); }}
         className="absolute left-6 top-1/2 -translate-y-1/2 p-4 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] text-[var(--text-primary)] transition-colors z-50 group"
       >
@@ -61,7 +65,7 @@ export default function FullScreenGallery({ images, initialIndex = 0, isOpen, on
       </button>
 
       {/* Navigation Right */}
-      <button 
+      <button
         onClick={(e) => { e.stopPropagation(); navigate(1); }}
         className="absolute right-6 top-1/2 -translate-y-1/2 p-4 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] text-[var(--text-primary)] transition-colors z-50 group"
       >
@@ -81,9 +85,9 @@ export default function FullScreenGallery({ images, initialIndex = 0, isOpen, on
           >
              {/* In a real app, this would be <Image />. Using a div with bg for now as placeholders are strings */}
              {images[currentIndex].startsWith('http') || images[currentIndex].startsWith('/') ? (
-               <img 
-                 src={images[currentIndex]} 
-                 alt={`Gallery image ${currentIndex + 1}`} 
+               <img
+                 src={images[currentIndex]}
+                 alt={`Gallery image ${currentIndex + 1}`}
                  className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
                />
              ) : (
@@ -93,7 +97,7 @@ export default function FullScreenGallery({ images, initialIndex = 0, isOpen, on
                     <span className="text-sm mt-2">{images[currentIndex]}</span>
                 </div>
              )}
-             
+
              {/* Counter */}
              <div className="absolute bottom-[-3rem] left-1/2 -translate-x-1/2 text-[var(--text-primary)] font-medium text-sm bg-black/50 px-4 py-2 rounded-full backdrop-blur-md">
                {currentIndex + 1} / {images.length}
@@ -123,6 +127,7 @@ export default function FullScreenGallery({ images, initialIndex = 0, isOpen, on
           </button>
         ))}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
