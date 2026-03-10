@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Star, CheckCircle2, XCircle, UserPlus, Clock, MapPin, CalendarClock } from 'lucide-react';
+import { X, Star, CheckCircle2, XCircle, UserPlus, Clock, MapPin, CalendarClock, Users } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Mission, MissionCandidate } from '@/types/missions';
 import { useMissionsStore } from '@/store/useMissionsStore';
@@ -15,19 +16,27 @@ interface CandidateReviewModalProps {
 
 export default function CandidateReviewModal({ mission, isOpen, onClose }: CandidateReviewModalProps) {
   const { selectCandidate, rejectCandidate } = useMissionsStore();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  if (!mission) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mission || !mounted) return null;
 
   const candidates = mission.candidates || [];
-  const pendingCandidates = candidates.filter(c => c.status === 'PENDING');
-  const hasSelected = mission.status === 'SCHEDULED' || confirmed;
+  const required = mission.requiredWorkers || 1;
+  const acceptedCount = candidates.filter(c => c.status === 'ACCEPTED').length;
+  const pendingCount = candidates.filter(c => c.status === 'PENDING').length;
+  const allFilled = acceptedCount >= required || mission.status === 'SCHEDULED';
+  const remaining = required - acceptedCount;
 
   const handleSelect = (candidateId: string) => {
     selectCandidate(mission.id, candidateId);
-    setSelectedId(candidateId);
-    setConfirmed(true);
+    if (acceptedCount + 1 >= required) {
+      setConfirmed(true);
+    }
   };
 
   const handleReject = (candidateId: string) => {
@@ -41,7 +50,7 @@ export default function CandidateReviewModal({ mission, isOpen, onClose }: Candi
     });
   };
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -50,14 +59,14 @@ export default function CandidateReviewModal({ mission, isOpen, onClose }: Candi
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000]"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]"
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, y: '100%' }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[560px] md:max-h-[80vh] bg-[var(--bg-card)] rounded-3xl border border-[var(--border)] shadow-2xl z-[1001] overflow-hidden flex flex-col"
+            className="fixed inset-x-0 bottom-0 top-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[560px] md:max-h-[80vh] md:rounded-3xl bg-[var(--bg-card)] border-0 md:border border-[var(--border)] shadow-2xl z-[9999] overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="p-6 border-b border-[var(--border)]">
@@ -87,9 +96,42 @@ export default function CandidateReviewModal({ mission, isOpen, onClose }: Candi
               </div>
             </div>
 
+            {/* Progress bar multi-sélection */}
+            {required > 1 && (
+              <div className="px-6 py-3 border-b border-[var(--border)] bg-[var(--bg-hover)]">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-purple-400" />
+                    <span className="text-xs font-bold text-[var(--text-primary)]">
+                      {acceptedCount} / {required} sélectionné{required > 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  {!allFilled && remaining > 0 && (
+                    <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                      Encore {remaining} à choisir
+                    </span>
+                  )}
+                  {allFilled && (
+                    <span className="text-[10px] font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
+                      Complet
+                    </span>
+                  )}
+                </div>
+                <div className="w-full h-2 bg-[var(--bg-active)] rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min((acceptedCount / required) * 100, 100)}%` }}
+                    transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {confirmed && (
+              {/* Confirmation banner */}
+              {(confirmed || allFilled) && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -97,8 +139,18 @@ export default function CandidateReviewModal({ mission, isOpen, onClose }: Candi
                 >
                   <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
                   <div>
-                    <p className="text-sm font-bold text-green-400">Prestataire sélectionné</p>
-                    <p className="text-xs text-[var(--text-muted)] mt-0.5">Le prestataire sera notifié de votre choix.</p>
+                    <p className="text-sm font-bold text-green-400">
+                      {required > 1
+                        ? `${acceptedCount} prestataire${acceptedCount > 1 ? 's' : ''} sélectionné${acceptedCount > 1 ? 's' : ''}`
+                        : 'Prestataire sélectionné'
+                      }
+                    </p>
+                    <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                      {required > 1
+                        ? 'Les prestataires sélectionnés seront notifiés de votre choix.'
+                        : 'Le prestataire sera notifié de votre choix.'
+                      }
+                    </p>
                   </div>
                 </motion.div>
               )}
@@ -107,9 +159,9 @@ export default function CandidateReviewModal({ mission, isOpen, onClose }: Candi
                 <h3 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">
                   Candidatures ({candidates.length})
                 </h3>
-                {pendingCandidates.length > 0 && !hasSelected && (
+                {pendingCount > 0 && !allFilled && (
                   <span className="text-xs text-[var(--text-muted)]">
-                    {pendingCandidates.length} en attente
+                    {pendingCount} en attente
                   </span>
                 )}
               </div>
@@ -128,7 +180,7 @@ export default function CandidateReviewModal({ mission, isOpen, onClose }: Candi
                       candidate={candidate}
                       isSelected={candidate.status === 'ACCEPTED'}
                       isRejected={candidate.status === 'REJECTED'}
-                      hasSelection={hasSelected}
+                      hasSelection={allFilled}
                       onSelect={() => handleSelect(candidate.id)}
                       onReject={() => handleReject(candidate.id)}
                     />
@@ -139,7 +191,8 @@ export default function CandidateReviewModal({ mission, isOpen, onClose }: Candi
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 

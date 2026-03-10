@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Filter, Wrench, ChefHat, Monitor, Hammer,
-  Clock, MapPin, CheckCircle2, AlertCircle, XCircle, MoreVertical, ArrowRight, UserCheck, ClipboardList, Plus, Users
+  Clock, MapPin, CheckCircle2, AlertCircle, XCircle, MoreVertical, ArrowRight, UserCheck, ClipboardList, Plus, Users,
+  Archive, CalendarDays, ChevronDown
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SkeletonTable } from '@/components/shared/Skeleton';
@@ -20,13 +21,96 @@ const ICON_MAP: Record<string, any> = {
   Wrench, ChefHat, Monitor, Hammer
 };
 
+const MONTHS_FR = [
+  'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+];
+
+// Clé mois/année courante
+function currentMonthKey(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+// Archivée = COMPLETED/CANCELLED ET pas du mois en cours
+function isArchived(mission: Mission): boolean {
+  if (!['COMPLETED', 'CANCELLED'].includes(mission.status)) return false;
+  // Les missions du mois en cours restent visibles dans la liste principale
+  return getMissionMonthKeyRaw(mission) !== currentMonthKey();
+}
+
+// Version sans fallback pour éviter la circularité
+function getMissionMonthKeyRaw(mission: Mission): string {
+  const d = extractDate(mission);
+  if (d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }
+  return currentMonthKey();
+}
+
+// Map mois français → numéro
+const MONTH_FR_MAP: Record<string, number> = {
+  'janvier': 0, 'février': 1, 'fevrier': 1, 'mars': 2, 'avril': 3, 'mai': 4, 'juin': 5,
+  'juillet': 6, 'août': 7, 'aout': 7, 'septembre': 8, 'octobre': 9, 'novembre': 10, 'décembre': 11, 'decembre': 11,
+};
+
+// Parse une date française type "05 Juin" ou "05 Juin 2023"
+function parseFrenchDate(s: string): Date | null {
+  const match = s.match(/^(\d{1,2})\s+([a-zéûô]+)(?:\s+(\d{4}))?$/i);
+  if (!match) return null;
+  const day = parseInt(match[1], 10);
+  const monthStr = match[2].toLowerCase();
+  const month = MONTH_FR_MAP[monthStr];
+  if (month === undefined) return null;
+  const year = match[3] ? parseInt(match[3], 10) : new Date().getFullYear();
+  const d = new Date(year, month, day);
+  if (!isNaN(d.getTime())) return d;
+  return null;
+}
+
+// Essaie de trouver une date exploitable sur la mission
+function extractDate(mission: Mission): Date | null {
+  const tryParse = (s?: string | null): Date | null => {
+    if (!s) return null;
+    const d = new Date(s);
+    if (!isNaN(d.getTime()) && d.getFullYear() > 2000) return d;
+    return null;
+  };
+
+  // 1. Date de facture (toujours ISO)
+  return tryParse(mission.invoice?.date)
+    // 2. Date de la mission si ISO
+    ?? tryParse(mission.date)
+    // 3. Date de la mission format français ("05 Juin", "12 Mars 2025")
+    ?? (mission.date ? parseFrenchDate(mission.date) : null)
+    // 4. scheduledDate
+    ?? tryParse(mission.scheduledDate)
+    // 5. staffValidation date
+    ?? tryParse(mission.staffValidation?.validatedAt)
+    ?? null;
+}
+
+function getMissionMonthKey(mission: Mission): string {
+  const d = extractDate(mission);
+  if (d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }
+  // Fallback: mois courant
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function formatMonthKey(key: string): string {
+  const [year, month] = key.split('-');
+  return `${MONTHS_FR[parseInt(month, 10) - 1]} ${year}`;
+}
+
 const STATUS_FILTERS = [
   { id: 'ALL', label: 'Tout' },
   { id: 'ACTION_REQUIRED', label: 'Action requise' },
   { id: 'IN_PROGRESS', label: 'En cours' },
   { id: 'SCHEDULED', label: 'Planifié' },
-  { id: 'COMPLETED', label: 'Terminé' },
-  { id: 'CANCELLED', label: 'Annulé' },
+  { id: 'ARCHIVES', label: 'Archives' },
 ];
 
 interface MissionsTabProps {
@@ -45,6 +129,47 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
   const [isValidationOpen, setIsValidationOpen] = useState(false);
   const [candidateMission, setCandidateMission] = useState<Mission | null>(null);
   const [isCandidateOpen, setIsCandidateOpen] = useState(false);
+  const [archiveMonthKey, setArchiveMonthKey] = useState<string>(currentMonthKey());
+  const [isArchivePickerOpen, setIsArchivePickerOpen] = useState(false);
+  const archivePickerRef = useRef<HTMLDivElement>(null);
+
+  // Build archive data: group ALL completed/cancelled missions by month
+  const archiveData = useMemo(() => {
+    const venueMissions = activeVenueId
+      ? missions.filter(m => m.venueId === activeVenueId)
+      : missions;
+    const archived = venueMissions.filter(m => ['COMPLETED', 'CANCELLED'].includes(m.status));
+    const byMonth: Record<string, Mission[]> = {};
+    // Toujours inclure le mois en cours
+    byMonth[currentMonthKey()] = [];
+    for (const m of archived) {
+      const key = getMissionMonthKey(m);
+      if (!byMonth[key]) byMonth[key] = [];
+      byMonth[key].push(m);
+    }
+    const sortedKeys = Object.keys(byMonth).sort((a, b) => b.localeCompare(a));
+    const totalCount = archived.length;
+    return { byMonth, sortedKeys, totalCount };
+  }, [missions, activeVenueId]);
+
+  // Reset to current month when entering archives
+  useEffect(() => {
+    if (filter === 'ARCHIVES') {
+      setArchiveMonthKey(currentMonthKey());
+    }
+  }, [filter]);
+
+  // Close archive picker on outside click
+  useEffect(() => {
+    if (!isArchivePickerOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (archivePickerRef.current && !archivePickerRef.current.contains(e.target as Node)) {
+        setIsArchivePickerOpen(false);
+      }
+    }
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [isArchivePickerOpen]);
 
   const handleMissionClick = (mission: Mission) => {
     if (mission.status === 'AWAITING_PATRON_CONFIRMATION') {
@@ -65,32 +190,47 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
   // Count missions awaiting confirmation
   const awaitingCount = missions.filter(m => m.status === 'AWAITING_PATRON_CONFIRMATION' && (!activeVenueId || m.venueId === activeVenueId)).length;
 
-  const filteredMissions = missions.filter(m => {
-    // 1. Venue Filter
-    if (activeVenueId && m.venueId !== activeVenueId) return false;
-    
-    // 2. Search Filter
-    if (searchQuery && !m.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-
-    // 3. Status Filter
-    if (filter === 'ALL') return true;
-
-    if (filter === 'SCHEDULED') {
-      return m.status === 'SCHEDULED' || (m.status === 'SEARCHING' && !!m.date);
+  const filteredMissions = useMemo(() => {
+    // Mode Archives : missions terminées/annulées du mois sélectionné
+    if (filter === 'ARCHIVES') {
+      const list = archiveData.byMonth[archiveMonthKey] || [];
+      if (searchQuery) {
+        return list.filter(m => m.title.toLowerCase().includes(searchQuery.toLowerCase()));
+      }
+      return list;
     }
 
-    if (filter === 'ACTION_REQUIRED') {
-      const hasActionStatus = ['PENDING_VALIDATION', 'QUOTE_SENT', 'AWAITING_PATRON_CONFIRMATION'].includes(m.status);
-      const hasPendingCandidates = m.scheduled && m.candidates && m.candidates.some(c => c.status === 'PENDING') && m.status !== 'SCHEDULED';
-      return hasActionStatus || hasPendingCandidates;
-    }
+    // Mode normal : missions actives (excluant les archivées des mois passés)
+    return missions.filter(m => {
+      // 1. Venue Filter
+      if (activeVenueId && m.venueId !== activeVenueId) return false;
 
-    if (filter === 'IN_PROGRESS') {
-      return ['IN_PROGRESS', 'ON_WAY', 'ON_SITE', 'SEARCHING', 'DIAGNOSING', 'STANDBY'].includes(m.status);
-    }
+      // 2. Exclure les terminées/annulées des mois passés
+      if (isArchived(m)) return false;
 
-    return m.status === filter;
-  });
+      // 3. Search Filter
+      if (searchQuery && !m.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+
+      // 4. Status Filter
+      if (filter === 'ALL') return true;
+
+      if (filter === 'SCHEDULED') {
+        return m.status === 'SCHEDULED' || (m.status === 'SEARCHING' && m.scheduled === true);
+      }
+
+      if (filter === 'ACTION_REQUIRED') {
+        const hasActionStatus = ['PENDING_VALIDATION', 'QUOTE_SENT', 'AWAITING_PATRON_CONFIRMATION', 'SEARCHING'].includes(m.status);
+        const hasPendingCandidates = m.scheduled && m.candidates && m.candidates.some(c => c.status === 'PENDING') && m.status !== 'SCHEDULED';
+        return hasActionStatus || hasPendingCandidates;
+      }
+
+      if (filter === 'IN_PROGRESS') {
+        return ['IN_PROGRESS', 'ON_WAY', 'ON_SITE', 'DIAGNOSING', 'STANDBY'].includes(m.status);
+      }
+
+      return m.status === filter;
+    });
+  }, [missions, activeVenueId, filter, searchQuery, archiveMonthKey, archiveData.byMonth]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 500);
@@ -137,16 +277,91 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
             key={f.id}
             onClick={() => setFilter(f.id)}
             className={clsx(
-              "px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border",
+              "px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border flex items-center gap-1.5",
               filter === f.id
-                ? "bg-[var(--text-primary)] text-[var(--bg-app)] border-[var(--text-primary)]"
+                ? f.id === 'ARCHIVES'
+                  ? "bg-gradient-to-r from-slate-600 to-slate-700 text-white border-slate-500"
+                  : "bg-[var(--text-primary)] text-[var(--bg-app)] border-[var(--text-primary)]"
                 : "bg-transparent text-[var(--text-secondary)] border-[var(--border)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
             )}
           >
+            {f.id === 'ARCHIVES' && <Archive className="w-3.5 h-3.5" />}
             {f.label}
+            {f.id === 'ARCHIVES' && archiveData.totalCount > 0 && (
+              <span className={clsx(
+                "text-[10px] px-1.5 py-0.5 rounded-full font-bold",
+                filter === 'ARCHIVES' ? "bg-white/20 text-white" : "bg-[var(--bg-active)] text-[var(--text-muted)]"
+              )}>
+                {archiveData.totalCount}
+              </span>
+            )}
           </button>
         ))}
       </div>
+
+      {/* Archive Month Picker — visible uniquement quand filtre Archives actif */}
+      {filter === 'ARCHIVES' && (
+        <div ref={archivePickerRef} className="relative mb-4">
+          <button
+            onClick={() => setIsArchivePickerOpen(!isArchivePickerOpen)}
+            className="w-full flex items-center justify-between bg-[var(--bg-card)] border border-[var(--border)] rounded-xl px-4 py-3 hover:border-[var(--border-strong)] transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <CalendarDays className="w-4 h-4 text-blue-400" />
+              <span className="font-bold text-[var(--text-primary)] capitalize">{formatMonthKey(archiveMonthKey)}</span>
+              {archiveMonthKey === currentMonthKey() && (
+                <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">Mois en cours</span>
+              )}
+              <span className="text-[10px] font-bold text-[var(--text-muted)] bg-[var(--bg-hover)] px-2 py-0.5 rounded-full border border-[var(--border)]">
+                {archiveData.byMonth[archiveMonthKey]?.length || 0} mission{(archiveData.byMonth[archiveMonthKey]?.length || 0) > 1 ? 's' : ''}
+              </span>
+            </div>
+            <ChevronDown className={clsx("w-4 h-4 text-[var(--text-muted)] transition-transform", isArchivePickerOpen && "rotate-180")} />
+          </button>
+          <AnimatePresence>
+            {isArchivePickerOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.15 }}
+                className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-xl overflow-hidden z-30 max-h-64 overflow-y-auto custom-scrollbar"
+              >
+                {archiveData.sortedKeys.map((key) => {
+                  const isSelected = archiveMonthKey === key;
+                  const isCurrent = key === currentMonthKey();
+                  const count = archiveData.byMonth[key].length;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => { setArchiveMonthKey(key); setIsArchivePickerOpen(false); }}
+                      className={clsx(
+                        "w-full text-left px-4 py-2.5 text-sm transition-colors capitalize flex items-center justify-between",
+                        isSelected
+                          ? "bg-blue-600/10 text-blue-400 font-bold"
+                          : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                      )}
+                    >
+                      <span>{formatMonthKey(key)}</span>
+                      <div className="flex items-center gap-2">
+                        {isCurrent && <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">Actuel</span>}
+                        <span className={clsx(
+                          "text-[10px] font-bold px-2 py-0.5 rounded-full border",
+                          isSelected
+                            ? "text-blue-400 bg-blue-500/10 border-blue-500/20"
+                            : "text-[var(--text-muted)] bg-[var(--bg-hover)] border-[var(--border)]"
+                        )}>
+                          {count} mission{count > 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
 
       {/* Missions Grid */}
       <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
@@ -159,29 +374,6 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
               onClick={() => handleMissionClick(mission)}
               className="bg-[var(--bg-card)] rounded-xl p-4 md:p-6 border border-[var(--border)] hover:border-[var(--border-strong)] transition-all cursor-pointer group relative overflow-hidden"
             >
-              {/* Action required dot */}
-              {((['PENDING_VALIDATION', 'QUOTE_SENT', 'AWAITING_PATRON_CONFIRMATION'] as string[]).includes(mission.status) || (mission.scheduled && mission.candidates && mission.candidates.some(c => c.status === 'PENDING') && mission.status !== 'SCHEDULED')) && (
-                <div className="absolute top-3 right-3 w-3 h-3 rounded-full bg-orange-500 animate-pulse z-10" />
-              )}
-
-              {/* Awaiting confirmation banner */}
-              {mission.status === 'AWAITING_PATRON_CONFIRMATION' && (
-                <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-b border-amber-500/30 px-4 py-1.5 flex items-center gap-2">
-                  <UserCheck className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-xs font-bold text-amber-400">Prestataire trouvé — Confirmez</span>
-                </div>
-              )}
-
-              {/* Candidates banner for planned missions */}
-              {mission.scheduled && mission.candidates && mission.candidates.filter(c => c.status === 'PENDING').length > 0 && mission.status !== 'SCHEDULED' && (
-                <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 border-b border-purple-500/30 px-4 py-1.5 flex items-center gap-2">
-                  <Users className="w-3.5 h-3.5 text-purple-400" />
-                  <span className="text-xs font-bold text-purple-400">
-                    {mission.candidates.filter(c => c.status === 'PENDING').length} candidature{mission.candidates.filter(c => c.status === 'PENDING').length > 1 ? 's' : ''} — Consultez
-                  </span>
-                </div>
-              )}
-
               {/* Status Stripe */}
               <div className={clsx(
                 "absolute left-0 top-0 bottom-0 w-1",
@@ -260,17 +452,76 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
                   </div>
                 )}
               </div>
+
+              {/* Action chips — intégrés dans le flow */}
+              {(() => {
+                const pendingCandidates = mission.scheduled && mission.candidates && mission.status !== 'SCHEDULED'
+                  ? mission.candidates.filter(c => c.status === 'PENDING').length
+                  : 0;
+                const showConfirm = mission.status === 'AWAITING_PATRON_CONFIRMATION';
+                const showQuote = mission.status === 'QUOTE_SENT';
+                const showValidation = mission.status === 'PENDING_VALIDATION';
+                const showSearching = mission.status === 'SEARCHING' && !mission.scheduled;
+
+                if (!pendingCandidates && !showConfirm && !showQuote && !showValidation && !showSearching) return null;
+
+                return (
+                  <div className="flex flex-wrap gap-2 mt-3 pl-3 md:pl-4">
+                    {pendingCandidates > 0 && (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/10 border border-purple-500/20 text-[11px] font-bold text-purple-400">
+                        <Users className="w-3 h-3" />
+                        {pendingCandidates} candidature{pendingCandidates > 1 ? 's' : ''}
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+                      </span>
+                    )}
+                    {showConfirm && (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] font-bold text-amber-400">
+                        <UserCheck className="w-3 h-3" />
+                        Prestataire à confirmer
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      </span>
+                    )}
+                    {showQuote && (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20 text-[11px] font-bold text-orange-400">
+                        Devis à consulter
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
+                      </span>
+                    )}
+                    {showValidation && (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] font-bold text-amber-400">
+                        Heures à valider
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      </span>
+                    )}
+                    {showSearching && (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[11px] font-bold text-blue-400">
+                        <Search className="w-3 h-3" />
+                        En recherche
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
             </motion.div>
           ))}
           
           {filteredMissions.length === 0 && (
-            <EmptyState
-              icon={ClipboardList}
-              title="Aucune mission"
-              description="Créez votre première mission pour trouver un prestataire."
-              actionLabel="Créer une mission"
-              onAction={() => window.dispatchEvent(new CustomEvent('open-create-mission'))}
-            />
+            filter === 'ARCHIVES' ? (
+              <EmptyState
+                icon={Archive}
+                title="Aucune mission archivée"
+                description={`Aucune mission terminée ou annulée pour ${formatMonthKey(archiveMonthKey)}.`}
+              />
+            ) : (
+              <EmptyState
+                icon={ClipboardList}
+                title="Aucune mission"
+                description="Créez votre première mission pour trouver un prestataire."
+                actionLabel="Créer une mission"
+                onAction={() => window.dispatchEvent(new CustomEvent('open-create-mission'))}
+              />
+            )
           )}
         </div>
       </div>

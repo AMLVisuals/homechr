@@ -43,6 +43,7 @@ import PremiumTab from './tabs/PremiumTab';
 import StockTab from './tabs/StockTab';
 import DPAETab from './tabs/DPAETab';
 import MissionDetailsModal from './missions/MissionDetailsModal';
+import ActionAlertsBanner from './ActionAlertsBanner';
 import Sidebar from './Sidebar';
 import SettingsModal from '../shared/SettingsModal';
 
@@ -463,6 +464,15 @@ export default function PatronDashboard() {
                   </div>
                 </motion.button>
               </section>
+
+              {/* Action Alerts */}
+              <ActionAlertsBanner
+                onNavigateToMission={(missionId) => {
+                  const m = missions.find(mi => mi.id === missionId);
+                  if (m) handleMissionClick(m);
+                }}
+                onNavigateToMissions={() => { setActiveTab('MISSIONS'); router.push('/patron/missions'); }}
+              />
 
               {/* Dashboard Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

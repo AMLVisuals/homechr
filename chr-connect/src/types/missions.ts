@@ -170,6 +170,7 @@ export interface Mission {
   // Scheduling
   scheduled?: boolean; // true = planned for later, false/undefined = immediate
   scheduledDate?: string; // ISO date string for planned missions
+  requiredWorkers?: number; // nombre de prestataires nécessaires (default 1)
 
   // Candidature system (planned missions)
   candidates?: MissionCandidate[];

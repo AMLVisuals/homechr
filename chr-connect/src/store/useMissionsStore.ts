@@ -528,6 +528,207 @@ const INITIAL_MISSIONS: Mission[] = [
     matchScore: 93,
     attributes: { interventionType: ['maintenance'], equipment: ['cold_room'], urgency: false }
   },
+  // ── Mission planifiée multi-candidats : 2 barmen nécessaires, 5 postulent ──
+  {
+    id: 'm24',
+    title: 'Barman - 2 personne(s)',
+    expert: 'En attente',
+    status: 'SEARCHING' as const,
+    date: '2025-03-15 19:00',
+    category: 'STAFFING' as const,
+    iconName: 'ChefHat' as const,
+    color: 'orange',
+    price: '320€ est.',
+    description: 'Soirée cocktails — besoin de 2 barmen expérimentés pour service du soir, 6h (19h-01h).',
+    location: { lat: 48.8534, lng: 2.3488, address: 'Bar Rooftop' },
+    venue: 'Le Bistrot Parisien',
+    venueId: 'v1',
+    type: 'staff' as const,
+    urgent: false,
+    scheduled: true,
+    scheduledDate: '2025-03-15T19:00:00',
+    requiredWorkers: 2,
+    distance: '0.5 km',
+    matchScore: 95,
+    attributes: { role: ['bartender'], serviceType: 'evening', urgency: false },
+    candidates: [
+      {
+        id: 'cand-b1',
+        name: 'Julien D.',
+        specialty: 'Barman cocktails & mixologie',
+        rating: 4.9,
+        avatar: 'https://i.pravatar.cc/150?u=julien',
+        completedMissions: 72,
+        appliedAt: '2025-03-09T09:15:00',
+        status: 'PENDING' as const,
+        message: 'Mixologue certifié, 8 ans d\'expérience en rooftop bars et hôtels 5 étoiles.',
+      },
+      {
+        id: 'cand-b2',
+        name: 'Amélie V.',
+        specialty: 'Barmaid / Cheffe de bar',
+        rating: 4.7,
+        avatar: 'https://i.pravatar.cc/150?u=amelie',
+        completedMissions: 45,
+        appliedAt: '2025-03-09T11:30:00',
+        status: 'PENDING' as const,
+        message: 'Spécialisée cocktails signature et gestion de bar à fort volume.',
+      },
+      {
+        id: 'cand-b3',
+        name: 'Maxime R.',
+        specialty: 'Barman polyvalent',
+        rating: 4.5,
+        avatar: 'https://i.pravatar.cc/150?u=maxime',
+        completedMissions: 28,
+        appliedAt: '2025-03-09T14:00:00',
+        status: 'PENDING' as const,
+      },
+      {
+        id: 'cand-b4',
+        name: 'Léa K.',
+        specialty: 'Barmaid événementiel',
+        rating: 4.8,
+        avatar: 'https://i.pravatar.cc/150?u=leak',
+        completedMissions: 56,
+        appliedAt: '2025-03-09T16:45:00',
+        status: 'PENDING' as const,
+        message: 'Habituée des événements privés et soirées à thème. Très à l\'aise en rooftop.',
+      },
+      {
+        id: 'cand-b5',
+        name: 'Romain P.',
+        specialty: 'Barman speed / service rapide',
+        rating: 4.3,
+        avatar: 'https://i.pravatar.cc/150?u=romain',
+        completedMissions: 15,
+        appliedAt: '2025-03-10T08:20:00',
+        status: 'PENDING' as const,
+      },
+    ],
+  },
+  // ── Missions archivées (terminées mois/années antérieurs) ──
+  {
+    id: 'm17',
+    title: 'Réparation Machine à Glaçons',
+    expert: 'Paul Froid',
+    status: 'COMPLETED' as const,
+    date: '2025-01-18',
+    category: 'MAINTENANCE' as const,
+    iconName: 'Wrench' as const,
+    color: 'blue',
+    price: '220€',
+    location: { lat: 48.8566, lng: 2.3522, address: 'Bar Principal' },
+    venue: 'Le Bistrot Parisien',
+    venueId: 'v1',
+    type: 'cold' as const,
+    provider: { id: 'p10', name: 'Paul Froid', rating: 4.8, completedMissions: 156, bio: 'Spécialiste froid commercial.', phone: '+33 6 11 22 33 44' },
+    invoice: { id: 'inv-m17', missionId: 'm17', number: 'INV-2025-012', date: '2025-01-18', dueDate: '2025-02-18', status: 'PAID' as const, items: [{ description: 'Réparation compresseur', quantity: 1, unitPrice: 180 }, { description: 'Pièce détachée', quantity: 1, unitPrice: 40 }], totalAmount: 220, taxAmount: 44 },
+  },
+  {
+    id: 'm18',
+    title: 'Extra Barman Soirée Privée',
+    expert: 'Théo M.',
+    status: 'COMPLETED' as const,
+    date: '2025-01-25',
+    category: 'STAFFING' as const,
+    iconName: 'ChefHat' as const,
+    color: 'orange',
+    price: '150€',
+    location: { lat: 48.8566, lng: 2.3522, address: 'Salle VIP' },
+    venue: 'Le Bistrot Parisien',
+    venueId: 'v1',
+    type: 'staff' as const,
+    provider: { id: 'p11', name: 'Théo M.', rating: 4.9, completedMissions: 67, bio: 'Barman cocktails.', phone: '+33 6 55 66 77 88' },
+    invoice: { id: 'inv-m18', missionId: 'm18', number: 'INV-2025-018', date: '2025-01-25', dueDate: '2025-02-25', status: 'PAID' as const, items: [{ description: 'Extra barman 6h', quantity: 1, unitPrice: 150 }], totalAmount: 150, taxAmount: 30 },
+    dpaeStatus: 'VALIDATED' as const,
+  },
+  {
+    id: 'm19',
+    title: 'Dépannage Lave-Vaisselle',
+    expert: 'Marc Volt',
+    status: 'COMPLETED' as const,
+    date: '2024-11-05',
+    category: 'MAINTENANCE' as const,
+    iconName: 'Wrench' as const,
+    color: 'blue',
+    price: '310€',
+    location: { lat: 48.8566, lng: 2.3522, address: 'Plonge' },
+    venue: 'Le Bistrot Parisien',
+    venueId: 'v1',
+    type: 'plumbing' as const,
+    provider: { id: 'p3', name: 'Marc Volt', rating: 4.9, completedMissions: 230, bio: 'Électricien qualifié.', phone: '+33 6 98 76 54 32' },
+    invoice: { id: 'inv-m19', missionId: 'm19', number: 'INV-2024-089', date: '2024-11-05', dueDate: '2024-12-05', status: 'PAID' as const, items: [{ description: 'Diagnostic + réparation pompe', quantity: 1, unitPrice: 250 }, { description: 'Joint + raccord', quantity: 1, unitPrice: 60 }], totalAmount: 310, taxAmount: 62 },
+  },
+  {
+    id: 'm20',
+    title: 'Extra Serveur Réveillon',
+    expert: 'Sophie L.',
+    status: 'COMPLETED' as const,
+    date: '2024-12-31',
+    category: 'STAFFING' as const,
+    iconName: 'ChefHat' as const,
+    color: 'orange',
+    price: '280€',
+    location: { lat: 48.8566, lng: 2.3522, address: 'Salle Principale' },
+    venue: 'Le Bistrot Parisien',
+    venueId: 'v1',
+    type: 'staff' as const,
+    provider: { id: 'p12', name: 'Sophie L.', rating: 5.0, completedMissions: 89, bio: 'Serveuse expérimentée.', phone: '+33 6 44 55 66 77' },
+    invoice: { id: 'inv-m20', missionId: 'm20', number: 'INV-2024-102', date: '2024-12-31', dueDate: '2025-01-31', status: 'PAID' as const, items: [{ description: 'Extra serveur 10h soirée réveillon', quantity: 1, unitPrice: 280 }], totalAmount: 280, taxAmount: 56 },
+    dpaeStatus: 'VALIDATED' as const,
+  },
+  {
+    id: 'm21',
+    title: 'Maintenance Hotte Aspirante',
+    expert: 'ClimExpress',
+    status: 'COMPLETED' as const,
+    date: '2024-09-12',
+    category: 'MAINTENANCE' as const,
+    iconName: 'Wrench' as const,
+    color: 'blue',
+    price: '175€',
+    location: { lat: 48.8566, lng: 2.3522, address: 'Cuisine' },
+    venue: 'Le Bistrot Parisien',
+    venueId: 'v1',
+    type: 'hot' as const,
+    provider: { id: 'p1', name: 'ClimExpress', rating: 4.8, completedMissions: 312, bio: 'Climatisation et ventilation.', phone: '+33 6 12 34 56 78' },
+    invoice: { id: 'inv-m21', missionId: 'm21', number: 'INV-2024-071', date: '2024-09-12', dueDate: '2024-10-12', status: 'PAID' as const, items: [{ description: 'Nettoyage + remplacement filtres hotte', quantity: 1, unitPrice: 175 }], totalAmount: 175, taxAmount: 35 },
+  },
+  {
+    id: 'm22',
+    title: 'Extra Plongeur Week-end',
+    expert: 'Karim B.',
+    status: 'COMPLETED' as const,
+    date: '2025-02-08',
+    category: 'STAFFING' as const,
+    iconName: 'ChefHat' as const,
+    color: 'orange',
+    price: '95€',
+    location: { lat: 48.8566, lng: 2.3522, address: 'Plonge' },
+    venue: 'Le Bistrot Parisien',
+    venueId: 'v1',
+    type: 'staff' as const,
+    provider: { id: 'p13', name: 'Karim B.', rating: 4.6, completedMissions: 34, bio: 'Plongeur rapide et efficace.', phone: '+33 6 77 88 99 00' },
+    invoice: { id: 'inv-m22', missionId: 'm22', number: 'INV-2025-031', date: '2025-02-08', dueDate: '2025-03-08', status: 'PAID' as const, items: [{ description: 'Extra plongeur 5h', quantity: 1, unitPrice: 95 }], totalAmount: 95, taxAmount: 19 },
+    dpaeStatus: 'VALIDATED' as const,
+  },
+  {
+    id: 'm23',
+    title: 'Intervention Fuite Robinet',
+    expert: 'Plombier24',
+    status: 'CANCELLED' as const,
+    date: '2024-10-20',
+    category: 'MAINTENANCE' as const,
+    iconName: 'Wrench' as const,
+    color: 'blue',
+    price: '0€',
+    location: { lat: 48.8566, lng: 2.3522, address: 'Toilettes' },
+    venue: 'Le Bistrot Parisien',
+    venueId: 'v1',
+    type: 'plumbing' as const,
+    provider: { id: 'p14', name: 'Plombier24', rating: 4.5, completedMissions: 120, bio: 'Plomberie urgente.', phone: '+33 6 33 44 55 66' },
+  },
 ];
 
 export const useMissionsStore = create<MissionsState>()(
@@ -708,23 +909,32 @@ export const useMissionsStore = create<MissionsState>()(
       selectCandidate: (missionId, candidateId) => set((state) => ({
         missions: state.missions.map(m => {
           if (m.id !== missionId) return m;
-          const candidates = (m.candidates || []).map(c => ({
-            ...c,
-            status: c.id === candidateId ? 'ACCEPTED' as const : 'REJECTED' as const
-          }));
-          const selected = candidates.find(c => c.id === candidateId);
+          const required = m.requiredWorkers || 1;
+          // Marquer ce candidat comme ACCEPTED
+          const updatedCandidates = (m.candidates || []).map(c =>
+            c.id === candidateId ? { ...c, status: 'ACCEPTED' as const } : c
+          );
+          const acceptedCount = updatedCandidates.filter(c => c.status === 'ACCEPTED').length;
+          const allFilled = acceptedCount >= required;
+          // Si tous les postes sont pourvus, rejeter les PENDING restants et passer en SCHEDULED
+          const finalCandidates = allFilled
+            ? updatedCandidates.map(c => c.status === 'PENDING' ? { ...c, status: 'REJECTED' as const } : c)
+            : updatedCandidates;
+          const lastSelected = finalCandidates.find(c => c.id === candidateId);
           return {
             ...m,
-            candidates,
-            status: 'SCHEDULED' as const,
-            provider: selected ? {
-              id: selected.id,
-              name: selected.name,
-              rating: selected.rating,
-              completedMissions: selected.completedMissions,
-              bio: selected.specialty,
+            candidates: finalCandidates,
+            status: allFilled ? 'SCHEDULED' as const : m.status,
+            provider: allFilled && lastSelected ? {
+              id: lastSelected.id,
+              name: acceptedCount > 1
+                ? `${finalCandidates.filter(c => c.status === 'ACCEPTED').map(c => c.name).join(', ')}`
+                : lastSelected.name,
+              rating: lastSelected.rating,
+              completedMissions: lastSelected.completedMissions,
+              bio: lastSelected.specialty,
               phone: '+33 6 00 00 00 00',
-              avatar: selected.avatar,
+              avatar: lastSelected.avatar,
             } : m.provider,
           };
         })
@@ -749,7 +959,7 @@ export const useMissionsStore = create<MissionsState>()(
       }))
     }),
     {
-      name: 'missions-storage-v8', // v8: candidature system for planned missions
+      name: 'missions-storage-v11', // v11: reset after barman multi-select test
     }
   )
 );
