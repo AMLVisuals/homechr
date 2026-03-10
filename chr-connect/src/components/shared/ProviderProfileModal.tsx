@@ -19,26 +19,26 @@ interface ProviderProfileModalProps {
 export default function ProviderProfileModal({ provider, isOpen = true, onClose, onBook }: ProviderProfileModalProps) {
   const [activeTab, setActiveTab] = useState<'ABOUT' | 'SKILLS' | 'PORTFOLIO' | 'REVIEWS'>('ABOUT');
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [localReviews, setLocalReviews] = useState<Review[]>(provider.reviews || []);
+  const [localReviews, setLocalReviews] = useState<Review[]>(provider?.reviews || []);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
+  if (!isOpen || !provider || !mounted) return null;
+
   const handleReviewSubmit = (rating: number, comment: string) => {
     const newReview: Review = {
       id: `new-${Date.now()}`,
-      author: 'Vous', // Hardcoded for demo
+      author: 'Vous',
       rating,
       comment,
       date: new Date().toLocaleDateString('fr-FR'),
-      missionTitle: 'Mission Recente' // Hardcoded for demo
+      missionTitle: 'Mission Recente'
     };
     setLocalReviews([newReview, ...localReviews]);
   };
 
   const featuredWork = provider.portfolio?.filter(item => item.type === 'BEFORE_AFTER') || [];
-
-  if (!isOpen || !provider || !mounted) return null;
 
   return createPortal(
     <>

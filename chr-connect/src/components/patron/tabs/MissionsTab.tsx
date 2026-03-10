@@ -534,15 +534,13 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
         <Plus className="w-6 h-6" />
       </button>
 
-      <AnimatePresence>
-        {isModalOpen && selectedMission && (
-          <MissionDetailsModal
-            mission={missions.find(m => m.id === selectedMission.id) || selectedMission}
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-          />
-        )}
-      </AnimatePresence>
+      {isModalOpen && selectedMission && (
+        <MissionDetailsModal
+          mission={missions.find(m => m.id === selectedMission.id) || selectedMission}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
 
       <WorkerValidationModal
         mission={validationMission ? missions.find(m => m.id === validationMission.id) || validationMission : null}

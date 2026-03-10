@@ -572,22 +572,12 @@ export default function PatronDashboard() {
       {/* Settings */}
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
 
-      {/* Modals */}
-      <AnimatePresence>
-        {showNewRequestModal && <CreateMissionWizard key="mission-wizard" isOpen={true} onClose={() => { setShowNewRequestModal(false); setSelectedCategory(undefined); }} defaultCategory={selectedCategory} />}
-      </AnimatePresence>
-      <AnimatePresence>
-        {isMissionModalOpen && selectedMission && <MissionDetailsModal mission={missions.find(m => m.id === selectedMission.id) || selectedMission} isOpen={isMissionModalOpen} onClose={() => { setIsMissionModalOpen(false); setSelectedMission(null); }} />}
-      </AnimatePresence>
-      <AnimatePresence>
-        {showVenueDashboard && <VenueDashboard onClose={() => setShowVenueDashboard(false)} initialView={venueDashboardView} />}
-      </AnimatePresence>
-      <AnimatePresence>
-        {showSOSExtra && <SOSExtraLauncher isOpen={true} onClose={() => setShowSOSExtra(false)} />}
-      </AnimatePresence>
-      <AnimatePresence>
-        {showSOSTech && <SOSTechLauncher isOpen={true} onClose={() => setShowSOSTech(false)} />}
-      </AnimatePresence>
+      {/* Modals — portal-based, no AnimatePresence wrapper needed */}
+      {showNewRequestModal && <CreateMissionWizard isOpen={true} onClose={() => { setShowNewRequestModal(false); setSelectedCategory(undefined); }} defaultCategory={selectedCategory} />}
+      {isMissionModalOpen && selectedMission && <MissionDetailsModal mission={missions.find(m => m.id === selectedMission.id) || selectedMission} isOpen={isMissionModalOpen} onClose={() => { setIsMissionModalOpen(false); setSelectedMission(null); }} />}
+      {showVenueDashboard && <VenueDashboard onClose={() => setShowVenueDashboard(false)} initialView={venueDashboardView} />}
+      {showSOSExtra && <SOSExtraLauncher isOpen={true} onClose={() => setShowSOSExtra(false)} />}
+      {showSOSTech && <SOSTechLauncher isOpen={true} onClose={() => setShowSOSTech(false)} />}
     </div>
   );
 }
