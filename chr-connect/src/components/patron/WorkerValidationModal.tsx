@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Star, CheckCircle2, XCircle, Briefcase, Clock } from 'lucide-react';
+import { X, Star, CheckCircle2, XCircle, Briefcase, Clock, ShieldAlert, FileText } from 'lucide-react';
 import { Mission } from '@/types/missions';
 import { useMissionsStore } from '@/store/useMissionsStore';
 
@@ -18,13 +18,19 @@ export default function WorkerValidationModal({ mission, isOpen, onClose }: Work
   const [isConfirming, setIsConfirming] = useState(false);
   const [isRefusing, setIsRefusing] = useState(false);
   const [autoConfirmCountdown, setAutoConfirmCountdown] = useState(10);
+  const [dpaeAcknowledged, setDpaeAcknowledged] = useState(false);
 
   const worker = mission?.pendingWorker;
+  const requiresDPAE = worker?.employmentCategory === 'EXTRA_EMPLOYEE';
 
-  // Auto-confirm simulation after 10s
+  // Auto-confirm only if DPAE not required or already acknowledged
   useEffect(() => {
     if (!isOpen || !mission) return;
     setAutoConfirmCountdown(10);
+    setDpaeAcknowledged(false);
+
+    // Don't auto-confirm if DPAE is required — patron must explicitly acknowledge
+    if (requiresDPAE) return;
 
     const interval = setInterval(() => {
       setAutoConfirmCountdown((prev) => {
@@ -39,10 +45,13 @@ export default function WorkerValidationModal({ mission, isOpen, onClose }: Work
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, mission?.id]);
+  }, [isOpen, mission?.id, requiresDPAE]);
 
   const handleConfirm = async () => {
     if (!mission) return;
+    // Block if DPAE required but not acknowledged
+    if (requiresDPAE && !dpaeAcknowledged) return;
+
     setIsConfirming(true);
     await new Promise((r) => setTimeout(r, 800));
     updateMission(mission.id, {
@@ -80,6 +89,8 @@ export default function WorkerValidationModal({ mission, isOpen, onClose }: Work
 
   if (!isOpen || !mission || !worker || !mounted) return null;
 
+  const canConfirm = !requiresDPAE || dpaeAcknowledged;
+
   return createPortal(
     <AnimatePresence>
       <>
@@ -106,7 +117,7 @@ export default function WorkerValidationModal({ mission, isOpen, onClose }: Work
           </div>
 
           {/* Worker Profile */}
-          <div className="p-6 space-y-5">
+          <div className="p-6 space-y-5 overflow-y-auto">
             {/* Avatar + Name */}
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-2xl overflow-hidden bg-[var(--bg-active)] border border-[var(--border)]">
@@ -142,17 +153,81 @@ export default function WorkerValidationModal({ mission, isOpen, onClose }: Work
               </div>
             </div>
 
+            {/* Employment category badge */}
+            {worker.employmentCategory && (
+              <div className={`rounded-xl p-3 border flex items-center gap-2 ${
+                worker.employmentCategory === 'EXTRA_EMPLOYEE'
+                  ? 'bg-orange-500/10 border-orange-500/20'
+                  : 'bg-emerald-500/10 border-emerald-500/20'
+              }`}>
+                <div className={`w-2 h-2 rounded-full ${
+                  worker.employmentCategory === 'EXTRA_EMPLOYEE' ? 'bg-orange-400' : 'bg-emerald-400'
+                }`} />
+                <span className={`text-xs font-bold ${
+                  worker.employmentCategory === 'EXTRA_EMPLOYEE' ? 'text-orange-400' : 'text-emerald-400'
+                }`}>
+                  {worker.employmentCategory === 'EXTRA_EMPLOYEE'
+                    ? 'Salarié temporaire — DPAE obligatoire'
+                    : 'Auto-entrepreneur — Pas de DPAE'
+                  }
+                </span>
+              </div>
+            )}
+
+            {/* DPAE GATE — bloquant pour EXTRA_EMPLOYEE */}
+            {requiresDPAE && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <ShieldAlert className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-bold text-sm text-[var(--text-primary)]">Obligation légale : DPAE</h4>
+                    <p className="text-xs text-[var(--text-muted)] mt-1">
+                      Ce prestataire intervient en tant que <strong>salarié temporaire</strong> (CDD d&apos;usage HCR).
+                      En tant qu&apos;employeur, vous devez effectuer la Déclaration Préalable à l&apos;Embauche (DPAE)
+                      auprès de l&apos;URSSAF <strong>avant le début de la mission</strong>.
+                    </p>
+                    <p className="text-xs text-red-400 font-bold mt-2">
+                      Le non-respect de cette obligation est passible d&apos;une amende de 1 056 € par salarié (art. R1227-1 Code du travail).
+                    </p>
+                  </div>
+                </div>
+
+                <label className="flex items-start gap-3 cursor-pointer bg-[var(--bg-card)] rounded-lg p-3 border border-[var(--border)] hover:border-red-500/30 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={dpaeAcknowledged}
+                    onChange={(e) => setDpaeAcknowledged(e.target.checked)}
+                    className="w-4 h-4 text-red-500 focus:ring-red-500 rounded mt-0.5 shrink-0"
+                  />
+                  <span className="text-xs text-[var(--text-primary)] leading-relaxed">
+                    Je m&apos;engage à effectuer la DPAE auprès de l&apos;URSSAF avant le début de la mission.
+                    Je comprends que CHR Connect me fournira l&apos;outil de déclaration mais que je reste
+                    seul responsable en tant qu&apos;employeur.
+                  </span>
+                </label>
+
+                {dpaeAcknowledged && (
+                  <div className="flex items-center gap-2 text-xs text-amber-400">
+                    <FileText className="w-3 h-3" />
+                    <span>Vous pourrez effectuer la DPAE depuis le détail de la mission une fois confirmée.</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Mission info */}
             <div className="bg-[var(--bg-card)] rounded-xl p-4 border border-[var(--border)]">
               <p className="text-sm text-[var(--text-muted)] mb-1">Mission</p>
               <p className="font-medium text-[var(--text-primary)]">{mission.title}</p>
             </div>
 
-            {/* Auto-confirm countdown */}
-            <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
-              <Clock className="w-3 h-3" />
-              <span>Confirmation automatique dans {autoConfirmCountdown}s</span>
-            </div>
+            {/* Auto-confirm countdown (only for non-DPAE cases) */}
+            {!requiresDPAE && (
+              <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                <Clock className="w-3 h-3" />
+                <span>Confirmation automatique dans {autoConfirmCountdown}s</span>
+              </div>
+            )}
 
             {/* Actions */}
             <div className="flex gap-3">
@@ -170,15 +245,19 @@ export default function WorkerValidationModal({ mission, isOpen, onClose }: Work
               </button>
               <button
                 onClick={handleConfirm}
-                disabled={isConfirming || isRefusing}
-                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold hover:shadow-lg hover:shadow-green-500/25 transition-all flex items-center justify-center gap-2"
+                disabled={!canConfirm || isConfirming || isRefusing}
+                className={`flex-1 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${
+                  canConfirm
+                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:shadow-lg hover:shadow-green-500/25'
+                    : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
+                }`}
               >
                 {isConfirming ? (
                   <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full" />
                 ) : (
                   <CheckCircle2 className="w-4 h-4" />
                 )}
-                Confirmer
+                {requiresDPAE && !dpaeAcknowledged ? 'Engagement DPAE requis' : 'Confirmer'}
               </button>
             </div>
           </div>

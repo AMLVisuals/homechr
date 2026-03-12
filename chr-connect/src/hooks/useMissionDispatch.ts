@@ -138,9 +138,18 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
     clearSearchTimeout();
     const flowType = getMissionFlowType(proposal);
 
+    // Determine worker employment category
+    // In a real app, this would come from the worker's profile.
+    // For now: STAFF missions default to EXTRA_EMPLOYEE, TECH to FREELANCE_TECHNICIAN
+    const employmentCategory = flowType === 'STAFF' ? 'EXTRA_EMPLOYEE' : 'FREELANCE_TECHNICIAN';
+
+    // Set dpaeStatus based on employment category
+    const dpaeStatus = employmentCategory === 'EXTRA_EMPLOYEE' ? 'PENDING' : 'NOT_REQUIRED';
+
     // Store pending worker info on the mission for patron review
     updateMission(proposal.id, {
       status: 'AWAITING_PATRON_CONFIRMATION',
+      dpaeStatus: dpaeStatus as any,
       pendingWorker: {
         id: 'worker-self',
         name: 'Vous',
@@ -148,10 +157,15 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
         rating: 4.8,
         avatar: 'https://i.pravatar.cc/150?u=worker-self',
         completedMissions: 47,
+        employmentCategory: employmentCategory as any,
       },
     });
     startMission(proposal.id);
     setFlowType(flowType);
+
+    // Set DPAE status on engine
+    useMissionEngine.getState().setDpaeStatus(dpaeStatus as any);
+
     getDispatchActions().acceptProposal();
 
     // Go offline (worker is now busy with a mission)

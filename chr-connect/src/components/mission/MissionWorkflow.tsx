@@ -225,40 +225,41 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
     if (activeMissionId) updateMission(activeMissionId, { status: 'ON_SITE' });
   };
 
-  // STAFF flow: "Démarrer la mission" → mission goes IN_PROGRESS, worker is done
-  const handleStartStaffMission = () => {
-    setStatus('IN_PROGRESS');
-    if (activeMissionId) {
-      updateMission(activeMissionId, { status: 'IN_PROGRESS' });
-    }
-  };
-
-  const handleEndStaffMission = () => {
+  // STAFF flow: "Confirmer ma présence" → mission goes PENDING_VALIDATION (patron must validate)
+  const handleConfirmPresence = () => {
     setStatus('PENDING_VALIDATION');
     if (activeMissionId) {
       updateMission(activeMissionId, { status: 'PENDING_VALIDATION' as any });
     }
   };
 
-  // Simulate patron validation after 10 seconds (mock)
+  // Poll for patron decision on PENDING_VALIDATION (patron validates or refuses via MissionDetailsModal)
   useEffect(() => {
-    if (status !== 'PENDING_VALIDATION') return;
-    const timeout = setTimeout(() => {
-      if (activeMissionId) {
-        updateMission(activeMissionId, { status: 'COMPLETED' });
-      }
-      if (onMissionEnd) {
-        onMissionEnd({
-          title: activeMission?.title || 'Mission',
-          venue: activeMission?.venue || 'Établissement',
-          price: '',
-        });
-      } else {
+    if (status !== 'PENDING_VALIDATION' || !activeMissionId) return;
+
+    const pollInterval = setInterval(() => {
+      const currentMission = useMissionsStore.getState().missions.find(m => m.id === activeMissionId);
+      if (!currentMission) return;
+
+      if (currentMission.status === 'COMPLETED') {
+        // Patron validated
+        if (onMissionEnd) {
+          onMissionEnd({
+            title: currentMission.title || 'Mission',
+            venue: currentMission.venue || 'Établissement',
+            price: '',
+          });
+        } else {
+          resetMission();
+        }
+      } else if (currentMission.status === 'CANCELLED') {
+        // Patron refused
         resetMission();
       }
-    }, 10000);
-    return () => clearTimeout(timeout);
-  }, [status]);
+    }, 1000);
+
+    return () => clearInterval(pollInterval);
+  }, [status, activeMissionId, onMissionEnd, resetMission]);
 
   // TECH flow: transition ON_SITE → DIAGNOSING
   const handleStartDiagnosis = () => {
@@ -402,7 +403,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
   // Calculate progress percentage based on flow
   const getSteps = () => {
     if (flowType === 'TECH') return ['ACCEPTED', 'ON_WAY', 'ON_SITE', 'DIAGNOSING', 'QUOTE_BUILDING', 'AWAITING_QUOTE_RESPONSE', 'IN_PROGRESS', 'COMPLETED'];
-    if (flowType === 'STAFF') return ['ACCEPTED', 'ON_WAY', 'ON_SITE', 'IN_PROGRESS', 'PENDING_VALIDATION'];
+    if (flowType === 'STAFF') return ['ACCEPTED', 'ON_WAY', 'ON_SITE', 'PENDING_VALIDATION'];
     return ['ACCEPTED', 'ON_WAY', 'ON_SITE', 'IN_PROGRESS', 'COMPLETED'];
   };
   const steps = getSteps();
@@ -544,7 +545,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900">Vous êtes sur place</h3>
                   <p className="text-[var(--text-muted)] mt-2 max-w-xs mx-auto">
-                    Présentez-vous au patron et démarrez la mission quand vous êtes prêt.
+                    Présentez-vous au patron et confirmez votre présence. Le patron validera ensuite la mission.
                   </p>
                 </div>
                 {/* Gate DPAE : bloque si DPAE pas validée */}
@@ -557,7 +558,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
                 )}
               </div>
               <Button
-                onClick={handleStartStaffMission}
+                onClick={handleConfirmPresence}
                 disabled={!canTransitionToInProgress().allowed}
                 size="lg"
                 className={cn(
@@ -567,7 +568,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
                     : "bg-gray-300 text-gray-500 cursor-not-allowed shadow-none"
                 )}
               >
-                <CheckCircle className="mr-2 w-5 h-5" /> Démarrer la mission
+                <CheckCircle className="mr-2 w-5 h-5" /> Confirmer ma présence
               </Button>
             </motion.div>
           )}
@@ -626,18 +627,18 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
               className="h-full flex flex-col p-4"
             >
               <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
-                <div className="w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center">
-                  <Camera className="w-10 h-10 text-orange-600" />
+                <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-10 h-10 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900">État des lieux</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">Vous êtes sur place</h3>
                   <p className="text-[var(--text-muted)] mt-2">
-                    Prenez une photo de l'équipement avant d'intervenir pour valider votre arrivée.
+                    Confirmez votre présence pour que le patron valide la mission.
                   </p>
                 </div>
               </div>
-              <Button onClick={handleStartStaffMission} size="lg" className="w-full h-14 text-lg font-bold bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-900/20 rounded-2xl">
-                <Camera className="mr-2 w-5 h-5" /> Prendre photo
+              <Button onClick={handleConfirmPresence} size="lg" className="w-full h-14 text-lg font-bold bg-green-600 hover:bg-green-700 shadow-xl shadow-green-900/20 rounded-2xl">
+                <CheckCircle className="mr-2 w-5 h-5" /> Confirmer ma présence
               </Button>
             </motion.div>
           )}
@@ -755,42 +756,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
             </motion.div>
           )}
 
-          {/* === STAFF: IN_PROGRESS STATE === */}
-          {status === 'IN_PROGRESS' && flowType === 'STAFF' && (
-            <motion.div
-              key="in-progress-staff"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.05 }}
-              className="h-full flex flex-col p-4"
-            >
-              <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
-                <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center relative">
-                  <Clock className="w-10 h-10 text-green-600" />
-                  <motion.div
-                    className="absolute inset-0 rounded-full border-4 border-green-400/30"
-                    animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0, 0.5] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900">Mission en cours</h3>
-                  <p className="text-[var(--text-muted)] mt-2 max-w-xs mx-auto">
-                    Votre mission est en cours. Signalez la fin quand vous avez terminé.
-                  </p>
-                </div>
-                {startTime && (
-                  <div className="bg-green-50 px-4 py-2 rounded-full text-sm font-medium text-green-700 flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Début : {new Date(startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                  </div>
-                )}
-              </div>
-              <Button onClick={handleEndStaffMission} size="lg" className="w-full h-14 text-lg font-bold bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-900/20 rounded-2xl">
-                <CheckCircle className="mr-2 w-5 h-5" /> Signaler la fin de mission
-              </Button>
-            </motion.div>
-          )}
+          {/* STAFF: IN_PROGRESS supprimé — flow entremetteur : ON_SITE → PENDING_VALIDATION directement */}
 
           {/* === PENDING_VALIDATION STATE (STAFF — waiting for patron to confirm) === */}
           {status === 'PENDING_VALIDATION' && (
@@ -812,7 +778,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">En attente de validation</h3>
                 <p className="text-[var(--text-muted)] mt-2 max-w-xs mx-auto">
-                  Le patron doit confirmer que la mission est bien terminée. Vous serez notifié dès validation.
+                  Votre présence a été signalée. Le patron doit valider la mission. Vous serez notifié dès confirmation.
                 </p>
               </div>
               <div className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 px-4 py-2 rounded-full">

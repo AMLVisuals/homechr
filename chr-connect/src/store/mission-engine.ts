@@ -100,12 +100,12 @@ export const useMissionEngine = create<MissionState>((set, get) => ({
   canTransitionToInProgress: () => {
     const state = get();
 
-    // STAFF flow : DPAE obligatoire
+    // STAFF flow : DPAE obligatoire (sauf si worker est indépendant/auto-entrepreneur)
     if (state.flowType === 'STAFF') {
       if (state.dpaeStatus !== 'VALIDATED' && state.dpaeStatus !== 'NOT_REQUIRED') {
         return {
           allowed: false,
-          reason: 'La DPAE doit être validée avant de démarrer la mission. Le patron doit effectuer la déclaration URSSAF.',
+          reason: 'La DPAE doit être validée avant de confirmer la présence. Le patron doit effectuer la déclaration URSSAF.',
         };
       }
       return { allowed: true };

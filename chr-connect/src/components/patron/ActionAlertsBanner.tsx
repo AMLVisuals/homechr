@@ -125,7 +125,7 @@ function buildAlerts(missions: Mission[], activeVenueId: string | null): ActionA
       });
     }
 
-    // Validation heures requise
+    // Validation présence requise (le prestataire est arrivé sur place)
     if (m.status === 'PENDING_VALIDATION') {
       alerts.push({
         id: `validate-${m.id}`,
@@ -134,7 +134,7 @@ function buildAlerts(missions: Mission[], activeVenueId: string | null): ActionA
         type: 'VALIDATION_REQUIRED',
         icon: ClipboardCheck,
         label: 'Validation requise',
-        description: `${m.title} — Confirmez les heures travaillées`,
+        description: `${m.title} — Le prestataire est sur place, confirmez sa présence`,
         gradient: 'from-amber-500/15 to-yellow-500/10',
         borderColor: 'border-amber-500/30',
         iconColor: 'text-amber-400',

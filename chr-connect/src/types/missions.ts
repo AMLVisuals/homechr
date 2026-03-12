@@ -193,6 +193,7 @@ export interface Mission {
     rating: number;
     avatar?: string;
     completedMissions?: number;
+    employmentCategory?: import('./compliance').EmploymentCategory;
   };
 }
 

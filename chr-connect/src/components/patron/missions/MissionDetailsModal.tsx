@@ -621,57 +621,119 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
 
                     <div className="flex-1 overflow-y-auto custom-scrollbar space-y-6">
 
-                      {/* === PENDING_VALIDATION BANNER (Staff flow — patron must validate) === */}
-                      {mission.status === 'PENDING_VALIDATION' && activeTab === 'DETAILS' && (
-                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 space-y-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-amber-500/20 rounded-full flex items-center justify-center">
-                              <CheckCircle2 className="w-5 h-5 text-amber-400" />
+                      {/* === PENDING_VALIDATION BANNER (Staff flow — patron must validate presence) === */}
+                      {mission.status === 'PENDING_VALIDATION' && activeTab === 'DETAILS' && (() => {
+                        const workerIsEmployee = mission.pendingWorker?.employmentCategory === 'EXTRA_EMPLOYEE';
+                        const dpaeIsDone = mission.dpaeStatus === 'VALIDATED';
+                        const dpaeBlocking = workerIsEmployee && !dpaeIsDone;
+
+                        return (
+                          <div className="space-y-4">
+                            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 space-y-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-amber-500/20 rounded-full flex items-center justify-center">
+                                  <CheckCircle2 className="w-5 h-5 text-amber-400" />
+                                </div>
+                                <div>
+                                  <h4 className="font-bold text-[var(--text-primary)]">Le prestataire est arrivé sur place</h4>
+                                  <p className="text-xs text-[var(--text-muted)]">Confirmez sa présence pour valider la mission</p>
+                                </div>
+                              </div>
+
+                              {/* DPAE GATE — bloque la validation si DPAE non effectuée */}
+                              {dpaeBlocking && (
+                                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                                  <div className="flex items-start gap-3">
+                                    <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                                    <div>
+                                      <h4 className="font-bold text-sm text-red-400">DPAE obligatoire avant validation</h4>
+                                      <p className="text-xs text-[var(--text-muted)] mt-1">
+                                        Ce prestataire est salarié temporaire. Vous devez effectuer la DPAE
+                                        avant de pouvoir valider la mission. Utilisez le bouton ci-dessous.
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={() => setShowDPAEWizard(true)}
+                                    className="w-full mt-3 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-blue-500/25"
+                                  >
+                                    <FileText className="w-4 h-4" />
+                                    Effectuer la DPAE maintenant
+                                  </button>
+                                </div>
+                              )}
+
+                              {/* Confirmation checkbox — disabled if DPAE blocking */}
+                              <label className={clsx(
+                                "flex items-center gap-3",
+                                dpaeBlocking ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                              )}>
+                                <input
+                                  type="checkbox"
+                                  checked={staffConfirmed}
+                                  onChange={(e) => !dpaeBlocking && setStaffConfirmed(e.target.checked)}
+                                  disabled={dpaeBlocking}
+                                  className="w-4 h-4 text-amber-500 focus:ring-amber-500 rounded"
+                                />
+                                <span className="text-sm text-[var(--text-primary)]">Je confirme la présence du prestataire</span>
+                              </label>
+
+                              {staffConfirmed && !showRating && !dpaeBlocking && (
+                                <button
+                                  onClick={() => setShowRating(true)}
+                                  className="w-full py-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                >
+                                  <Star className="w-4 h-4" /> Noter le prestataire (optionnel)
+                                </button>
+                              )}
+
+                              <div className="flex gap-3">
+                                {staffConfirmed && !dpaeBlocking && (
+                                  <button
+                                    onClick={() => {
+                                      validateStaffMission(mission.id);
+                                      generateInvoice(mission.id);
+                                      updateMission(mission.id, { status: 'COMPLETED' });
+                                      // Auto-pay
+                                      setTimeout(() => {
+                                        const updatedMission = useMissionsStore.getState().missions.find(m => m.id === mission.id);
+                                        if (updatedMission?.invoice) payInvoice(updatedMission.invoice.id);
+                                      }, 100);
+                                    }}
+                                    className="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                  >
+                                    <CheckCircle2 className="w-4 h-4" /> Valider la mission
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => {
+                                    if (confirm('Voulez-vous vraiment refuser cette mission ? Cette action est irréversible.')) {
+                                      updateMission(mission.id, { status: 'CANCELLED' });
+                                      onClose();
+                                    }
+                                  }}
+                                  className={clsx(
+                                    "py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2",
+                                    staffConfirmed && !dpaeBlocking ? "w-auto px-4" : "flex-1"
+                                  )}
+                                >
+                                  <XCircle className="w-4 h-4" /> Refuser
+                                </button>
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="font-bold text-[var(--text-primary)]">Le prestataire a terminé</h4>
-                              <p className="text-xs text-[var(--text-muted)]">Veuillez valider le travail effectué</p>
-                            </div>
+
+                            {/* DPAE done confirmation */}
+                            {workerIsEmployee && dpaeIsDone && (
+                              <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10 border border-green-500/20 rounded-xl">
+                                <CheckCircle2 className="w-4 h-4 text-green-400" />
+                                <span className="text-xs font-medium text-green-400">
+                                  DPAE validée — Réf. {mission.dpaeReceiptId || dpaeDeclaration?.urssafReference || 'OK'}
+                                </span>
+                              </div>
+                            )}
                           </div>
-
-                          <label className="flex items-center gap-3 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={staffConfirmed}
-                              onChange={(e) => setStaffConfirmed(e.target.checked)}
-                              className="w-4 h-4 text-amber-500 focus:ring-amber-500 rounded"
-                            />
-                            <span className="text-sm text-[var(--text-primary)]">Je confirme que le travail a été effectué correctement</span>
-                          </label>
-
-                          {staffConfirmed && !showRating && (
-                            <button
-                              onClick={() => setShowRating(true)}
-                              className="w-full py-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
-                            >
-                              <Star className="w-4 h-4" /> Noter le prestataire puis valider
-                            </button>
-                          )}
-
-                          {staffConfirmed && (
-                            <button
-                              onClick={() => {
-                                validateStaffMission(mission.id);
-                                generateInvoice(mission.id);
-                                updateMission(mission.id, { status: 'COMPLETED' });
-                                // Auto-pay
-                                setTimeout(() => {
-                                  const updatedMission = useMissionsStore.getState().missions.find(m => m.id === mission.id);
-                                  if (updatedMission?.invoice) payInvoice(updatedMission.invoice.id);
-                                }, 100);
-                              }}
-                              className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
-                            >
-                              <CheckCircle2 className="w-4 h-4" /> Valider et payer
-                            </button>
-                          )}
-                        </div>
-                      )}
+                        );
+                      })()}
 
                       {/* === QUOTE_SENT BANNER (Tech flow — patron must accept/reject quote) === */}
                       {mission.status === 'QUOTE_SENT' && activeTab === 'DETAILS' && (

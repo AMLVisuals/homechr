@@ -34,11 +34,13 @@ import type { EmploymentCategory, ComplianceDocType } from '@/types/compliance';
 export const EMPLOYMENT_CATEGORY_LABELS: Record<EmploymentCategory, string> = {
   EXTRA_EMPLOYEE: 'Extra / Personnel (salarié du patron)',
   FREELANCE_TECHNICIAN: 'Indépendant / Technicien',
+  FREELANCE_PERSONNEL: 'Indépendant / Personnel (auto-entrepreneur)',
 };
 
 export const EMPLOYMENT_CATEGORY_DESCRIPTIONS: Record<EmploymentCategory, string> = {
   EXTRA_EMPLOYEE: 'Vous intervenez en tant que salarié temporaire (CDD d\'usage). Le patron sera votre employeur et devra effectuer une DPAE avant le début de la mission.',
   FREELANCE_TECHNICIAN: 'Vous intervenez en tant que professionnel indépendant. Vous devez fournir votre KBIS, attestation URSSAF et assurance RC Pro.',
+  FREELANCE_PERSONNEL: 'Vous intervenez en tant qu\'indépendant (auto-entrepreneur). Vous devez fournir votre KBIS, attestation URSSAF et assurance RC Pro. Pas de DPAE requise.',
 };
 
 // Documents requis pour qu'un indépendant soit "VERIFIED"
@@ -72,12 +74,19 @@ export const MISSION_START_RULES = {
     blockingMessage: 'La DPAE doit être validée par l\'URSSAF avant de démarrer la mission.',
     patronAction: 'Générer la DPAE',
   },
-  // Parcours B (Indépendant) : compliance vérifiée obligatoire
+  // Parcours B (Indépendant technicien) : compliance vérifiée obligatoire
   FREELANCE_TECHNICIAN: {
     requiresDPAE: false,
     requiresCompliance: true,
     blockingMessage: 'Le prestataire doit avoir ses documents de conformité vérifiés (KBIS, URSSAF, RC Pro).',
     patronAction: null, // C'est au prestataire de mettre à jour ses docs
+  },
+  // Parcours C (Indépendant personnel) : même règles que freelance tech, pas de DPAE
+  FREELANCE_PERSONNEL: {
+    requiresDPAE: false,
+    requiresCompliance: true,
+    blockingMessage: 'Le prestataire doit avoir ses documents de conformité vérifiés (KBIS, URSSAF, RC Pro).',
+    patronAction: null,
   },
 } as const;
 

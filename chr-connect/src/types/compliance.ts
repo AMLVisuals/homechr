@@ -3,7 +3,10 @@
 // ============================================================================
 
 // Catégorie d'emploi du prestataire — détermine tout le parcours légal
-export type EmploymentCategory = 'EXTRA_EMPLOYEE' | 'FREELANCE_TECHNICIAN';
+// EXTRA_EMPLOYEE     = Salarié temporaire (CDD d'usage HCR) → DPAE obligatoire
+// FREELANCE_TECHNICIAN = Indépendant technicien → KBIS/URSSAF/RC Pro
+// FREELANCE_PERSONNEL  = Indépendant dans le Personnel (DJ, agent sécu auto-entrepreneur…) → KBIS/URSSAF/RC Pro, pas de DPAE
+export type EmploymentCategory = 'EXTRA_EMPLOYEE' | 'FREELANCE_TECHNICIAN' | 'FREELANCE_PERSONNEL';
 
 // Statut de conformité du prestataire
 export type ComplianceStatus = 'PENDING' | 'VERIFIED' | 'SUSPENDED' | 'EXPIRED';
@@ -92,6 +95,7 @@ export interface WorkerCompliance {
 export const REQUIRED_DOCS: Record<EmploymentCategory, ComplianceDocType[]> = {
   EXTRA_EMPLOYEE: [],  // L'extra est salarié du patron, pas de docs entreprise requis
   FREELANCE_TECHNICIAN: ['KBIS', 'URSSAF_ATTESTATION', 'RC_PRO'],
+  FREELANCE_PERSONNEL: ['KBIS', 'URSSAF_ATTESTATION', 'RC_PRO'], // Même exigences que freelance tech
 };
 
 // Documents optionnels par métier (le prestataire les ajoute si pertinent)
