@@ -583,15 +583,17 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                           )}
                         </button>
                       )}
-                      <button
-                        onClick={() => setActiveTab('EVIDENCE')}
-                        className={clsx(
-                          "flex-1 py-2 rounded-lg text-sm font-bold transition-all",
-                          activeTab === 'EVIDENCE' ? "bg-white text-black shadow-lg" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
-                        )}
-                      >
-                        Preuves
-                      </button>
+                      {mission.category !== 'STAFFING' && (
+                        <button
+                          onClick={() => setActiveTab('EVIDENCE')}
+                          className={clsx(
+                            "flex-1 py-2 rounded-lg text-sm font-bold transition-all",
+                            activeTab === 'EVIDENCE' ? "bg-white text-black shadow-lg" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                          )}
+                        >
+                          Preuves
+                        </button>
+                      )}
                       {mission.quote && (
                         <button
                           onClick={() => setActiveTab('QUOTE')}
@@ -623,7 +625,9 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
 
                       {/* === PENDING_VALIDATION BANNER (Staff flow — patron must validate presence) === */}
                       {mission.status === 'PENDING_VALIDATION' && activeTab === 'DETAILS' && (() => {
-                        const workerIsEmployee = mission.pendingWorker?.employmentCategory === 'EXTRA_EMPLOYEE';
+                        // Fallback sécurisé : si employmentCategory manquant + mission STAFFING → DPAE obligatoire
+                        const workerIsEmployee = mission.pendingWorker?.employmentCategory === 'EXTRA_EMPLOYEE'
+                          || (mission.pendingWorker?.employmentCategory === undefined && mission.category === 'STAFFING');
                         const dpaeIsDone = mission.dpaeStatus === 'VALIDATED';
                         const dpaeBlocking = workerIsEmployee && !dpaeIsDone;
 

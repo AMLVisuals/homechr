@@ -125,6 +125,23 @@ function buildAlerts(missions: Mission[], activeVenueId: string | null): ActionA
       });
     }
 
+    // Mission en attente de pièces (STANDBY)
+    if (m.status === 'STANDBY') {
+      alerts.push({
+        id: `standby-${m.id}`,
+        missionId: m.id,
+        missionTitle: m.title,
+        type: 'VALIDATION_REQUIRED',
+        icon: AlertTriangle,
+        label: 'En attente de pièces',
+        description: `${m.title} — ${m.partsDescription || 'Pièce(s) en commande'}`,
+        gradient: 'from-yellow-500/15 to-orange-500/10',
+        borderColor: 'border-yellow-500/30',
+        iconColor: 'text-yellow-400',
+        dotColor: 'bg-yellow-500',
+      });
+    }
+
     // Validation présence requise (le prestataire est arrivé sur place)
     if (m.status === 'PENDING_VALIDATION') {
       alerts.push({

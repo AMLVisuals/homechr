@@ -21,7 +21,9 @@ export default function WorkerValidationModal({ mission, isOpen, onClose }: Work
   const [dpaeAcknowledged, setDpaeAcknowledged] = useState(false);
 
   const worker = mission?.pendingWorker;
-  const requiresDPAE = worker?.employmentCategory === 'EXTRA_EMPLOYEE';
+  // Fallback sécurisé : si employmentCategory manquant + mission STAFFING → considérer comme EXTRA_EMPLOYEE (DPAE obligatoire)
+  const requiresDPAE = worker?.employmentCategory === 'EXTRA_EMPLOYEE'
+    || (worker?.employmentCategory === undefined && mission?.category === 'STAFFING');
 
   // Auto-confirm only if DPAE not required or already acknowledged
   useEffect(() => {

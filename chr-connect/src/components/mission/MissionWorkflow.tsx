@@ -229,7 +229,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
   const handleConfirmPresence = () => {
     setStatus('PENDING_VALIDATION');
     if (activeMissionId) {
-      updateMission(activeMissionId, { status: 'PENDING_VALIDATION' as any });
+      updateMission(activeMissionId, { status: 'PENDING_VALIDATION' });
     }
   };
 

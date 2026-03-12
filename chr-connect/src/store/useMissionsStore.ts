@@ -534,7 +534,7 @@ const INITIAL_MISSIONS: Mission[] = [
     title: 'Barman - 2 personne(s)',
     expert: 'En attente',
     status: 'SEARCHING' as const,
-    date: '2025-03-15 19:00',
+    date: '2026-03-15 19:00',
     category: 'STAFFING' as const,
     iconName: 'ChefHat' as const,
     color: 'orange',
@@ -546,7 +546,7 @@ const INITIAL_MISSIONS: Mission[] = [
     type: 'staff' as const,
     urgent: false,
     scheduled: true,
-    scheduledDate: '2025-03-15T19:00:00',
+    scheduledDate: '2026-03-15T19:00:00',
     requiredWorkers: 2,
     distance: '0.5 km',
     matchScore: 95,
@@ -559,7 +559,7 @@ const INITIAL_MISSIONS: Mission[] = [
         rating: 4.9,
         avatar: 'https://i.pravatar.cc/150?u=julien',
         completedMissions: 72,
-        appliedAt: '2025-03-09T09:15:00',
+        appliedAt: '2026-03-09T09:15:00',
         status: 'PENDING' as const,
         message: 'Mixologue certifié, 8 ans d\'expérience en rooftop bars et hôtels 5 étoiles.',
       },
@@ -570,7 +570,7 @@ const INITIAL_MISSIONS: Mission[] = [
         rating: 4.7,
         avatar: 'https://i.pravatar.cc/150?u=amelie',
         completedMissions: 45,
-        appliedAt: '2025-03-09T11:30:00',
+        appliedAt: '2026-03-09T11:30:00',
         status: 'PENDING' as const,
         message: 'Spécialisée cocktails signature et gestion de bar à fort volume.',
       },
@@ -581,7 +581,7 @@ const INITIAL_MISSIONS: Mission[] = [
         rating: 4.5,
         avatar: 'https://i.pravatar.cc/150?u=maxime',
         completedMissions: 28,
-        appliedAt: '2025-03-09T14:00:00',
+        appliedAt: '2026-03-09T14:00:00',
         status: 'PENDING' as const,
       },
       {
@@ -591,7 +591,7 @@ const INITIAL_MISSIONS: Mission[] = [
         rating: 4.8,
         avatar: 'https://i.pravatar.cc/150?u=leak',
         completedMissions: 56,
-        appliedAt: '2025-03-09T16:45:00',
+        appliedAt: '2026-03-09T16:45:00',
         status: 'PENDING' as const,
         message: 'Habituée des événements privés et soirées à thème. Très à l\'aise en rooftop.',
       },
@@ -602,7 +602,7 @@ const INITIAL_MISSIONS: Mission[] = [
         rating: 4.3,
         avatar: 'https://i.pravatar.cc/150?u=romain',
         completedMissions: 15,
-        appliedAt: '2025-03-10T08:20:00',
+        appliedAt: '2026-03-10T08:20:00',
         status: 'PENDING' as const,
       },
     ],
@@ -959,7 +959,7 @@ export const useMissionsStore = create<MissionsState>()(
       }))
     }),
     {
-      name: 'missions-storage-v11', // v11: reset after barman multi-select test
+      name: 'missions-storage-v12', // v12: fix dates 2025→2026
     }
   )
 );
