@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Settings, Euro, Percent, Save } from 'lucide-react';
+import { Settings, Euro, Save } from 'lucide-react';
 import { APP_CONFIG } from '@/config/appConfig';
 
 const CONFIG_ITEMS = [
@@ -15,18 +15,6 @@ const CONFIG_ITEMS = [
     label: 'Abonnement Premium',
     value: `${APP_CONFIG.PREMIUM_MONTHLY_PRICE} €/mois`,
     description: 'Tarif mensuel de l\'abonnement Premium',
-    icon: Euro,
-  },
-  {
-    label: 'Commission plateforme',
-    value: `${APP_CONFIG.PLATFORM_FEE_PERCENT}%`,
-    description: 'Commission prélevée sur chaque transaction',
-    icon: Percent,
-  },
-  {
-    label: 'SMIC horaire brut',
-    value: `${APP_CONFIG.SMIC_HOURLY_RATE} €`,
-    description: 'Taux horaire minimum légal (2024)',
     icon: Euro,
   },
 ];

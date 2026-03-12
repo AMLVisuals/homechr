@@ -1,393 +1,718 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Receipt, Download, Calendar, Clock,
-  X, ChevronDown, FileText,
+  Briefcase, Building2, Star, TrendingUp,
+  CalendarCheck, MapPin, ArrowLeft, ChevronRight,
+  Clock, CheckCircle, Calendar,
 } from 'lucide-react';
 import { clsx } from 'clsx';
-import { usePayslipsStore } from '@/store/usePayslipsStore';
-import type { Payslip, PayslipStatus } from '@/types/payslip';
-import { PAYSLIP_STATUS_INFO, PAYSLIP_PERIOD_LABELS } from '@/types/payslip';
 
-const STATUS_FILTERS: { key: PayslipStatus | 'ALL'; label: string }[] = [
-  { key: 'ALL', label: 'Tous' },
-  { key: 'PAID', label: 'Payés' },
-  { key: 'PENDING', label: 'En attente' },
-  { key: 'PROCESSING', label: 'En cours' },
+// ── Shared mock data ─────────────────────────────────────────────────────────
+const MOCK_MISSIONS = [
+  {
+    id: 'M-1204',
+    title: 'Réparation Machine à Glaçons',
+    venue: 'Le Perchoir Marais',
+    date: '10 Mar 2026, 10:30',
+    isoDate: '2026-03-10',
+    duration: '1h 45min',
+    rating: 4.8,
+    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=300&auto=format&fit=crop',
+    report: {
+      text: 'Remplacement de la pompe de vidange. Test de cycle complet OK.',
+      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
+      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
+    },
+  },
+  {
+    id: 'M-1198',
+    title: 'Installation Vitrine Réfrigérée',
+    venue: 'La Felicità',
+    date: '07 Mar 2026, 14:15',
+    isoDate: '2026-03-07',
+    duration: '3h 00min',
+    rating: 5.0,
+    image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=300&auto=format&fit=crop',
+    report: {
+      text: 'Installation complète et raccordement électrique. Mise en service effectuée.',
+      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
+      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
+    },
+  },
+  {
+    id: 'M-1150',
+    title: 'Maintenance Préventive',
+    venue: 'Big Mamma',
+    date: '15 Fév 2026, 09:00',
+    isoDate: '2026-02-15',
+    duration: '2h 30min',
+    rating: 4.5,
+    image: 'https://images.unsplash.com/photo-1550966871-3ed3c47e2ce2?q=80&w=300&auto=format&fit=crop',
+    report: {
+      text: 'Nettoyage des condenseurs et vérification des niveaux de gaz.',
+      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
+      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
+    },
+  },
+  {
+    id: 'M-1120',
+    title: 'Dépannage Chambre Froide',
+    venue: 'Bouillon Chartier',
+    date: '28 Jan 2026, 16:00',
+    isoDate: '2026-01-28',
+    duration: '2h 15min',
+    rating: 4.9,
+    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=300&auto=format&fit=crop',
+    report: {
+      text: 'Fuite de gaz réfrigérant détectée et réparée. Recharge effectuée.',
+      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
+      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
+    },
+  },
+  {
+    id: 'M-1080',
+    title: 'Remplacement Compresseur',
+    venue: 'Le Perchoir Marais',
+    date: '12 Déc 2025, 08:00',
+    isoDate: '2025-12-12',
+    duration: '4h 00min',
+    rating: 4.7,
+    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=300&auto=format&fit=crop',
+    report: {
+      text: 'Remplacement du compresseur principal. Tests de pression OK.',
+      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
+      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
+    },
+  },
+  {
+    id: 'M-1045',
+    title: 'Entretien Hotte Professionnelle',
+    venue: 'Big Mamma',
+    date: '03 Déc 2025, 11:00',
+    isoDate: '2025-12-03',
+    duration: '2h 00min',
+    rating: 5.0,
+    image: 'https://images.unsplash.com/photo-1550966871-3ed3c47e2ce2?q=80&w=300&auto=format&fit=crop',
+    report: {
+      text: 'Nettoyage complet des filtres et conduits. Vérification moteur extraction.',
+      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
+      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
+    },
+  },
+  {
+    id: 'M-1010',
+    title: 'Réparation Four Professionnel',
+    venue: 'La Felicità',
+    date: '18 Nov 2025, 15:30',
+    isoDate: '2025-11-18',
+    duration: '1h 30min',
+    rating: 4.6,
+    image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=300&auto=format&fit=crop',
+    report: {
+      text: 'Remplacement thermostat et résistance supérieure. Calibration effectuée.',
+      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
+      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
+    },
+  },
+  {
+    id: 'M-0990',
+    title: 'Diagnostic Chambre Froide',
+    venue: 'Bouillon Chartier',
+    date: '05 Nov 2025, 09:30',
+    isoDate: '2025-11-05',
+    duration: '1h 00min',
+    rating: 4.8,
+    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=300&auto=format&fit=crop',
+    report: {
+      text: 'Diagnostic complet. Préconisation remplacement joint de porte.',
+      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
+      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
+    },
+  },
+  {
+    id: 'M-0950',
+    title: 'Installation Lave-vaisselle Pro',
+    venue: 'Le Perchoir Marais',
+    date: '20 Oct 2025, 14:00',
+    isoDate: '2025-10-20',
+    duration: '3h 30min',
+    rating: 4.9,
+    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=300&auto=format&fit=crop',
+    report: {
+      text: 'Installation et raccordement complet. Formation équipe sur utilisation.',
+      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
+      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
+    },
+  },
+  {
+    id: 'M-0920',
+    title: 'Révision Groupe Froid',
+    venue: 'Big Mamma',
+    date: '08 Oct 2025, 10:00',
+    isoDate: '2025-10-08',
+    duration: '2h 00min',
+    rating: 4.4,
+    image: 'https://images.unsplash.com/photo-1550966871-3ed3c47e2ce2?q=80&w=300&auto=format&fit=crop',
+    report: {
+      text: 'Révision complète. Remplacement filtre déshydrateur.',
+      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
+      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
+    },
+  },
 ];
 
-function formatMonthLabel(year: number, month: number): string {
-  const date = new Date(year, month);
-  return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+type Mission = typeof MOCK_MISSIONS[number];
+type DetailView = 'missions' | 'venues' | 'ratings' | null;
+
+function getMonthKey(dateStr: string) {
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
-function generateMonthOptions() {
-  const now = new Date();
-  const options: { year: number; month: number; label: string }[] = [];
-  for (let i = 36; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    options.push({
-      year: d.getFullYear(),
-      month: d.getMonth(),
-      label: d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }),
-    });
+function formatMonth(key: string) {
+  const [y, m] = key.split('-').map(Number);
+  return new Date(y, m - 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// MAIN EXPORT
+// ═════════════════════════════════════════════════════════════════════════════
+
+export function ActivityTab() {
+  const [detailView, setDetailView] = useState<DetailView>(null);
+  const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
+  const missions = MOCK_MISSIONS;
+
+  const totalMissions = missions.length;
+
+  const avgRating = useMemo(() => {
+    if (missions.length === 0) return 0;
+    return missions.reduce((sum, m) => sum + m.rating, 0) / missions.length;
+  }, [missions]);
+
+  const uniqueVenues = useMemo(() => {
+    return [...new Set(missions.map((m) => m.venue))];
+  }, [missions]);
+
+  // ── Mission detail view ──────────────────────────────────────────────────
+  if (selectedMission) {
+    return (
+      <MissionDetail
+        mission={selectedMission}
+        onBack={() => setSelectedMission(null)}
+      />
+    );
   }
-  return options.reverse();
-}
 
-export function PayslipsTab() {
-  const now = new Date();
-  const { payslips, fetchPayslips, downloadPayslipPdf, isLoading } = usePayslipsStore();
-  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<PayslipStatus | 'ALL'>('ALL');
-  const [selectedPayslip, setSelectedPayslip] = useState<Payslip | null>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const pickerRef = useRef<HTMLDivElement>(null);
+  // ── Detail sub-views ─────────────────────────────────────────────────────
+  if (detailView === 'missions') {
+    return (
+      <MissionsDetailView
+        missions={missions}
+        onBack={() => setDetailView(null)}
+        onSelectMission={setSelectedMission}
+      />
+    );
+  }
 
-  const monthOptions = useMemo(() => generateMonthOptions(), []);
-  const isCurrentMonth = selectedYear === now.getFullYear() && selectedMonth === now.getMonth();
-  const currentLabel = formatMonthLabel(selectedYear, selectedMonth);
+  if (detailView === 'venues') {
+    return (
+      <VenuesDetailView
+        missions={missions}
+        venues={uniqueVenues}
+        onBack={() => setDetailView(null)}
+        onSelectMission={setSelectedMission}
+      />
+    );
+  }
 
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
-        setIsPickerOpen(false);
-      }
-    }
-    if (isPickerOpen) document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [isPickerOpen]);
+  if (detailView === 'ratings') {
+    return (
+      <RatingsDetailView
+        missions={missions}
+        avgRating={avgRating}
+        onBack={() => setDetailView(null)}
+        onSelectMission={setSelectedMission}
+      />
+    );
+  }
 
-  useEffect(() => {
-    fetchPayslips();
-  }, [fetchPayslips]);
-
-  const filtered = useMemo(() => {
-    let list = payslips.filter(p => !p.isDeleted);
-    // Filtre par mois
-    list = list.filter(p => {
-      const d = new Date(p.issueDate);
-      return d.getFullYear() === selectedYear && d.getMonth() === selectedMonth;
-    });
-    if (statusFilter !== 'ALL') {
-      list = list.filter(p => p.status === statusFilter);
-    }
-    return list.sort((a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
-  }, [payslips, statusFilter, selectedYear, selectedMonth]);
-
-  const totalNet = useMemo(() => filtered.reduce((sum, p) => sum + p.netAmount, 0), [filtered]);
-
-  const handleDownload = async (payslip: Payslip) => {
-    setIsDownloading(true);
-    try {
-      const blob = await downloadPayslipPdf(payslip.id);
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `Bulletin-${payslip.number}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch {
-      // handled by store
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
+  // ── Dashboard view (3 clickable cards) ───────────────────────────────────
   return (
-    <div className="space-y-6">
-      {/* Month Picker Dropdown */}
-      <div ref={pickerRef} className="relative">
-        <button
-          onClick={() => setIsPickerOpen(!isPickerOpen)}
-          className="w-full flex items-center justify-between bg-[var(--bg-card)] border border-[var(--border)] rounded-xl px-4 py-3 hover:border-[var(--border-strong)] transition-colors"
-        >
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-blue-400" />
-            <span className="font-bold text-[var(--text-primary)] capitalize">{currentLabel}</span>
-            {isCurrentMonth && <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">Mois en cours</span>}
+    <div className="space-y-4">
+      <ClickableStatCard
+        icon={Briefcase}
+        label="Missions réalisées"
+        value={totalMissions.toString()}
+        subtitle={`${uniqueVenues.length} établissement${uniqueVenues.length > 1 ? 's' : ''}`}
+        color="blue"
+        onClick={() => setDetailView('missions')}
+      />
+      <ClickableStatCard
+        icon={Building2}
+        label="Établissements"
+        value={uniqueVenues.length.toString()}
+        subtitle={uniqueVenues.slice(0, 3).join(', ') + (uniqueVenues.length > 3 ? '...' : '')}
+        color="purple"
+        onClick={() => setDetailView('venues')}
+      />
+      <ClickableStatCard
+        icon={Star}
+        label="Note moyenne"
+        value={avgRating.toFixed(1)}
+        subtitle={`Sur ${missions.length} évaluation${missions.length > 1 ? 's' : ''}`}
+        color="amber"
+        onClick={() => setDetailView('ratings')}
+        extra={
+          <div className="flex items-center gap-0.5 mt-1">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <Star
+                key={s}
+                className={clsx(
+                  'w-3.5 h-3.5',
+                  s <= Math.round(avgRating) ? 'text-amber-400 fill-amber-400' : 'text-[var(--text-muted)]'
+                )}
+              />
+            ))}
           </div>
-          <ChevronDown className={clsx("w-4 h-4 text-[var(--text-muted)] transition-transform", isPickerOpen && "rotate-180")} />
-        </button>
-        <AnimatePresence>
-          {isPickerOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.15 }}
-              className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-xl overflow-hidden z-30 max-h-64 overflow-y-auto custom-scrollbar"
-            >
-              {monthOptions.map((opt) => {
-                const isSelected = opt.year === selectedYear && opt.month === selectedMonth;
-                const isCurrent = opt.year === now.getFullYear() && opt.month === now.getMonth();
-                return (
-                  <button
-                    key={`${opt.year}-${opt.month}`}
-                    onClick={() => { setSelectedYear(opt.year); setSelectedMonth(opt.month); setIsPickerOpen(false); }}
-                    className={clsx(
-                      "w-full text-left px-4 py-2.5 text-sm transition-colors capitalize flex items-center justify-between",
-                      isSelected
-                        ? "bg-blue-600/10 text-blue-400 font-bold"
-                        : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
-                    )}
-                  >
-                    <span>{opt.label}</span>
-                    {isCurrent && <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">Actuel</span>}
-                  </button>
-                );
-              })}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Filters */}
-      <div className="flex gap-2 flex-wrap">
-        {STATUS_FILTERS.map(f => (
-          <button
-            key={f.key}
-            onClick={() => setStatusFilter(f.key)}
-            className={clsx(
-              "px-4 py-2 rounded-lg text-xs font-bold transition-all",
-              statusFilter === f.key
-                ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20"
-                : "bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border)] hover:bg-[var(--bg-active)]"
-            )}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Summary */}
-      <div className="flex gap-4">
-        <div className="flex-1 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
-          <div className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-bold mb-1">Total net perçu</div>
-          <div className="text-2xl font-bold text-[var(--text-primary)]">{totalNet.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}&euro;</div>
-        </div>
-        <div className="flex-1 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
-          <div className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-bold mb-1">Bulletins</div>
-          <div className="text-2xl font-bold text-[var(--text-primary)]">{filtered.length}</div>
-        </div>
-      </div>
-
-      {/* List */}
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="w-6 h-6 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-12">
-          <FileText className="w-10 h-10 text-[var(--text-muted)] mx-auto mb-3" />
-          <p className="text-[var(--text-muted)] text-sm">Aucune fiche de paie trouvée</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filtered.map(payslip => {
-            const statusInfo = PAYSLIP_STATUS_INFO[payslip.status];
-            return (
-              <motion.div
-                key={payslip.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={() => setSelectedPayslip(payslip)}
-                className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-4 hover:border-blue-500/30 transition-all cursor-pointer group"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/20 flex items-center justify-center shrink-0">
-                    <Receipt className="w-5 h-5 text-purple-500" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-[var(--text-primary)]">{payslip.number}</span>
-                      <span className={clsx('px-2 py-0.5 rounded-full text-[10px] font-bold', statusInfo.bgColor, statusInfo.color)}>
-                        {statusInfo.label}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-[var(--text-muted)]">
-                      <Calendar className="w-3 h-3" />
-                      <span>{payslip.period}</span>
-                      {payslip.hoursWorked && (
-                        <>
-                          <span className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
-                          <Clock className="w-3 h-3" />
-                          <span>{payslip.hoursWorked}h</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="text-lg font-bold text-[var(--text-primary)]">{payslip.netAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}&euro;</div>
-                    <div className="text-[10px] text-[var(--text-muted)]">net</div>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Detail Modal */}
-      <AnimatePresence>
-        {selectedPayslip && (
-          <PayslipDetailView
-            payslip={selectedPayslip}
-            onClose={() => setSelectedPayslip(null)}
-            onDownload={() => handleDownload(selectedPayslip)}
-            isDownloading={isDownloading}
-          />
-        )}
-      </AnimatePresence>
+        }
+      />
     </div>
   );
 }
 
-// ── Detail view (read-only, no status management) ────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// CLICKABLE STAT CARD
+// ═════════════════════════════════════════════════════════════════════════════
 
-function PayslipDetailView({ payslip, onClose, onDownload, isDownloading }: {
-  payslip: Payslip;
-  onClose: () => void;
-  onDownload: () => void;
-  isDownloading: boolean;
+function ClickableStatCard({
+  icon: Icon,
+  label,
+  value,
+  subtitle,
+  color,
+  onClick,
+  extra,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  subtitle: string;
+  color: 'blue' | 'purple' | 'amber';
+  onClick: () => void;
+  extra?: React.ReactNode;
 }) {
-  const statusInfo = PAYSLIP_STATUS_INFO[payslip.status];
-  const charges = payslip.grossAmount - payslip.netAmount;
+  const colors = {
+    blue: { bg: 'bg-blue-500/10', border: 'border-blue-500/20', text: 'text-blue-400', hover: 'hover:border-blue-500/40' },
+    purple: { bg: 'bg-purple-500/10', border: 'border-purple-500/20', text: 'text-purple-400', hover: 'hover:border-purple-500/40' },
+    amber: { bg: 'bg-amber-500/10', border: 'border-amber-500/20', text: 'text-amber-400', hover: 'hover:border-amber-500/40' },
+  };
+  const c = colors[color];
 
   return (
-    <>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200]"
-      />
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 50 }}
-        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[520px] md:max-h-[85vh] bg-[var(--bg-sidebar)] md:border md:border-[var(--border)] md:rounded-3xl shadow-2xl z-[201] flex flex-col overflow-hidden"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 md:p-6 border-b border-[var(--border)]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/20 flex items-center justify-center">
-              <Receipt className="w-5 h-5 text-purple-500" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-[var(--text-primary)]">{payslip.number}</h2>
-              <p className="text-xs text-[var(--text-muted)]">{payslip.period}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className={clsx('px-3 py-1.5 rounded-full text-xs font-medium', statusInfo.bgColor, statusInfo.color)}>
-              {statusInfo.label}
+    <motion.button
+      onClick={onClick}
+      whileTap={{ scale: 0.98 }}
+      className={clsx(
+        'w-full flex items-center gap-4 rounded-xl p-4 border transition-all cursor-pointer group text-left',
+        c.bg, c.border, c.hover
+      )}
+    >
+      <div className={clsx('w-12 h-12 rounded-xl flex items-center justify-center shrink-0', c.bg, `border ${c.border}`)}>
+        <Icon className={clsx('w-6 h-6', c.text)} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">{label}</div>
+        <div className={clsx('text-2xl font-bold', c.text)}>{value}</div>
+        <div className="text-xs text-[var(--text-muted)] mt-0.5 truncate">{subtitle}</div>
+        {extra}
+      </div>
+      <ChevronRight className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors shrink-0" />
+    </motion.button>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// BACK BUTTON
+// ═════════════════════════════════════════════════════════════════════════════
+
+function BackButton({ onClick, label }: { onClick: () => void; label: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors mb-4"
+    >
+      <ArrowLeft className="w-4 h-4" />
+      {label}
+    </button>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// MISSIONS DETAIL VIEW
+// ═════════════════════════════════════════════════════════════════════════════
+
+function MissionsDetailView({
+  missions,
+  onBack,
+  onSelectMission,
+}: {
+  missions: Mission[];
+  onBack: () => void;
+  onSelectMission: (m: Mission) => void;
+}) {
+  const monthlyBreakdown = useMemo(() => {
+    const map = new Map<string, Mission[]>();
+    for (const m of missions) {
+      const key = getMonthKey(m.isoDate);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(m);
+    }
+    return [...map.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+  }, [missions]);
+
+  return (
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+      <BackButton onClick={onBack} label="Mon activité" />
+
+      <div className="flex items-center gap-2 mb-2">
+        <Briefcase className="w-5 h-5 text-blue-400" />
+        <h3 className="text-lg font-bold text-[var(--text-primary)]">Missions réalisées</h3>
+        <span className="text-xs font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full">
+          {missions.length}
+        </span>
+      </div>
+
+      {monthlyBreakdown.map(([monthKey, monthMissions]) => (
+        <div key={monthKey}>
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+            <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider capitalize">
+              {formatMonth(monthKey)}
             </span>
-            <button onClick={onClose} className="p-2 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
-              <X className="w-5 h-5" />
-            </button>
+            <span className="text-[10px] text-[var(--text-muted)]">
+              — {monthMissions.length} mission{monthMissions.length > 1 ? 's' : ''}
+            </span>
+          </div>
+          <div className="space-y-2 mb-4">
+            {monthMissions.map((mission) => (
+              <MissionRow key={mission.id} mission={mission} onClick={() => onSelectMission(mission)} />
+            ))}
           </div>
         </div>
+      ))}
+    </motion.div>
+  );
+}
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
-          {/* Period Info */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[var(--bg-hover)] rounded-xl p-3">
-              <div className="flex items-center gap-2 text-[var(--text-secondary)] text-xs mb-1">
-                <Calendar className="w-3.5 h-3.5" /> Période
-              </div>
-              <div className="text-sm font-medium text-[var(--text-primary)]">{PAYSLIP_PERIOD_LABELS[payslip.periodType]}</div>
-              <div className="text-xs text-[var(--text-muted)] mt-0.5">{payslip.startDate} → {payslip.endDate}</div>
+// ═════════════════════════════════════════════════════════════════════════════
+// VENUES DETAIL VIEW
+// ═════════════════════════════════════════════════════════════════════════════
+
+function VenuesDetailView({
+  missions,
+  venues,
+  onBack,
+  onSelectMission,
+}: {
+  missions: Mission[];
+  venues: string[];
+  onBack: () => void;
+  onSelectMission: (m: Mission) => void;
+}) {
+  const [expandedVenue, setExpandedVenue] = useState<string | null>(null);
+
+  return (
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+      <BackButton onClick={onBack} label="Mon activité" />
+
+      <div className="flex items-center gap-2 mb-2">
+        <Building2 className="w-5 h-5 text-purple-400" />
+        <h3 className="text-lg font-bold text-[var(--text-primary)]">Établissements</h3>
+        <span className="text-xs font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">
+          {venues.length}
+        </span>
+      </div>
+
+      <div className="space-y-3">
+        {venues.map((venue) => {
+          const venueMissions = missions.filter((m) => m.venue === venue);
+          const venueAvg = venueMissions.reduce((s, m) => s + m.rating, 0) / venueMissions.length;
+          const lastDate = new Date(Math.max(...venueMissions.map((m) => new Date(m.isoDate).getTime())));
+          const isExpanded = expandedVenue === venue;
+
+          return (
+            <div key={venue} className="bg-[var(--bg-hover)] rounded-xl border border-[var(--border)] overflow-hidden">
+              <button
+                onClick={() => setExpandedVenue(isExpanded ? null : venue)}
+                className="w-full flex items-center gap-3 p-4 text-left hover:bg-[var(--bg-active)] transition-colors"
+              >
+                <div className="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                  <Building2 className="w-5 h-5 text-purple-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-bold text-[var(--text-primary)] truncate">{venue}</div>
+                  <div className="flex items-center gap-2 text-[10px] text-[var(--text-muted)] mt-0.5">
+                    <CalendarCheck className="w-3 h-3" />
+                    <span>{venueMissions.length} mission{venueMissions.length > 1 ? 's' : ''}</span>
+                    <span className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
+                    <span>Dernière : {lastDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {venueAvg > 0 && (
+                    <span className="flex items-center gap-1 text-xs font-bold text-amber-400">
+                      <Star className="w-3.5 h-3.5 fill-amber-400" />
+                      {venueAvg.toFixed(1)}
+                    </span>
+                  )}
+                  <ChevronRight className={clsx('w-4 h-4 text-[var(--text-muted)] transition-transform', isExpanded && 'rotate-90')} />
+                </div>
+              </button>
+
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-4 pb-4 space-y-2 border-t border-[var(--border)] pt-3">
+                      {venueMissions.map((mission) => (
+                        <MissionRow key={mission.id} mission={mission} onClick={() => onSelectMission(mission)} compact />
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <div className="bg-[var(--bg-hover)] rounded-xl p-3">
-              <div className="flex items-center gap-2 text-[var(--text-secondary)] text-xs mb-1">
-                <Clock className="w-3.5 h-3.5" /> Heures
-              </div>
-              <div className="text-sm font-medium text-[var(--text-primary)]">{payslip.hoursWorked || 0}h</div>
-              {(payslip.overtimeHours || 0) > 0 && (
-                <div className="text-xs text-blue-500 mt-0.5">+{payslip.overtimeHours}h sup.</div>
-              )}
+          );
+        })}
+      </div>
+    </motion.div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// RATINGS DETAIL VIEW
+// ═════════════════════════════════════════════════════════════════════════════
+
+function RatingsDetailView({
+  missions,
+  avgRating,
+  onBack,
+  onSelectMission,
+}: {
+  missions: Mission[];
+  avgRating: number;
+  onBack: () => void;
+  onSelectMission: (m: Mission) => void;
+}) {
+  return (
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-5">
+      <BackButton onClick={onBack} label="Mon activité" />
+
+      <div className="flex items-center gap-2 mb-2">
+        <Star className="w-5 h-5 text-amber-400" />
+        <h3 className="text-lg font-bold text-[var(--text-primary)]">Notes reçues</h3>
+      </div>
+
+      {/* Average + distribution */}
+      <div className="bg-[var(--bg-hover)] rounded-xl p-5 border border-[var(--border)]">
+        <div className="flex items-center gap-4 mb-5">
+          <div className="text-4xl font-bold text-amber-400">{avgRating.toFixed(1)}</div>
+          <div>
+            <div className="flex items-center gap-0.5">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <Star
+                  key={s}
+                  className={clsx(
+                    'w-5 h-5',
+                    s <= Math.round(avgRating) ? 'text-amber-400 fill-amber-400' : 'text-[var(--text-muted)]'
+                  )}
+                />
+              ))}
             </div>
-          </div>
-
-          {/* Breakdown */}
-          <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-hidden">
-            <div className="p-4 border-b border-[var(--border)] bg-gradient-to-r from-blue-600/5 to-transparent">
-              <h3 className="text-sm font-bold text-[var(--text-secondary)]">Détail du bulletin</h3>
+            <div className="text-xs text-[var(--text-muted)] mt-1">
+              Sur {missions.length} évaluation{missions.length > 1 ? 's' : ''}
             </div>
-            <div className="p-4 space-y-3">
-              {payslip.hoursWorked && payslip.hourlyRate && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-[var(--text-secondary)]">Heures normales ({payslip.hoursWorked}h x {payslip.hourlyRate}&euro;)</span>
-                  <span className="text-[var(--text-primary)] font-medium">{(payslip.hoursWorked * payslip.hourlyRate).toLocaleString('fr-FR', { minimumFractionDigits: 2 })}&euro;</span>
-                </div>
-              )}
-              {(payslip.overtimeHours || 0) > 0 && payslip.overtimeRate && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-[var(--text-secondary)]">Heures sup. ({payslip.overtimeHours}h x {payslip.overtimeRate}&euro;)</span>
-                  <span className="text-[var(--text-primary)] font-medium">{((payslip.overtimeHours || 0) * payslip.overtimeRate).toLocaleString('fr-FR', { minimumFractionDigits: 2 })}&euro;</span>
-                </div>
-              )}
-
-              <div className="border-t border-[var(--border)] pt-3 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-[var(--text-secondary)] font-bold">Salaire Brut</span>
-                  <span className="text-[var(--text-primary)] font-bold">{payslip.grossAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}&euro;</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-[var(--text-muted)]">Impôts</span>
-                  <span className="text-[var(--text-secondary)]">-{payslip.taxAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}&euro;</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-[var(--text-muted)]">Sécurité sociale</span>
-                  <span className="text-[var(--text-secondary)]">-{payslip.socialSecurity.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}&euro;</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-[var(--text-muted)]">Charges totales</span>
-                  <span className="text-[var(--text-secondary)]">-{charges.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}&euro;</span>
-                </div>
-              </div>
-
-              <div className="border-t border-[var(--border)] pt-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-bold text-[var(--text-primary)]">Net à payer</span>
-                  <span className="text-2xl font-bold text-blue-500">{payslip.netAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}&euro;</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Metadata */}
-          <div className="text-xs text-[var(--text-muted)] space-y-1">
-            <div>Émis le : {new Date(payslip.issueDate).toLocaleDateString('fr-FR')}</div>
           </div>
         </div>
-
-        {/* Download */}
-        <div className="p-4 md:p-6 border-t border-[var(--border)]">
-          <button
-            onClick={onDownload}
-            disabled={isDownloading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-colors disabled:opacity-50"
-          >
-            {isDownloading ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <Download className="w-4 h-4" />
-            )}
-            Télécharger PDF
-          </button>
+        {/* Distribution */}
+        <div className="space-y-2">
+          {[5, 4, 3, 2, 1].map((star) => {
+            const count = missions.filter((m) => Math.round(m.rating) === star).length;
+            const percent = missions.length > 0 ? (count / missions.length) * 100 : 0;
+            return (
+              <div key={star} className="flex items-center gap-2 text-xs">
+                <span className="text-[var(--text-muted)] w-3 text-right">{star}</span>
+                <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                <div className="flex-1 h-2.5 bg-[var(--bg-card)] rounded-full overflow-hidden border border-[var(--border)]">
+                  <div className="h-full bg-amber-400 rounded-full transition-all" style={{ width: `${percent}%` }} />
+                </div>
+                <span className="text-[var(--text-muted)] w-4 text-right">{count}</span>
+              </div>
+            );
+          })}
         </div>
-      </motion.div>
-    </>
+      </div>
+
+      {/* All rated missions */}
+      <div>
+        <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-3">
+          Toutes les évaluations
+        </h4>
+        <div className="space-y-2">
+          {[...missions]
+            .sort((a, b) => b.rating - a.rating)
+            .map((mission) => (
+              <button
+                key={mission.id}
+                onClick={() => onSelectMission(mission)}
+                className="w-full flex items-center gap-3 bg-[var(--bg-hover)] rounded-xl p-3 border border-[var(--border)] hover:border-amber-500/30 transition-all text-left group"
+              >
+                <div className="w-9 h-9 rounded-lg overflow-hidden bg-[var(--bg-active)] shrink-0">
+                  <img src={mission.image} alt="" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-bold text-[var(--text-primary)] truncate">{mission.title}</div>
+                  <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-muted)] mt-0.5">
+                    <MapPin className="w-2.5 h-2.5" />
+                    <span>{mission.venue}</span>
+                    <span className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
+                    <span>{mission.date.split(',')[0]}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 text-sm font-bold text-amber-400 shrink-0">
+                  <Star className="w-4 h-4 fill-amber-400" />
+                  {mission.rating.toFixed(1)}
+                </div>
+                <ChevronRight className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors shrink-0" />
+              </button>
+            ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// MISSION ROW (reusable)
+// ═════════════════════════════════════════════════════════════════════════════
+
+function MissionRow({ mission, onClick, compact }: { mission: Mission; onClick: () => void; compact?: boolean }) {
+  return (
+    <motion.button
+      onClick={onClick}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={clsx(
+        'w-full flex items-center gap-3 bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl transition-all cursor-pointer group text-left hover:border-blue-500/30',
+        compact ? 'p-3' : 'p-4'
+      )}
+    >
+      <div className={clsx('rounded-lg overflow-hidden bg-[var(--bg-active)] shrink-0', compact ? 'w-10 h-10' : 'w-14 h-14')}>
+        <img src={mission.image} alt="" className="w-full h-full object-cover" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-bold text-[var(--text-primary)] truncate">{mission.title}</div>
+        <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-muted)] mt-0.5">
+          <MapPin className="w-2.5 h-2.5" />
+          <span className="truncate">{mission.venue}</span>
+          <span className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
+          <Calendar className="w-2.5 h-2.5" />
+          <span>{mission.date.split(',')[0]}</span>
+        </div>
+        {!compact && (
+          <div className="flex items-center gap-2 mt-1">
+            <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-[10px] font-bold border border-green-500/20">
+              TERMINÉE
+            </span>
+            <span className="text-[10px] text-[var(--text-muted)] flex items-center gap-1">
+              <Clock className="w-3 h-3" /> {mission.duration}
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        <span className="flex items-center gap-1 text-xs font-bold text-amber-400">
+          <Star className="w-3.5 h-3.5 fill-amber-400" />
+          {mission.rating.toFixed(1)}
+        </span>
+        <ChevronRight className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors" />
+      </div>
+    </motion.button>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// MISSION DETAIL
+// ═════════════════════════════════════════════════════════════════════════════
+
+function MissionDetail({ mission, onBack }: { mission: Mission; onBack: () => void }) {
+  return (
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-5">
+      <BackButton onClick={onBack} label="Retour" />
+
+      {/* Header */}
+      <div>
+        <h2 className="text-xl font-bold text-[var(--text-primary)] mb-1">{mission.title}</h2>
+        <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+          <MapPin className="w-4 h-4" />
+          {mission.venue}
+          <span className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
+          <span>{mission.date}</span>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-[var(--bg-hover)] rounded-xl p-3 border border-[var(--border)] text-center">
+          <Clock className="w-4 h-4 text-blue-400 mx-auto mb-1" />
+          <div className="text-sm font-bold text-[var(--text-primary)]">{mission.duration}</div>
+          <div className="text-[10px] text-[var(--text-muted)]">Durée</div>
+        </div>
+        <div className="bg-[var(--bg-hover)] rounded-xl p-3 border border-[var(--border)] text-center">
+          <CheckCircle className="w-4 h-4 text-green-400 mx-auto mb-1" />
+          <div className="text-sm font-bold text-green-400">Terminée</div>
+          <div className="text-[10px] text-[var(--text-muted)]">Statut</div>
+        </div>
+        <div className="bg-[var(--bg-hover)] rounded-xl p-3 border border-[var(--border)] text-center">
+          <Star className="w-4 h-4 text-amber-400 mx-auto mb-1" />
+          <div className="text-sm font-bold text-amber-400">{mission.rating.toFixed(1)}</div>
+          <div className="text-[10px] text-[var(--text-muted)]">Note</div>
+        </div>
+      </div>
+
+      {/* Before / After */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Avant</span>
+          <div className="aspect-video rounded-xl overflow-hidden bg-[var(--bg-hover)] border border-[var(--border)]">
+            <img src={mission.report.before} alt="Avant" className="w-full h-full object-cover" />
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Après</span>
+          <div className="aspect-video rounded-xl overflow-hidden bg-[var(--bg-hover)] border border-[var(--border)] relative">
+            <img src={mission.report.after} alt="Après" className="w-full h-full object-cover" />
+            <div className="absolute bottom-2 right-2 bg-green-500/90 text-black text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+              <CheckCircle className="w-3 h-3" />
+              Validé
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Report */}
+      <div className="bg-[var(--bg-hover)] rounded-xl p-4 border border-[var(--border)]">
+        <h3 className="font-bold text-sm text-[var(--text-primary)] mb-2">Rapport d&apos;intervention</h3>
+        <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{mission.report.text}</p>
+      </div>
+    </motion.div>
   );
 }

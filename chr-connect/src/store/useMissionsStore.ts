@@ -207,9 +207,9 @@ const INITIAL_MISSIONS: Mission[] = [
     invoice: {
       id: 'inv-m4',
       missionId: 'm4',
-      number: 'INV-2023-001',
-      date: '2023-10-25',
-      dueDate: '2023-11-25',
+      number: 'INV-2025-087',
+      date: '2025-10-25',
+      dueDate: '2025-11-25',
       status: 'PAID',
       items: [
         { description: 'Remplacement Ampoules LED', quantity: 5, unitPrice: 10 },
@@ -254,9 +254,9 @@ const INITIAL_MISSIONS: Mission[] = [
     invoice: {
       id: 'inv-m5',
       missionId: 'm5',
-      number: 'INV-2023-042',
-      date: '2023-06-05',
-      dueDate: '2023-07-05',
+      number: 'INV-2025-042',
+      date: '2025-06-05',
+      dueDate: '2025-07-05',
       status: 'PENDING',
       items: [
         { description: 'Service Extra Soir', quantity: 1, unitPrice: 120 }

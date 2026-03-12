@@ -75,4 +75,17 @@ export interface DashboardStats {
   avgRating: number;
 }
 
-export type AdminTab = 'DASHBOARD' | 'USERS' | 'SUBSCRIPTIONS' | 'SETTINGS';
+export type AdminTab = 'DASHBOARD' | 'USERS' | 'SUBSCRIPTIONS' | 'STAFF' | 'SETTINGS';
+
+export interface StaffAccount {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: AdminRole;
+  jobTitle?: string;
+  status: 'ACTIVE' | 'DISABLED';
+  createdAt: string;
+  lastLoginAt?: string;
+  notes?: string;
+}

@@ -10,6 +10,7 @@ import AdminOverviewTab from './tabs/AdminOverviewTab';
 import AdminUsersTab from './tabs/AdminUsersTab';
 import AdminSubscriptionsTab from './tabs/AdminSubscriptionsTab';
 import AdminSettingsTab from './tabs/AdminSettingsTab';
+import AdminStaffTab from './tabs/AdminStaffTab';
 import type { AdminTab } from '@/types/admin';
 
 export default function AdminDashboard() {
@@ -23,6 +24,7 @@ export default function AdminDashboard() {
       '/admin/tableau-de-bord': 'DASHBOARD',
       '/admin/utilisateurs': 'USERS',
       '/admin/abonnements': 'SUBSCRIPTIONS',
+      '/admin/staff': 'STAFF',
       '/admin/parametres': 'SETTINGS',
     };
     return tabMap[path] || 'DASHBOARD';
@@ -43,7 +45,7 @@ export default function AdminDashboard() {
 
   // Guard: SUPPORT on admin-only tab → redirect to users
   useEffect(() => {
-    if (adminUser?.role === 'SUPPORT' && (activeTab === 'DASHBOARD' || activeTab === 'SETTINGS')) {
+    if (adminUser?.role === 'SUPPORT' && (activeTab === 'DASHBOARD' || activeTab === 'STAFF' || activeTab === 'SETTINGS')) {
       router.replace('/admin/utilisateurs');
     }
   }, [adminUser, activeTab, router]);
@@ -131,6 +133,7 @@ export default function AdminDashboard() {
           {activeTab === 'DASHBOARD' && isAdmin && <AdminOverviewTab />}
           {activeTab === 'USERS' && <AdminUsersTab />}
           {activeTab === 'SUBSCRIPTIONS' && <AdminSubscriptionsTab />}
+          {activeTab === 'STAFF' && isAdmin && <AdminStaffTab />}
           {activeTab === 'SETTINGS' && isAdmin && <AdminSettingsTab />}
         </div>
       </div>

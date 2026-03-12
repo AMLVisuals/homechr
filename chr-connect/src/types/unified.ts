@@ -35,6 +35,7 @@ export type UnifiedMissionStatus =
   | 'QUOTE_SENT'          // Devis envoyé, attente réponse patron
   | 'STANDBY'             // En attente pièce (technicien libre)
   | 'PENDING_VALIDATION'  // Service staff terminé, attente validation patron
+  | 'AWAITING_PATRON_CONFIRMATION' // Worker a accepté, attente confirmation patron
   | 'DISPUTED';           // En litige
 
 export type UnifiedMissionPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT' | 'EMERGENCY';
@@ -277,7 +278,7 @@ function mapLegacyStatus(status: Mission['status']): UnifiedMissionStatus {
     'QUOTE_SENT': 'QUOTE_SENT',
     'STANDBY': 'STANDBY',
     'PENDING_VALIDATION': 'PENDING_VALIDATION',
-    'AWAITING_PATRON_CONFIRMATION': 'SEARCHING',
+    'AWAITING_PATRON_CONFIRMATION': 'AWAITING_PATRON_CONFIRMATION',
   };
   return mapping[status] || 'SEARCHING';
 }

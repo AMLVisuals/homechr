@@ -7,8 +7,8 @@ export const APP_CONFIG = {
   MISSION_FEE: 20, // Frais de mise en relation (free tier), en euros — inclut l'accès DPAE
   PREMIUM_MONTHLY_PRICE: 100, // Abonnement premium mensuel, en euros
   PREMIUM_TRIAL_DAYS: 7, // Durée essai gratuit, en jours
-  PLATFORM_FEE_PERCENT: 15, // Commission plateforme (%)
-  PLATFORM_FEE_RATE: 0.15, // Commission plateforme (décimal)
+  PLATFORM_FEE_PERCENT: 0, // Pas de commission % — modèle entremetteur forfaitaire (20€/mission)
+  PLATFORM_FEE_RATE: 0, // Idem en décimal
 
   // Réglementation
   SMIC_HOURLY_RATE: 11.88, // SMIC horaire brut 2024

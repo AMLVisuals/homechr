@@ -6,13 +6,12 @@ import {
   ShieldCheck, FileText, History, Upload, Check, X, CreditCard, IdCard, BookOpenText, FileCheck,
 } from 'lucide-react';
 import { clsx } from 'clsx';
-import { HistoryTab } from './tabs/HistoryTab';
-import { PayslipsTab } from './tabs/PayslipsTab';
+import { ActivityTab } from './tabs/PayslipsTab';
 
 const TABS = [
   { id: 'IDENTITY' as const, label: 'Identité', icon: ShieldCheck, color: 'text-violet-400' },
   { id: 'CV' as const, label: 'Documents', icon: FileText, color: 'text-blue-400' },
-  { id: 'HISTORY_PAY' as const, label: 'Historique & Paie', icon: History, color: 'text-amber-400' },
+  { id: 'HISTORY_PAY' as const, label: 'Mon activité', icon: History, color: 'text-amber-400' },
 ];
 
 type TabId = typeof TABS[number]['id'];
@@ -48,7 +47,6 @@ export default function ProviderProfileEditor() {
   const [urssafFile, setUrssafFile] = useState<File | null>(null);
   const [rcProFile, setRcProFile] = useState<File | null>(null);
   const [decennaleFile, setDecennaleFile] = useState<File | null>(null);
-  const [historyView, setHistoryView] = useState<'history' | 'payslips'>('history');
 
   return (
     <div className="max-w-2xl mx-auto text-[var(--text-primary)]">
@@ -220,36 +218,8 @@ export default function ProviderProfileEditor() {
 
         {activeTab === 'HISTORY_PAY' && (
           <TabContent key="history_pay">
-            <div className="space-y-4">
-              {/* Sub-toggle */}
-              <div className="flex gap-2 p-1 bg-[var(--bg-card)] rounded-xl border border-[var(--border)]">
-                <button
-                  onClick={() => setHistoryView('history')}
-                  className={clsx(
-                    "flex-1 py-2 rounded-lg text-sm font-bold transition-all text-center",
-                    historyView === 'history'
-                      ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                      : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                  )}
-                >
-                  Historique
-                </button>
-                <button
-                  onClick={() => setHistoryView('payslips')}
-                  className={clsx(
-                    "flex-1 py-2 rounded-lg text-sm font-bold transition-all text-center",
-                    historyView === 'payslips'
-                      ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                      : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                  )}
-                >
-                  Fiches de paie
-                </button>
-              </div>
-
-              <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-5" style={{ boxShadow: 'var(--shadow-card)' }}>
-                {historyView === 'history' ? <HistoryTab /> : <PayslipsTab />}
-              </div>
+            <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-5" style={{ boxShadow: 'var(--shadow-card)' }}>
+              <ActivityTab />
             </div>
           </TabContent>
         )}

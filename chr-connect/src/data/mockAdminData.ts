@@ -77,7 +77,7 @@ export const MOCK_USERS: PlatformUser[] = [
   },
   // u7 - PATRON ACTIVE FREE - Kbis expired
   {
-    id: 'u7', name: 'Philippe Moreau', email: 'p.moreau@chez-philippe.fr', type: 'PATRON', city: 'Vincennes', missions: 8, premium: false, status: 'ACTIVE', totalSpent: 960, totalEarned: 0, createdAt: '2026-01-10', establishmentName: 'Chez Philippe',
+    id: 'u7', name: 'Philippe Moreau', email: 'p.moreau@chez-philippe.fr', type: 'PATRON', city: 'Vincennes', missions: 8, premium: false, status: 'SUSPENDED', totalSpent: 960, totalEarned: 0, createdAt: '2026-01-10', establishmentName: 'Chez Philippe',
     documents: makePatronDocs({
       kbis: { id: 'kbis', label: 'Extrait Kbis', status: 'EXPIRED', required: true, uploadedAt: '2025-06-10', verifiedAt: '2025-06-11', expiresAt: '2025-09-10', fileName: 'kbis_ancien.pdf' },
     }),
@@ -156,10 +156,14 @@ export const MOCK_SUBSCRIPTIONS: Subscription[] = [
   { id: 'sub8', userId: 'u7', userName: 'Philippe Moreau', establishmentName: 'Chez Philippe', plan: 'PREMIUM', amount: 100, startDate: '2025-03-01', endDate: '2025-09-01', status: 'EXPIRED' },
 ];
 
+// Revenus cohérents avec le modèle entremetteur :
+// - 6 abonnés premium actifs × 100€ = 600€ abonnements
+// - Frais mise en relation : ~160 missions free × 20€ = 3200€ (matching fees)
+// - CA total = 600 + 3200 = 3800€
 export const MOCK_REVENUE: RevenueMetrics = {
-  caMTD: 10000,
+  caMTD: 3800,
   matchingFees: 3200,
-  subscriptionRevenue: 6800,
+  subscriptionRevenue: 600,
   growthPercent: 11.2,
 };
 
@@ -167,7 +171,7 @@ export const MOCK_DASHBOARD_STATS: DashboardStats = {
   totalUsers: 156,
   patrons: 72,
   workers: 84,
-  premiumSubscribers: 68,
+  premiumSubscribers: 6,
   activeMissions: 23,
   missionsThisMonth: 187,
   newUsersThisWeek: 8,

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { BarChart3, Users, CreditCard, Settings, LogOut } from 'lucide-react';
+import { BarChart3, Users, CreditCard, Settings, LogOut, ShieldCheck } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAdminStore } from '@/store/useAdminStore';
 import type { AdminRole, AdminTab } from '@/types/admin';
@@ -19,6 +19,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'DASHBOARD', icon: BarChart3, label: "Vue d'ensemble", path: '/admin/tableau-de-bord', adminOnly: true },
   { id: 'USERS', icon: Users, label: 'Utilisateurs', path: '/admin/utilisateurs' },
   { id: 'SUBSCRIPTIONS', icon: CreditCard, label: 'Abonnements', path: '/admin/abonnements' },
+  { id: 'STAFF', icon: ShieldCheck, label: 'Comptes Staff', path: '/admin/staff', adminOnly: true },
   { id: 'SETTINGS', icon: Settings, label: 'Paramètres', path: '/admin/parametres', adminOnly: true },
 ];
 
