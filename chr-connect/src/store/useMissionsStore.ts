@@ -921,18 +921,29 @@ export const useMissionsStore = create<MissionsState>()(
             ? updatedCandidates.map(c => c.status === 'PENDING' ? { ...c, status: 'REJECTED' as const } : c)
             : updatedCandidates;
           const lastSelected = finalCandidates.find(c => c.id === candidateId);
+          const acceptedList = finalCandidates.filter(c => c.status === 'ACCEPTED');
+          // Calcul note moyenne des candidats acceptés
+          const avgRating = acceptedList.length > 0
+            ? Math.round((acceptedList.reduce((sum, c) => sum + c.rating, 0) / acceptedList.length) * 10) / 10
+            : lastSelected?.rating || 0;
+          const totalMissions = acceptedList.reduce((sum, c) => sum + c.completedMissions, 0);
+
           return {
             ...m,
             candidates: finalCandidates,
             status: allFilled ? 'SCHEDULED' as const : m.status,
+            // Pour STAFFING : initialiser dpaeStatus quand tous les postes sont pourvus
+            ...(allFilled && m.category === 'STAFFING' ? { dpaeStatus: 'PENDING' as const } : {}),
             provider: allFilled && lastSelected ? {
-              id: lastSelected.id,
+              id: acceptedList.map(c => c.id).join(','),
               name: acceptedCount > 1
-                ? `${finalCandidates.filter(c => c.status === 'ACCEPTED').map(c => c.name).join(', ')}`
+                ? acceptedList.map(c => c.name).join(', ')
                 : lastSelected.name,
-              rating: lastSelected.rating,
-              completedMissions: lastSelected.completedMissions,
-              bio: lastSelected.specialty,
+              rating: avgRating,
+              completedMissions: totalMissions,
+              bio: acceptedCount > 1
+                ? acceptedList.map(c => c.specialty).join(' • ')
+                : lastSelected.specialty,
               phone: '+33 6 00 00 00 00',
               avatar: lastSelected.avatar,
             } : m.provider,
@@ -959,7 +970,7 @@ export const useMissionsStore = create<MissionsState>()(
       }))
     }),
     {
-      name: 'missions-storage-v12', // v12: fix dates 2025→2026
+      name: 'missions-storage-v13', // v13: multi-workers provider display + dpaeStatus on selectCandidate
     }
   )
 );

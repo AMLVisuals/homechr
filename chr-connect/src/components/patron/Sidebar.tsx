@@ -17,7 +17,7 @@ export const NAV_ITEMS = [
   { id: 'DPAE', icon: FileText, label: 'DPAE', path: '/patron/dpae', premium: true },
   { id: 'STOCK', icon: Package, label: 'Stock', path: '/patron/stock', premium: true },
   { id: 'GARAGE', icon: Warehouse, label: 'Mes équipements', path: '/patron/equipements' },
-  { id: 'INVOICES', icon: CreditCard, label: 'Mes factures', path: '/patron/factures' },
+  { id: 'INVOICES', icon: FileText, label: 'Mes documents', path: '/patron/factures' },
   { id: 'PLANNING', icon: Calendar, label: 'Planning', path: '/patron/planning' },
 ];
 

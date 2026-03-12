@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Star, CheckCircle2, XCircle, UserPlus, Clock, MapPin, CalendarClock, Users } from 'lucide-react';
+import { X, Star, CheckCircle2, XCircle, UserPlus, Clock, MapPin, CalendarClock, Users, ArrowRight } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Mission, MissionCandidate } from '@/types/missions';
 import { useMissionsStore } from '@/store/useMissionsStore';
@@ -12,9 +12,10 @@ interface CandidateReviewModalProps {
   mission: Mission | null;
   isOpen: boolean;
   onClose: () => void;
+  onOpenMissionDetails?: (missionId: string) => void;
 }
 
-export default function CandidateReviewModal({ mission, isOpen, onClose }: CandidateReviewModalProps) {
+export default function CandidateReviewModal({ mission, isOpen, onClose, onOpenMissionDetails }: CandidateReviewModalProps) {
   const { selectCandidate, rejectCandidate } = useMissionsStore();
   const [confirmed, setConfirmed] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -130,28 +131,48 @@ export default function CandidateReviewModal({ mission, isOpen, onClose }: Candi
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {/* Confirmation banner */}
+              {/* Confirmation banner + next step */}
               {(confirmed || allFilled) && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex items-center gap-3"
+                  className="space-y-3"
                 >
-                  <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
-                  <div>
-                    <p className="text-sm font-bold text-green-400">
-                      {required > 1
-                        ? `${acceptedCount} prestataire${acceptedCount > 1 ? 's' : ''} sélectionné${acceptedCount > 1 ? 's' : ''}`
-                        : 'Prestataire sélectionné'
-                      }
-                    </p>
-                    <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                      {required > 1
-                        ? 'Les prestataires sélectionnés seront notifiés de votre choix.'
-                        : 'Le prestataire sera notifié de votre choix.'
-                      }
-                    </p>
+                  <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex items-center gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
+                    <div>
+                      <p className="text-sm font-bold text-green-400">
+                        {required > 1
+                          ? `${acceptedCount} prestataire${acceptedCount > 1 ? 's' : ''} sélectionné${acceptedCount > 1 ? 's' : ''}`
+                          : 'Prestataire sélectionné'
+                        }
+                      </p>
+                      <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                        {required > 1
+                          ? 'Les prestataires sélectionnés seront notifiés de votre choix.'
+                          : 'Le prestataire sera notifié de votre choix.'
+                        }
+                      </p>
+                    </div>
                   </div>
+
+                  {/* CTA : voir la mission */}
+                  <button
+                    onClick={() => {
+                      onClose();
+                      if (onOpenMissionDetails) onOpenMissionDetails(mission.id);
+                    }}
+                    className="w-full py-3.5 bg-[var(--bg-active)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] border border-[var(--border)] rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
+                  >
+                    Voir la mission
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+
+                  {mission.category === 'STAFFING' && (
+                    <p className="text-[10px] text-[var(--text-muted)] text-center">
+                      La DPAE sera à effectuer une fois le prestataire sur place
+                    </p>
+                  )}
                 </motion.div>
               )}
 

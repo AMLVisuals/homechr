@@ -28,6 +28,7 @@ import { useVenuesStore } from '@/store/useVenuesStore';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { Mission } from '@/types/missions';
 import { APP_CONFIG } from '@/config/appConfig';
+import { useDocumentsStore } from '@/store/useDocumentsStore';
 
 const ICON_MAP: Record<string, any> = {
   Wrench, ChefHat, Monitor, Hammer, Users, Calendar, Scale
@@ -96,6 +97,7 @@ export default function PatronDashboard() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { status } = useMissionEngine();
   const { team } = useMissionsStore();
+  const { documents } = useDocumentsStore();
 
   useEffect(() => {
     setActiveTab(getInitialTab(pathname));
@@ -147,16 +149,16 @@ export default function PatronDashboard() {
   }, [missions, activeVenueId]);
 
   const searchResults = useMemo(() => {
-    if (!globalSearch.trim()) return { missions: [], team: [], invoices: [] };
+    if (!globalSearch.trim()) return { missions: [], team: [], documents: [] };
     const q = globalSearch.toLowerCase();
     return {
       missions: missions.filter(m => m.title.toLowerCase().includes(q) || m.expert?.toLowerCase().includes(q)).slice(0, 4),
       team: team.filter(m => m.name.toLowerCase().includes(q) || m.role.toLowerCase().includes(q)).slice(0, 4),
-      invoices: missions.filter(m => m.invoice && (m.title.toLowerCase().includes(q) || m.invoice.number.toLowerCase().includes(q))).slice(0, 4),
+      documents: documents.filter(d => d.name.toLowerCase().includes(q) || d.description?.toLowerCase().includes(q) || d.tags?.some(t => t.toLowerCase().includes(q))).slice(0, 4),
     };
-  }, [globalSearch, missions, team]);
+  }, [globalSearch, missions, team, documents]);
 
-  const hasSearchResults = searchResults.missions.length > 0 || searchResults.team.length > 0 || searchResults.invoices.length > 0;
+  const hasSearchResults = searchResults.missions.length > 0 || searchResults.team.length > 0 || searchResults.documents.length > 0;
 
   const handleQuickAction = (category: string) => {
     if (category === 'PERSONNEL') { setShowSOSExtra(true); return; }
@@ -264,15 +266,15 @@ export default function PatronDashboard() {
                           ))}
                         </div>
                       )}
-                      {searchResults.invoices.length > 0 && (
+                      {searchResults.documents.length > 0 && (
                         <div>
-                          <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] bg-[var(--bg-hover)]">Factures</div>
-                          {searchResults.invoices.map(m => (
-                            <button key={m.id} onClick={() => { setGlobalSearch(''); setActiveTab('INVOICES'); router.push('/patron/factures'); }} className="w-full text-left px-4 py-3 hover:bg-[var(--bg-hover)] transition-colors flex items-center gap-3">
-                              <CreditCard className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
+                          <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] bg-[var(--bg-hover)]">Documents</div>
+                          {searchResults.documents.map(d => (
+                            <button key={d.id} onClick={() => { setGlobalSearch(''); setActiveTab('INVOICES'); router.push('/patron/factures'); }} className="w-full text-left px-4 py-3 hover:bg-[var(--bg-hover)] transition-colors flex items-center gap-3">
+                              <FileText className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
                               <div className="min-w-0">
-                                <div className="text-sm font-medium text-[var(--text-primary)] truncate">{m.title}</div>
-                                <div className="text-xs text-[var(--text-muted)]">{m.invoice?.number}</div>
+                                <div className="text-sm font-medium text-[var(--text-primary)] truncate">{d.name}</div>
+                                <div className="text-xs text-[var(--text-muted)]">{d.category}</div>
                               </div>
                             </button>
                           ))}

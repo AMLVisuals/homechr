@@ -548,6 +548,13 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
         mission={candidateMission ? missions.find(m => m.id === candidateMission.id) || candidateMission : null}
         isOpen={isCandidateOpen}
         onClose={() => setIsCandidateOpen(false)}
+        onOpenMissionDetails={(missionId) => {
+          const m = missions.find(mi => mi.id === missionId);
+          if (m) {
+            setSelectedMission(m);
+            setIsModalOpen(true);
+          }
+        }}
       />
     </div>
   );

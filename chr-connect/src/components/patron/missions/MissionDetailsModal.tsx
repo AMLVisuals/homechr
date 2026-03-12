@@ -7,7 +7,7 @@ import {
   X, MapPin, Clock, Camera, Mic, Star, Send,
   User, Phone, MessageSquare, Video, Image as ImageIcon,
   AlertCircle, Navigation, ChevronRight, CheckCircle2, Package, FileText,
-  XCircle, Users, Eye
+  XCircle, Users, Eye, Play
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import FullScreenGallery from '@/components/shared/FullScreenGallery';
@@ -30,7 +30,6 @@ interface MissionDetailsModalProps {
   onClose: () => void;
 }
 
-import { InvoiceDetailView } from '../billing/InvoiceDetailView';
 
 export default function MissionDetailsModal({ mission, isOpen, onClose }: MissionDetailsModalProps) {
   const { addReview, generateInvoice, payInvoice, updateMission, rejectQuote, validateStaffMission, setPartsStatus, selectCandidate, rejectCandidate } = useMissionsStore();
@@ -394,42 +393,82 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                 </div>
               )}
 
-              {mission.provider && mission.status !== 'SEARCHING' && (
-                <div 
-                  onClick={handleOpenProviderProfile}
-                  className="bg-[var(--bg-card)] rounded-2xl p-4 border border-[var(--border)] cursor-pointer hover:border-[var(--border-strong)] transition-all group/card"
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white group-hover/card:scale-105 transition-transform">
-                      {mission.provider.name.charAt(0)}
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-[var(--text-primary)] group-hover/card:text-blue-400 transition-colors">{mission.provider.name}</h4>
-                      <div className="flex items-center gap-1 text-xs text-yellow-500">
-                        <Star className="w-3 h-3 fill-current" />
-                        <span>{mission.provider.rating}</span>
-                        <span className="text-[var(--text-muted)]">({mission.provider.completedMissions} missions)</span>
+              {mission.provider && mission.status !== 'SEARCHING' && (() => {
+                // Multi-workers: show each accepted candidate as a compact row
+                const acceptedWorkers = (mission.candidates || []).filter(c => c.status === 'ACCEPTED');
+                const showMultiple = acceptedWorkers.length > 1;
+
+                return (
+                <div className="space-y-2">
+                  {showMultiple ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Users className="w-3.5 h-3.5 text-purple-400" />
+                        <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                          {acceptedWorkers.length} prestataires
+                        </span>
+                      </div>
+                      {acceptedWorkers.map((worker) => (
+                        <div
+                          key={worker.id}
+                          onClick={() => handleViewCandidateProfile(worker)}
+                          className="bg-[var(--bg-card)] rounded-xl p-2.5 border border-[var(--border)] cursor-pointer hover:border-blue-500/30 transition-all group/card flex items-center gap-2.5"
+                        >
+                          <img
+                            src={worker.avatar || `https://i.pravatar.cc/150?u=${worker.id}`}
+                            alt={worker.name}
+                            className="w-9 h-9 rounded-full object-cover border border-[var(--border)] shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-bold text-xs text-[var(--text-primary)] truncate group-hover/card:text-blue-400 transition-colors">{worker.name}</h4>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <div className="flex items-center gap-0.5 text-[10px] text-yellow-500">
+                                <Star className="w-2.5 h-2.5 fill-current" />
+                                <span>{worker.rating}</span>
+                              </div>
+                              <span className="text-[10px] text-[var(--text-muted)]">{worker.completedMissions} missions</span>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 text-[var(--text-muted)] shrink-0" />
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                  <div
+                    onClick={handleOpenProviderProfile}
+                    className="bg-[var(--bg-card)] rounded-2xl p-4 border border-[var(--border)] cursor-pointer hover:border-[var(--border-strong)] transition-all group/card"
+                  >
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white group-hover/card:scale-105 transition-transform">
+                        {mission.provider.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-[var(--text-primary)] group-hover/card:text-blue-400 transition-colors">{mission.provider.name}</h4>
+                        <div className="flex items-center gap-1 text-xs text-yellow-500">
+                          <Star className="w-3 h-3 fill-current" />
+                          <span>{mission.provider.rating}</span>
+                          <span className="text-[var(--text-muted)]">({mission.provider.completedMissions} missions)</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); }}
-                      className="flex-1 py-2 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-xl text-xs font-bold text-[var(--text-primary)] transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Phone className="w-3 h-3" /> Appeler
-                    </button>
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); }}
-                      className="flex-1 py-2 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-xl text-xs font-bold text-[var(--text-primary)] transition-colors flex items-center justify-center gap-2"
-                    >
-                      <MessageSquare className="w-3 h-3" /> Message
-                    </button>
-                  </div>
-                  
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); }}
+                        className="flex-1 py-2 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-xl text-xs font-bold text-[var(--text-primary)] transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Phone className="w-3 h-3" /> Appeler
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); }}
+                        className="flex-1 py-2 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-xl text-xs font-bold text-[var(--text-primary)] transition-colors flex items-center justify-center gap-2"
+                      >
+                        <MessageSquare className="w-3 h-3" /> Message
+                      </button>
+                    </div>
+
                   {mission.status === 'COMPLETED' && !showRating && (
-                    <button 
+                    <button
                       onClick={(e) => { e.stopPropagation(); setShowRating(true); }}
                       className="w-full mt-3 py-3 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 border border-yellow-500/20 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
                     >
@@ -437,8 +476,11 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                       Noter le prestataire
                     </button>
                   )}
+                  </div>
+                  )}
                 </div>
-              )}
+                );
+              })()}
             </div>
 
             {/* Right Column: Details & Rating */}
@@ -962,10 +1004,52 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                         </>
                       )}
 
-                      {/* DPAE Button — STAFF missions, confirmed, premium only */}
+                      {/* ── SIMULATION FLOW (dev only) ── */}
+                      {activeTab === 'DETAILS' && mission.category === 'STAFFING' && (
+                        <>
+                          {mission.status === 'SCHEDULED' && (
+                            <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 space-y-3">
+                              <div className="flex items-center gap-2">
+                                <Play className="w-4 h-4 text-indigo-400" />
+                                <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Simulation</span>
+                              </div>
+                              <p className="text-xs text-[var(--text-muted)]">
+                                Simule l'arrivée du prestataire sur place pour tester le flow complet.
+                              </p>
+                              <button
+                                onClick={() => updateMission(mission.id, { status: 'ON_SITE' })}
+                                className="w-full py-2.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 border border-indigo-500/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+                              >
+                                <Navigation className="w-3.5 h-3.5" />
+                                Simuler : prestataire arrivé sur place
+                              </button>
+                            </div>
+                          )}
+                          {mission.status === 'ON_SITE' && (
+                            <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 space-y-3">
+                              <div className="flex items-center gap-2">
+                                <Play className="w-4 h-4 text-indigo-400" />
+                                <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Simulation</span>
+                              </div>
+                              <p className="text-xs text-[var(--text-muted)]">
+                                Le prestataire est sur place. Vous pouvez effectuer la DPAE ci-dessous puis simuler la confirmation de présence.
+                              </p>
+                              <button
+                                onClick={() => updateMission(mission.id, { status: 'PENDING_VALIDATION' })}
+                                className="w-full py-2.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 border border-indigo-500/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                Simuler : prestataire confirme sa présence
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      )}
+
+                      {/* DPAE Button — STAFF missions, uniquement quand le prestataire est sur place (évite de payer l'API pour rien) */}
                       {activeTab === 'DETAILS' &&
                        mission.category === 'STAFFING' &&
-                       ['ON_WAY', 'ON_SITE', 'IN_PROGRESS', 'COMPLETED', 'PENDING_VALIDATION'].includes(mission.status) && (
+                       ['ON_SITE', 'PENDING_VALIDATION', 'COMPLETED'].includes(mission.status) && (
                         <div className="mt-4">
                           <button
                             onClick={() => setShowDPAEWizard(true)}
@@ -1201,8 +1285,31 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                       )}
 
                       {activeTab === 'INVOICE' && mission.invoice && (
-                        <div className="animate-fadeIn">
-                          <InvoiceDetailView invoice={mission.invoice} />
+                        <div className="animate-fadeIn space-y-4">
+                          <div className="bg-[var(--bg-hover)] rounded-2xl p-5 border border-[var(--border)]">
+                            <div className="flex items-center justify-between mb-4">
+                              <h4 className="font-bold text-[var(--text-primary)]">Facture #{mission.invoice.number}</h4>
+                              <span className={clsx("px-3 py-1 rounded-full text-xs font-bold border",
+                                mission.invoice.status === 'PAID' ? "text-green-400 bg-green-400/10 border-green-400/20" : "text-orange-400 bg-orange-400/10 border-orange-400/20"
+                              )}>
+                                {mission.invoice.status === 'PAID' ? 'Payée' : 'En attente'}
+                              </span>
+                            </div>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-[var(--text-muted)]">Montant TTC</span>
+                                <span className="font-bold text-[var(--text-primary)]">{mission.invoice.totalAmount.toFixed(2)} €</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-[var(--text-muted)]">Date</span>
+                                <span className="text-[var(--text-secondary)]">{mission.invoice.date}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-[var(--text-muted)]">Échéance</span>
+                                <span className="text-[var(--text-secondary)]">{mission.invoice.dueDate}</span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
