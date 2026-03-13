@@ -15,10 +15,9 @@ export const APP_CONFIG = {
   DEFAULT_APE_CODE: '5610A', // Code APE restauration traditionnelle
 
   // Conformité & KYB
-  KBIS_VALIDITY_MONTHS: 3, // KBIS valide 3 mois
+  ATTESTATION_PRO_KBIS_VALIDITY_MONTHS: 3, // Attestation Pro / Kbis valide 3 mois
   URSSAF_VALIDITY_MONTHS: 6, // Attestation URSSAF valide 6 mois
   RC_PRO_VALIDITY_MONTHS: 12, // Assurance RC Pro valide 1 an
-  DECENNALE_VALIDITY_MONTHS: 12, // Garantie décennale valide 1 an
   EXPIRY_ALERT_DAYS: 15, // Notification J-15 avant expiration document
   DPAE_REQUIRED_FOR_STAFF: true, // DPAE obligatoire pour extras (bloquante)
   COMPLIANCE_REQUIRED_FOR_FREELANCE: true, // Vérification SIRET/URSSAF obligatoire pour indépendants

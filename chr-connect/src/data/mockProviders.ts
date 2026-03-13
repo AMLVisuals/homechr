@@ -83,7 +83,7 @@ export const MOCK_PROVIDERS: ProviderProfile[] = [
       isAvailable: true,
       nextSlot: 'Aujourd\'hui 18h'
     },
-    employmentCategory: 'EXTRA_EMPLOYEE',
+    employmentCategory: 'EXTRA',
     complianceStatus: 'VERIFIED',
   },
   {
@@ -159,7 +159,7 @@ export const MOCK_PROVIDERS: ProviderProfile[] = [
       isAvailable: true,
       nextSlot: 'Demain 08h'
     },
-    employmentCategory: 'FREELANCE_TECHNICIAN',
+    employmentCategory: 'FREELANCE',
     complianceStatus: 'VERIFIED',
     siretNumber: '84312345600012',
     kbisVerifiedAt: '2026-02-15',
@@ -205,7 +205,7 @@ export const MOCK_PROVIDERS: ProviderProfile[] = [
       isAvailable: false,
       nextSlot: 'Dans 2 jours'
     },
-    employmentCategory: 'EXTRA_EMPLOYEE',
+    employmentCategory: 'EXTRA',
     complianceStatus: 'VERIFIED',
   }
 ];

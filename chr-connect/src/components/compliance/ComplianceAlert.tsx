@@ -12,14 +12,13 @@ interface ComplianceAlertProps {
 }
 
 const DOC_LABELS: Record<string, string> = {
-  KBIS: 'Extrait K-bis',
+  IDENTITY: "Pièce d'identité",
+  ATTESTATION_PRO_KBIS: 'Attestation Pro / Kbis',
   URSSAF_ATTESTATION: 'Attestation URSSAF',
   RC_PRO: 'RC Professionnelle',
-  DECENNALE: 'Garantie Décennale',
-  HABILITATION_FRIGO: 'Habilitation Fluides',
-  HABILITATION_ELEC: 'Habilitation Électrique',
-  CARTE_BTP: 'Carte BTP',
-  HACCP: 'HACCP',
+  RIB: 'RIB / IBAN',
+  SOCIAL_SECURITY_CARD: 'Carte Vitale / Attestation sécu',
+  CERTIFICATIONS: 'Certifications / Diplômes',
 };
 
 export default function ComplianceAlert({ expiringDocs, expiredDocs, onDismiss }: ComplianceAlertProps) {

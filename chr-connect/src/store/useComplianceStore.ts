@@ -46,7 +46,7 @@ export const useComplianceStore = create<ComplianceState>()(
               [workerId]: {
                 workerId,
                 employmentCategory: category,
-                complianceStatus: category === 'EXTRA_EMPLOYEE' ? 'VERIFIED' : 'PENDING',
+                complianceStatus: category === 'EXTRA' ? 'VERIFIED' : 'PENDING',
                 documents: [],
               },
             },
@@ -174,7 +174,7 @@ export const useComplianceStore = create<ComplianceState>()(
         }
 
         // Les extras n'ont pas besoin de compliance entreprise
-        if (worker.employmentCategory === 'EXTRA_EMPLOYEE') {
+        if (worker.employmentCategory === 'EXTRA') {
           return { allowed: true };
         }
 
@@ -192,7 +192,7 @@ export const useComplianceStore = create<ComplianceState>()(
 
         return {
           allowed: false,
-          reason: 'Vos documents de conformité sont en attente de vérification (KBIS, URSSAF, RC Pro).',
+          reason: 'Vos documents de conformité sont en attente de vérification (Attestation Pro / Kbis, URSSAF, RC Pro).',
         };
       },
     }),

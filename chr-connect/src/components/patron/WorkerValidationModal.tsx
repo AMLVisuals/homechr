@@ -21,8 +21,8 @@ export default function WorkerValidationModal({ mission, isOpen, onClose }: Work
   const [dpaeAcknowledged, setDpaeAcknowledged] = useState(false);
 
   const worker = mission?.pendingWorker;
-  // Fallback sécurisé : si employmentCategory manquant + mission STAFFING → considérer comme EXTRA_EMPLOYEE (DPAE obligatoire)
-  const requiresDPAE = worker?.employmentCategory === 'EXTRA_EMPLOYEE'
+  // Fallback sécurisé : si employmentCategory manquant + mission STAFFING → considérer comme EXTRA (DPAE obligatoire)
+  const requiresDPAE = worker?.employmentCategory === 'EXTRA'
     || (worker?.employmentCategory === undefined && mission?.category === 'STAFFING');
 
   // Auto-confirm only if DPAE not required or already acknowledged
@@ -158,17 +158,17 @@ export default function WorkerValidationModal({ mission, isOpen, onClose }: Work
             {/* Employment category badge */}
             {worker.employmentCategory && (
               <div className={`rounded-xl p-3 border flex items-center gap-2 ${
-                worker.employmentCategory === 'EXTRA_EMPLOYEE'
+                worker.employmentCategory === 'EXTRA'
                   ? 'bg-orange-500/10 border-orange-500/20'
                   : 'bg-emerald-500/10 border-emerald-500/20'
               }`}>
                 <div className={`w-2 h-2 rounded-full ${
-                  worker.employmentCategory === 'EXTRA_EMPLOYEE' ? 'bg-orange-400' : 'bg-emerald-400'
+                  worker.employmentCategory === 'EXTRA' ? 'bg-orange-400' : 'bg-emerald-400'
                 }`} />
                 <span className={`text-xs font-bold ${
-                  worker.employmentCategory === 'EXTRA_EMPLOYEE' ? 'text-orange-400' : 'text-emerald-400'
+                  worker.employmentCategory === 'EXTRA' ? 'text-orange-400' : 'text-emerald-400'
                 }`}>
-                  {worker.employmentCategory === 'EXTRA_EMPLOYEE'
+                  {worker.employmentCategory === 'EXTRA'
                     ? 'Salarié temporaire — DPAE obligatoire'
                     : 'Auto-entrepreneur — Pas de DPAE'
                   }
@@ -176,7 +176,7 @@ export default function WorkerValidationModal({ mission, isOpen, onClose }: Work
               </div>
             )}
 
-            {/* DPAE GATE — bloquant pour EXTRA_EMPLOYEE */}
+            {/* DPAE GATE — bloquant pour EXTRA */}
             {requiresDPAE && (
               <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 space-y-3">
                 <div className="flex items-start gap-3">

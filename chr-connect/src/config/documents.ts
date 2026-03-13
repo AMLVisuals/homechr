@@ -1,100 +1,113 @@
+import type { ComplianceDocType, EmploymentCategory } from '@/types/compliance';
+
+// ============================================================================
+// DOCUMENTS D'INSCRIPTION — Listes par rôle et statut
+// ============================================================================
 
 export interface DocumentRequirement {
-  id: string;
+  id: ComplianceDocType;
   label: string;
   description?: string;
-  type: 'IDENTITY' | 'COMPANY' | 'FINANCIAL' | 'INSURANCE' | 'CERTIFICATION';
   required: boolean;
-  condition?: (skills: string[]) => boolean;
 }
+
+// ── Worker : Extra (CDD d'usage) ──
+
+export const EXTRA_DOCUMENTS: DocumentRequirement[] = [
+  {
+    id: 'IDENTITY',
+    label: "Pièce d'identité",
+    description: 'CNI, Passeport ou Titre de séjour',
+    required: true,
+  },
+  {
+    id: 'RIB',
+    label: 'RIB / IBAN',
+    description: 'Pour le versement de votre salaire',
+    required: true,
+  },
+  {
+    id: 'SOCIAL_SECURITY_CARD',
+    label: 'Carte Vitale ou Attestation de sécurité sociale',
+    description: 'Justificatif de votre numéro de sécurité sociale',
+    required: true,
+  },
+  {
+    id: 'CERTIFICATIONS',
+    label: 'Certifications / Diplômes',
+    description: 'HACCP, diplômes, etc.',
+    required: false,
+  },
+];
+
+// ── Worker : Freelance (Indépendant) ──
+
+export const FREELANCE_DOCUMENTS: DocumentRequirement[] = [
+  {
+    id: 'IDENTITY',
+    label: "Pièce d'identité",
+    description: 'CNI, Passeport ou Titre de séjour',
+    required: true,
+  },
+  {
+    id: 'ATTESTATION_PRO_KBIS',
+    label: 'Attestation Pro / Kbis',
+    description: "Preuve d'existence légale de votre activité",
+    required: true,
+  },
+  {
+    id: 'URSSAF_ATTESTATION',
+    label: 'Attestation de Vigilance URSSAF',
+    description: 'Obligatoire (lutte contre le travail dissimulé)',
+    required: true,
+  },
+  {
+    id: 'RC_PRO',
+    label: 'Assurance RC Pro',
+    description: 'Responsabilité Civile Professionnelle',
+    required: true,
+  },
+  {
+    id: 'CERTIFICATIONS',
+    label: 'Certifications / Diplômes',
+    description: 'Qualibat, HACCP, habilitations, etc.',
+    required: false,
+  },
+];
+
+// ── Patron ──
 
 export const PATRON_DOCUMENTS: DocumentRequirement[] = [
   {
-    id: 'kbis',
-    label: 'Extrait Kbis',
-    description: 'Preuve d\'existence de moins de 3 mois',
-    type: 'COMPANY',
-    required: true
-  },
-  {
-    id: 'identity',
+    id: 'IDENTITY',
     label: "Pièce d'identité du Gérant",
-    description: 'CNI ou Passeport (Recto/Verso)',
-    type: 'IDENTITY',
-    required: true
+    description: 'CNI, Passeport ou Titre de séjour (Recto/Verso)',
+    required: true,
   },
   {
-    id: 'rib',
+    id: 'ATTESTATION_PRO_KBIS',
+    label: 'Kbis',
+    description: "Preuve d'existence de moins de 3 mois",
+    required: true,
+  },
+  {
+    id: 'RIB',
     label: 'RIB / IBAN',
     description: 'Pour les prélèvements',
-    type: 'FINANCIAL',
-    required: true
-  },
-  {
-    id: 'license',
-    label: "Licence d'Exploitation",
-    description: 'Licence IV ou Restaurant',
-    type: 'COMPANY',
-    required: false
-  }
-];
-
-export const WORKER_DOCUMENTS: DocumentRequirement[] = [
-  {
-    id: 'sirene',
-    label: 'Avis de Situation SIRENE / Kbis',
-    description: 'Preuve d\'existence légale',
-    type: 'COMPANY',
-    required: true
-  },
-  {
-    id: 'identity',
-    label: "Pièce d'identité",
-    description: 'CNI ou Passeport',
-    type: 'IDENTITY',
-    required: true
-  },
-  {
-    id: 'urssaf',
-    label: 'Attestation de Vigilance URSSAF',
-    description: 'Obligatoire (Lutte contre le travail dissimulé)',
-    type: 'COMPANY',
-    required: true
-  },
-  {
-    id: 'rc_pro',
-    label: 'Assurance RC Pro',
-    description: 'Responsabilité Civile Professionnelle',
-    type: 'INSURANCE',
-    required: true
-  },
-  {
-    id: 'decennale',
-    label: 'Assurance Décennale',
-    description: 'Obligatoire pour les métiers du bâtiment',
-    type: 'INSURANCE',
     required: true,
-    condition: (skills: string[]) => {
-      const decennaleSkills = ['plumbing', 'elec', 'cold', 'architect', 'carpenter', 'painter'];
-      return skills.some(skill => decennaleSkills.includes(skill));
-    }
   },
-  {
-    id: 'certifications',
-    label: 'Certifications / Diplômes',
-    description: 'Qualibat, HACCP, Diplômes...',
-    type: 'CERTIFICATION',
-    required: false
-  }
 ];
 
-export function getRequiredDocuments(role: 'PATRON' | 'WORKER', skills: string[] = []): DocumentRequirement[] {
-  if (role === 'PATRON') {
-    return PATRON_DOCUMENTS;
-  }
-  
-  return WORKER_DOCUMENTS.filter(doc => {
-    if (!doc.condition) return true;
-    return doc.condition(skills);
-  });
+// ── Helper : récupérer les documents par rôle + catégorie ──
+
+export function getWorkerDocuments(category: EmploymentCategory): DocumentRequirement[] {
+  return category === 'EXTRA' ? EXTRA_DOCUMENTS : FREELANCE_DOCUMENTS;
+}
+
+export function getRequiredDocuments(
+  role: 'PATRON' | 'WORKER',
+  category?: EmploymentCategory,
+): DocumentRequirement[] {
+  if (role === 'PATRON') return PATRON_DOCUMENTS;
+  return getWorkerDocuments(category ?? 'EXTRA');
 }

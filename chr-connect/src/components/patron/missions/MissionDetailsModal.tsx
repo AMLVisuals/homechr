@@ -140,7 +140,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
         isAvailable: true,
         nextSlot: 'Aujourd\'hui 14h'
       },
-      employmentCategory: mission.category === 'STAFFING' ? 'EXTRA_EMPLOYEE' : 'FREELANCE_TECHNICIAN',
+      employmentCategory: mission.category === 'STAFFING' ? 'EXTRA' : 'FREELANCE',
       complianceStatus: 'VERIFIED',
     };
 
@@ -177,7 +177,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
       preferences: { radius: 30, minHourlyRate: 25, availabilityBadges: [] },
       availability: { isAvailable: true },
       cvUrl: '/mock-cv.pdf',
-      employmentCategory: mission?.category === 'STAFFING' ? 'EXTRA_EMPLOYEE' : 'FREELANCE_TECHNICIAN',
+      employmentCategory: mission?.category === 'STAFFING' ? 'EXTRA' : 'FREELANCE',
       complianceStatus: 'VERIFIED',
     };
     setSelectedProvider(fullProvider);
@@ -668,7 +668,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                       {/* === PENDING_VALIDATION BANNER (Staff flow — patron must validate presence) === */}
                       {mission.status === 'PENDING_VALIDATION' && activeTab === 'DETAILS' && (() => {
                         // Fallback sécurisé : si employmentCategory manquant + mission STAFFING → DPAE obligatoire
-                        const workerIsEmployee = mission.pendingWorker?.employmentCategory === 'EXTRA_EMPLOYEE'
+                        const workerIsEmployee = mission.pendingWorker?.employmentCategory === 'EXTRA'
                           || (mission.pendingWorker?.employmentCategory === undefined && mission.category === 'STAFFING');
                         const dpaeIsDone = mission.dpaeStatus === 'VALIDATED';
                         const dpaeBlocking = workerIsEmployee && !dpaeIsDone;

@@ -2,22 +2,21 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Briefcase, Check, ChevronRight, ArrowLeft, Mail, Lock, Phone, UserPlus, LogIn } from 'lucide-react';
+import { User, Briefcase, Check, ChevronRight, ArrowLeft, Mail, Lock, Phone, UserPlus, LogIn, FileText, Building2 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
-import DocumentUploader from './DocumentUploader';
-import DropZonePro from './DropZonePro';
 import { CATEGORIES, COMING_SOON_CATEGORIES } from '@/data/categories';
+import { EMPLOYMENT_CATEGORY_LABELS, EMPLOYMENT_CATEGORY_DESCRIPTIONS } from '@/config/compliance';
+import type { EmploymentCategory } from '@/types/compliance';
 import { clsx } from 'clsx';
-import { getRequiredDocuments, DocumentRequirement } from '@/config/documents';
 
 export default function RoleSwitcher() {
   const { setUserRole } = useStore();
-  const [step, setStep] = useState<'role' | 'auth' | 'category' | 'services' | 'verification'>('role');
+  const [step, setStep] = useState<'role' | 'auth' | 'status' | 'category' | 'services'>('role');
   const [selectedRole, setSelectedRole] = useState<'PATRON' | 'WORKER' | null>(null);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [employmentCategory, setEmploymentCategory] = useState<EmploymentCategory | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [docStatuses, setDocStatuses] = useState<Record<string, 'idle' | 'uploading' | 'pending' | 'verified'>>({});
 
   // Auth form state
   const [authForm, setAuthForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
@@ -37,7 +36,6 @@ export default function RoleSwitcher() {
       setAuthError('Veuillez remplir tous les champs.');
       return;
     }
-    // Mock login — any email/password works
     if (selectedRole) {
       setUserRole(selectedRole);
     }
@@ -57,46 +55,36 @@ export default function RoleSwitcher() {
       setAuthError('Le mot de passe doit contenir au moins 6 caractères.');
       return;
     }
-    // Mock register — go to next step
     if (selectedRole === 'WORKER') {
       setStep('category');
     } else {
-      setStep('verification');
+      setUserRole('PATRON');
     }
+  };
+
+  const handleStatusSelect = (category: EmploymentCategory) => {
+    setEmploymentCategory(category);
+    setStep('services');
   };
 
   const handleCategorySelect = (category: any) => {
     setSelectedCategory(category);
-    setStep('services');
-  };
-
-  const handleBackToCategories = () => {
-    setSelectedCategory(null);
-    setStep('category');
-  };
-
-  const handleFinish = () => {
-    if (selectedRole) {
-      setUserRole(selectedRole);
+    if (category.id === 'PERSONNEL') {
+      setStep('status');
+    } else {
+      setEmploymentCategory('FREELANCE');
+      setStep('services');
     }
   };
 
-  const handleDocStatusChange = (docId: string, status: 'idle' | 'uploading' | 'pending' | 'verified') => {
-    setDocStatuses(prev => ({ ...prev, [docId]: status }));
+  const handleBackToCategories = () => {
+    if (selectedCategory?.id === 'PERSONNEL') {
+      setStep('status');
+    } else {
+      setSelectedCategory(null);
+      setStep('category');
+    }
   };
-
-  const bypassVerification = () => {
-    if (!selectedRole) return;
-    const requiredDocs = getRequiredDocuments(selectedRole, selectedSkills);
-    const newStatuses: Record<string, any> = {};
-    requiredDocs.forEach(doc => {
-        newStatuses[doc.id] = 'verified';
-    });
-    setDocStatuses(newStatuses);
-  };
-
-  const requiredDocuments = selectedRole ? getRequiredDocuments(selectedRole, selectedSkills) : [];
-  const allVerified = requiredDocuments.every(doc => !doc.required || docStatuses[doc.id] === 'verified');
 
   return (
     <div className="min-h-screen flex items-start md:items-center justify-center bg-[var(--bg-app)] relative overflow-x-hidden overflow-y-auto">
@@ -106,27 +94,29 @@ export default function RoleSwitcher() {
 
       <div className="relative z-10 w-full max-w-4xl p-4 md:p-6 py-8 md:py-6">
         <AnimatePresence mode='wait'>
+          {/* ── ÉTAPE 1 : Choix du rôle ── */}
           {step === 'role' && (
-            <motion.div 
+            <motion.div
               key="role"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               className="flex flex-col md:flex-row gap-6 justify-center"
             >
-              <RoleCard 
-                title="Je gère un établissement" 
-                subtitle="Demandeur" 
+              <RoleCard
+                title="Je gère un établissement"
+                subtitle="Demandeur"
                 icon={Briefcase}
                 onClick={() => handleRoleSelect('PATRON')}
               />
-              <RoleCard 
-                title="Je suis un Expert / Talent" 
-                subtitle="Prestataire" 
+              <RoleCard
+                title="Je suis un Expert / Talent"
+                subtitle="Prestataire"
                 icon={User}
                 onClick={() => handleRoleSelect('WORKER')}
               />
             </motion.div>
           )}
 
+          {/* ── ÉTAPE 2 : Authentification ── */}
           {step === 'auth' && (
             <motion.div
               key="auth"
@@ -256,14 +246,10 @@ export default function RoleSwitcher() {
               <button
                 onClick={() => {
                   if (selectedRole) {
-                    if (authMode === 'login') {
-                      setUserRole(selectedRole);
+                    if (selectedRole === 'WORKER') {
+                      setStep('category');
                     } else {
-                      if (selectedRole === 'WORKER') {
-                        setStep('category');
-                      } else {
-                        setStep('verification');
-                      }
+                      setUserRole('PATRON');
                     }
                   }
                 }}
@@ -280,14 +266,91 @@ export default function RoleSwitcher() {
             </motion.div>
           )}
 
+          {/* ── ÉTAPE 3bis (Worker/Personnel) : Choix du statut ── */}
+          {step === 'status' && (
+            <motion.div
+              key="status"
+              initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}
+              className="glass-strong rounded-3xl p-4 md:p-8 max-w-lg mx-auto"
+            >
+              <button
+                onClick={() => setStep('category')}
+                className="mb-3 md:mb-4 flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="text-xs md:text-sm">Retour</span>
+              </button>
+
+              <h2 className="text-xl md:text-2xl font-bold mb-2 text-[var(--text-primary)] text-center">Quel est votre statut ?</h2>
+              <p className="text-xs md:text-sm text-[var(--text-muted)] mb-6 md:mb-8 text-center">Cela détermine les documents que vous devrez fournir ultérieurement pour valider votre profil.</p>
+
+              <div className="space-y-4">
+                {/* Extra / CDD */}
+                <motion.button
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() => handleStatusSelect('EXTRA')}
+                  className={clsx(
+                    "w-full p-4 md:p-5 rounded-2xl border text-left transition-all",
+                    employmentCategory === 'EXTRA'
+                      ? "border-orange-500/50 bg-orange-500/10"
+                      : "border-[var(--border)] bg-[var(--bg-hover)] hover:border-[var(--border-active)]"
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                      <User className="w-5 h-5 text-orange-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-sm md:text-base font-bold text-[var(--text-primary)]">
+                        {EMPLOYMENT_CATEGORY_LABELS.EXTRA}
+                      </h3>
+                      <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">
+                        {EMPLOYMENT_CATEGORY_DESCRIPTIONS.EXTRA}
+                      </p>
+                    </div>
+                  </div>
+                </motion.button>
+
+                {/* Freelance / Indépendant */}
+                <motion.button
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() => handleStatusSelect('FREELANCE')}
+                  className={clsx(
+                    "w-full p-4 md:p-5 rounded-2xl border text-left transition-all",
+                    employmentCategory === 'FREELANCE'
+                      ? "border-emerald-500/50 bg-emerald-500/10"
+                      : "border-[var(--border)] bg-[var(--bg-hover)] hover:border-[var(--border-active)]"
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                      <Building2 className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-sm md:text-base font-bold text-[var(--text-primary)]">
+                        {EMPLOYMENT_CATEGORY_LABELS.FREELANCE}
+                      </h3>
+                      <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">
+                        {EMPLOYMENT_CATEGORY_DESCRIPTIONS.FREELANCE}
+                      </p>
+                    </div>
+                  </div>
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── ÉTAPE 3 (Worker) : Choix du domaine ── */}
           {step === 'category' && (
             <motion.div
               key="category"
               initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}
               className="glass-strong rounded-3xl p-4 md:p-6 max-w-4xl mx-auto"
             >
-              <button 
-                onClick={() => setStep('role')}
+              <button
+                onClick={() => setStep('auth')}
                 className="mb-3 md:mb-4 flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -324,13 +387,14 @@ export default function RoleSwitcher() {
             </motion.div>
           )}
 
+          {/* ── ÉTAPE 5 (Worker) : Sélection des compétences ── */}
           {step === 'services' && (
             <motion.div
               key="services"
               initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}
               className="glass-strong rounded-3xl p-4 md:p-6 max-w-2xl mx-auto"
             >
-              <button 
+              <button
                 onClick={handleBackToCategories}
                 className="mb-3 md:mb-4 flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
@@ -352,13 +416,13 @@ export default function RoleSwitcher() {
                     key={service.id}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => setSelectedSkills(prev => 
+                    onClick={() => setSelectedSkills(prev =>
                       prev.includes(service.id) ? prev.filter(id => id !== service.id) : [...prev, service.id]
                     )}
                     className={clsx(
                       "p-3 md:p-4 rounded-xl border cursor-pointer transition-all min-h-[70px] md:min-h-[80px] flex flex-col justify-center",
-                      selectedSkills.includes(service.id) 
-                        ? "bg-[var(--bg-active)] border-[var(--border-active)] text-[var(--text-primary)]" 
+                      selectedSkills.includes(service.id)
+                        ? "bg-[var(--bg-active)] border-[var(--border-active)] text-[var(--text-primary)]"
                         : "bg-[var(--bg-hover)] border-transparent text-[var(--text-muted)] hover:bg-[var(--bg-active)]"
                     )}
                   >
@@ -369,59 +433,17 @@ export default function RoleSwitcher() {
                   </motion.div>
                 ))}
               </div>
-              <button 
-                onClick={() => setStep('verification')}
-                className="mt-4 md:mt-6 w-full py-3 md:py-4 bg-[var(--text-primary)] text-[var(--bg-app)] font-bold rounded-xl hover:bg-[var(--text-secondary)] transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
-              >
-                Continuer <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
-              </button>
-            </motion.div>
-          )}
-
-          {step === 'verification' && (
-            <motion.div
-              key="verification"
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-              className="glass-strong rounded-3xl p-4 md:p-8 max-w-xl mx-auto md:max-h-[90vh] md:overflow-y-auto custom-scrollbar"
-            >
-              <button 
-                onClick={() => setStep(selectedRole === 'WORKER' ? 'services' : 'auth')}
-                className="mb-3 md:mb-4 flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-xs md:text-sm">Retour</span>
-              </button>
-              <h2 className="text-xl md:text-2xl font-bold mb-1 md:mb-2 text-[var(--text-primary)]">Vérification de Sécurité</h2>
-              <p className="text-xs md:text-sm text-[var(--text-muted)] mb-4 md:mb-8">Pour garantir la qualité du réseau, nous devons valider votre identité.</p>
-              
-              <div className="space-y-3 md:space-y-4">
-                {requiredDocuments.map((doc) => (
-                  <DropZonePro 
-                    key={doc.id}
-                    label={doc.label} 
-                    description={doc.description}
-                    type={doc.type === 'IDENTITY' ? 'IDENTITY' : 'DOCUMENT'}
-                    status={docStatuses[doc.id] || 'idle'}
-                    onStatusChange={(status) => handleDocStatusChange(doc.id, status)}
-                  />
-                ))}
-              </div>
-
-              <button 
-                onClick={handleFinish}
-                disabled={!allVerified}
+              <button
+                onClick={() => setUserRole('WORKER')}
+                disabled={selectedSkills.length === 0}
                 className={clsx(
-                  "mt-6 md:mt-8 w-full py-3 md:py-4 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm md:text-base",
-                  allVerified 
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-[var(--text-primary)] hover:opacity-90" 
+                  "mt-4 md:mt-6 w-full py-3 md:py-4 font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm md:text-base",
+                  selectedSkills.length > 0
+                    ? "bg-[var(--text-primary)] text-[var(--bg-app)] hover:bg-[var(--text-secondary)]"
                     : "bg-[var(--bg-hover)] text-[var(--text-muted)] cursor-not-allowed"
                 )}
               >
-                Accéder au Command Center <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
-              </button>
-
-              <button onClick={bypassVerification} className="mt-3 md:mt-4 text-[10px] md:text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] mx-auto block">
-                 Dev Mode: Auto-Verify
+                Créer mon profil <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
               </button>
             </motion.div>
           )}

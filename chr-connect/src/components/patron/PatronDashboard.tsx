@@ -84,7 +84,7 @@ export default function PatronDashboard() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryId | undefined>(undefined);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showVenueDashboard, setShowVenueDashboard] = useState(false);
-  const [venueDashboardView, setVenueDashboardView] = useState<'LIST' | 'SEARCH'>('LIST');
+  const [venueDashboardView, setVenueDashboardView] = useState<'LIST' | 'SEARCH' | 'FORM'>('LIST');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   const [isMissionModalOpen, setIsMissionModalOpen] = useState(false);
@@ -202,7 +202,7 @@ export default function PatronDashboard() {
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex-1 flex justify-center lg:justify-start items-center gap-3">
-              <VenueSelector onAddVenue={() => { setVenueDashboardView('SEARCH'); setShowVenueDashboard(true); }} onManage={() => { setVenueDashboardView('LIST'); setShowVenueDashboard(true); }} />
+              <VenueSelector onAddVenue={() => { setVenueDashboardView('FORM'); setShowVenueDashboard(true); }} onManage={() => { setVenueDashboardView('LIST'); setShowVenueDashboard(true); }} />
               <button
                 onClick={() => { setActiveTab('PREMIUM'); router.push('/patron/premium'); }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black transition-all text-xs font-bold hover:from-amber-300 hover:to-yellow-400 shadow-sm shadow-amber-500/20"

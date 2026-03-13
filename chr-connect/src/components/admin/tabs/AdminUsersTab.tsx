@@ -47,14 +47,13 @@ const DOC_STATUS_CONFIG: Record<DocumentStatus, { label: string; bg: string; tex
 
 function getDocIcon(docId: string) {
   switch (docId) {
-    case 'kbis':
-    case 'sirene': return Building2;
-    case 'identity': return Shield;
-    case 'rib': return CreditCard;
-    case 'urssaf': return FileCheck;
-    case 'rc_pro':
-    case 'decennale': return Shield;
-    case 'certifications': return Award;
+    case 'ATTESTATION_PRO_KBIS': return Building2;
+    case 'IDENTITY': return Shield;
+    case 'RIB': return CreditCard;
+    case 'URSSAF_ATTESTATION': return FileCheck;
+    case 'RC_PRO': return Shield;
+    case 'SOCIAL_SECURITY_CARD': return FileCheck;
+    case 'CERTIFICATIONS': return Award;
     default: return FileText;
   }
 }

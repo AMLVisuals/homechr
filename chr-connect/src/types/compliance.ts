@@ -2,11 +2,10 @@
 // COMPLIANCE TYPES - Conformité légale & KYB
 // ============================================================================
 
-// Catégorie d'emploi du prestataire — détermine tout le parcours légal
-// EXTRA_EMPLOYEE     = Salarié temporaire (CDD d'usage HCR) → DPAE obligatoire
-// FREELANCE_TECHNICIAN = Indépendant technicien → KBIS/URSSAF/RC Pro
-// FREELANCE_PERSONNEL  = Indépendant dans le Personnel (DJ, agent sécu auto-entrepreneur…) → KBIS/URSSAF/RC Pro, pas de DPAE
-export type EmploymentCategory = 'EXTRA_EMPLOYEE' | 'FREELANCE_TECHNICIAN' | 'FREELANCE_PERSONNEL';
+// Catégorie d'emploi du prestataire — détermine le parcours légal et les documents requis
+// EXTRA      = Salarié temporaire (CDD d'usage HCR) → DPAE obligatoire, pas de docs entreprise
+// FREELANCE  = Indépendant (auto-entrepreneur, SARL, SAS…) → Attestation Pro/Kbis, URSSAF, RC Pro
+export type EmploymentCategory = 'EXTRA' | 'FREELANCE';
 
 // Statut de conformité du prestataire
 export type ComplianceStatus = 'PENDING' | 'VERIFIED' | 'SUSPENDED' | 'EXPIRED';
@@ -19,14 +18,17 @@ export type DPAEMissionStatus = 'NOT_REQUIRED' | 'PENDING' | 'VALIDATED' | 'ERRO
 // ============================================================================
 
 export type ComplianceDocType =
-  | 'KBIS'                  // Extrait K-bis ou K (< 3 mois)
+  // ── Documents communs ──
+  | 'IDENTITY'              // Pièce d'identité (CNI / Passeport / Titre de séjour)
+  // ── Documents Freelance ──
+  | 'ATTESTATION_PRO_KBIS'  // Attestation Pro / Kbis
   | 'URSSAF_ATTESTATION'    // Attestation de vigilance URSSAF
   | 'RC_PRO'                // Assurance RC Professionnelle
-  | 'DECENNALE'             // Garantie décennale (bâtiment)
-  | 'HABILITATION_FRIGO'    // Manipulation fluides frigorigènes
-  | 'HABILITATION_ELEC'     // Habilitation électrique
-  | 'CARTE_BTP'             // Carte BTP
-  | 'HACCP';                // Certification hygiène alimentaire
+  // ── Documents Extra ──
+  | 'RIB'                   // RIB / IBAN (pour le paiement)
+  | 'SOCIAL_SECURITY_CARD'  // Carte Vitale ou Attestation de sécurité sociale
+  // ── Documents optionnels ──
+  | 'CERTIFICATIONS';       // Certifications / Diplômes (HACCP, Qualibat, etc.)
 
 export interface ComplianceDocument {
   id: string;
@@ -71,6 +73,9 @@ export interface WorkerCompliance {
   employmentCategory: EmploymentCategory;
   complianceStatus: ComplianceStatus;
 
+  // N° de sécurité sociale (Extra : saisi à l'inscription, requis pour DPAE)
+  socialSecurityNumber?: string;
+
   // Vérification entreprise (freelance uniquement)
   kyb?: KYBVerification;
   urssaf?: URSSAFVerification;
@@ -93,29 +98,23 @@ export interface WorkerCompliance {
 // ============================================================================
 
 export const REQUIRED_DOCS: Record<EmploymentCategory, ComplianceDocType[]> = {
-  EXTRA_EMPLOYEE: [],  // L'extra est salarié du patron, pas de docs entreprise requis
-  FREELANCE_TECHNICIAN: ['KBIS', 'URSSAF_ATTESTATION', 'RC_PRO'],
-  FREELANCE_PERSONNEL: ['KBIS', 'URSSAF_ATTESTATION', 'RC_PRO'], // Même exigences que freelance tech
+  EXTRA: ['IDENTITY', 'RIB', 'SOCIAL_SECURITY_CARD'],
+  FREELANCE: ['IDENTITY', 'ATTESTATION_PRO_KBIS', 'URSSAF_ATTESTATION', 'RC_PRO'],
 };
 
-// Documents optionnels par métier (le prestataire les ajoute si pertinent)
-export const OPTIONAL_DOCS_BY_TRADE: Record<string, ComplianceDocType[]> = {
-  TECHNICIENS: ['HABILITATION_FRIGO', 'HABILITATION_ELEC'],
-  BATIMENTS: ['DECENNALE', 'CARTE_BTP'],
-  PERSONNEL: ['HACCP'],
-};
+// Documents optionnels (le prestataire les ajoute si pertinent)
+export const OPTIONAL_DOCS: ComplianceDocType[] = ['CERTIFICATIONS'];
 
 // ============================================================================
 // CONSTANTES DE VALIDITÉ
 // ============================================================================
 
 export const COMPLIANCE_CONFIG = {
-  KBIS_VALIDITY_MONTHS: 3,              // KBIS valide 3 mois
-  URSSAF_VALIDITY_MONTHS: 6,            // Attestation URSSAF valide 6 mois
-  RC_PRO_VALIDITY_MONTHS: 12,           // RC Pro valide 1 an
-  DECENNALE_VALIDITY_MONTHS: 12,        // Décennale valide 1 an
-  ALERT_DAYS_BEFORE_EXPIRY: 15,         // Notification J-15 avant expiration
-  SUSPENSION_GRACE_DAYS: 0,             // Suspension immédiate à expiration
+  ATTESTATION_PRO_KBIS_VALIDITY_MONTHS: 3,  // Attestation Pro / Kbis valide 3 mois
+  URSSAF_VALIDITY_MONTHS: 6,                // Attestation URSSAF valide 6 mois
+  RC_PRO_VALIDITY_MONTHS: 12,               // RC Pro valide 1 an
+  ALERT_DAYS_BEFORE_EXPIRY: 15,             // Notification J-15 avant expiration
+  SUSPENSION_GRACE_DAYS: 0,                 // Suspension immédiate à expiration
 } as const;
 
 // ============================================================================

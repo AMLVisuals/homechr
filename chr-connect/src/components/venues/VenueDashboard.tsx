@@ -19,7 +19,7 @@ interface VenueDashboardProps {
 export default function VenueDashboard({ onClose, initialView = 'LIST' }: VenueDashboardProps) {
   const { venues, activeVenueId, setActiveVenue, deleteVenue } = useVenuesStore();
   const { pendingRequests } = useStore();
-  const [view, setView] = useState<'LIST' | 'SEARCH' | 'FORM'>(initialView);
+  const [view, setView] = useState<'LIST' | 'SEARCH' | 'FORM'>(initialView === 'SEARCH' ? 'FORM' : initialView);
   const [editingVenueId, setEditingVenueId] = useState<string | null>(null);
   const [tempFormData, setTempFormData] = useState<VenueFormData | null>(null);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
@@ -60,8 +60,8 @@ export default function VenueDashboard({ onClose, initialView = 'LIST' }: VenueD
         <div className="hidden md:flex w-80 border-r border-[var(--border)] flex-col bg-[var(--bg-card)] h-full shrink-0">
           <div className="p-6 border-b border-[var(--border)] flex items-center justify-between shrink-0">
             <h2 className="font-bold text-xl">Mes lieux</h2>
-            <button 
-              onClick={() => setView('SEARCH')} 
+            <button
+              onClick={() => { setEditingVenueId(null); setTempFormData(null); setView('FORM'); }}
               className="p-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
             >
               <Plus className="w-5 h-5 text-[var(--text-primary)]" />
@@ -88,7 +88,7 @@ export default function VenueDashboard({ onClose, initialView = 'LIST' }: VenueD
                <div className="md:hidden p-4 border-b border-[var(--border)] flex items-center gap-4 shrink-0">
                  <button onClick={onClose}><ArrowLeft /></button>
                  <h2 className="font-bold text-lg">Mes Établissements</h2>
-                 <button onClick={() => setView('SEARCH')} className="ml-auto"><Plus /></button>
+                 <button onClick={() => { setEditingVenueId(null); setTempFormData(null); setView('FORM'); }} className="ml-auto"><Plus /></button>
                </div>
 
                {/* Active Venue Detail */}

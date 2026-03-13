@@ -1,14 +1,15 @@
 import type { PlatformUser, Subscription, RevenueMetrics, DashboardStats, UserDocument } from '@/types/admin';
-import { PATRON_DOCUMENTS, WORKER_DOCUMENTS } from '@/config/documents';
+import { PATRON_DOCUMENTS, EXTRA_DOCUMENTS, FREELANCE_DOCUMENTS } from '@/config/documents';
 
 // --- Helpers pour generer les documents mock ---
 
+type WorkerSubtype = 'EXTRA' | 'FREELANCE';
+
 function makePatronDocs(overrides: Partial<Record<string, Partial<UserDocument>>> = {}): UserDocument[] {
   const defaults: Record<string, UserDocument> = {
-    kbis: { id: 'kbis', label: 'Extrait Kbis', status: 'VERIFIED', required: true, uploadedAt: '2025-09-20', verifiedAt: '2025-09-21', fileName: 'kbis_2025.pdf' },
-    identity: { id: 'identity', label: "Pièce d'identité du Gérant", status: 'VERIFIED', required: true, uploadedAt: '2025-09-18', verifiedAt: '2025-09-19', fileName: 'cni_recto_verso.pdf' },
-    rib: { id: 'rib', label: 'RIB / IBAN', status: 'VERIFIED', required: true, uploadedAt: '2025-09-18', verifiedAt: '2025-09-19', fileName: 'rib_banque.pdf' },
-    license: { id: 'license', label: "Licence d'Exploitation", status: 'MISSING', required: false },
+    IDENTITY: { id: 'IDENTITY', label: "Pièce d'identité du Gérant", status: 'VERIFIED', required: true, uploadedAt: '2025-09-18', verifiedAt: '2025-09-19', fileName: 'cni_recto_verso.pdf' },
+    ATTESTATION_PRO_KBIS: { id: 'ATTESTATION_PRO_KBIS', label: 'Kbis', status: 'VERIFIED', required: true, uploadedAt: '2025-09-20', verifiedAt: '2025-09-21', fileName: 'kbis_2025.pdf' },
+    RIB: { id: 'RIB', label: 'RIB / IBAN', status: 'VERIFIED', required: true, uploadedAt: '2025-09-18', verifiedAt: '2025-09-19', fileName: 'rib_banque.pdf' },
   };
   return PATRON_DOCUMENTS.map((doc) => ({
     ...defaults[doc.id],
@@ -16,16 +17,27 @@ function makePatronDocs(overrides: Partial<Record<string, Partial<UserDocument>>
   }));
 }
 
-function makeWorkerDocs(overrides: Partial<Record<string, Partial<UserDocument>>> = {}): UserDocument[] {
-  const defaults: Record<string, UserDocument> = {
-    sirene: { id: 'sirene', label: 'Avis de Situation SIRENE / Kbis', status: 'VERIFIED', required: true, uploadedAt: '2025-10-05', verifiedAt: '2025-10-06', fileName: 'sirene_avis.pdf' },
-    identity: { id: 'identity', label: "Pièce d'identité", status: 'VERIFIED', required: true, uploadedAt: '2025-10-04', verifiedAt: '2025-10-05', fileName: 'passeport.pdf' },
-    urssaf: { id: 'urssaf', label: 'Attestation de Vigilance URSSAF', status: 'VERIFIED', required: true, uploadedAt: '2025-10-05', verifiedAt: '2025-10-06', expiresAt: '2026-10-05', fileName: 'urssaf_vigilance.pdf' },
-    rc_pro: { id: 'rc_pro', label: 'Assurance RC Pro', status: 'VERIFIED', required: true, uploadedAt: '2025-10-03', verifiedAt: '2025-10-04', expiresAt: '2026-10-03', fileName: 'rc_pro_attestation.pdf' },
-    decennale: { id: 'decennale', label: 'Assurance Décennale', status: 'MISSING', required: true, uploadedAt: undefined, fileName: undefined },
-    certifications: { id: 'certifications', label: 'Certifications / Diplômes', status: 'MISSING', required: false },
+function makeWorkerDocs(subtype: WorkerSubtype, overrides: Partial<Record<string, Partial<UserDocument>>> = {}): UserDocument[] {
+  const template = subtype === 'EXTRA' ? EXTRA_DOCUMENTS : FREELANCE_DOCUMENTS;
+
+  const extraDefaults: Record<string, UserDocument> = {
+    IDENTITY: { id: 'IDENTITY', label: "Pièce d'identité", status: 'VERIFIED', required: true, uploadedAt: '2025-10-04', verifiedAt: '2025-10-05', fileName: 'passeport.pdf' },
+    RIB: { id: 'RIB', label: 'RIB / IBAN', status: 'VERIFIED', required: true, uploadedAt: '2025-10-05', verifiedAt: '2025-10-06', fileName: 'rib_worker.pdf' },
+    SOCIAL_SECURITY_CARD: { id: 'SOCIAL_SECURITY_CARD', label: 'Carte Vitale ou Attestation sécu', status: 'VERIFIED', required: true, uploadedAt: '2025-10-05', verifiedAt: '2025-10-06', fileName: 'carte_vitale.pdf' },
+    CERTIFICATIONS: { id: 'CERTIFICATIONS', label: 'Certifications / Diplômes', status: 'MISSING', required: false },
   };
-  return WORKER_DOCUMENTS.map((doc) => ({
+
+  const freelanceDefaults: Record<string, UserDocument> = {
+    IDENTITY: { id: 'IDENTITY', label: "Pièce d'identité", status: 'VERIFIED', required: true, uploadedAt: '2025-10-04', verifiedAt: '2025-10-05', fileName: 'passeport.pdf' },
+    ATTESTATION_PRO_KBIS: { id: 'ATTESTATION_PRO_KBIS', label: 'Attestation Pro / Kbis', status: 'VERIFIED', required: true, uploadedAt: '2025-10-05', verifiedAt: '2025-10-06', fileName: 'kbis_pro.pdf' },
+    URSSAF_ATTESTATION: { id: 'URSSAF_ATTESTATION', label: 'Attestation de Vigilance URSSAF', status: 'VERIFIED', required: true, uploadedAt: '2025-10-05', verifiedAt: '2025-10-06', expiresAt: '2026-10-05', fileName: 'urssaf_vigilance.pdf' },
+    RC_PRO: { id: 'RC_PRO', label: 'Assurance RC Pro', status: 'VERIFIED', required: true, uploadedAt: '2025-10-03', verifiedAt: '2025-10-04', expiresAt: '2026-10-03', fileName: 'rc_pro_attestation.pdf' },
+    CERTIFICATIONS: { id: 'CERTIFICATIONS', label: 'Certifications / Diplômes', status: 'MISSING', required: false },
+  };
+
+  const defaults = subtype === 'EXTRA' ? extraDefaults : freelanceDefaults;
+
+  return template.map((doc) => ({
     ...defaults[doc.id],
     ...overrides[doc.id],
   }));
@@ -35,16 +47,13 @@ export const MOCK_USERS: PlatformUser[] = [
   // u1 - PATRON ACTIVE PREMIUM - tout conforme
   {
     id: 'u1', name: 'Jean-Pierre Martin', email: 'jp.martin@brasserie-martin.fr', type: 'PATRON', city: 'Paris 11e', missions: 24, premium: true, status: 'ACTIVE', totalSpent: 4820, totalEarned: 0, createdAt: '2025-09-15', establishmentName: 'Brasserie Martin',
-    documents: makePatronDocs({
-      license: { id: 'license', label: "Licence d'Exploitation", status: 'VERIFIED', required: false, uploadedAt: '2025-09-22', verifiedAt: '2025-09-23', fileName: 'licence_IV.pdf' },
-    }),
+    documents: makePatronDocs(),
   },
-  // u2 - WORKER ACTIVE - URSSAF pending
+  // u2 - WORKER FREELANCE ACTIVE - URSSAF pending
   {
     id: 'u2', name: 'Sophie Durand', email: 'sophie.d@hotmail.fr', type: 'WORKER', city: 'Paris 3e', missions: 31, premium: false, status: 'ACTIVE', totalSpent: 0, totalEarned: 3720, createdAt: '2025-10-02',
-    documents: makeWorkerDocs({
-      urssaf: { id: 'urssaf', label: 'Attestation de Vigilance URSSAF', status: 'PENDING', required: true, uploadedAt: '2026-02-28', fileName: 'urssaf_2026.pdf' },
-      decennale: { id: 'decennale', label: 'Assurance Décennale', status: 'VERIFIED', required: true, uploadedAt: '2025-10-10', verifiedAt: '2025-10-11', expiresAt: '2026-10-10', fileName: 'decennale.pdf' },
+    documents: makeWorkerDocs('FREELANCE', {
+      URSSAF_ATTESTATION: { id: 'URSSAF_ATTESTATION', label: 'Attestation de Vigilance URSSAF', status: 'PENDING', required: true, uploadedAt: '2026-02-28', fileName: 'urssaf_2026.pdf' },
     }),
   },
   // u3 - PATRON ACTIVE PREMIUM - conforme
@@ -52,96 +61,82 @@ export const MOCK_USERS: PlatformUser[] = [
     id: 'u3', name: 'Marc Leblanc', email: 'marc@le-petit-zinc.fr', type: 'PATRON', city: 'Boulogne-Billancourt', missions: 12, premium: true, status: 'ACTIVE', totalSpent: 2450, totalEarned: 0, createdAt: '2025-11-20', establishmentName: 'Le Petit Zinc',
     documents: makePatronDocs(),
   },
-  // u4 - WORKER ACTIVE - tout conforme
+  // u4 - WORKER EXTRA ACTIVE - tout conforme
   {
     id: 'u4', name: 'Fatima Benali', email: 'fatima.benali@gmail.com', type: 'WORKER', city: 'Saint-Denis', missions: 45, premium: false, status: 'ACTIVE', totalSpent: 0, totalEarned: 5400, createdAt: '2025-08-10',
-    documents: makeWorkerDocs({
-      decennale: { id: 'decennale', label: 'Assurance Décennale', status: 'VERIFIED', required: true, uploadedAt: '2025-08-15', verifiedAt: '2025-08-16', expiresAt: '2026-08-15', fileName: 'decennale_benali.pdf' },
-      certifications: { id: 'certifications', label: 'Certifications / Diplômes', status: 'VERIFIED', required: false, uploadedAt: '2025-08-12', verifiedAt: '2025-08-13', fileName: 'haccp_diplome.pdf' },
+    documents: makeWorkerDocs('EXTRA', {
+      CERTIFICATIONS: { id: 'CERTIFICATIONS', label: 'Certifications / Diplômes', status: 'VERIFIED', required: false, uploadedAt: '2025-08-12', verifiedAt: '2025-08-13', fileName: 'haccp_diplome.pdf' },
     }),
   },
-  // u5 - PATRON ACTIVE PREMIUM - conforme + licence
+  // u5 - PATRON ACTIVE PREMIUM - conforme
   {
     id: 'u5', name: 'Thomas Petit', email: 'thomas@cafe-de-flore.fr', type: 'PATRON', city: 'Paris 6e', missions: 38, premium: true, status: 'ACTIVE', totalSpent: 7800, totalEarned: 0, createdAt: '2025-07-05', establishmentName: 'Café de Flore',
-    documents: makePatronDocs({
-      license: { id: 'license', label: "Licence d'Exploitation", status: 'VERIFIED', required: false, uploadedAt: '2025-07-10', verifiedAt: '2025-07-11', fileName: 'licence_restaurant.pdf' },
-    }),
+    documents: makePatronDocs(),
   },
-  // u6 - WORKER ACTIVE - RC Pro pending
+  // u6 - WORKER FREELANCE ACTIVE - RC Pro pending
   {
     id: 'u6', name: 'Aminata Diallo', email: 'aminata.d@outlook.fr', type: 'WORKER', city: 'Montreuil', missions: 18, premium: false, status: 'ACTIVE', totalSpent: 0, totalEarned: 2160, createdAt: '2025-12-01',
-    documents: makeWorkerDocs({
-      rc_pro: { id: 'rc_pro', label: 'Assurance RC Pro', status: 'PENDING', required: true, uploadedAt: '2026-02-20', fileName: 'rc_pro_new.pdf' },
-      decennale: { id: 'decennale', label: 'Assurance Décennale', status: 'VERIFIED', required: true, uploadedAt: '2025-12-05', verifiedAt: '2025-12-06', expiresAt: '2026-12-05', fileName: 'decennale_diallo.pdf' },
+    documents: makeWorkerDocs('FREELANCE', {
+      RC_PRO: { id: 'RC_PRO', label: 'Assurance RC Pro', status: 'PENDING', required: true, uploadedAt: '2026-02-20', fileName: 'rc_pro_new.pdf' },
     }),
   },
-  // u7 - PATRON ACTIVE FREE - Kbis expired
+  // u7 - PATRON SUSPENDED - Kbis expired
   {
     id: 'u7', name: 'Philippe Moreau', email: 'p.moreau@chez-philippe.fr', type: 'PATRON', city: 'Vincennes', missions: 8, premium: false, status: 'SUSPENDED', totalSpent: 960, totalEarned: 0, createdAt: '2026-01-10', establishmentName: 'Chez Philippe',
     documents: makePatronDocs({
-      kbis: { id: 'kbis', label: 'Extrait Kbis', status: 'EXPIRED', required: true, uploadedAt: '2025-06-10', verifiedAt: '2025-06-11', expiresAt: '2025-09-10', fileName: 'kbis_ancien.pdf' },
+      ATTESTATION_PRO_KBIS: { id: 'ATTESTATION_PRO_KBIS', label: 'Kbis', status: 'EXPIRED', required: true, uploadedAt: '2025-06-10', verifiedAt: '2025-06-11', expiresAt: '2025-09-10', fileName: 'kbis_ancien.pdf' },
     }),
   },
-  // u8 - WORKER ACTIVE - tout conforme
+  // u8 - WORKER FREELANCE ACTIVE - tout conforme
   {
     id: 'u8', name: 'Lucie Garnier', email: 'lucie.garnier@gmail.com', type: 'WORKER', city: 'Ivry-sur-Seine', missions: 52, premium: false, status: 'ACTIVE', totalSpent: 0, totalEarned: 6240, createdAt: '2025-06-15',
-    documents: makeWorkerDocs({
-      decennale: { id: 'decennale', label: 'Assurance Décennale', status: 'VERIFIED', required: true, uploadedAt: '2025-06-20', verifiedAt: '2025-06-21', expiresAt: '2026-06-20', fileName: 'decennale_garnier.pdf' },
-      certifications: { id: 'certifications', label: 'Certifications / Diplômes', status: 'VERIFIED', required: false, uploadedAt: '2025-06-18', verifiedAt: '2025-06-19', fileName: 'qualibat.pdf' },
+    documents: makeWorkerDocs('FREELANCE', {
+      CERTIFICATIONS: { id: 'CERTIFICATIONS', label: 'Certifications / Diplômes', status: 'VERIFIED', required: false, uploadedAt: '2025-06-18', verifiedAt: '2025-06-19', fileName: 'qualibat.pdf' },
     }),
   },
   // u9 - PATRON ACTIVE PREMIUM - conforme
   {
     id: 'u9', name: 'Nicolas Roux', email: 'nicolas@la-rotonde.fr', type: 'PATRON', city: 'Paris 14e', missions: 15, premium: true, status: 'ACTIVE', totalSpent: 3200, totalEarned: 0, createdAt: '2025-10-28', establishmentName: 'La Rotonde',
-    documents: makePatronDocs({
-      license: { id: 'license', label: "Licence d'Exploitation", status: 'PENDING', required: false, uploadedAt: '2026-02-15', fileName: 'licence_pending.pdf' },
-    }),
+    documents: makePatronDocs(),
   },
-  // u10 - WORKER SUSPENDED - docs manquants/expires
+  // u10 - WORKER FREELANCE SUSPENDED - docs expires
   {
     id: 'u10', name: 'Camille Bernard', email: 'camille.b@yahoo.fr', type: 'WORKER', city: 'Nanterre', missions: 27, premium: false, status: 'SUSPENDED', totalSpent: 0, totalEarned: 3240, createdAt: '2025-09-20',
-    documents: makeWorkerDocs({
-      sirene: { id: 'sirene', label: 'Avis de Situation SIRENE / Kbis', status: 'EXPIRED', required: true, uploadedAt: '2025-03-10', verifiedAt: '2025-03-11', expiresAt: '2025-09-10', fileName: 'sirene_ancien.pdf' },
-      urssaf: { id: 'urssaf', label: 'Attestation de Vigilance URSSAF', status: 'MISSING', required: true },
-      rc_pro: { id: 'rc_pro', label: 'Assurance RC Pro', status: 'EXPIRED', required: true, uploadedAt: '2024-11-01', verifiedAt: '2024-11-02', expiresAt: '2025-11-01', fileName: 'rc_pro_expire.pdf' },
+    documents: makeWorkerDocs('FREELANCE', {
+      ATTESTATION_PRO_KBIS: { id: 'ATTESTATION_PRO_KBIS', label: 'Attestation Pro / Kbis', status: 'EXPIRED', required: true, uploadedAt: '2025-03-10', verifiedAt: '2025-03-11', expiresAt: '2025-09-10', fileName: 'kbis_ancien.pdf' },
+      URSSAF_ATTESTATION: { id: 'URSSAF_ATTESTATION', label: 'Attestation de Vigilance URSSAF', status: 'MISSING', required: true },
+      RC_PRO: { id: 'RC_PRO', label: 'Assurance RC Pro', status: 'EXPIRED', required: true, uploadedAt: '2024-11-01', verifiedAt: '2024-11-02', expiresAt: '2025-11-01', fileName: 'rc_pro_expire.pdf' },
     }),
   },
-  // u11 - PATRON ACTIVE PREMIUM - conforme + licence
+  // u11 - PATRON ACTIVE PREMIUM - conforme
   {
     id: 'u11', name: 'François Dubois', email: 'f.dubois@hotel-royal.fr', type: 'PATRON', city: 'Neuilly-sur-Seine', missions: 42, premium: true, status: 'ACTIVE', totalSpent: 9600, totalEarned: 0, createdAt: '2025-05-12', establishmentName: 'Hôtel Royal',
-    documents: makePatronDocs({
-      license: { id: 'license', label: "Licence d'Exploitation", status: 'VERIFIED', required: false, uploadedAt: '2025-05-15', verifiedAt: '2025-05-16', fileName: 'licence_hotel.pdf' },
-    }),
+    documents: makePatronDocs(),
   },
-  // u12 - WORKER ACTIVE - identite pending (recente)
+  // u12 - WORKER EXTRA ACTIVE - identite pending
   {
     id: 'u12', name: 'Yasmine Khelifi', email: 'yasmine.k@gmail.com', type: 'WORKER', city: 'Aubervilliers', missions: 14, premium: false, status: 'ACTIVE', totalSpent: 0, totalEarned: 1680, createdAt: '2026-01-25',
-    documents: makeWorkerDocs({
-      identity: { id: 'identity', label: "Pièce d'identité", status: 'PENDING', required: true, uploadedAt: '2026-02-25', fileName: 'cni_khelifi.pdf' },
-      decennale: { id: 'decennale', label: 'Assurance Décennale', status: 'VERIFIED', required: true, uploadedAt: '2026-01-28', verifiedAt: '2026-01-29', expiresAt: '2027-01-28', fileName: 'decennale_khelifi.pdf' },
+    documents: makeWorkerDocs('EXTRA', {
+      IDENTITY: { id: 'IDENTITY', label: "Pièce d'identité", status: 'PENDING', required: true, uploadedAt: '2026-02-25', fileName: 'cni_khelifi.pdf' },
     }),
   },
   // u13 - PATRON SUSPENDED - RIB manquant, Kbis expire
   {
     id: 'u13', name: 'Antoine Leroy', email: 'antoine@bistrot-leroy.fr', type: 'PATRON', city: 'Paris 18e', missions: 6, premium: false, status: 'SUSPENDED', totalSpent: 480, totalEarned: 0, createdAt: '2026-02-01', establishmentName: 'Bistrot Leroy',
     documents: makePatronDocs({
-      kbis: { id: 'kbis', label: 'Extrait Kbis', status: 'EXPIRED', required: true, uploadedAt: '2025-08-01', verifiedAt: '2025-08-02', expiresAt: '2025-11-01', fileName: 'kbis_expire.pdf' },
-      rib: { id: 'rib', label: 'RIB / IBAN', status: 'MISSING', required: true },
+      ATTESTATION_PRO_KBIS: { id: 'ATTESTATION_PRO_KBIS', label: 'Kbis', status: 'EXPIRED', required: true, uploadedAt: '2025-08-01', verifiedAt: '2025-08-02', expiresAt: '2025-11-01', fileName: 'kbis_expire.pdf' },
+      RIB: { id: 'RIB', label: 'RIB / IBAN', status: 'MISSING', required: true },
     }),
   },
-  // u14 - WORKER ACTIVE - conforme
+  // u14 - WORKER FREELANCE ACTIVE - conforme
   {
     id: 'u14', name: 'Chloé Mercier', email: 'chloe.mercier@hotmail.fr', type: 'WORKER', city: 'Créteil', missions: 35, premium: false, status: 'ACTIVE', totalSpent: 0, totalEarned: 4200, createdAt: '2025-08-28',
-    documents: makeWorkerDocs({
-      decennale: { id: 'decennale', label: 'Assurance Décennale', status: 'VERIFIED', required: true, uploadedAt: '2025-09-01', verifiedAt: '2025-09-02', expiresAt: '2026-09-01', fileName: 'decennale_mercier.pdf' },
-    }),
+    documents: makeWorkerDocs('FREELANCE'),
   },
-  // u15 - PATRON ACTIVE PREMIUM - conforme + licence
+  // u15 - PATRON ACTIVE PREMIUM - conforme
   {
     id: 'u15', name: 'Olivier Girard', email: 'olivier@le-grand-cafe.fr', type: 'PATRON', city: 'Versailles', missions: 20, premium: true, status: 'ACTIVE', totalSpent: 5100, totalEarned: 0, createdAt: '2025-07-18', establishmentName: 'Le Grand Café',
-    documents: makePatronDocs({
-      license: { id: 'license', label: "Licence d'Exploitation", status: 'VERIFIED', required: false, uploadedAt: '2025-07-20', verifiedAt: '2025-07-21', fileName: 'licence_IV_girard.pdf' },
-    }),
+    documents: makePatronDocs(),
   },
 ];
 

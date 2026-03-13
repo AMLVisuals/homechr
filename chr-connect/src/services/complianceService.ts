@@ -77,7 +77,7 @@ export async function verifyURSSAFAttestation(attestationFileUrl: string): Promi
  * basé sur ses documents uploadés
  */
 export function computeComplianceStatus(documents: ComplianceDocument[]): ComplianceStatus {
-  const requiredTypes = ['KBIS', 'URSSAF_ATTESTATION', 'RC_PRO'] as const;
+  const requiredTypes = ['ATTESTATION_PRO_KBIS', 'URSSAF_ATTESTATION', 'RC_PRO'] as const;
   const now = new Date();
 
   for (const docType of requiredTypes) {
@@ -127,12 +127,12 @@ export function canWorkerAcceptMission(compliance: WorkerCompliance): {
   allowed: boolean;
   reason?: string;
 } {
-  if (compliance.employmentCategory === 'EXTRA_EMPLOYEE') {
+  if (compliance.employmentCategory === 'EXTRA') {
     // Les extras n'ont pas besoin de compliance entreprise
     return { allowed: true };
   }
 
-  // Indépendants : compliance obligatoire
+  // Freelance : compliance obligatoire
   if (compliance.complianceStatus === 'VERIFIED') {
     return { allowed: true };
   }
@@ -146,6 +146,6 @@ export function canWorkerAcceptMission(compliance: WorkerCompliance): {
 
   return {
     allowed: false,
-    reason: 'Vos documents de conformité sont en attente de vérification (KBIS, URSSAF, RC Pro).',
+    reason: 'Vos documents de conformité sont en attente de vérification (Attestation Pro / Kbis, URSSAF, RC Pro).',
   };
 }
