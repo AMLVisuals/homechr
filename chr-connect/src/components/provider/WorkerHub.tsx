@@ -13,6 +13,7 @@ import { useMissionsStore } from '@/store/useMissionsStore';
 import { useStore } from '@/store/useStore';
 import { useMissionDispatchStore } from '@/store/useMissionDispatchStore';
 import { useState } from 'react';
+import DocumentExpiryBanner from '@/components/shared/DocumentExpiryBanner';
 
 // Rôles disponibles groupés par domaine HORECA
 const ROLE_GROUPS = [
@@ -144,6 +145,9 @@ export default function WorkerHub({ currentProfile, onGoOnline }: WorkerHubProps
           </h1>
         </div>
       </div>
+
+      {/* ── Alertes expiration documents ─────────── */}
+      <DocumentExpiryBanner />
 
       {/* ── Mes rôles (dépliant) ─────────── */}
       <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] overflow-hidden" style={{ boxShadow: 'var(--shadow-card)' }}>

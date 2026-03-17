@@ -45,6 +45,7 @@ import StockTab from './tabs/StockTab';
 import DPAETab from './tabs/DPAETab';
 import MissionDetailsModal from './missions/MissionDetailsModal';
 import ActionAlertsBanner from './ActionAlertsBanner';
+import MaintenanceAlertsBanner from './maintenance/MaintenanceAlertsBanner';
 import Sidebar from './Sidebar';
 import SettingsModal from '../shared/SettingsModal';
 
@@ -403,6 +404,14 @@ export default function PatronDashboard() {
                   </div>
                 </motion.section>
               )}
+
+              {/* Maintenance Alerts */}
+              <MaintenanceAlertsBanner
+                onCreateMission={() => {
+                  setSelectedCategory('TECHNICIENS');
+                  setShowNewRequestModal(true);
+                }}
+              />
 
               {/* Quick Actions */}
               <section>

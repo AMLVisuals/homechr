@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, Filter, Upload, Camera, FileText, Image, File, Trash2, Eye, X, Plus, FolderOpen, Tag, Calendar } from 'lucide-react';
+import { Search, Filter, Upload, Camera, FileText, Image, File, Trash2, Eye, X, Plus, FolderOpen, Tag, Calendar, FileCode, Zap } from 'lucide-react';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SkeletonTable } from '@/components/shared/Skeleton';
@@ -7,6 +7,8 @@ import EmptyState from '@/components/shared/EmptyState';
 import { useDocumentsStore, DocumentCategory, StoredDocument } from '@/store/useDocumentsStore';
 import { useVenuesStore } from '@/store/useVenuesStore';
 import { DocumentViewer } from '../billing/InvoiceDetailView';
+import FacturXInvoiceView from '../billing/FacturXInvoiceView';
+import { createMockFacturXData, type FacturXData } from '@/lib/facturx-generator';
 
 const CATEGORY_CONFIG: Record<DocumentCategory, { label: string; color: string; icon: typeof FileText }> = {
   FACTURE: { label: 'Facture', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20', icon: FileText },
@@ -24,6 +26,7 @@ export default function InvoicesTab() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDoc, setSelectedDoc] = useState<StoredDocument | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [facturXData, setFacturXData] = useState<FacturXData | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -119,6 +122,13 @@ export default function InvoicesTab() {
             </div>
 
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => setFacturXData(createMockFacturXData())}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white text-sm font-bold transition-all shadow-lg shadow-green-900/20"
+              >
+                <FileCode className="w-4 h-4" />
+                <span className="hidden sm:inline">Factur-X</span>
+              </button>
               <button
                 onClick={() => setShowUploadModal(true)}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-colors shadow-lg shadow-blue-900/20"
@@ -332,6 +342,13 @@ export default function InvoicesTab() {
       <AnimatePresence>
         {selectedDoc && (
           <DocumentViewer doc={selectedDoc} onClose={() => setSelectedDoc(null)} />
+        )}
+      </AnimatePresence>
+
+      {/* Factur-X Invoice Viewer */}
+      <AnimatePresence>
+        {facturXData && (
+          <FacturXInvoiceView data={facturXData} onClose={() => setFacturXData(null)} />
         )}
       </AnimatePresence>
     </div>

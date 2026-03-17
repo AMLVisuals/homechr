@@ -7,7 +7,7 @@ import {
   X, MapPin, Clock, Camera, Mic, Star, Send,
   User, Phone, MessageSquare, Video, Image as ImageIcon,
   AlertCircle, Navigation, ChevronRight, CheckCircle2, Package, FileText,
-  XCircle, Users, Eye, Play
+  XCircle, Users, Eye, Play, AlertTriangle
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import FullScreenGallery from '@/components/shared/FullScreenGallery';
@@ -23,6 +23,8 @@ import { useStore } from '@/store/useStore';
 import { useDPAEStore } from '@/store/useDPAEStore';
 import { Mission, MissionCandidate } from '@/types/missions';
 import DPAEWizard from '../dpae/DPAEWizard';
+import DisputeReportModal from '../disputes/DisputeReportModal';
+import PostMissionReviewModal from '../reviews/PostMissionReviewModal';
 
 interface MissionDetailsModalProps {
   mission: Mission | null;
@@ -36,6 +38,8 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
   const isPremium = useStore((s) => s.isPremium);
   const dpaeDeclaration = useDPAEStore((s) => mission ? s.getDeclarationByMission(mission.id) : undefined);
   const [showDPAEWizard, setShowDPAEWizard] = useState(false);
+  const [showDisputeModal, setShowDisputeModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'DETAILS' | 'EVIDENCE' | 'PROVIDER' | 'INVOICE' | 'QUOTE' | 'CANDIDATES'>('DETAILS');
   const [showRating, setShowRating] = useState(false);
   const [showProviderProfile, setShowProviderProfile] = useState(false);
@@ -267,6 +271,8 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
         return { label: 'Devis reçu', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30' };
       case 'STANDBY':
         return { label: 'En attente pièce', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' };
+      case 'DISPUTED':
+        return { label: 'En litige', color: 'bg-red-500/20 text-red-400 border-red-500/30' };
       default:
         return { label: status, color: 'bg-gray-500/20 text-gray-400 border-gray-500/30' };
     }
@@ -467,14 +473,51 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                       </button>
                     </div>
 
-                  {mission.status === 'COMPLETED' && !showRating && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setShowRating(true); }}
-                      className="w-full mt-3 py-3 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 border border-yellow-500/20 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
-                    >
-                      <Star className="w-4 h-4" />
-                      Noter le prestataire
-                    </button>
+                  {mission.status === 'COMPLETED' && (
+                    <>
+                      {mission.review ? (
+                        <div className="mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                          <div className="flex items-center gap-2 mb-1">
+                            {[1, 2, 3, 4, 5].map(s => (
+                              <Star key={s} className={clsx('w-3.5 h-3.5', mission.review!.rating >= s ? 'fill-amber-400 text-amber-400' : 'text-gray-600')} />
+                            ))}
+                          </div>
+                          {mission.review.comment && (
+                            <p className="text-xs text-[var(--text-secondary)] italic">&ldquo;{mission.review.comment}&rdquo;</p>
+                          )}
+                        </div>
+                      ) : (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setShowReviewModal(true); }}
+                          className="w-full mt-3 py-3 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 border border-yellow-500/20 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
+                        >
+                          <Star className="w-4 h-4" />
+                          Noter la prestation
+                        </button>
+                      )}
+                      {!mission.dispute && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setShowDisputeModal(true); }}
+                          className="w-full mt-2 py-2.5 bg-red-500/5 hover:bg-red-500/10 text-red-400 border border-red-500/15 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+                        >
+                          <AlertTriangle className="w-3.5 h-3.5" />
+                          Signaler un problème
+                        </button>
+                      )}
+                    </>
+                  )}
+
+                  {mission.status === 'DISPUTED' && mission.dispute && (
+                    <div className="mt-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertTriangle className="w-4 h-4 text-red-400" />
+                        <span className="text-xs font-bold text-red-400 uppercase">Litige en cours</span>
+                      </div>
+                      <p className="text-xs text-[var(--text-secondary)]">{mission.dispute.description}</p>
+                      <p className="text-[10px] text-[var(--text-muted)] mt-2">
+                        Signalé le {new Date(mission.dispute.createdAt).toLocaleDateString('fr-FR')} — En attente de traitement
+                      </p>
+                    </div>
                   )}
                   </div>
                   )}
@@ -992,11 +1035,20 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                               )}
 
                               {/* Completed */}
-                              {mission.status === 'COMPLETED' && (
+                              {(mission.status === 'COMPLETED' || mission.status === 'DISPUTED') && (
                                 <div className="relative pl-6">
                                   <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-green-500 ring-4 ring-black" />
                                   <p className="text-sm text-[var(--text-primary)] font-medium">Intervention terminée</p>
                                   <p className="text-xs text-[var(--text-muted)]">Mission clôturée</p>
+                                </div>
+                              )}
+
+                              {/* Disputed */}
+                              {mission.status === 'DISPUTED' && (
+                                <div className="relative pl-6">
+                                  <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-red-500 ring-4 ring-black animate-pulse" />
+                                  <p className="text-sm text-red-400 font-medium">Litige signalé</p>
+                                  <p className="text-xs text-[var(--text-muted)]">En attente de résolution</p>
                                 </div>
                               )}
                             </div>
@@ -1373,6 +1425,33 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
         establishmentName={mission.venue}
       />
     )}
+
+    {/* Dispute Report Modal */}
+    <AnimatePresence>
+      {showDisputeModal && mission && (
+        <DisputeReportModal
+          missionId={mission.id}
+          missionTitle={mission.title}
+          providerName={mission.provider?.name || mission.expert}
+          isOpen={showDisputeModal}
+          onClose={() => setShowDisputeModal(false)}
+        />
+      )}
+    </AnimatePresence>
+
+    {/* Post-Mission Review Modal */}
+    <AnimatePresence>
+      {showReviewModal && mission && (
+        <PostMissionReviewModal
+          missionId={mission.id}
+          missionTitle={mission.title}
+          providerName={mission.provider?.name || mission.expert || 'Prestataire'}
+          providerAvatar={mission.provider?.avatar}
+          isOpen={showReviewModal}
+          onClose={() => setShowReviewModal(false)}
+        />
+      )}
+    </AnimatePresence>
     </>,
     document.body
   );

@@ -279,6 +279,7 @@ function mapLegacyStatus(status: Mission['status']): UnifiedMissionStatus {
     'STANDBY': 'STANDBY',
     'PENDING_VALIDATION': 'PENDING_VALIDATION',
     'AWAITING_PATRON_CONFIRMATION': 'AWAITING_PATRON_CONFIRMATION',
+    'DISPUTED': 'DISPUTED',
   };
   return mapping[status] || 'SEARCHING';
 }

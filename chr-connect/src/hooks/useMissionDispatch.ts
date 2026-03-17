@@ -160,6 +160,16 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
         avatar: 'https://i.pravatar.cc/150?u=worker-self',
         completedMissions: 47,
         employmentCategory,
+        reliabilityRate: 96,
+        skills: flowType === 'STAFF'
+          ? ['Service en salle', 'Cocktails', 'Anglais courant']
+          : ['Froid commercial', 'Climatisation', 'Dépannage urgent'],
+        distanceKm: 2.3,
+        recentReviews: [
+          { rating: 5, comment: 'Excellent travail, ponctuel et professionnel.', author: 'Le Comptoir', date: '2026-03-10' },
+          { rating: 4, comment: 'Bonne prestation, je recommande.', author: 'Café Marly', date: '2026-03-05' },
+          { rating: 5, comment: 'Très réactif, mission impeccable.', author: 'Brasserie du Marais', date: '2026-02-28' },
+        ],
       },
     });
     startMission(proposal.id);

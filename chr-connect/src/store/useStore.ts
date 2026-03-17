@@ -6,6 +6,7 @@ export type WorkerSkill = string;
 export type Theme = 'light' | 'dark';
 export type ProfileValidationStatus = 'incomplete' | 'pending_validation' | 'validated' | 'rejected';
 export type DocUploadStatus = 'idle' | 'uploading' | 'pending' | 'verified';
+export type SubscriptionTier = 'FREE' | 'PRO' | 'PREMIUM';
 
 export interface PatronDocUpload {
   type: ComplianceDocType;
@@ -28,6 +29,11 @@ interface AppState {
   theme: Theme;
   setTheme: (theme: Theme) => void;
 
+  // Subscription — V2 3-tier system
+  subscriptionTier: SubscriptionTier;
+  setSubscriptionTier: (tier: SubscriptionTier) => void;
+
+  // Backward compat: isPremium = PRO or PREMIUM (any paid tier)
   isPremium: boolean;
   setPremium: (isPremium: boolean) => void;
 
@@ -42,7 +48,7 @@ interface AppState {
   addRequest: (request: any) => void;
 }
 
-export const useStore = create<AppState>((set) => ({
+export const useStore = create<AppState>((set, get) => ({
   userRole: null,
   setUserRole: (role) => set({ userRole: role }),
 
@@ -60,8 +66,16 @@ export const useStore = create<AppState>((set) => ({
   theme: 'light',
   setTheme: (theme) => set({ theme }),
 
+  // Subscription — V2
+  subscriptionTier: 'FREE',
+  setSubscriptionTier: (tier) => set({ subscriptionTier: tier, isPremium: tier !== 'FREE' }),
+
+  // Backward compat
   isPremium: false,
-  setPremium: (isPremium) => set({ isPremium }),
+  setPremium: (isPremium) => set({
+    isPremium,
+    subscriptionTier: isPremium ? 'PREMIUM' : 'FREE',
+  }),
 
   // Patron profile compliance
   patronProfileStatus: 'incomplete',

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 // ── Types ────────────────────────────────────────────────────────────
-export type NotificationType = 'mission' | 'worker' | 'payment' | 'system' | 'equipment';
+export type NotificationType = 'mission' | 'worker' | 'payment' | 'system' | 'equipment' | 'dispute';
 
 export interface Notification {
   id: string;

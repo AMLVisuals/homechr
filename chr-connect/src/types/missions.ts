@@ -1,4 +1,33 @@
-export type MissionType = 
+// ── Dispute / Litige ──
+export type DisputeReason =
+  | 'NO_SHOW'              // Le prestataire ne s'est pas présenté
+  | 'QUALITY_ISSUE'        // Travail mal fait / non conforme
+  | 'INCOMPLETE_WORK'      // Travail inachevé
+  | 'DAMAGE'               // Dégât causé pendant l'intervention
+  | 'LATE_ARRIVAL'         // Retard important
+  | 'UNPROFESSIONAL'       // Comportement non professionnel
+  | 'BILLING_DISPUTE'      // Problème de facturation
+  | 'OTHER';               // Autre
+
+export type DisputeStatus =
+  | 'OPEN'                 // Ticket ouvert, en attente de traitement
+  | 'UNDER_REVIEW'         // En cours d'examen par le support
+  | 'RESOLVED_PATRON'      // Résolu en faveur du patron
+  | 'RESOLVED_PROVIDER'    // Résolu en faveur du prestataire
+  | 'CLOSED';              // Fermé
+
+export const DISPUTE_REASONS: Record<DisputeReason, string> = {
+  NO_SHOW: 'No-show — Le prestataire ne s\'est pas présenté',
+  QUALITY_ISSUE: 'Qualité insuffisante — Travail non conforme',
+  INCOMPLETE_WORK: 'Travail inachevé',
+  DAMAGE: 'Dégât causé pendant l\'intervention',
+  LATE_ARRIVAL: 'Retard important (> 30 min)',
+  UNPROFESSIONAL: 'Comportement non professionnel',
+  BILLING_DISPUTE: 'Problème de facturation / surfacturation',
+  OTHER: 'Autre motif',
+};
+
+export type MissionType =
   | 'cold' | 'hot' | 'plumbing' | 'electricity' | 'coffee' | 'beer' // Maintenance
   | 'staff' | 'security' | 'cleaning' | 'dj' | 'aide_menagere' // Staffing
   | 'light' | 'video' | 'sound' | 'pos' | 'network' // Tech
@@ -134,7 +163,7 @@ export interface Mission {
 
   // Patron View Fields
   expert?: string; // Display name of expert/company
-  status: 'SEARCHING' | 'SCHEDULED' | 'ON_WAY' | 'ON_SITE' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'DIAGNOSING' | 'QUOTE_SENT' | 'STANDBY' | 'PENDING_VALIDATION' | 'AWAITING_PATRON_CONFIRMATION';
+  status: 'SEARCHING' | 'SCHEDULED' | 'ON_WAY' | 'ON_SITE' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'DIAGNOSING' | 'QUOTE_SENT' | 'STANDBY' | 'PENDING_VALIDATION' | 'AWAITING_PATRON_CONFIRMATION' | 'DISPUTED';
   date?: string;
   category?: 'MAINTENANCE' | 'STAFFING' | 'CONSULTING' | 'OTHER'; // Can map to type
   iconName?: 'Wrench' | 'ChefHat' | 'Monitor' | 'Hammer' | 'Zap';
@@ -185,6 +214,18 @@ export interface Mission {
   actualHoursWorked?: number;
   payslipUrl?: string;
 
+  // Dispute / Litige
+  dispute?: {
+    reason: DisputeReason;
+    description: string;
+    photos?: string[];
+    createdAt: string;
+    status: DisputeStatus;
+    resolution?: string;
+    resolvedAt?: string;
+    replacementMissionId?: string; // Mission gratuite créée en remplacement (no-show)
+  };
+
   // Patron confirmation flow
   pendingWorker?: {
     id: string;
@@ -194,6 +235,16 @@ export interface Mission {
     avatar?: string;
     completedMissions?: number;
     employmentCategory?: import('./compliance').EmploymentCategory;
+    // Enriched profile fields
+    reliabilityRate?: number;      // Taux de fiabilite 0-100 (missions terminees sans probleme)
+    skills?: string[];             // Competences / tags
+    distanceKm?: number;           // Distance par rapport a l'etablissement
+    recentReviews?: {              // Derniers avis recus
+      rating: number;
+      comment: string;
+      author: string;
+      date: string;
+    }[];
   };
 }
 

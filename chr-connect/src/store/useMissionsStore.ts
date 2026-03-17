@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Mission, MissionCandidate, Review, Invoice, InvoiceItem, Provider, TeamMember } from '@/types/missions';
+import { Mission, MissionCandidate, Review, Invoice, InvoiceItem, Provider, TeamMember, DisputeReason } from '@/types/missions';
 import type { DPAEMissionStatus } from '@/types/compliance';
 
 // Schedule statuses per member per day
@@ -30,6 +30,8 @@ interface MissionsState {
   selectCandidate: (missionId: string, candidateId: string) => void;
   rejectCandidate: (missionId: string, candidateId: string) => void;
   updateDpaeStatus: (missionId: string, status: DPAEMissionStatus, receiptId?: string) => void;
+  reportDispute: (missionId: string, reason: DisputeReason, description: string, photos?: string[]) => void;
+  resolveDispute: (missionId: string, resolution: string) => void;
 }
 
 // Initial Mock Team Data
@@ -967,10 +969,43 @@ export const useMissionsStore = create<MissionsState>()(
             ? { ...m, dpaeStatus, ...(dpaeReceiptId ? { dpaeReceiptId } : {}) }
             : m
         )
+      })),
+      reportDispute: (missionId, reason, description, photos) => set((state) => ({
+        missions: state.missions.map(m =>
+          m.id === missionId
+            ? {
+                ...m,
+                status: 'DISPUTED' as const,
+                dispute: {
+                  reason,
+                  description,
+                  photos,
+                  createdAt: new Date().toISOString(),
+                  status: 'OPEN' as const,
+                },
+              }
+            : m
+        )
+      })),
+      resolveDispute: (missionId, resolution) => set((state) => ({
+        missions: state.missions.map(m =>
+          m.id === missionId && m.dispute
+            ? {
+                ...m,
+                status: 'COMPLETED' as const,
+                dispute: {
+                  ...m.dispute,
+                  status: 'RESOLVED_PATRON' as const,
+                  resolution,
+                  resolvedAt: new Date().toISOString(),
+                },
+              }
+            : m
+        )
       }))
     }),
     {
-      name: 'missions-storage-v13', // v13: multi-workers provider display + dpaeStatus on selectCandidate
+      name: 'missions-storage-v14', // v14: dispute/litige system
     }
   )
 );

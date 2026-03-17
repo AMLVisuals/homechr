@@ -3,9 +3,12 @@
 // ============================================================================
 
 export const APP_CONFIG = {
-  // Tarification
+  // Tarification — Pricing V2 (3 tiers)
   MISSION_FEE: 20, // Frais de mise en relation (free tier), en euros — inclut l'accès DPAE
-  PREMIUM_MONTHLY_PRICE: 100, // Abonnement premium mensuel, en euros
+  PRO_MONTHLY_PRICE: 49, // Abonnement Pro mensuel, en euros
+  PREMIUM_MONTHLY_PRICE: 99, // Abonnement Premium mensuel, en euros
+  PREMIUM_PAYSLIP_INCLUDED: 5, // Fiches de paie incluses/mois (Premium)
+  PREMIUM_PAYSLIP_EXTRA_FEE: 8, // €/fiche de paie supplémentaire
   PREMIUM_TRIAL_DAYS: 7, // Durée essai gratuit, en jours
   PLATFORM_FEE_PERCENT: 0, // Pas de commission % — modèle entremetteur forfaitaire (20€/mission)
   PLATFORM_FEE_RATE: 0, // Idem en décimal
