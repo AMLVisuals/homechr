@@ -15,7 +15,7 @@ interface WorkerValidationModalProps {
 }
 
 export default function WorkerValidationModal({ mission, isOpen, onClose }: WorkerValidationModalProps) {
-  const updateMission = useMissionsStore((s) => s.updateMission);
+  const syncUpdateMission = useMissionsStore((s) => s.syncUpdateMission);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isRefusing, setIsRefusing] = useState(false);
   const [autoConfirmCountdown, setAutoConfirmCountdown] = useState(10);
@@ -57,7 +57,7 @@ export default function WorkerValidationModal({ mission, isOpen, onClose }: Work
 
     setIsConfirming(true);
     await new Promise((r) => setTimeout(r, 800));
-    updateMission(mission.id, {
+    syncUpdateMission(mission.id, {
       status: 'ON_WAY',
       expert: worker?.name || 'Prestataire',
       provider: worker ? {
@@ -78,7 +78,7 @@ export default function WorkerValidationModal({ mission, isOpen, onClose }: Work
     if (!mission) return;
     setIsRefusing(true);
     await new Promise((r) => setTimeout(r, 600));
-    updateMission(mission.id, {
+    syncUpdateMission(mission.id, {
       status: 'SEARCHING',
       pendingWorker: undefined,
       expert: 'En attente',

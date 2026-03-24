@@ -421,7 +421,7 @@ export function GaragePage({ venueId, ownerId, venueName, onBack }: GaragePagePr
     selectEquipment,
     selectedEquipmentId,
     restoreEquipment,
-    deleteEquipment,
+    syncDeleteEquipment,
   } = useEquipmentStore();
 
   // Modal states
@@ -526,7 +526,7 @@ export function GaragePage({ venueId, ownerId, venueName, onBack }: GaragePagePr
 
   const handleDelete = () => {
     if (selectedEquipment) {
-      deleteEquipment(selectedEquipment.id);
+      syncDeleteEquipment(selectedEquipment.id);
       setShowDetails(false);
     }
   };

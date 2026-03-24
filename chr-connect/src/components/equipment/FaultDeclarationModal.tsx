@@ -68,7 +68,7 @@ export function FaultDeclarationModal({
   onSuccess,
 }: FaultDeclarationModalProps) {
   const { reportFault } = useEquipmentStore();
-  const { addMission } = useMissionsStore();
+  const { syncAddMission } = useMissionsStore();
 
   // Form state
   const [selectedFault, setSelectedFault] = useState<FaultType | null>(null);
@@ -155,7 +155,7 @@ export function FaultDeclarationModal({
         machineId: equipment.id,
       };
 
-      addMission(mission);
+      syncAddMission(mission);
       setCreatedMissionId(missionId);
       setStep('success');
 

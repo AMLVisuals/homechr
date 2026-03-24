@@ -24,7 +24,7 @@ export default function DisputeReportModal({
   onClose,
 }: DisputeReportModalProps) {
   const { reportDispute } = useMissionsStore();
-  const { addNotification } = useNotificationsStore();
+  const { syncAddNotification } = useNotificationsStore();
   const [step, setStep] = useState<'REASON' | 'DETAILS' | 'SUCCESS'>('REASON');
   const [selectedReason, setSelectedReason] = useState<DisputeReason | null>(null);
   const [description, setDescription] = useState('');
@@ -43,7 +43,7 @@ export default function DisputeReportModal({
 
     reportDispute(missionId, selectedReason, description.trim(), photos.length > 0 ? photos : undefined);
 
-    addNotification({
+    syncAddNotification({
       title: 'Litige ouvert',
       description: `Votre signalement pour "${missionTitle}" a été enregistré. Notre équipe va l'examiner.`,
       type: 'dispute',
@@ -51,7 +51,7 @@ export default function DisputeReportModal({
 
     // If no-show, also notify about free replacement
     if (selectedReason === 'NO_SHOW') {
-      addNotification({
+      syncAddNotification({
         title: 'Remplacement gratuit',
         description: `Suite au no-show sur "${missionTitle}", vous pouvez créer une mission de remplacement gratuitement.`,
         type: 'mission',

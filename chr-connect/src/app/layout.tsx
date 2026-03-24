@@ -11,15 +11,15 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "CHR Connect - Gestion HORECA Intelligente",
+  title: "Home CHR - Gestion HORECA Intelligente",
   description: "Plateforme unifiée de gestion pour les professionnels de l'hôtellerie-restauration. Équipements, missions, personnel - tout en un seul endroit.",
   keywords: ["HORECA", "restaurant", "hôtel", "gestion", "équipement", "maintenance", "personnel"],
-  authors: [{ name: "CHR Connect" }],
+  authors: [{ name: "Home CHR" }],
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "CHR Connect",
+    title: "Home CHR",
   },
 };
 
@@ -44,7 +44,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="CHR Connect" />
+        <meta name="apple-mobile-web-app-title" content="Home CHR" />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <ServiceWorkerRegistration />

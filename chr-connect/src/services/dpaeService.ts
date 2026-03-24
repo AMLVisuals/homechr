@@ -139,7 +139,7 @@ export function generateContractHTML(declaration: DPAEDeclaration): string {
   </div>
 
   <div class="footer">
-    <p>Contrat généré par CHR Connect — ${new Date().toLocaleDateString('fr-FR')}</p>
+    <p>Contrat généré par Home CHR — ${new Date().toLocaleDateString('fr-FR')}</p>
     <p>Ce document a valeur de contrat de travail une fois signé par les deux parties.</p>
   </div>
 </body>

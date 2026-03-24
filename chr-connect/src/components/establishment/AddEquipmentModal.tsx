@@ -55,7 +55,7 @@ export function AddEquipmentModal({
   venueId,
 }: AddEquipmentModalProps) {
   const { currentEstablishment } = useEstablishment();
-  const { addEquipment } = useEquipmentStore();
+  const { syncAddEquipment } = useEquipmentStore();
 
   const targetVenueId = venueId || currentEstablishment?.id;
 
@@ -301,7 +301,7 @@ export function AddEquipmentModal({
       }
 
       // Create equipment in the store (Single Source of Truth)
-      const newEquipment = addEquipment({
+      const newEquipment = await syncAddEquipment({
         venueId: targetVenueId,
         ownerId: APP_CONFIG.DEFAULT_OWNER_ID,
         category,
@@ -442,7 +442,7 @@ export function AddEquipmentModal({
                       <div className="flex-1 text-left">
                         <p className="text-[var(--text-primary)] font-semibold text-lg">Scanner un QR Code</p>
                         <p className="text-[var(--text-muted)] text-sm">
-                          Scan rapide du QR code CHR Connect sur l'équipement
+                          Scan rapide du QR code Home CHR sur l'équipement
                         </p>
                       </div>
                       <div className="px-3 py-1 bg-blue-500/20 rounded-full">

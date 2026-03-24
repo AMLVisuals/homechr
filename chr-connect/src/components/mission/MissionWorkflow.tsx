@@ -48,7 +48,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
     dpaeStatus, complianceVerified, canTransitionToInProgress
   } = useMissionEngine();
 
-  const { updateMission, generateInvoice, missions } = useMissionsStore();
+  const { syncUpdateMission, generateInvoice, missions } = useMissionsStore();
   const activeMission = activeMissionId ? missions.find(m => m.id === activeMissionId) : null;
 
   const [showEvidenceModal, setShowEvidenceModal] = useState(false);
@@ -128,7 +128,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
     // Simulate patron confirmation after DELAY
     const autoConfirmTimeout = setTimeout(() => {
       if (activeMissionId) {
-        updateMission(activeMissionId, { status: 'ON_WAY' });
+        syncUpdateMission(activeMissionId, { status: 'ON_WAY' });
       }
       setStatus('ACCEPTED');
     }, DELAY * 1000);
@@ -150,7 +150,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
       clearInterval(pollInterval);
       clearTimeout(autoConfirmTimeout);
     };
-  }, [status, activeMissionId, setStatus, resetMission, updateMission]);
+  }, [status, activeMissionId, setStatus, resetMission, syncUpdateMission]);
 
   // TECH flow: simulate patron acceptance after 8s
   useEffect(() => {
@@ -167,14 +167,14 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
     }, 1000);
 
     const timeout = setTimeout(() => {
-      updateMission(activeMissionId, { status: 'IN_PROGRESS' });
+      syncUpdateMission(activeMissionId, { status: 'IN_PROGRESS' });
     }, DELAY * 1000);
 
     return () => {
       clearInterval(countdownInterval);
       clearTimeout(timeout);
     };
-  }, [status, activeMissionId, updateMission]);
+  }, [status, activeMissionId, syncUpdateMission]);
 
   // Real Geolocation or Simulation when ON_WAY
   const [distance, setDistance] = useState(1200); // meters
@@ -198,7 +198,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
         setEta(newEta);
 
         if (activeMissionId) {
-          updateMission(activeMissionId, {
+          syncUpdateMission(activeMissionId, {
             technicianLocation: { lat, lng },
             eta: newEta
           });
@@ -217,19 +217,19 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
 
   const handleStartTrip = () => {
     setStatus('ON_WAY');
-    if (activeMissionId) updateMission(activeMissionId, { status: 'ON_WAY' });
+    if (activeMissionId) syncUpdateMission(activeMissionId, { status: 'ON_WAY' });
   };
 
   const handleArrived = () => {
     setStatus('ON_SITE');
-    if (activeMissionId) updateMission(activeMissionId, { status: 'ON_SITE' });
+    if (activeMissionId) syncUpdateMission(activeMissionId, { status: 'ON_SITE' });
   };
 
   // STAFF flow: "Confirmer ma présence" → mission goes PENDING_VALIDATION (patron must validate)
   const handleConfirmPresence = () => {
     setStatus('PENDING_VALIDATION');
     if (activeMissionId) {
-      updateMission(activeMissionId, { status: 'PENDING_VALIDATION' });
+      syncUpdateMission(activeMissionId, { status: 'PENDING_VALIDATION' });
     }
   };
 
@@ -264,7 +264,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
   // TECH flow: transition ON_SITE → DIAGNOSING
   const handleStartDiagnosis = () => {
     setStatus('DIAGNOSING');
-    if (activeMissionId) updateMission(activeMissionId, { status: 'DIAGNOSING' });
+    if (activeMissionId) syncUpdateMission(activeMissionId, { status: 'DIAGNOSING' });
   };
 
   // TECH flow: open quote builder
@@ -277,7 +277,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
   const handleQuoteSubmit = (quote: FinalQuote) => {
     setShowQuoteBuilder(false);
     if (activeMissionId) {
-      updateMission(activeMissionId, { status: 'QUOTE_SENT', quote });
+      syncUpdateMission(activeMissionId, { status: 'QUOTE_SENT', quote });
     }
     setStatus('AWAITING_QUOTE_RESPONSE');
   };
@@ -292,7 +292,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
       addInterimNote(quickNote);
       if (activeMissionId) {
         const currentNotes = activeMission?.notes || [];
-        updateMission(activeMissionId, { notes: [...currentNotes, quickNote] });
+        syncUpdateMission(activeMissionId, { notes: [...currentNotes, quickNote] });
       }
       setQuickNote('');
       setShowQuickNote(false);
@@ -330,7 +330,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
         setStatus('IN_PROGRESS');
 
         if (activeMissionId) {
-          updateMission(activeMissionId, {
+          syncUpdateMission(activeMissionId, {
             status: 'IN_PROGRESS',
             evidence: {
               ...activeMission?.evidence,
@@ -352,7 +352,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
     setStatus('COMPLETED');
 
     if (activeMissionId) {
-      updateMission(activeMissionId, {
+      syncUpdateMission(activeMissionId, {
         status: 'COMPLETED',
         report: data.text
       });

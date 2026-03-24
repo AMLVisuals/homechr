@@ -24,7 +24,7 @@ const EVENT_FILTERS: { id: EventType | 'ALL'; label: string; color: string }[] =
 ];
 
 export default function PlanningTab() {
-  const { events, deleteEvent } = useCalendarStore();
+  const { events, syncDeleteEvent } = useCalendarStore();
   const { activeVenueId, venues } = useVenuesStore();
   const { missions } = useMissionsStore();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -178,7 +178,7 @@ export default function PlanningTab() {
   const handleDeleteEvent = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm('Voulez-vous supprimer cet événement ?')) {
-      deleteEvent(id);
+      syncDeleteEvent(id);
     }
   };
 

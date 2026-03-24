@@ -42,7 +42,7 @@ export default function UniversalRequestModal() {
   const [requestStatus, setRequestStatus] = useState<'IDLE' | 'SENDING' | 'SENT'>('IDLE');
   
   const { addRequest } = useStore();
-  const { addMission } = useMissionsStore();
+  const { syncAddMission } = useMissionsStore();
   const { activeVenueId } = useVenuesStore();
 
   const handleBook = (expertId?: string) => {
@@ -104,7 +104,7 @@ export default function UniversalRequestModal() {
           urgency: urgency === 'HIGH' || urgency === 'CRITICAL'
         }
       };
-      addMission(newMission);
+      syncAddMission(newMission);
 
       addRequest({ 
         category: selectedCategory?.label, 

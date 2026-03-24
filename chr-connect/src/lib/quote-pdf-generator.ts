@@ -1,7 +1,7 @@
 // ============================================================================
 // QUOTE PDF GENERATOR
 // ============================================================================
-// Générateur de PDF professionnel pour les devis CHR Connect
+// Générateur de PDF professionnel pour les devis Home CHR
 // Utilise jsPDF pour la génération côté client
 
 import type { FinalQuote } from '@/components/provider/QuoteBuilderUltimate';
@@ -475,7 +475,7 @@ export function generateQuoteHTML(quote: FinalQuote, options: PDFGeneratorOption
     <!-- Header -->
     <div class="header">
       <div class="logo-section">
-        <div class="logo">CHR Connect</div>
+        <div class="logo">Home CHR</div>
         <div class="logo-subtitle">Plateforme HORECA de confiance</div>
       </div>
       <div class="quote-info">
@@ -630,9 +630,9 @@ export function generateQuoteHTML(quote: FinalQuote, options: PDFGeneratorOption
 
     <!-- Footer -->
     <div class="footer">
-      <div class="footer-logo">CHR Connect</div>
+      <div class="footer-logo">Home CHR</div>
       <p>Document généré automatiquement - Valeur juridique selon conditions générales</p>
-      <p>www.chr-connect.fr | contact@chr-connect.fr</p>
+      <p>www.home-chr.fr | contact@home-chr.fr</p>
     </div>
   </div>
 </body>

@@ -1,4 +1,10 @@
 import { create } from 'zustand';
+import {
+  getNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  createNotification,
+} from '@/lib/supabase-helpers';
 
 // ── Types ────────────────────────────────────────────────────────────
 export type NotificationType = 'mission' | 'worker' | 'payment' | 'system' | 'equipment' | 'dispute';
@@ -14,10 +20,20 @@ export interface Notification {
 
 interface NotificationsState {
   notifications: Notification[];
+  isLoading: boolean;
+  error: string | null;
+
+  // Existing local actions (backward compat)
   addNotification: (notif: Omit<Notification, 'id' | 'time' | 'read'>) => void;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   removeNotification: (id: string) => void;
+
+  // Async Supabase actions
+  fetchNotifications: (userId: string) => Promise<void>;
+  syncMarkAsRead: (id: string) => Promise<void>;
+  syncMarkAllAsRead: (userId: string) => Promise<void>;
+  syncAddNotification: (notif: Omit<Notification, 'id' | 'time' | 'read'>) => Promise<void>;
 }
 
 // ── Helper: relative time in French ──────────────────────────────────
@@ -38,42 +54,15 @@ export function formatTimeAgo(date: Date): string {
   return `Il y a ${Math.floor(diffDays / 30)} mois`;
 }
 
-// ── Seed data ────────────────────────────────────────────────────────
-const now = new Date();
-
-const SEED_NOTIFICATIONS: Notification[] = [
-  {
-    id: 'notif-seed-1',
-    title: 'Mission creee',
-    description: 'Votre demande de technicien a ete publiee.',
-    type: 'mission',
-    read: false,
-    time: new Date(now.getTime() - 2 * 60 * 1000), // 2 min ago
-  },
-  {
-    id: 'notif-seed-2',
-    title: 'Prestataire trouve',
-    description: 'Un expert plombier est disponible pour votre mission.',
-    type: 'worker',
-    read: false,
-    time: new Date(now.getTime() - 15 * 60 * 1000), // 15 min ago
-  },
-  {
-    id: 'notif-seed-3',
-    title: 'Mission terminee',
-    description: 'La reparation du four a ete validee avec succes.',
-    type: 'mission',
-    read: true,
-    time: new Date(now.getTime() - 24 * 60 * 60 * 1000), // yesterday
-  },
-];
-
 // ── Store ────────────────────────────────────────────────────────────
 let nextId = 1;
 
-export const useNotificationsStore = create<NotificationsState>((set) => ({
-  notifications: SEED_NOTIFICATIONS,
+export const useNotificationsStore = create<NotificationsState>((set, get) => ({
+  notifications: [],
+  isLoading: false,
+  error: null,
 
+  // ── Existing local actions (backward compat) ──────────────────────
   addNotification: (notif) =>
     set((state) => ({
       notifications: [
@@ -103,4 +92,74 @@ export const useNotificationsStore = create<NotificationsState>((set) => ({
     set((state) => ({
       notifications: state.notifications.filter((n) => n.id !== id),
     })),
+
+  // ── Async Supabase actions ────────────────────────────────────────
+  fetchNotifications: async (userId: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const { data } = await getNotifications(userId);
+      set({ notifications: data ?? [], isLoading: false });
+    } catch (err) {
+      console.error('[useNotificationsStore] fetchNotifications failed, keeping local data:', err);
+      set({ isLoading: false, error: err instanceof Error ? err.message : 'Erreur lors du chargement des notifications' });
+    }
+  },
+
+  syncMarkAsRead: async (id: string) => {
+    // Optimistic local update
+    const { markAsRead } = get();
+    markAsRead(id);
+
+    try {
+      await markNotificationRead(id);
+    } catch (err) {
+      console.error('[useNotificationsStore] syncMarkAsRead failed:', err);
+      // Revert: mark as unread
+      set((state) => ({
+        notifications: state.notifications.map((n) =>
+          n.id === id ? { ...n, read: false } : n
+        ),
+        error: err instanceof Error ? err.message : 'Erreur lors du marquage',
+      }));
+    }
+  },
+
+  syncMarkAllAsRead: async (userId: string) => {
+    // Optimistic local update
+    const previousNotifications = get().notifications;
+    const { markAllAsRead } = get();
+    markAllAsRead();
+
+    try {
+      await markAllNotificationsRead(userId);
+    } catch (err) {
+      console.error('[useNotificationsStore] syncMarkAllAsRead failed:', err);
+      // Revert
+      set({
+        notifications: previousNotifications,
+        error: err instanceof Error ? err.message : 'Erreur lors du marquage',
+      });
+    }
+  },
+
+  syncAddNotification: async (notif) => {
+    const newNotif: Notification = {
+      ...notif,
+      id: `notif-${Date.now()}-${nextId++}`,
+      time: new Date(),
+      read: false,
+    };
+
+    set({ isLoading: true, error: null });
+    try {
+      await createNotification(newNotif);
+      set((state) => ({
+        notifications: [newNotif, ...state.notifications],
+        isLoading: false,
+      }));
+    } catch (err) {
+      console.error('[useNotificationsStore] syncAddNotification failed:', err);
+      set({ isLoading: false, error: err instanceof Error ? err.message : 'Erreur lors de l\'ajout de la notification' });
+    }
+  },
 }));

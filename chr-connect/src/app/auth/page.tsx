@@ -64,7 +64,7 @@ export default function AuthPage() {
             <div className="w-16 h-16 bg-gradient-to-tr from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center font-bold text-2xl text-white mb-4 shadow-lg shadow-emerald-500/20">
               C
             </div>
-            <h1 className="text-2xl font-bold text-[var(--text-primary)]">CHR Connect</h1>
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">Home CHR</h1>
             <p className="text-sm text-[var(--text-muted)] mt-1">Espace Administration</p>
           </div>
 
@@ -80,7 +80,7 @@ export default function AuthPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@chr-connect.fr"
+                  placeholder="admin@home-chr.fr"
                   required
                   className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl pl-11 pr-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-emerald-500/50 transition-colors"
                 />
@@ -146,14 +146,14 @@ export default function AuthPage() {
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => { login('admin@chr-connect.fr', 'admin123'); router.push('/admin/tableau-de-bord'); }}
+                  onClick={() => { login('admin@home-chr.fr', 'admin123'); router.push('/admin/tableau-de-bord'); }}
                   className="flex-1 py-2 rounded-lg bg-emerald-500/10 text-emerald-500 text-xs font-bold border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors"
                 >
                   Admin
                 </button>
                 <button
                   type="button"
-                  onClick={() => { login('support@chr-connect.fr', 'support123'); router.push('/admin/tableau-de-bord'); }}
+                  onClick={() => { login('support@home-chr.fr', 'support123'); router.push('/admin/tableau-de-bord'); }}
                   className="flex-1 py-2 rounded-lg bg-teal-500/10 text-teal-500 text-xs font-bold border border-teal-500/20 hover:bg-teal-500/20 transition-colors"
                 >
                   Support

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Briefcase, Check, ChevronRight, ArrowLeft, Mail, Lock, Phone, UserPlus, LogIn, FileText, Building2 } from 'lucide-react';
+import { User, Briefcase, Check, ChevronRight, ArrowLeft, Mail, Lock, Phone, UserPlus, LogIn, FileText, Building2, Loader2 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { CATEGORIES, COMING_SOON_CATEGORIES } from '@/data/categories';
 import { EMPLOYMENT_CATEGORY_LABELS, EMPLOYMENT_CATEGORY_DESCRIPTIONS } from '@/config/compliance';
 import type { EmploymentCategory } from '@/types/compliance';
@@ -11,12 +12,21 @@ import { clsx } from 'clsx';
 
 export default function RoleSwitcher() {
   const { setUserRole } = useStore();
+  const { signIn, signUp, updateProfile, profile, loading } = useAuth();
+
+  // Auto-login : si une session Supabase existe avec un profil, on redirige
+  useEffect(() => {
+    if (!loading && profile?.role) {
+      setUserRole(profile.role as 'PATRON' | 'WORKER');
+    }
+  }, [loading, profile, setUserRole]);
   const [step, setStep] = useState<'role' | 'auth' | 'status' | 'category' | 'services'>('role');
   const [selectedRole, setSelectedRole] = useState<'PATRON' | 'WORKER' | null>(null);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [employmentCategory, setEmploymentCategory] = useState<EmploymentCategory | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Auth form state
   const [authForm, setAuthForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
@@ -30,10 +40,17 @@ export default function RoleSwitcher() {
     setStep('auth');
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setAuthError('');
     if (!authForm.email || !authForm.password) {
       setAuthError('Veuillez remplir tous les champs.');
+      return;
+    }
+    setIsSubmitting(true);
+    const { error } = await signIn(authForm.email, authForm.password);
+    setIsSubmitting(false);
+    if (error) {
+      setAuthError('Email ou mot de passe incorrect.');
       return;
     }
     if (selectedRole) {
@@ -41,7 +58,7 @@ export default function RoleSwitcher() {
     }
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     setAuthError('');
     if (!authForm.name || !authForm.email || !authForm.phone || !authForm.password || !authForm.confirmPassword) {
       setAuthError('Veuillez remplir tous les champs.');
@@ -55,6 +72,23 @@ export default function RoleSwitcher() {
       setAuthError('Le mot de passe doit contenir au moins 6 caractères.');
       return;
     }
+    setIsSubmitting(true);
+    const { error } = await signUp(authForm.email, authForm.password);
+    setIsSubmitting(false);
+    if (error) {
+      setAuthError(error.message || 'Erreur lors de la création du compte.');
+      return;
+    }
+    // Mettre à jour le profil avec nom, téléphone et rôle
+    const nameParts = authForm.name.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+    await updateProfile({
+      first_name: firstName,
+      last_name: lastName,
+      phone: authForm.phone,
+      role: selectedRole || 'PATRON',
+    });
     if (selectedRole === 'WORKER') {
       setStep('category');
     } else {
@@ -85,6 +119,15 @@ export default function RoleSwitcher() {
       setStep('category');
     }
   };
+
+  // Afficher un loader pendant la vérification de session
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--bg-app)]">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-start md:items-center justify-center bg-[var(--bg-app)] relative overflow-x-hidden overflow-y-auto">
@@ -237,10 +280,20 @@ export default function RoleSwitcher() {
 
               <button
                 onClick={authMode === 'login' ? handleLogin : handleRegister}
-                className="mt-6 w-full py-3 md:py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2 text-sm md:text-base"
+                disabled={isSubmitting}
+                className={clsx(
+                  "mt-6 w-full py-3 md:py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm md:text-base",
+                  isSubmitting ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"
+                )}
               >
-                {authMode === 'login' ? 'Se connecter' : 'Créer mon compte'}
-                <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+                {isSubmitting ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    {authMode === 'login' ? 'Se connecter' : 'Créer mon compte'}
+                    <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+                  </>
+                )}
               </button>
 
               <button
@@ -434,7 +487,13 @@ export default function RoleSwitcher() {
                 ))}
               </div>
               <button
-                onClick={() => setUserRole('WORKER')}
+                onClick={async () => {
+                  await updateProfile({
+                    skills: selectedSkills,
+                    employment_category: employmentCategory,
+                  });
+                  setUserRole('WORKER');
+                }}
                 disabled={selectedSkills.length === 0}
                 className={clsx(
                   "mt-4 md:mt-6 w-full py-3 md:py-4 font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm md:text-base",

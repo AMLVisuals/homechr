@@ -13,7 +13,7 @@ export default function PrestataireError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[CHR Connect] Erreur espace prestataire:', error);
+    console.error('[Home CHR] Erreur espace prestataire:', error);
   }, [error]);
 
   return (

@@ -33,7 +33,7 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
 
   // Actions
-  const { deleteEquipment } = useEquipmentStore();
+  const { syncDeleteEquipment } = useEquipmentStore();
 
   // Filter data for this venue
   const venueTeam = team.filter(t => t.venueId === venue.id);
@@ -347,7 +347,7 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
             } : undefined}
             onDelete={!readOnly ? () => {
                if (confirm('Êtes-vous sûr de vouloir supprimer cet équipement ?')) {
-                 deleteEquipment(selectedEquipment.id);
+                 syncDeleteEquipment(selectedEquipment.id);
                  setSelectedEquipment(null);
                }
             } : undefined}

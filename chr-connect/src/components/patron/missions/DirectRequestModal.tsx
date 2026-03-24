@@ -17,7 +17,7 @@ interface DirectRequestModalProps {
 }
 
 export default function DirectRequestModal({ provider, isOpen, onClose }: DirectRequestModalProps) {
-  const { addMission } = useMissionsStore();
+  const { syncAddMission } = useMissionsStore();
   const { venues, activeVenueId } = useVenuesStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -85,7 +85,7 @@ export default function DirectRequestModal({ provider, isOpen, onClose }: Direct
       venueId: selectedVenueId || 'v1'
     };
 
-    addMission(newMission);
+    syncAddMission(newMission);
     setIsSubmitting(false);
     setShowSuccess(true);
 

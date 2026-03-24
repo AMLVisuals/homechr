@@ -1,5 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import {
+  getDocumentsByOwner,
+  createDocument,
+  deleteDocument,
+} from '@/lib/supabase-helpers';
 
 export type DocumentCategory = 'FACTURE' | 'DEVIS' | 'CONTRAT' | 'ATTESTATION' | 'AUTRE';
 
@@ -24,85 +29,28 @@ export interface StoredDocument {
 
 interface DocumentsState {
   documents: StoredDocument[];
+  isLoading: boolean;
+  error: string | null;
+
+  // Existing local actions (backward compat)
   addDocument: (doc: Omit<StoredDocument, 'id' | 'createdAt' | 'updatedAt'>) => void;
   removeDocument: (id: string) => void;
   updateDocument: (id: string, updates: Partial<Pick<StoredDocument, 'name' | 'category' | 'description' | 'tags'>>) => void;
-}
 
-// Mock documents for demo
-const MOCK_DOCUMENTS: StoredDocument[] = [
-  {
-    id: 'doc-1',
-    name: 'Facture Metro - Mars 2026',
-    category: 'FACTURE',
-    description: 'Commande alimentaire du mois',
-    fileUrl: '',
-    fileType: 'application/pdf',
-    fileSize: 245000,
-    venueId: 'v1',
-    createdAt: '2026-03-05T10:30:00Z',
-    updatedAt: '2026-03-05T10:30:00Z',
-    tags: ['metro', 'alimentation'],
-  },
-  {
-    id: 'doc-2',
-    name: 'Devis réparation four',
-    category: 'DEVIS',
-    description: 'Devis ThermoService pour remplacement résistance',
-    fileUrl: '',
-    fileType: 'image/jpeg',
-    fileSize: 1200000,
-    venueId: 'v1',
-    createdAt: '2026-03-02T14:15:00Z',
-    updatedAt: '2026-03-02T14:15:00Z',
-    tags: ['four', 'réparation'],
-  },
-  {
-    id: 'doc-3',
-    name: 'Contrat assurance local',
-    category: 'CONTRAT',
-    description: 'Assurance multirisque professionnelle AXA',
-    fileUrl: '',
-    fileType: 'application/pdf',
-    fileSize: 890000,
-    venueId: 'v1',
-    createdAt: '2026-02-15T09:00:00Z',
-    updatedAt: '2026-02-15T09:00:00Z',
-    tags: ['assurance', 'axa'],
-  },
-  {
-    id: 'doc-4',
-    name: 'Facture Sysco - Février 2026',
-    category: 'FACTURE',
-    description: 'Produits frais et surgelés',
-    fileUrl: '',
-    fileType: 'application/pdf',
-    fileSize: 312000,
-    venueId: 'v1',
-    createdAt: '2026-02-28T11:00:00Z',
-    updatedAt: '2026-02-28T11:00:00Z',
-    tags: ['sysco', 'alimentation'],
-  },
-  {
-    id: 'doc-5',
-    name: 'Attestation URSSAF',
-    category: 'ATTESTATION',
-    description: 'Attestation de vigilance URSSAF T1 2026',
-    fileUrl: '',
-    fileType: 'application/pdf',
-    fileSize: 156000,
-    venueId: 'v1',
-    createdAt: '2026-01-20T08:30:00Z',
-    updatedAt: '2026-01-20T08:30:00Z',
-    tags: ['urssaf', 'social'],
-  },
-];
+  // Async Supabase actions
+  fetchDocuments: (ownerId: string) => Promise<void>;
+  syncAddDocument: (doc: Omit<StoredDocument, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  syncRemoveDocument: (id: string) => Promise<void>;
+}
 
 export const useDocumentsStore = create<DocumentsState>()(
   persist(
-    (set) => ({
-      documents: MOCK_DOCUMENTS,
+    (set, get) => ({
+      documents: [],
+      isLoading: false,
+      error: null,
 
+      // ── Existing local actions (backward compat) ──────────────────────
       addDocument: (doc) => {
         const now = new Date().toISOString();
         const newDoc: StoredDocument = {
@@ -124,6 +72,54 @@ export const useDocumentsStore = create<DocumentsState>()(
             d.id === id ? { ...d, ...updates, updatedAt: new Date().toISOString() } : d
           ),
         }));
+      },
+
+      // ── Async Supabase actions ────────────────────────────────────────
+      fetchDocuments: async (ownerId: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          const { data } = await getDocumentsByOwner(ownerId);
+          set({ documents: data ?? [], isLoading: false });
+        } catch (err) {
+          console.error('[useDocumentsStore] fetchDocuments failed, keeping local data:', err);
+          set({ isLoading: false, error: err instanceof Error ? err.message : 'Erreur lors du chargement des documents' });
+        }
+      },
+
+      syncAddDocument: async (doc) => {
+        const now = new Date().toISOString();
+        const newDoc: StoredDocument = {
+          ...doc,
+          id: `doc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          createdAt: now,
+          updatedAt: now,
+        };
+
+        set({ isLoading: true, error: null });
+        try {
+          await createDocument(newDoc);
+          set((state) => ({ documents: [newDoc, ...state.documents], isLoading: false }));
+        } catch (err) {
+          console.error('[useDocumentsStore] syncAddDocument failed:', err);
+          set({ isLoading: false, error: err instanceof Error ? err.message : 'Erreur lors de l\'ajout du document' });
+        }
+      },
+
+      syncRemoveDocument: async (id: string) => {
+        const previousDocuments = get().documents;
+        // Optimistic delete
+        set((state) => ({ documents: state.documents.filter((d) => d.id !== id) }));
+
+        try {
+          await deleteDocument(id);
+        } catch (err) {
+          console.error('[useDocumentsStore] syncRemoveDocument failed:', err);
+          // Revert
+          set({
+            documents: previousDocuments,
+            error: err instanceof Error ? err.message : 'Erreur lors de la suppression',
+          });
+        }
       },
     }),
     {

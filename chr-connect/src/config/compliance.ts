@@ -8,7 +8,7 @@ import type { EmploymentCategory } from '@/types/compliance';
 // PARCOURS A : Extra (Salariat via le patron)
 // ============================================================================
 // L'extra est SALARIÉ du patron (CDD d'usage HCR).
-// Le patron est l'employeur légal. CHR Connect facilite :
+// Le patron est l'employeur légal. Home CHR facilite :
 //   1. La mise en relation (20€ ou premium)
 //   2. La génération de DPAE (obligatoire, bloquante)
 //   3. La génération du contrat CDD d'usage
@@ -22,7 +22,7 @@ import type { EmploymentCategory } from '@/types/compliance';
 // PARCOURS B : Freelance (Indépendants)
 // ============================================================================
 // Le freelance est INDÉPENDANT (auto-entrepreneur, SARL, SAS...).
-// Il facture directement le patron. CHR Connect vérifie :
+// Il facture directement le patron. Home CHR vérifie :
 //   1. Attestation Pro / Kbis
 //   2. Attestation de vigilance URSSAF à jour
 //   3. Assurance RC Pro valide

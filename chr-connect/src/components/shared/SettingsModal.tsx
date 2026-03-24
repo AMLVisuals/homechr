@@ -155,7 +155,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <LogOut className="w-4 h-4" />
                 Déconnexion
               </button>
-              <p className="text-xs text-[var(--text-muted)] text-center">CHR Connect v1.0</p>
+              <p className="text-xs text-[var(--text-muted)] text-center">Home CHR v1.0</p>
             </div>
           </motion.div>
         </>

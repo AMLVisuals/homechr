@@ -28,7 +28,7 @@ const EVENT_TYPES: { id: EventType; label: string; color: string }[] = [
 ];
 
 export default function EventModal({ isOpen, onClose, selectedDate, existingEvent, onSuccess }: EventModalProps) {
-  const { addEvent, updateEvent, deleteEvent } = useCalendarStore();
+  const { syncAddEvent, updateEvent, syncDeleteEvent } = useCalendarStore();
   const { venues, activeVenueId } = useVenuesStore();
   
   const [isRecording, setIsRecording] = useState(false);
@@ -164,7 +164,7 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
     if (existingEvent) {
       updateEvent(existingEvent.id, formData);
     } else {
-      addEvent(formData);
+      syncAddEvent(formData);
     }
     if (onSuccess) onSuccess(formData);
     onClose();
@@ -172,7 +172,7 @@ export default function EventModal({ isOpen, onClose, selectedDate, existingEven
 
   const handleDelete = () => {
     if (existingEvent && confirm('Voulez-vous vraiment supprimer cet événement ?')) {
-      deleteEvent(existingEvent.id);
+      syncDeleteEvent(existingEvent.id);
       onClose();
     }
   };

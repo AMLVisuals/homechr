@@ -17,7 +17,7 @@ interface VenueDashboardProps {
 }
 
 export default function VenueDashboard({ onClose, initialView = 'LIST' }: VenueDashboardProps) {
-  const { venues, activeVenueId, setActiveVenue, deleteVenue } = useVenuesStore();
+  const { venues, activeVenueId, setActiveVenue, syncDeleteVenue } = useVenuesStore();
   const { pendingRequests } = useStore();
   const [view, setView] = useState<'LIST' | 'SEARCH' | 'FORM'>(initialView === 'SEARCH' ? 'FORM' : initialView);
   const [editingVenueId, setEditingVenueId] = useState<string | null>(null);
@@ -39,7 +39,7 @@ export default function VenueDashboard({ onClose, initialView = 'LIST' }: VenueD
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm('Êtes-vous sûr de vouloir supprimer cet établissement ?')) {
-      deleteVenue(id);
+      syncDeleteVenue(id);
     }
   };
 
@@ -102,7 +102,7 @@ export default function VenueDashboard({ onClose, initialView = 'LIST' }: VenueD
                       }}
                       onDelete={() => {
                          if (activeVenueId && confirm('Êtes-vous sûr de vouloir supprimer cet établissement ?')) {
-                           deleteVenue(activeVenueId);
+                           syncDeleteVenue(activeVenueId);
                          }
                       }}
                     />

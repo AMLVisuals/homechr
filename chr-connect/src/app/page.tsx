@@ -27,7 +27,7 @@ const NAV_ITEMS = [
 
 export default function Home() {
   const { userRole, setUserRole, isOnAir, toggleOnAir, setIsOnAir } = useStore();
-  const { notifications, markAsRead, markAllAsRead } = useNotificationsStore();
+  const { notifications, syncMarkAsRead, markAllAsRead } = useNotificationsStore();
   const unreadCount = notifications.filter((n) => !n.read).length;
   const status = useMissionEngine((s) => s.status);
   const resetMission = useMissionEngine((s) => s.resetMission);
@@ -105,7 +105,7 @@ export default function Home() {
       {/* ── Header (compact) ──────────────────────────────── */}
       <header className="h-14 flex items-center justify-between px-4 border-b border-[var(--border)] z-50 bg-[var(--bg-header)] backdrop-blur-xl shrink-0" style={{ boxShadow: 'var(--shadow-card)' }}>
         <button onClick={() => { setUserRole(null); router.push('/'); }} className="text-sm font-bold tracking-wider text-[var(--text-primary)] hover:opacity-70 transition-opacity">
-          CHR CONNECT
+          HOME CHR
         </button>
 
         {/* Notifications */}
@@ -125,7 +125,7 @@ export default function Home() {
                   </div>
                   <div className="max-h-[300px] overflow-y-auto">
                     {notifications.map((notif) => (
-                      <div key={notif.id} onClick={() => markAsRead(notif.id)} className={clsx("p-4 border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer", !notif.read && "bg-blue-500/5")}>
+                      <div key={notif.id} onClick={() => syncMarkAsRead(notif.id)} className={clsx("p-4 border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer", !notif.read && "bg-blue-500/5")}>
                         <div className="flex justify-between items-start mb-1">
                           <h4 className={clsx("text-sm font-bold", !notif.read ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]")}>{notif.title}</h4>
                           <span className="text-[10px] text-[var(--text-muted)]">{formatTimeAgo(notif.time)}</span>

@@ -215,7 +215,7 @@ function ProblemGrid({ problems, selectedId, onSelect }: ProblemGridProps) {
 export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: ReportIssueModalProps) {
   const { currentEstablishment, equipment } = useEstablishment();
   const { reportFault } = useEquipmentStore();
-  const { addMission } = useMissionsStore();
+  const { syncAddMission } = useMissionsStore();
 
   // State
   const [step, setStep] = useState<Step>(preselectedEquipment ? 'select-problem' : 'select-equipment');
@@ -312,7 +312,7 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
         },
       };
 
-      addMission(mission);
+      syncAddMission(mission);
       setCreatedMissionId(missionId);
       setStep('success');
     } catch (error) {

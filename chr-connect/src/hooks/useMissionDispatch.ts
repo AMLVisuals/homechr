@@ -24,7 +24,7 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
   const startMission = useMissionEngine((s) => s.startMission);
   const setFlowType = useMissionEngine((s) => s.setFlowType);
   const missions = useMissionsStore((s) => s.missions);
-  const updateMission = useMissionsStore((s) => s.updateMission);
+  const syncUpdateMission = useMissionsStore((s) => s.syncUpdateMission);
 
   // Subscribe to individual state slices (not the whole store)
   const dispatchStatus = useMissionDispatchStore((s) => s.status);
@@ -149,7 +149,7 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
       employmentCategory === 'EXTRA' ? 'PENDING' : 'NOT_REQUIRED';
 
     // Store pending worker info on the mission for patron review
-    updateMission(proposal.id, {
+    syncUpdateMission(proposal.id, {
       status: 'AWAITING_PATRON_CONFIRMATION',
       dpaeStatus,
       pendingWorker: {
@@ -185,7 +185,7 @@ export function useMissionDispatch({ authorizedCategories, enabled }: UseMission
 
     // Set engine to awaiting patron confirmation
     useMissionEngine.getState().setStatus('AWAITING_PATRON_CONFIRMATION');
-  }, [clearCountdown, clearSearchTimeout, updateMission, startMission, setFlowType, setIsOnAir]);
+  }, [clearCountdown, clearSearchTimeout, syncUpdateMission, startMission, setFlowType, setIsOnAir]);
 
   // Watch for PROPOSING state to start countdown
   useEffect(() => {

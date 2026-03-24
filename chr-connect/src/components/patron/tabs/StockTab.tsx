@@ -40,7 +40,7 @@ function formatRelativeTime(isoString: string): string {
 
 export default function StockTab() {
   const { isPremium } = useStore();
-  const { items, addItem, removeItem, applyChanges, history, lastValidatedAt } = useStockStore();
+  const { items, syncAddItem, syncRemoveItem, applyChanges, history, lastValidatedAt } = useStockStore();
   const { activeVenueId } = useVenuesStore();
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<StockCategory | 'ALL'>('ALL');
@@ -88,7 +88,7 @@ export default function StockTab() {
 
   const handleAdd = () => {
     if (!newName || !newQuantity) return;
-    addItem({
+    syncAddItem({
       id: `s-${Date.now()}`,
       name: newName,
       quantity: parseFloat(newQuantity),
@@ -335,7 +335,7 @@ export default function StockTab() {
                   </div>
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => syncRemoveItem(item.id)}
                       className="w-7 h-7 rounded-lg hover:bg-red-500/10 flex items-center justify-center text-[var(--text-muted)] hover:text-red-400 transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

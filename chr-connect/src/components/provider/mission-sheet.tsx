@@ -29,7 +29,7 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
   const [hasApplied, setHasApplied] = useState(false);
 
   const { startMission } = useMissionEngine();
-  const { updateMission, addCandidate, removeCandidate } = useMissionsStore();
+  const { syncUpdateMission, addCandidate, removeCandidate } = useMissionsStore();
   const { getVenue } = useVenuesStore();
   const { equipment } = useEquipmentStore();
   const venueDetails = mission?.venueId ? getVenue(mission.venueId) : undefined;
@@ -50,7 +50,7 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
   
   const handleAccept = () => {
     startMission(mission.id); // Sets status to ACCEPTED in global store
-    updateMission(mission.id, { 
+    syncUpdateMission(mission.id, {
       status: 'SCHEDULED', // Sync with shared store (SCHEDULED = ACCEPTED in this context)
       provider: {
         id: 'current-provider-id',

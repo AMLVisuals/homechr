@@ -30,7 +30,7 @@ const INITIAL_STAFF: StaffAccount[] = [
   {
     id: 'adm_001',
     name: 'Laurent Dupont',
-    email: 'admin@chr-connect.fr',
+    email: 'admin@home-chr.fr',
     phone: '+33 6 12 34 56 78',
     role: 'ADMIN',
     jobTitle: 'Directeur technique',
@@ -42,7 +42,7 @@ const INITIAL_STAFF: StaffAccount[] = [
   {
     id: 'adm_002',
     name: 'Marie Lefèvre',
-    email: 'support@chr-connect.fr',
+    email: 'support@home-chr.fr',
     phone: '+33 6 98 76 54 32',
     role: 'SUPPORT',
     jobTitle: 'Chargée de support client',
@@ -53,8 +53,8 @@ const INITIAL_STAFF: StaffAccount[] = [
 ];
 
 const INITIAL_PASSWORDS: Record<string, string> = {
-  'admin@chr-connect.fr': 'admin123',
-  'support@chr-connect.fr': 'support123',
+  'admin@home-chr.fr': 'admin123',
+  'support@home-chr.fr': 'support123',
 };
 
 export const useAdminStore = create<AdminState>()(

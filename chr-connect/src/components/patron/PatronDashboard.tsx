@@ -169,7 +169,7 @@ export default function PatronDashboard() {
   const handleMissionClick = (mission: Mission) => { setSelectedMission(mission); setIsMissionModalOpen(true); };
   const handleTabChange = (tab: string) => { setActiveTab(tab); setIsMobileMenuOpen(false); };
 
-  const { notifications, markAsRead, markAllAsRead } = useNotificationsStore();
+  const { notifications, syncMarkAsRead, markAllAsRead } = useNotificationsStore();
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
@@ -300,7 +300,7 @@ export default function PatronDashboard() {
                     </div>
                     <div className="max-h-[300px] overflow-y-auto">
                       {notifications.map((notif) => (
-                        <div key={notif.id} onClick={() => markAsRead(notif.id)} className={clsx("p-4 border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer", !notif.read && "bg-blue-500/5")}>
+                        <div key={notif.id} onClick={() => syncMarkAsRead(notif.id)} className={clsx("p-4 border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer", !notif.read && "bg-blue-500/5")}>
                           <div className="flex justify-between items-start mb-1">
                             <h4 className={clsx("text-sm font-bold", !notif.read ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]")}>{notif.title}</h4>
                             <span className="text-[10px] text-[var(--text-muted)]">{formatTimeAgo(notif.time)}</span>
@@ -380,7 +380,7 @@ export default function PatronDashboard() {
                 >
                   <div className="max-w-2xl mx-auto md:mx-0 space-y-4">
                     <h2 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">
-                      Bienvenue sur CHR Connect
+                      Bienvenue sur Home CHR
                     </h2>
                     <p className="text-[var(--text-secondary)] text-sm md:text-base leading-relaxed">
                       Commencez par configurer votre établissement, puis créez votre première demande — personnel extra, technicien, maintenance...

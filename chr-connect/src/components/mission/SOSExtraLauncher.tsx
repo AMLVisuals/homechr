@@ -123,8 +123,8 @@ function toMissionDate(date: Date): string {
 
 export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherProps) {
   const { currentEstablishment, establishments, setCurrentEstablishmentId } = useEstablishment();
-  const { addMission } = useMissionsStore();
-  const { addEvent } = useCalendarStore();
+  const { syncAddMission } = useMissionsStore();
+  const { syncAddEvent } = useCalendarStore();
   const isPremium = useStore((s) => s.isPremium);
 
   const [mounted, setMounted] = useState(false);
@@ -186,10 +186,10 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
       relationFeeAmount: isPremium ? 0 : 20,
     };
 
-    addMission(mission);
+    syncAddMission(mission);
 
     const [dateStr, timeStr] = missionDate.split(' ');
-    addEvent({
+    syncAddEvent({
       title: mission.title,
       date: dateStr,
       time: timeStr || '09:00',

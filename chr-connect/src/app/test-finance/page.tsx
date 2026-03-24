@@ -211,7 +211,7 @@ export default function TestFinancePage() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-            CHR Connect - Ultimate Quote System
+            Home CHR - Ultimate Quote System
           </h1>
           <p className="text-gray-400 mt-2">
             Moteur de devis intelligent avec IA anti-arnaque

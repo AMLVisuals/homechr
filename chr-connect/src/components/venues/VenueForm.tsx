@@ -5,6 +5,7 @@ import { Venue, VenueFormData, VenuePhoto } from '@/types/venue';
 import { X, Lock, Eye, EyeOff, Zap, Layout, Users, Ruler, Box, Clock, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useVenuesStore } from '@/store/useVenuesStore';
 import { useStore } from '@/store/useStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { PATRON_DOCUMENTS } from '@/config/documents';
 import VenuePhotoUploader from './VenuePhotoUploader';
 import DropZonePro from '../DropZonePro';
@@ -18,8 +19,9 @@ interface VenueFormProps {
 }
 
 export default function VenueForm({ initialData, onClose, onSuccess }: VenueFormProps) {
-  const { addVenue, updateVenue } = useVenuesStore();
+  const { syncAddVenue, syncUpdateVenue } = useVenuesStore();
   const { patronProfileStatus, patronDocUploads, setPatronDocStatus, setPatronProfileStatus } = useStore();
+  const { user } = useAuth();
 
   const isEditing = !!initialData?.id;
   const needsDocuments = !isEditing && patronProfileStatus === 'incomplete';
@@ -95,9 +97,9 @@ export default function VenueForm({ initialData, onClose, onSuccess }: VenueForm
     };
 
     if (initialData?.id) {
-      updateVenue(initialData.id, submissionData);
+      syncUpdateVenue(initialData.id, submissionData);
     } else {
-      addVenue(submissionData);
+      syncAddVenue(submissionData, user!.id);
       // Mark patron profile as pending validation after first venue + docs
       if (needsDocuments && allDocsVerified) {
         setPatronProfileStatus('pending_validation');

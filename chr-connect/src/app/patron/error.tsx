@@ -13,7 +13,7 @@ export default function PatronError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[CHR Connect] Erreur espace patron:', error);
+    console.error('[Home CHR] Erreur espace patron:', error);
   }, [error]);
 
   return (

@@ -34,7 +34,7 @@ interface MissionDetailsModalProps {
 
 
 export default function MissionDetailsModal({ mission, isOpen, onClose }: MissionDetailsModalProps) {
-  const { addReview, generateInvoice, payInvoice, updateMission, rejectQuote, validateStaffMission, setPartsStatus, selectCandidate, rejectCandidate } = useMissionsStore();
+  const { addReview, generateInvoice, payInvoice, syncUpdateMission, rejectQuote, validateStaffMission, setPartsStatus, selectCandidate, rejectCandidate } = useMissionsStore();
   const isPremium = useStore((s) => s.isPremium);
   const dpaeDeclaration = useDPAEStore((s) => mission ? s.getDeclarationByMission(mission.id) : undefined);
   const [showDPAEWizard, setShowDPAEWizard] = useState(false);
@@ -173,7 +173,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
       ],
       portfolio: [],
       experiences: [
-        { id: '1', role: candidate.specialty, company: 'Indépendant', startDate: '2020', description: `${candidate.completedMissions} missions réalisées sur CHR Connect` }
+        { id: '1', role: candidate.specialty, company: 'Indépendant', startDate: '2020', description: `${candidate.completedMissions} missions réalisées sur Home CHR` }
       ],
       reviews: [],
       languages: ['Français'],
@@ -387,7 +387,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                   <button
                     onClick={() => {
                       if (confirm('Voulez-vous vraiment annuler cette recherche ?')) {
-                        updateMission(mission.id, { status: 'CANCELLED' });
+                        syncUpdateMission(mission.id, { status: 'CANCELLED' });
                         onClose();
                       }
                     }}
@@ -782,7 +782,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                     onClick={() => {
                                       validateStaffMission(mission.id);
                                       generateInvoice(mission.id);
-                                      updateMission(mission.id, { status: 'COMPLETED' });
+                                      syncUpdateMission(mission.id, { status: 'COMPLETED' });
                                       // Auto-pay
                                       setTimeout(() => {
                                         const updatedMission = useMissionsStore.getState().missions.find(m => m.id === mission.id);
@@ -797,7 +797,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                 <button
                                   onClick={() => {
                                     if (confirm('Voulez-vous vraiment refuser cette mission ? Cette action est irréversible.')) {
-                                      updateMission(mission.id, { status: 'CANCELLED' });
+                                      syncUpdateMission(mission.id, { status: 'CANCELLED' });
                                       onClose();
                                     }
                                   }}
@@ -860,7 +860,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                               <div className="flex gap-3">
                                 <button
                                   onClick={() => {
-                                    updateMission(mission.id, { status: 'IN_PROGRESS' });
+                                    syncUpdateMission(mission.id, { status: 'IN_PROGRESS' });
                                     setShowImmediateChoice(false);
                                   }}
                                   className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all"
@@ -869,7 +869,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                 </button>
                                 <button
                                   onClick={() => {
-                                    updateMission(mission.id, { status: 'STANDBY', partsStatus: 'PART_ORDERED' });
+                                    syncUpdateMission(mission.id, { status: 'STANDBY', partsStatus: 'PART_ORDERED' });
                                     setShowImmediateChoice(false);
                                   }}
                                   className="flex-1 py-3 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border border-yellow-500/20 rounded-xl text-sm font-bold transition-all"
@@ -1069,7 +1069,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                 Simule l'arrivée du prestataire sur place pour tester le flow complet.
                               </p>
                               <button
-                                onClick={() => updateMission(mission.id, { status: 'ON_SITE' })}
+                                onClick={() => syncUpdateMission(mission.id, { status: 'ON_SITE' })}
                                 className="w-full py-2.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 border border-indigo-500/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
                               >
                                 <Navigation className="w-3.5 h-3.5" />
@@ -1087,7 +1087,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                 Le prestataire est sur place. Vous pouvez effectuer la DPAE ci-dessous puis simuler la confirmation de présence.
                               </p>
                               <button
-                                onClick={() => updateMission(mission.id, { status: 'PENDING_VALIDATION' })}
+                                onClick={() => syncUpdateMission(mission.id, { status: 'PENDING_VALIDATION' })}
                                 className="w-full py-2.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 border border-indigo-500/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5" />

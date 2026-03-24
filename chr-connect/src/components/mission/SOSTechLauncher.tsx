@@ -120,8 +120,8 @@ function toMissionDate(date: Date): string {
 
 export default function SOSTechLauncher({ isOpen, onClose }: SOSTechLauncherProps) {
   const { currentEstablishment, establishments, setCurrentEstablishmentId } = useEstablishment();
-  const { addMission } = useMissionsStore();
-  const { addEvent } = useCalendarStore();
+  const { syncAddMission } = useMissionsStore();
+  const { syncAddEvent } = useCalendarStore();
   const isPremium = useStore((s) => s.isPremium);
 
   const [mounted, setMounted] = useState(false);
@@ -212,10 +212,10 @@ export default function SOSTechLauncher({ isOpen, onClose }: SOSTechLauncherProp
       relationFeeAmount: isPremium ? 0 : APP_CONFIG.MISSION_FEE,
     };
 
-    addMission(mission);
+    syncAddMission(mission);
 
     const [dateStr, timeStr] = missionDate.split(' ');
-    addEvent({
+    syncAddEvent({
       title: mission.title,
       date: dateStr,
       time: timeStr || '09:00',

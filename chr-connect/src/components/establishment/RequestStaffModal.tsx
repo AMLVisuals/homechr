@@ -84,7 +84,7 @@ function RoleGrid({ roles, selectedId, onSelect }: RoleGridProps) {
 
 export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
   const { currentEstablishment } = useEstablishment();
-  const { addMission } = useMissionsStore();
+  const { syncAddMission } = useMissionsStore();
 
   // State
   const [step, setStep] = useState<Step>('select-role');
@@ -162,7 +162,7 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
         },
       };
 
-      addMission(mission);
+      syncAddMission(mission);
       setStep('success');
     } catch (error) {
       console.error('Failed to create staffing mission:', error);

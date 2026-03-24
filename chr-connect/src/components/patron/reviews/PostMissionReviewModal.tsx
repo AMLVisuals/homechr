@@ -42,7 +42,7 @@ export default function PostMissionReviewModal({
   onClose,
 }: PostMissionReviewModalProps) {
   const { addReview } = useMissionsStore();
-  const { addNotification } = useNotificationsStore();
+  const { syncAddNotification } = useNotificationsStore();
 
   const [step, setStep] = useState<'RATE' | 'REVEAL' | 'DONE'>('RATE');
   const [rating, setRating] = useState(0);
@@ -74,7 +74,7 @@ export default function PostMissionReviewModal({
     const mockReview = generateMockWorkerReview('Le patron');
     setWorkerReview(mockReview);
 
-    addNotification({
+    syncAddNotification({
       title: 'Avis envoyé',
       description: `Votre avis sur "${missionTitle}" a été enregistré.`,
       type: 'mission',

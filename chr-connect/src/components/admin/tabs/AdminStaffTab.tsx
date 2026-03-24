@@ -561,7 +561,7 @@ function CreateStaffModal({
                   value={data.email}
                   onChange={(e) => update('email', e.target.value)}
                   type="email"
-                  placeholder="jean@chr-connect.fr"
+                  placeholder="jean@home-chr.fr"
                   className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-emerald-500/50"
                 />
               </div>

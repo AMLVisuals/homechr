@@ -19,7 +19,7 @@ const CATEGORY_CONFIG: Record<DocumentCategory, { label: string; color: string; 
 };
 
 export default function InvoicesTab() {
-  const { documents, addDocument, removeDocument } = useDocumentsStore();
+  const { documents, syncAddDocument, syncRemoveDocument } = useDocumentsStore();
   const { activeVenueId } = useVenuesStore();
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'ALL' | DocumentCategory>('ALL');
@@ -83,7 +83,7 @@ export default function InvoicesTab() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const dataUrl = e.target?.result as string;
-        addDocument({
+        syncAddDocument({
           name: file.name.replace(/\.[^.]+$/, ''),
           category,
           fileUrl: dataUrl,
@@ -100,7 +100,7 @@ export default function InvoicesTab() {
   };
 
   const handleDelete = (docId: string) => {
-    removeDocument(docId);
+    syncRemoveDocument(docId);
     if (selectedDoc?.id === docId) setSelectedDoc(null);
   };
 

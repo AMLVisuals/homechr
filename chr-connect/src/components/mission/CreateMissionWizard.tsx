@@ -260,8 +260,8 @@ import { useCalendarStore } from '@/store/calendarStore';
 
 export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultDate }: CreateMissionWizardProps) {
   const { currentEstablishment, establishments, setCurrentEstablishmentId, equipment } = useEstablishment();
-  const { addMission } = useMissionsStore();
-  const { addEvent } = useCalendarStore();
+  const { syncAddMission } = useMissionsStore();
+  const { syncAddEvent } = useCalendarStore();
   const { reportFault } = useEquipmentStore();
   const isPremium = useStore((s) => s.isPremium);
 
@@ -691,7 +691,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
           date: new Date().toISOString(),
         };
 
-        addMission(createdMission);
+        syncAddMission(createdMission);
       } else if (selectedEquipment && selectedProblem) {
         // Equipment mission
         reportFault(selectedEquipment.id, selectedProblem.id, description || selectedProblem.label);
@@ -720,7 +720,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
           date: missionDate,
         };
 
-        addMission(createdMission);
+        syncAddMission(createdMission);
       } else {
         // Generic mission (TECH, DESIGN)
         let price = 'Sur devis';
@@ -756,7 +756,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
           mediaData,
         };
 
-        addMission(createdMission);
+        syncAddMission(createdMission);
       }
 
       // Add relation fee info
@@ -781,7 +781,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         else if (selectedCategory?.id === 'MAINTENANCE') eventType = 'MAINTENANCE';
         else if (selectedCategory?.id === 'TECHNICIENS') eventType = 'EVENT';
 
-        addEvent({
+        syncAddEvent({
           title: createdMission.title,
           date: dateStr,
           time: timeStr,

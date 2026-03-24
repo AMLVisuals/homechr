@@ -136,7 +136,7 @@ export function EquipmentForm({
   venueId,
   ownerId,
 }: EquipmentFormProps) {
-  const { addEquipment, updateEquipment, equipment, restoreEquipment } = useEquipmentStore();
+  const { syncAddEquipment, syncUpdateEquipment, equipment, restoreEquipment } = useEquipmentStore();
 
   // Form state
   const [category, setCategory] = useState<EquipmentCategory>(
@@ -340,10 +340,10 @@ export function EquipmentForm({
 
       if (editingEquipment) {
         // Update existing
-        updateEquipment(editingEquipment.id, equipmentData);
+        syncUpdateEquipment(editingEquipment.id, equipmentData);
       } else {
         // Create new
-        const newEquipment = addEquipment(equipmentData);
+        const newEquipment = await syncAddEquipment(equipmentData);
         setQrPreviewUrl(newEquipment.qrCodeUrl || generateQRCodeUrl(newEquipment.id));
         setShowQRCode(true);
         return; // Don't close yet, show QR code

@@ -298,6 +298,6 @@ export async function fetchDocumentation(brand: string, model: string): Promise<
 export function generateQRCodeUrl(equipmentId: string): string {
   // This is a placeholder - in production use qrcode library
   // For now, return a predictable URL that could be used with a QR API
-  const qrData = encodeURIComponent(`https://chr-connect.app/equipment/${equipmentId}`);
+  const qrData = encodeURIComponent(`https://home-chr.app/equipment/${equipmentId}`);
   return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrData}`;
 }
