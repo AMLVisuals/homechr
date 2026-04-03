@@ -4,57 +4,50 @@ import { useState } from 'react';
 import { Search, MapPin, Star } from 'lucide-react';
 import { VenueFormData } from '@/types/venue';
 import { clsx } from 'clsx';
+import { useVenuesStore } from '@/store/useVenuesStore';
 
 interface VenueSearchModalProps {
   onSelect: (venue: VenueFormData) => void;
   onCancel: () => void;
 }
 
-// Mock Google Places Results
-const MOCK_PLACES = [
-  {
-    id: 'g1',
-    name: "Le Fouquet's Paris",
-    address: "99 Av. des Champs-Élysées, 75008 Paris",
-    rating: 4.5,
-    reviews: 3400,
-    type: "Restaurant français",
-    photo: "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1974&auto=format&fit=crop"
-  },
-  {
-    id: 'g2',
-    name: "L'Ambroisie",
-    address: "9 Pl. des Vosges, 75004 Paris",
-    rating: 4.8,
-    reviews: 850,
-    type: "Haute cuisine",
-    photo: "https://images.unsplash.com/photo-1550966871-3ed3c47e2ce2?q=80&w=2070&auto=format&fit=crop"
-  },
-  {
-    id: 'g3',
-    name: "Septime",
-    address: "80 Rue de Charonne, 75011 Paris",
-    rating: 4.7,
-    reviews: 1200,
-    type: "Restaurant moderne",
-    photo: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop"
-  }
-];
+interface SearchResult {
+  id: string;
+  name: string;
+  address: string;
+  rating: number;
+  reviews: number;
+  type: string;
+  photo: string;
+}
 
 export default function VenueSearchModal({ onSelect, onCancel }: VenueSearchModalProps) {
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [results, setResults] = useState<typeof MOCK_PLACES>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const venues = useVenuesStore((s) => s.venues);
 
   const handleSearch = (val: string) => {
     setQuery(val);
     if (val.length > 2) {
       setIsSearching(true);
-      // Simulate API delay
+      // Search existing venues from store
       setTimeout(() => {
-        setResults(MOCK_PLACES.filter(p => p.name.toLowerCase().includes(val.toLowerCase())));
+        const q = val.toLowerCase();
+        const matched = venues
+          .filter(v => v.name.toLowerCase().includes(q) || v.address?.toLowerCase().includes(q))
+          .map(v => ({
+            id: v.id,
+            name: v.name,
+            address: v.address || '',
+            rating: 0,
+            reviews: 0,
+            type: v.category || 'Restaurant',
+            photo: v.photoUrl || '',
+          }));
+        setResults(matched);
         setIsSearching(false);
-      }, 500);
+      }, 200);
     } else {
       setResults([]);
     }
@@ -90,8 +83,8 @@ export default function VenueSearchModal({ onSelect, onCancel }: VenueSearchModa
                 onClick={() => onSelect({
                   name: place.name,
                   address: place.address.split(',')[0],
-                  city: 'Paris', // Simplified for mock
-                  zipCode: '75000', // Simplified
+                  city: place.address.split(',').pop()?.trim() || '',
+                  zipCode: '',
                   category: place.type,
                   photoUrl: place.photo,
                   rating: place.rating,

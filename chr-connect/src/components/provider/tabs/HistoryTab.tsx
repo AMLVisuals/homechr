@@ -2,73 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Calendar, MapPin, Clock, ArrowRight, CheckCircle, ChevronRight, ChevronDown, Euro } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
-
-const MOCK_HISTORY = [
-  {
-    id: 'M-1204',
-    title: "Réparation Machine à Glaçons",
-    venue: "Le Perchoir Marais",
-    date: "10 Mar 2026, 10:30",
-    isoDate: "2026-03-10",
-    duration: "1h 45min",
-    amount: "145.00 €",
-    status: "COMPLETED",
-    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=300&auto=format&fit=crop",
-    report: {
-        text: "Remplacement de la pompe de vidange. Test de cycle complet OK.",
-        before: "https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop",
-        after: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop"
-    }
-  },
-  {
-    id: 'M-1198',
-    title: "Installation Vitrine Réfrigérée",
-    venue: "La Felicità",
-    date: "07 Mar 2026, 14:15",
-    isoDate: "2026-03-07",
-    duration: "3h 00min",
-    amount: "280.00 €",
-    status: "COMPLETED",
-    image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=300&auto=format&fit=crop",
-    report: {
-        text: "Installation complète et raccordement électrique. Mise en service effectuée.",
-        before: "https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop",
-        after: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop"
-    }
-  },
-  {
-    id: 'M-1150',
-    title: "Maintenance Préventive",
-    venue: "Big Mamma",
-    date: "15 Fév 2026, 09:00",
-    isoDate: "2026-02-15",
-    duration: "2h 30min",
-    amount: "210.00 €",
-    status: "COMPLETED",
-    image: "https://images.unsplash.com/photo-1550966871-3ed3c47e2ce2?q=80&w=300&auto=format&fit=crop",
-    report: {
-        text: "Nettoyage des condenseurs et vérification des niveaux de gaz.",
-        before: "https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop",
-        after: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop"
-    }
-  },
-  {
-    id: 'M-1120',
-    title: "Dépannage Chambre Froide",
-    venue: "Bouillon Chartier",
-    date: "28 Jan 2026, 16:00",
-    isoDate: "2026-01-28",
-    duration: "2h 15min",
-    amount: "195.00 €",
-    status: "COMPLETED",
-    image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=300&auto=format&fit=crop",
-    report: {
-        text: "Fuite de gaz réfrigérant détectée et réparée. Recharge effectuée.",
-        before: "https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop",
-        after: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop"
-    }
-  }
-];
+import { useMissionsStore } from '@/store/useMissionsStore';
 
 function formatMonthLabel(year: number, month: number): string {
   const date = new Date(year, month);
@@ -90,13 +24,48 @@ function generateMonthOptions() {
   return options.reverse(); // plus récent en haut
 }
 
+interface HistoryEntry {
+  id: string;
+  title: string;
+  venue: string;
+  date: string;
+  isoDate: string;
+  duration: string;
+  amount: string;
+  status: string;
+  image: string;
+  report: { text: string; before: string; after: string };
+}
+
 export function HistoryTab() {
   const now = new Date();
+  const allMissions = useMissionsStore((s) => s.missions);
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
   const [isPickerOpen, setIsPickerOpen] = useState(false);
-  const [selectedMission, setSelectedMission] = useState<typeof MOCK_HISTORY[0] | null>(null);
+  const [selectedMission, setSelectedMission] = useState<HistoryEntry | null>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
+
+  // Build history from completed missions
+  const HISTORY: HistoryEntry[] = useMemo(() =>
+    allMissions
+      .filter((m) => m.status === 'COMPLETED')
+      .map((m) => ({
+        id: m.id,
+        title: m.title,
+        venue: m.venue || '—',
+        date: m.expiresAt
+          ? new Date(m.expiresAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+          : '—',
+        isoDate: m.expiresAt ? new Date(m.expiresAt).toISOString().slice(0, 10) : '',
+        duration: '—',
+        amount: m.price ? `${Number(m.price).toFixed(2)} €` : '—',
+        status: 'COMPLETED',
+        image: '',
+        report: { text: m.description || '', before: '', after: '' },
+      })),
+    [allMissions]
+  );
 
   const monthOptions = useMemo(() => generateMonthOptions(), []);
 
@@ -112,7 +81,7 @@ export function HistoryTab() {
   }, [isPickerOpen]);
 
   const filtered = useMemo(() => {
-    return MOCK_HISTORY.filter(m => {
+    return HISTORY.filter(m => {
       const d = new Date(m.isoDate);
       return d.getFullYear() === selectedYear && d.getMonth() === selectedMonth;
     });

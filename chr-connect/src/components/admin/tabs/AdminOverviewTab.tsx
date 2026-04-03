@@ -2,42 +2,36 @@
 
 import { motion } from 'framer-motion';
 import { TrendingUp, Users, Briefcase, UserPlus, Euro, CreditCard, BarChart3, Star } from 'lucide-react';
-import { MOCK_REVENUE, MOCK_DASHBOARD_STATS } from '@/data/mockAdminData';
 
 const statCards = [
   {
     label: 'CA du mois',
-    value: `${MOCK_REVENUE.caMTD.toLocaleString('fr-FR')} €`,
-    change: `+${MOCK_REVENUE.growthPercent}%`,
+    value: '0 €',
+    change: null,
     icon: Euro,
     gradient: 'from-emerald-500 to-teal-600',
   },
   {
     label: 'Abonnés Premium',
-    value: MOCK_DASHBOARD_STATS.premiumSubscribers.toString(),
+    value: '0',
     change: null,
     icon: CreditCard,
     gradient: 'from-amber-400 to-yellow-500',
   },
   {
     label: 'Missions ce mois',
-    value: MOCK_DASHBOARD_STATS.missionsThisMonth.toString(),
+    value: '0',
     change: null,
     icon: Briefcase,
     gradient: 'from-blue-500 to-indigo-600',
   },
   {
     label: 'Nouveaux inscrits',
-    value: `${MOCK_DASHBOARD_STATS.newUsersThisWeek}/sem`,
+    value: '0/sem',
     change: null,
     icon: UserPlus,
     gradient: 'from-purple-500 to-pink-500',
   },
-];
-
-const revenueDetails = [
-  { label: 'Frais de mise en relation', value: MOCK_REVENUE.matchingFees },
-  { label: 'Abonnements Premium', value: MOCK_REVENUE.subscriptionRevenue },
 ];
 
 export default function AdminOverviewTab() {
@@ -91,19 +85,19 @@ export default function AdminOverviewTab() {
             <h2 className="font-bold text-lg text-[var(--text-primary)]">Revenus détaillés</h2>
           </div>
           <div className="space-y-4">
-            {revenueDetails.map((item) => (
-              <div key={item.label} className="flex items-center justify-between">
-                <span className="text-sm text-[var(--text-secondary)]">{item.label}</span>
-                <span className="text-sm font-bold text-[var(--text-primary)]">
-                  {item.value.toLocaleString('fr-FR')} €
-                </span>
-              </div>
-            ))}
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-[var(--text-secondary)]">Frais de mise en relation</span>
+              <span className="text-sm font-bold text-[var(--text-primary)]">0 €</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-[var(--text-secondary)]">Abonnements Premium</span>
+              <span className="text-sm font-bold text-[var(--text-primary)]">0 €</span>
+            </div>
           </div>
           <div className="mt-4 pt-4 border-t border-[var(--border)] flex items-center justify-between">
             <span className="text-sm font-bold text-[var(--text-primary)]">Total CA MTD</span>
             <span className="text-lg font-bold bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent">
-              {MOCK_REVENUE.caMTD.toLocaleString('fr-FR')} €
+              0 €
             </span>
           </div>
         </motion.div>
@@ -123,25 +117,25 @@ export default function AdminOverviewTab() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--text-secondary)]">Utilisateurs total</span>
-              <span className="text-sm font-bold text-[var(--text-primary)]">{MOCK_DASHBOARD_STATS.totalUsers}</span>
+              <span className="text-sm font-bold text-[var(--text-primary)]">0</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--text-secondary)]">Patrons</span>
-              <span className="text-sm font-bold text-[var(--text-primary)]">{MOCK_DASHBOARD_STATS.patrons}</span>
+              <span className="text-sm font-bold text-[var(--text-primary)]">0</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--text-secondary)]">Workers</span>
-              <span className="text-sm font-bold text-[var(--text-primary)]">{MOCK_DASHBOARD_STATS.workers}</span>
+              <span className="text-sm font-bold text-[var(--text-primary)]">0</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--text-secondary)]">Missions actives</span>
-              <span className="text-sm font-bold text-[var(--text-primary)]">{MOCK_DASHBOARD_STATS.activeMissions}</span>
+              <span className="text-sm font-bold text-[var(--text-primary)]">0</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--text-secondary)]">Note moyenne</span>
               <span className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1">
                 <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                {MOCK_DASHBOARD_STATS.avgRating}
+                —
               </span>
             </div>
           </div>

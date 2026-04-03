@@ -8,7 +8,7 @@ import { useDocumentsStore, DocumentCategory, StoredDocument } from '@/store/use
 import { useVenuesStore } from '@/store/useVenuesStore';
 import { DocumentViewer } from '../billing/InvoiceDetailView';
 import FacturXInvoiceView from '../billing/FacturXInvoiceView';
-import { createMockFacturXData, type FacturXData } from '@/lib/facturx-generator';
+import { type FacturXData } from '@/lib/facturx-generator';
 
 const CATEGORY_CONFIG: Record<DocumentCategory, { label: string; color: string; icon: typeof FileText }> = {
   FACTURE: { label: 'Facture', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20', icon: FileText },
@@ -122,13 +122,7 @@ export default function InvoicesTab() {
             </div>
 
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setFacturXData(createMockFacturXData())}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white text-sm font-bold transition-all shadow-lg shadow-green-900/20"
-              >
-                <FileCode className="w-4 h-4" />
-                <span className="hidden sm:inline">Factur-X</span>
-              </button>
+              {/* Factur-X button — will be enabled when real invoices are available */}
               <button
                 onClick={() => setShowUploadModal(true)}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-colors shadow-lg shadow-blue-900/20"

@@ -17,8 +17,10 @@ import DynamicForm from './DynamicForm';
 import VenueSelector from './venues/VenueSelector';
 import VenueDashboard from './venues/VenueDashboard';
 import { useVenuesStore } from '@/store/useVenuesStore';
-import { MOCK_PROVIDERS } from '@/data/mockProviders';
 import { ProviderProfile } from '@/types/provider';
+
+// Empty providers list — will be loaded from Supabase
+const PROVIDERS: ProviderProfile[] = [];
 import ProviderProfileModal from './shared/ProviderProfileModal';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { Mission } from '@/types/missions';
@@ -367,7 +369,7 @@ export default function UniversalRequestModal() {
             ) : (
               <>
                 <div className="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-2">
-                  {MOCK_PROVIDERS.map((provider) => (
+                  {PROVIDERS.map((provider) => (
                     <div 
                       key={provider.id} 
                       onClick={() => setSelectedProvider(provider)}

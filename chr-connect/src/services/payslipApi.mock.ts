@@ -188,8 +188,8 @@ const mockPayslipEntries: PayslipEntry[] = [
 ];
 
 class MockPayslipApiService {
-  private payslips: Payslip[] = [...mockPayslips];
-  private entries: PayslipEntry[] = [...mockPayslipEntries];
+  private payslips: Payslip[] = [];
+  private entries: PayslipEntry[] = [];
 
   private delay(ms: number = 500): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));

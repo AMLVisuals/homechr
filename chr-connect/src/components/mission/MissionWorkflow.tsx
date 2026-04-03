@@ -25,8 +25,8 @@ const QuoteBuilderUltimate = dynamic(() => import('@/components/provider/QuoteBu
   loading: () => <div className="h-full flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>
 });
 
-// Mock images for fallback
-const MOCK_BEFORE = "https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=800&auto=format&fit=crop";
+// Placeholder for before photo when none provided
+const PLACEHOLDER_BEFORE = "";
 
 interface MissionSummary {
   title: string;
@@ -307,7 +307,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
   };
 
   const handleDiagPhoto = () => {
-    const mockUrl = MOCK_BEFORE;
+    const mockUrl = PLACEHOLDER_BEFORE;
     addDiagnosticPhoto(mockUrl);
   };
 
@@ -320,7 +320,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
     setIsCapturing(true);
     setTimeout(() => {
       const mockUrl = mediaType === 'PHOTO'
-        ? MOCK_BEFORE
+        ? PLACEHOLDER_BEFORE
         : "https://example.com/video.mp4";
 
       if (evidenceStep === 'BEFORE') {

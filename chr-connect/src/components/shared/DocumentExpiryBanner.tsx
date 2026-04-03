@@ -42,65 +42,6 @@ const ALERT_CONFIG: Record<AlertLevel, { color: string; bgColor: string; borderC
 };
 
 // ============================================================================
-// MOCK WORKER DOCUMENTS — simulates what a real worker would have
-// ============================================================================
-
-export function getMockWorkerDocuments(): ComplianceDocument[] {
-  const now = new Date();
-
-  const addDays = (days: number) => {
-    const d = new Date(now);
-    d.setDate(d.getDate() + days);
-    return d.toISOString();
-  };
-
-  const subMonths = (months: number) => {
-    const d = new Date(now);
-    d.setMonth(d.getMonth() - months);
-    return d.toISOString();
-  };
-
-  return [
-    {
-      id: 'doc-id-1',
-      type: 'IDENTITY',
-      fileUrl: '#',
-      uploadedAt: subMonths(8),
-      verifiedAt: subMonths(8),
-      expiresAt: addDays(365), // ID valid for long
-      status: 'VERIFIED',
-    },
-    {
-      id: 'doc-kbis-1',
-      type: 'ATTESTATION_PRO_KBIS',
-      fileUrl: '#',
-      uploadedAt: subMonths(2),
-      verifiedAt: subMonths(2),
-      expiresAt: addDays(12), // Expires in 12 days — CRITICAL J-15
-      status: 'VERIFIED',
-    },
-    {
-      id: 'doc-urssaf-1',
-      type: 'URSSAF_ATTESTATION',
-      fileUrl: '#',
-      uploadedAt: subMonths(5),
-      verifiedAt: subMonths(5),
-      expiresAt: addDays(25), // Expires in 25 days — WARNING J-30
-      status: 'VERIFIED',
-    },
-    {
-      id: 'doc-rc-1',
-      type: 'RC_PRO',
-      fileUrl: '#',
-      uploadedAt: subMonths(13),
-      verifiedAt: subMonths(13),
-      expiresAt: addDays(-3), // EXPIRED 3 days ago
-      status: 'EXPIRED',
-    },
-  ];
-}
-
-// ============================================================================
 // ALERT COMPUTATION
 // ============================================================================
 
@@ -170,7 +111,7 @@ interface DocumentExpiryBannerProps {
 }
 
 export default function DocumentExpiryBanner({ documents }: DocumentExpiryBannerProps) {
-  const docs = documents || getMockWorkerDocuments();
+  const docs = documents || [];
   const alerts = useMemo(() => computeAlerts(docs), [docs]);
   const [expanded, setExpanded] = useState(false);
   const [dismissed, setDismissed] = useState<string[]>([]);

@@ -4,8 +4,7 @@ import { useState, useMemo } from 'react';
 import { Search, Crown } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAdminStore } from '@/store/useAdminStore';
-import { MOCK_SUBSCRIPTIONS } from '@/data/mockAdminData';
-import type { SubscriptionStatus } from '@/types/admin';
+import type { Subscription, SubscriptionStatus } from '@/types/admin';
 
 type FilterType = 'ALL' | 'ACTIVE' | 'CANCELLED' | 'EXPIRED';
 
@@ -28,9 +27,10 @@ export default function AdminSubscriptionsTab() {
 
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterType>('ALL');
+  const subscriptions: Subscription[] = [];
 
   const filteredSubs = useMemo(() => {
-    let result = MOCK_SUBSCRIPTIONS;
+    let result = subscriptions;
     if (filter !== 'ALL') result = result.filter((s) => s.status === filter);
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -41,7 +41,7 @@ export default function AdminSubscriptionsTab() {
     return result;
   }, [filter, search]);
 
-  const activeCount = MOCK_SUBSCRIPTIONS.filter((s) => s.status === 'ACTIVE').length;
+  const activeCount = subscriptions.filter((s) => s.status === 'ACTIVE').length;
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">

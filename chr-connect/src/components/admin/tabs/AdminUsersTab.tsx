@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Users, Briefcase, Crown, Ban, X, UserCheck, UserX, CheckCircle2, AlertTriangle, XCircle, Clock, FileText, Shield, CreditCard, Award, Building2, FileCheck } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAdminStore } from '@/store/useAdminStore';
-import { MOCK_USERS } from '@/data/mockAdminData';
 import type { PlatformUser, UserStatus, UserDocument, DocumentStatus } from '@/types/admin';
 
 type FilterType = 'ALL' | 'PATRONS' | 'WORKERS' | 'PREMIUM' | 'SUSPENDED' | 'NON_COMPLIANT';
@@ -64,7 +63,7 @@ export default function AdminUsersTab() {
 
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterType>('ALL');
-  const [users, setUsers] = useState<PlatformUser[]>(MOCK_USERS);
+  const [users, setUsers] = useState<PlatformUser[]>([]);
   const [selectedUser, setSelectedUser] = useState<PlatformUser | null>(null);
 
   useEffect(() => {

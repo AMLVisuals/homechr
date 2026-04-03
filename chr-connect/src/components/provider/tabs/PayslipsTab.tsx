@@ -8,162 +8,20 @@ import {
   Clock, CheckCircle, Calendar,
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useMissionsStore } from '@/store/useMissionsStore';
 
-// ── Shared mock data ─────────────────────────────────────────────────────────
-const MOCK_MISSIONS = [
-  {
-    id: 'M-1204',
-    title: 'Réparation Machine à Glaçons',
-    venue: 'Le Perchoir Marais',
-    date: '10 Mar 2026, 10:30',
-    isoDate: '2026-03-10',
-    duration: '1h 45min',
-    rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=300&auto=format&fit=crop',
-    report: {
-      text: 'Remplacement de la pompe de vidange. Test de cycle complet OK.',
-      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
-      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
-    },
-  },
-  {
-    id: 'M-1198',
-    title: 'Installation Vitrine Réfrigérée',
-    venue: 'La Felicità',
-    date: '07 Mar 2026, 14:15',
-    isoDate: '2026-03-07',
-    duration: '3h 00min',
-    rating: 5.0,
-    image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=300&auto=format&fit=crop',
-    report: {
-      text: 'Installation complète et raccordement électrique. Mise en service effectuée.',
-      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
-      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
-    },
-  },
-  {
-    id: 'M-1150',
-    title: 'Maintenance Préventive',
-    venue: 'Big Mamma',
-    date: '15 Fév 2026, 09:00',
-    isoDate: '2026-02-15',
-    duration: '2h 30min',
-    rating: 4.5,
-    image: 'https://images.unsplash.com/photo-1550966871-3ed3c47e2ce2?q=80&w=300&auto=format&fit=crop',
-    report: {
-      text: 'Nettoyage des condenseurs et vérification des niveaux de gaz.',
-      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
-      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
-    },
-  },
-  {
-    id: 'M-1120',
-    title: 'Dépannage Chambre Froide',
-    venue: 'Bouillon Chartier',
-    date: '28 Jan 2026, 16:00',
-    isoDate: '2026-01-28',
-    duration: '2h 15min',
-    rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=300&auto=format&fit=crop',
-    report: {
-      text: 'Fuite de gaz réfrigérant détectée et réparée. Recharge effectuée.',
-      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
-      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
-    },
-  },
-  {
-    id: 'M-1080',
-    title: 'Remplacement Compresseur',
-    venue: 'Le Perchoir Marais',
-    date: '12 Déc 2025, 08:00',
-    isoDate: '2025-12-12',
-    duration: '4h 00min',
-    rating: 4.7,
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=300&auto=format&fit=crop',
-    report: {
-      text: 'Remplacement du compresseur principal. Tests de pression OK.',
-      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
-      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
-    },
-  },
-  {
-    id: 'M-1045',
-    title: 'Entretien Hotte Professionnelle',
-    venue: 'Big Mamma',
-    date: '03 Déc 2025, 11:00',
-    isoDate: '2025-12-03',
-    duration: '2h 00min',
-    rating: 5.0,
-    image: 'https://images.unsplash.com/photo-1550966871-3ed3c47e2ce2?q=80&w=300&auto=format&fit=crop',
-    report: {
-      text: 'Nettoyage complet des filtres et conduits. Vérification moteur extraction.',
-      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
-      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
-    },
-  },
-  {
-    id: 'M-1010',
-    title: 'Réparation Four Professionnel',
-    venue: 'La Felicità',
-    date: '18 Nov 2025, 15:30',
-    isoDate: '2025-11-18',
-    duration: '1h 30min',
-    rating: 4.6,
-    image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=300&auto=format&fit=crop',
-    report: {
-      text: 'Remplacement thermostat et résistance supérieure. Calibration effectuée.',
-      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
-      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
-    },
-  },
-  {
-    id: 'M-0990',
-    title: 'Diagnostic Chambre Froide',
-    venue: 'Bouillon Chartier',
-    date: '05 Nov 2025, 09:30',
-    isoDate: '2025-11-05',
-    duration: '1h 00min',
-    rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=300&auto=format&fit=crop',
-    report: {
-      text: 'Diagnostic complet. Préconisation remplacement joint de porte.',
-      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
-      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
-    },
-  },
-  {
-    id: 'M-0950',
-    title: 'Installation Lave-vaisselle Pro',
-    venue: 'Le Perchoir Marais',
-    date: '20 Oct 2025, 14:00',
-    isoDate: '2025-10-20',
-    duration: '3h 30min',
-    rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=300&auto=format&fit=crop',
-    report: {
-      text: 'Installation et raccordement complet. Formation équipe sur utilisation.',
-      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
-      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
-    },
-  },
-  {
-    id: 'M-0920',
-    title: 'Révision Groupe Froid',
-    venue: 'Big Mamma',
-    date: '08 Oct 2025, 10:00',
-    isoDate: '2025-10-08',
-    duration: '2h 00min',
-    rating: 4.4,
-    image: 'https://images.unsplash.com/photo-1550966871-3ed3c47e2ce2?q=80&w=300&auto=format&fit=crop',
-    report: {
-      text: 'Révision complète. Remplacement filtre déshydrateur.',
-      before: 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=300&auto=format&fit=crop',
-      after: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=80&w=300&auto=format&fit=crop',
-    },
-  },
-];
+interface Mission {
+  id: string;
+  title: string;
+  venue: string;
+  date: string;
+  isoDate: string;
+  duration: string;
+  rating: number;
+  image: string;
+  report: { text: string; before: string; after: string };
+}
 
-type Mission = typeof MOCK_MISSIONS[number];
 type DetailView = 'missions' | 'venues' | 'ratings' | null;
 
 function getMonthKey(dateStr: string) {
@@ -183,7 +41,27 @@ function formatMonth(key: string) {
 export function ActivityTab() {
   const [detailView, setDetailView] = useState<DetailView>(null);
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
-  const missions = MOCK_MISSIONS;
+  const allStoreMissions = useMissionsStore((s) => s.missions);
+
+  // Build missions from completed store data
+  const missions: Mission[] = useMemo(() =>
+    allStoreMissions
+      .filter((m) => m.status === 'COMPLETED')
+      .map((m) => ({
+        id: m.id,
+        title: m.title,
+        venue: m.venue || '—',
+        date: m.expiresAt
+          ? new Date(m.expiresAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+          : '—',
+        isoDate: m.expiresAt ? new Date(m.expiresAt).toISOString().slice(0, 10) : '',
+        duration: '—',
+        rating: 0,
+        image: '',
+        report: { text: m.description || '', before: '', after: '' },
+      })),
+    [allStoreMissions]
+  );
 
   const totalMissions = missions.length;
 

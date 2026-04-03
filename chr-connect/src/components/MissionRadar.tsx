@@ -4,18 +4,27 @@ import { useState } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { MapPin, DollarSign, Clock, Navigation, Radio, Wifi, Briefcase, ChevronRight } from 'lucide-react';
 import { useStore } from '@/store/useStore';
+import { useMissionsStore } from '@/store/useMissionsStore';
 import { clsx } from 'clsx';
-
-// Mocks for demo
-const MOCK_MISSIONS = [
-  { id: 1, title: 'Panne Sonorisation - Zone VIP', location: 'Le Rooftop Paris, 8ème', dist: '2km', price: '150€', type: 'Forfait', details: 'Ampli Bose en surchauffe', urgent: true },
-  { id: 2, title: 'Service Soirée Gala', location: 'Hôtel Ritz', dist: '4.5km', price: '25€/h', type: 'Horaire', details: 'Tenue Noire exigée', urgent: false },
-  { id: 3, title: 'Fuite Machine à Glaçons', location: 'Bar Le Perchoir', dist: '1.2km', price: '90€', type: 'Forfait', details: 'Urgence absolue', urgent: true },
-];
 
 export default function MissionRadar() {
   const { isOnAir, toggleOnAir } = useStore();
+  const allMissions = useMissionsStore((s) => s.missions);
   const [activeMissionIndex, setActiveMissionIndex] = useState(0);
+
+  // Build radar cards from real missions with SEARCHING status
+  const radarMissions = allMissions
+    .filter((m) => m.status === 'SEARCHING')
+    .map((m) => ({
+      id: m.id,
+      title: m.title,
+      location: m.venue || 'Lieu non précisé',
+      dist: m.distance ? `${m.distance}km` : '—',
+      price: m.price ? `${m.price}€` : '—',
+      type: 'Forfait',
+      details: m.description || '',
+      urgent: m.urgent || false,
+    }));
 
   const handleAccept = () => {
     // Remove current card
@@ -62,8 +71,8 @@ export default function MissionRadar() {
           </div>
 
           <div className="relative w-full max-w-md h-[500px]">
-            {MOCK_MISSIONS.slice(activeMissionIndex).reverse().map((mission, index) => {
-              const isTop = index === MOCK_MISSIONS.length - 1 - activeMissionIndex;
+            {radarMissions.slice(activeMissionIndex).reverse().map((mission, index) => {
+              const isTop = index === radarMissions.length - 1 - activeMissionIndex;
               return (
                 <MissionCard 
                   key={mission.id} 
@@ -73,7 +82,7 @@ export default function MissionRadar() {
                 />
               );
             })}
-            {activeMissionIndex >= MOCK_MISSIONS.length && (
+            {activeMissionIndex >= radarMissions.length && (
               <div className="text-center text-[var(--text-secondary)] mt-20">
                 <p>Aucune mission à proximité...</p>
               </div>
