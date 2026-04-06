@@ -2,6 +2,38 @@ import { supabase } from './supabase';
 import type { Profile } from '@/contexts/AuthContext';
 
 // ============================================================================
+// UTILS: snake_case <-> camelCase
+// ============================================================================
+
+function snakeToCamel(str: string): string {
+  return str.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+}
+
+function camelToSnake(str: string): string {
+  return str.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
+}
+
+/** Convertit un objet Supabase (snake_case) en camelCase pour l'app */
+export function toCamelCase<T = Record<string, any>>(obj: Record<string, any>): T {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return obj as T;
+  const result: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    result[snakeToCamel(key)] = value;
+  }
+  return result as T;
+}
+
+/** Convertit un objet app (camelCase) en snake_case pour Supabase */
+export function toSnakeCase(obj: Record<string, any>): Record<string, any> {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return obj;
+  const result: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    result[camelToSnake(key)] = value;
+  }
+  return result;
+}
+
+// ============================================================================
 // PROFILES
 // ============================================================================
 
@@ -34,7 +66,7 @@ export async function getVenuesByOwner(ownerId: string) {
     .select('*')
     .eq('owner_id', ownerId)
     .order('created_at', { ascending: false });
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 export async function getVenue(venueId: string) {
@@ -43,26 +75,60 @@ export async function getVenue(venueId: string) {
     .select('*')
     .eq('id', venueId)
     .single();
-  return { data, error };
+  return { data: data ? toCamelCase(data) : null, error };
+}
+
+function mapVenueToDb(venue: Record<string, any>) {
+  return {
+    owner_id: venue.owner_id,
+    name: venue.name || '',
+    address: venue.address || '',
+    city: venue.city || '',
+    zip_code: venue.zipCode || venue.zip_code || '',
+    category: venue.category || '',
+    capacity: venue.capacity || null,
+    surface: venue.surface || null,
+    team_size: venue.teamSize || venue.team_size || null,
+    // Access
+    access_digicode: venue.access?.digicode || null,
+    access_contact_name: venue.access?.contactName || null,
+    access_contact_phone: venue.access?.contactPhone || null,
+    access_instructions: venue.access?.instructions || null,
+    access_wifi_ssid: venue.access?.wifiSSID || null,
+    access_wifi_password: venue.access?.wifiPassword || null,
+    // Technical
+    tech_elec_type: venue.technical?.elecType || null,
+    tech_gas_type: venue.technical?.gasType || null,
+    tech_has_freight_elevator: venue.technical?.hasFreightElevator || false,
+    tech_has_elevator: venue.technical?.hasElevator || false,
+    tech_delivery_access: venue.technical?.deliveryAccess || null,
+    tech_has_ventilation: venue.technical?.hasVentilation || false,
+    tech_has_air_conditioning: venue.technical?.hasAirConditioning || false,
+    // Equipment
+    equip_pos_system: venue.equipment?.posSystem || null,
+    equip_has_terrace: venue.equipment?.hasTerrace || false,
+    equip_has_private_rooms: venue.equipment?.hasPrivateRooms || false,
+    equip_has_bar: venue.equipment?.hasBar || false,
+  };
 }
 
 export async function createVenue(venue: Record<string, any>) {
   const { data, error } = await supabase
     .from('venues')
-    .insert(venue)
+    .insert(mapVenueToDb(venue))
     .select()
     .single();
-  return { data, error };
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function updateVenue(venueId: string, updates: Record<string, any>) {
   const { data, error } = await supabase
     .from('venues')
-    .update(updates)
+    .update(mapVenueToDb(updates))
     .eq('id', venueId)
     .select()
     .single();
-  return { data, error };
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function deleteVenue(venueId: string) {
@@ -84,7 +150,7 @@ export async function getEquipmentByVenue(venueId: string) {
     .eq('venue_id', venueId)
     .eq('is_deleted', false)
     .order('created_at', { ascending: false });
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 export async function getEquipmentByOwner(ownerId: string) {
@@ -94,26 +160,26 @@ export async function getEquipmentByOwner(ownerId: string) {
     .eq('owner_id', ownerId)
     .eq('is_deleted', false)
     .order('created_at', { ascending: false });
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 export async function createEquipment(equipment: Record<string, any>) {
   const { data, error } = await supabase
     .from('equipment')
-    .insert(equipment)
+    .insert(toSnakeCase(equipment))
     .select()
     .single();
-  return { data, error };
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function updateEquipment(equipmentId: string, updates: Record<string, any>) {
   const { data, error } = await supabase
     .from('equipment')
-    .update(updates)
+    .update(toSnakeCase(updates))
     .eq('id', equipmentId)
     .select()
     .single();
-  return { data, error };
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function softDeleteEquipment(equipmentId: string) {
@@ -134,7 +200,7 @@ export async function getMissionsByPatron(patronId: string) {
     .select('*')
     .eq('patron_id', patronId)
     .order('created_at', { ascending: false });
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 export async function getMissionsByProvider(providerId: string) {
@@ -143,7 +209,7 @@ export async function getMissionsByProvider(providerId: string) {
     .select('*')
     .eq('provider_id', providerId)
     .order('created_at', { ascending: false });
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 export async function getSearchingMissions() {
@@ -152,7 +218,7 @@ export async function getSearchingMissions() {
     .select('*')
     .eq('status', 'SEARCHING')
     .order('created_at', { ascending: false });
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 export async function getMission(missionId: string) {
@@ -161,26 +227,27 @@ export async function getMission(missionId: string) {
     .select('*')
     .eq('id', missionId)
     .single();
-  return { data, error };
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function createMission(mission: Record<string, any>) {
   const { data, error } = await supabase
     .from('missions')
-    .insert(mission)
+    .insert(toSnakeCase(mission))
     .select()
     .single();
-  return { data, error };
+  if (error) console.error('[createMission] Supabase error:', error.message, error.details);
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function updateMission(missionId: string, updates: Record<string, any>) {
   const { data, error } = await supabase
     .from('missions')
-    .update(updates)
+    .update(toSnakeCase(updates))
     .eq('id', missionId)
     .select()
     .single();
-  return { data, error };
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 // ============================================================================
@@ -193,16 +260,16 @@ export async function getCandidatesByMission(missionId: string) {
     .select('*')
     .eq('mission_id', missionId)
     .order('applied_at', { ascending: false });
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 export async function applyToMission(candidate: Record<string, any>) {
   const { data, error } = await supabase
     .from('mission_candidates')
-    .insert(candidate)
+    .insert(toSnakeCase(candidate))
     .select()
     .single();
-  return { data, error };
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function updateCandidateStatus(candidateId: string, status: 'ACCEPTED' | 'REJECTED') {
@@ -220,10 +287,10 @@ export async function updateCandidateStatus(candidateId: string, status: 'ACCEPT
 export async function createReview(review: Record<string, any>) {
   const { data, error } = await supabase
     .from('mission_reviews')
-    .insert(review)
+    .insert(toSnakeCase(review))
     .select()
     .single();
-  return { data, error };
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function getReviewsByMission(missionId: string) {
@@ -231,7 +298,7 @@ export async function getReviewsByMission(missionId: string) {
     .from('mission_reviews')
     .select('*')
     .eq('mission_id', missionId);
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 // ============================================================================
@@ -241,10 +308,10 @@ export async function getReviewsByMission(missionId: string) {
 export async function createDispute(dispute: Record<string, any>) {
   const { data, error } = await supabase
     .from('mission_disputes')
-    .insert(dispute)
+    .insert(toSnakeCase(dispute))
     .select()
     .single();
-  return { data, error };
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function updateDispute(disputeId: string, updates: Record<string, any>) {
@@ -262,10 +329,10 @@ export async function updateDispute(disputeId: string, updates: Record<string, a
 export async function createQuote(quote: Record<string, any>) {
   const { data, error } = await supabase
     .from('quotes')
-    .insert(quote)
+    .insert(toSnakeCase(quote))
     .select()
     .single();
-  return { data, error };
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function getQuotesByMission(missionId: string) {
@@ -273,7 +340,7 @@ export async function getQuotesByMission(missionId: string) {
     .from('quotes')
     .select('*, quote_items(*)')
     .eq('mission_id', missionId);
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 export async function updateQuoteStatus(quoteId: string, status: string) {
@@ -291,10 +358,10 @@ export async function updateQuoteStatus(quoteId: string, status: string) {
 export async function createInvoice(invoice: Record<string, any>) {
   const { data, error } = await supabase
     .from('invoices')
-    .insert(invoice)
+    .insert(toSnakeCase(invoice))
     .select()
     .single();
-  return { data, error };
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function getInvoicesByMission(missionId: string) {
@@ -302,7 +369,7 @@ export async function getInvoicesByMission(missionId: string) {
     .from('invoices')
     .select('*')
     .eq('mission_id', missionId);
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 // ============================================================================
@@ -316,7 +383,7 @@ export async function getPayslipsByVenue(venueId: string) {
     .eq('venue_id', venueId)
     .eq('is_deleted', false)
     .order('issue_date', { ascending: false });
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 export async function getPayslipsByEmployee(employeeId: string) {
@@ -326,7 +393,7 @@ export async function getPayslipsByEmployee(employeeId: string) {
     .eq('employee_id', employeeId)
     .eq('is_deleted', false)
     .order('issue_date', { ascending: false });
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 // ============================================================================
@@ -339,16 +406,16 @@ export async function getStockByVenue(venueId: string) {
     .select('*')
     .eq('venue_id', venueId)
     .order('name');
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 export async function upsertStockItem(item: Record<string, any>) {
   const { data, error } = await supabase
     .from('stock_items')
-    .upsert(item)
+    .upsert(toSnakeCase(item))
     .select()
     .single();
-  return { data, error };
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function deleteStockItem(itemId: string) {
@@ -377,16 +444,17 @@ export async function getCalendarEvents(userId: string, month?: string) {
   }
 
   const { data, error } = await query;
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 export async function createCalendarEvent(event: Record<string, any>) {
   const { data, error } = await supabase
     .from('calendar_events')
-    .insert(event)
+    .insert(toSnakeCase(event))
     .select()
     .single();
-  return { data, error };
+  if (error) console.error('[createCalendarEvent] Supabase error:', error.message, error.details);
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function deleteCalendarEvent(eventId: string) {
@@ -408,7 +476,7 @@ export async function getNotifications(userId: string) {
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(50);
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 export async function markNotificationRead(notificationId: string) {

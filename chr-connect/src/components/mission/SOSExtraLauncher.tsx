@@ -13,6 +13,7 @@ import { useEstablishment } from '@/contexts/EstablishmentContext';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useCalendarStore } from '@/store/calendarStore';
 import { useStore } from '@/store/useStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { APP_CONFIG } from '@/config/appConfig';
 
 interface SOSExtraLauncherProps {
@@ -126,6 +127,7 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
   const { syncAddMission } = useMissionsStore();
   const { syncAddEvent } = useCalendarStore();
   const isPremium = useStore((s) => s.isPremium);
+  const { user } = useAuth();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
@@ -159,46 +161,44 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
     setStep(2);
   };
 
-  const handleSubmit = () => {
-    if (!currentEstablishment || !poste) return;
+  const handleSubmit = async () => {
+    if (!currentEstablishment || !poste || !user) return;
 
-    const missionId = `mission_${Date.now()}`;
     const missionDate = toMissionDate(startDate);
 
     const mission = {
-      id: missionId,
       title: `${poste.label} - ${count} personne(s)`,
-      venue: currentEstablishment.name,
-      venueId: currentEstablishment.id,
-      type: 'staff' as const,
-      price: `${total}€ est.`,
+      venue_id: currentEstablishment.id,
+      patron_id: user.id,
+      type: 'staff',
       urgent: isNow,
       scheduled: !isNow,
-      scheduledDate: !isNow ? startDate.toISOString() : undefined,
+      scheduled_at: !isNow ? startDate.toISOString() : undefined,
       description: isNow
         ? `SOS Extra : Besoin urgent de ${count} ${poste.label.toLowerCase()} pour ${duration}h`
         : `Extra planifié : ${count} ${poste.label.toLowerCase()} pour ${duration}h — ${formatDate(startDate)} à ${formatTime(startDate)}`,
       status: 'SEARCHING' as const,
-      location: { lat: 48.8566, lng: 2.3522 },
-      category: 'STAFFING' as const,
-      date: missionDate,
-      paidRelationFee: !isPremium,
-      relationFeeAmount: isPremium ? 0 : 20,
+      category: 'STAFFING',
+      paid_relation_fee: !isPremium,
+      relation_fee_amount: isPremium ? 0 : 20,
+      staffing_number_of_people: count,
+      staffing_hourly_rate: poste.rate,
+      staffing_role: poste.label,
     };
 
-    syncAddMission(mission);
+    await syncAddMission(mission as any);
 
     const [dateStr, timeStr] = missionDate.split(' ');
-    syncAddEvent({
+    await syncAddEvent({
       title: mission.title,
       date: dateStr,
       time: timeStr || '09:00',
       type: 'STAFFING',
       description: mission.description,
-      venueId: currentEstablishment.id,
+      venue_id: currentEstablishment.id,
+      user_id: user.id,
       location: currentEstablishment.name,
-      missionId,
-    });
+    } as any);
 
     setStep('success');
     setTimeout(() => onClose(), 2000);

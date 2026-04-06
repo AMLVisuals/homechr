@@ -7,6 +7,7 @@ import {
   CreditCard, Calendar, Settings, Crown, Briefcase, Package, FileText, LogOut,
 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { clsx } from 'clsx';
 
 export const NAV_ITEMS = [
@@ -30,8 +31,10 @@ interface SidebarProps {
 export default function Sidebar({ activeTab, onSettingsClick, layoutId = 'activeTabDesktop' }: SidebarProps) {
   const router = useRouter();
   const { setUserRole } = useStore();
+  const { signOut } = useAuth();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut();
     setUserRole(null);
     router.push('/');
   };

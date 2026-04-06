@@ -26,7 +26,7 @@ export default function VenueForm({ initialData, onClose, onSuccess }: VenueForm
   const isEditing = !!initialData?.id;
   const needsDocuments = !isEditing && patronProfileStatus === 'incomplete';
 
-  const allDocsVerified = patronDocUploads.every(d => d.status === 'verified');
+  const allDocsUploaded = patronDocUploads.every(d => d.status === 'verified');
 
   const [formData, setFormData] = useState<VenueFormData>({
     name: initialData?.name || '',
@@ -73,7 +73,7 @@ export default function VenueForm({ initialData, onClose, onSuccess }: VenueForm
 
   const [sections, setSections] = useState({
     general: true,
-    access: true,
+    access: false,
     technical: false,
     equipment: false,
     hours: false,
@@ -84,7 +84,7 @@ export default function VenueForm({ initialData, onClose, onSuccess }: VenueForm
     setSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const canSubmit = !needsDocuments || allDocsVerified;
+  const canSubmit = !needsDocuments || allDocsUploaded;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,7 +101,7 @@ export default function VenueForm({ initialData, onClose, onSuccess }: VenueForm
     } else {
       syncAddVenue(submissionData, user!.id);
       // Mark patron profile as pending validation after first venue + docs
-      if (needsDocuments && allDocsVerified) {
+      if (needsDocuments && allDocsUploaded) {
         setPatronProfileStatus('pending_validation');
       }
     }
@@ -124,431 +124,411 @@ export default function VenueForm({ initialData, onClose, onSuccess }: VenueForm
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-        {/* Photos */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[var(--text-secondary)] ml-1">Photos du lieu</label>
-          <VenuePhotoUploader
-            photos={formData.photos || []}
-            onChange={(photos) => setFormData(prev => ({ ...prev, photos }))}
-          />
-        </div>
+        {/* ── Essentiel : Nom, Catégorie, Adresse ── */}
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Nom de l'établissement *</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={e => setFormData({...formData, name: e.target.value})}
+              className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 focus:ring-1 focus:ring-blue-500"
+              placeholder="Ex: Le Fouquet's"
+            />
+          </div>
 
-        {/* General Info */}
-        <div className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl overflow-hidden">
-          <button
-            onClick={() => toggleSection('general')}
-            className="w-full flex items-center justify-between p-4 hover:bg-[var(--bg-hover)] transition-colors"
-          >
-            <h3 className="font-bold flex items-center gap-2">
-              <Layout className="w-4 h-4 text-blue-500" />
-              Informations Générales
-            </h3>
-            {sections.general ? <Eye className="w-4 h-4 text-[var(--text-secondary)]" /> : <EyeOff className="w-4 h-4 text-[var(--text-secondary)]" />}
-          </button>
+          <div>
+            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Catégorie *</label>
+            <select
+              value={formData.category}
+              onChange={e => setFormData({...formData, category: e.target.value})}
+              className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 focus:ring-1 focus:ring-blue-500 appearance-none"
+            >
+              <option>Restaurant</option>
+              <option>Bar / Café</option>
+              <option>Hôtel</option>
+              <option>Boîte de nuit</option>
+              <option>Traiteur</option>
+            </select>
+          </div>
 
-          {sections.general && (
-            <div className="p-4 border-t border-[var(--border)] space-y-4 animate-in fade-in slide-in-from-top-2">
-              <div>
-                <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Nom de l'établissement</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={e => setFormData({...formData, name: e.target.value})}
-                  className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 focus:ring-1 focus:ring-blue-500"
-                  placeholder="Ex: Le Fouquet's"
-                />
-              </div>
+          <div>
+            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Adresse *</label>
+            <input
+              type="text"
+              value={formData.address}
+              onChange={e => setFormData({...formData, address: e.target.value})}
+              className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 focus:ring-1 focus:ring-blue-500"
+              placeholder="Adresse complète"
+            />
+          </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Catégorie</label>
-                  <select
-                    value={formData.category}
-                    onChange={e => setFormData({...formData, category: e.target.value})}
-                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 focus:ring-1 focus:ring-blue-500 appearance-none"
-                  >
-                    <option>Restaurant</option>
-                    <option>Bar / Café</option>
-                    <option>Hôtel</option>
-                    <option>Boîte de nuit</option>
-                    <option>Traiteur</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Effectif (nombre)</label>
-                  <div className="relative">
-                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
-                    <input
-                      type="number"
-                      value={formData.teamSize || ''}
-                      onChange={e => setFormData({...formData, teamSize: parseInt(e.target.value) || 0})}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 pl-10 focus:ring-1 focus:ring-blue-500"
-                      placeholder="0"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Adresse</label>
-                <input
-                  type="text"
-                  value={formData.address}
-                  onChange={e => setFormData({...formData, address: e.target.value})}
-                  className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 focus:ring-1 focus:ring-blue-500"
-                  placeholder="Adresse complète"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                 <div>
-                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Code Postal</label>
-                    <input
-                      type="text"
-                      value={formData.zipCode}
-                      onChange={e => setFormData({...formData, zipCode: e.target.value})}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 focus:ring-1 focus:ring-blue-500"
-                    />
-                 </div>
-                 <div>
-                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Ville</label>
-                    <input
-                      type="text"
-                      value={formData.city}
-                      onChange={e => setFormData({...formData, city: e.target.value})}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 focus:ring-1 focus:ring-blue-500"
-                    />
-                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Surface (m²)</label>
-                  <div className="relative">
-                    <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
-                    <input
-                      type="number"
-                      value={formData.surface || ''}
-                      onChange={e => setFormData({...formData, surface: parseInt(e.target.value) || 0})}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 pl-10 focus:ring-1 focus:ring-blue-500"
-                      placeholder="0"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Capacité (pers.)</label>
-                  <div className="relative">
-                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
-                    <input
-                      type="number"
-                      value={formData.capacity || ''}
-                      onChange={e => setFormData({...formData, capacity: parseInt(e.target.value) || 0})}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 pl-10 focus:ring-1 focus:ring-blue-500"
-                      placeholder="0"
-                    />
-                  </div>
-                </div>
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Code Postal *</label>
+              <input
+                type="text"
+                value={formData.zipCode}
+                onChange={e => setFormData({...formData, zipCode: e.target.value})}
+                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 focus:ring-1 focus:ring-blue-500"
+              />
             </div>
-          )}
-        </div>
-
-        {/* Access Info */}
-        <div className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl overflow-hidden">
-          <button
-            onClick={() => toggleSection('access')}
-            className="w-full flex items-center justify-between p-4 hover:bg-[var(--bg-hover)] transition-colors"
-          >
-            <h3 className="font-bold flex items-center gap-2">
-              <Lock className="w-4 h-4 text-yellow-500" />
-              Infos d'accès
-            </h3>
-            {sections.access ? <Eye className="w-4 h-4 text-[var(--text-secondary)]" /> : <EyeOff className="w-4 h-4 text-[var(--text-secondary)]" />}
-          </button>
-
-          {sections.access && (
-            <div className="p-4 border-t border-[var(--border)] space-y-4 animate-in fade-in slide-in-from-top-2">
-               <div className="grid grid-cols-2 gap-4">
-                 <div>
-                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Digicode</label>
-                    <input
-                      type="text"
-                      value={formData.access?.digicode || ''}
-                      onChange={e => setFormData({...formData, access: {...formData.access, digicode: e.target.value}})}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm"
-                      placeholder="Ex: 1234A"
-                    />
-                 </div>
-                 <div>
-                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Responsable</label>
-                    <input
-                      type="text"
-                      value={formData.access?.contactName || ''}
-                      onChange={e => setFormData({...formData, access: {...formData.access, contactName: e.target.value}})}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm"
-                      placeholder="Nom Prénom"
-                    />
-                 </div>
-               </div>
-
-               <div>
-                  <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Instructions d'accès</label>
-                  <textarea
-                    value={formData.access?.instructions || ''}
-                    onChange={e => setFormData({...formData, access: {...formData.access, instructions: e.target.value}})}
-                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm min-h-[80px]"
-                    placeholder="Entrée fournisseurs, étage, code ascenseur..."
-                  />
-               </div>
-
-               <div className="grid grid-cols-2 gap-4 pt-2 border-t border-[var(--border)]">
-                 <div>
-                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">WiFi SSID</label>
-                    <input
-                      type="text"
-                      value={formData.access?.wifiSSID || ''}
-                      onChange={e => setFormData({...formData, access: {...formData.access, wifiSSID: e.target.value}})}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm"
-                    />
-                 </div>
-                 <div>
-                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">WiFi Password</label>
-                    <input
-                      type="text"
-                      value={formData.access?.wifiPassword || ''}
-                      onChange={e => setFormData({...formData, access: {...formData.access, wifiPassword: e.target.value}})}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm"
-                    />
-                 </div>
-               </div>
+            <div>
+              <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Ville *</label>
+              <input
+                type="text"
+                value={formData.city}
+                onChange={e => setFormData({...formData, city: e.target.value})}
+                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 focus:ring-1 focus:ring-blue-500"
+              />
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Technical Info */}
-        <div className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl overflow-hidden">
-          <button
-            onClick={() => toggleSection('technical')}
-            className="w-full flex items-center justify-between p-4 hover:bg-[var(--bg-hover)] transition-colors"
-          >
-            <h3 className="font-bold flex items-center gap-2">
-              <Zap className="w-4 h-4 text-orange-500" />
-              Technique & Livraison
-            </h3>
-            {sections.technical ? <Eye className="w-4 h-4 text-[var(--text-secondary)]" /> : <EyeOff className="w-4 h-4 text-[var(--text-secondary)]" />}
-          </button>
-
-          {sections.technical && (
-            <div className="p-4 border-t border-[var(--border)] space-y-4 animate-in fade-in slide-in-from-top-2">
-               <div className="grid grid-cols-2 gap-4">
-                 <div>
-                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Type Électrique</label>
-                    <select
-                      value={formData.technical?.elecType}
-                      onChange={e => setFormData({...formData, technical: {...formData.technical!, elecType: e.target.value as any}})}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm"
-                    >
-                      <option value="UNKNOWN">Inconnu</option>
-                      <option value="SINGLE_PHASE">Monophasé</option>
-                      <option value="THREE_PHASE">Triphasé</option>
-                    </select>
-                 </div>
-                 <div>
-                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Type Gaz</label>
-                    <select
-                      value={formData.technical?.gasType}
-                      onChange={e => setFormData({...formData, technical: {...formData.technical!, gasType: e.target.value as any}})}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm"
-                    >
-                      <option value="NONE">Aucun</option>
-                      <option value="CITY">Gaz de ville</option>
-                      <option value="BOTTLE">Bouteille</option>
-                    </select>
-                 </div>
-               </div>
-
-               <div className="grid grid-cols-2 gap-4">
-                 <div>
-                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Accès Livraison</label>
-                    <select
-                      value={formData.technical?.deliveryAccess}
-                      onChange={e => setFormData({...formData, technical: {...formData.technical!, deliveryAccess: e.target.value as any}})}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm"
-                    >
-                      <option value="STREET">Rue</option>
-                      <option value="COURTYARD">Cour intérieure</option>
-                      <option value="DOCK">Quai de livraison</option>
-                    </select>
-                 </div>
-                 <div className="flex items-center gap-4 pt-6">
-                   <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
-                     <input
-                       type="checkbox"
-                       checked={formData.technical?.hasFreightElevator}
-                       onChange={e => setFormData({...formData, technical: {...formData.technical!, hasFreightElevator: e.target.checked}})}
-                       className="rounded border-[var(--border)] bg-[var(--bg-input)] text-blue-500"
-                     />
-                     Monte-charge
-                   </label>
-                 </div>
-               </div>
-
-               <div className="flex items-center gap-6 pt-2 border-t border-[var(--border)]">
-                   <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
-                     <input
-                       type="checkbox"
-                       checked={formData.technical?.hasAirConditioning}
-                       onChange={e => setFormData({...formData, technical: {...formData.technical!, hasAirConditioning: e.target.checked}})}
-                       className="rounded border-[var(--border)] bg-[var(--bg-input)] text-blue-500"
-                     />
-                     Climatisation
-                   </label>
-                   <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
-                     <input
-                       type="checkbox"
-                       checked={formData.technical?.hasVentilation}
-                       onChange={e => setFormData({...formData, technical: {...formData.technical!, hasVentilation: e.target.checked}})}
-                       className="rounded border-[var(--border)] bg-[var(--bg-input)] text-blue-500"
-                     />
-                     Extraction
-                   </label>
-               </div>
+        {/* ── Sections détaillées (uniquement en édition) ── */}
+        {isEditing && (
+          <>
+            {/* Photos */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[var(--text-secondary)] ml-1">Photos du lieu</label>
+              <VenuePhotoUploader
+                photos={formData.photos || []}
+                onChange={(photos) => setFormData(prev => ({ ...prev, photos }))}
+              />
             </div>
-          )}
-        </div>
 
-        {/* Equipment Info */}
-        <div className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl overflow-hidden">
-          <button
-            onClick={() => toggleSection('equipment')}
-            className="w-full flex items-center justify-between p-4 hover:bg-[var(--bg-hover)] transition-colors"
-          >
-            <h3 className="font-bold flex items-center gap-2">
-              <Box className="w-4 h-4 text-green-500" />
-              Installations
-            </h3>
-            {sections.equipment ? <Eye className="w-4 h-4 text-[var(--text-secondary)]" /> : <EyeOff className="w-4 h-4 text-[var(--text-secondary)]" />}
-          </button>
+            {/* Infos complémentaires */}
+            <div className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl overflow-hidden">
+              <button
+                onClick={() => toggleSection('general')}
+                className="w-full flex items-center justify-between p-4 hover:bg-[var(--bg-hover)] transition-colors"
+              >
+                <h3 className="font-bold flex items-center gap-2">
+                  <Layout className="w-4 h-4 text-blue-500" />
+                  Infos complémentaires
+                </h3>
+                {sections.general ? <Eye className="w-4 h-4 text-[var(--text-secondary)]" /> : <EyeOff className="w-4 h-4 text-[var(--text-secondary)]" />}
+              </button>
 
-          {sections.equipment && (
-            <div className="p-4 border-t border-[var(--border)] space-y-4 animate-in fade-in slide-in-from-top-2">
-              <div>
-                <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Système de Caisse (POS)</label>
-                <input
-                  type="text"
-                  value={formData.equipment?.posSystem || ''}
-                  onChange={e => setFormData({...formData, equipment: {...formData.equipment!, posSystem: e.target.value}})}
-                  className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 focus:ring-1 focus:ring-blue-500"
-                  placeholder="Ex: Lightspeed, Tiller..."
-                />
-              </div>
-
-              <div className="flex flex-wrap gap-6 pt-2">
-                  <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.equipment?.hasTerrace}
-                      onChange={e => setFormData({...formData, equipment: {...formData.equipment!, hasTerrace: e.target.checked}})}
-                      className="rounded border-[var(--border)] bg-[var(--bg-input)] text-blue-500"
-                    />
-                    Terrasse
-                  </label>
-                  <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.equipment?.hasPrivateRooms}
-                      onChange={e => setFormData({...formData, equipment: {...formData.equipment!, hasPrivateRooms: e.target.checked}})}
-                      className="rounded border-[var(--border)] bg-[var(--bg-input)] text-blue-500"
-                    />
-                    Salons Privés
-                  </label>
-                  <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.equipment?.hasBar}
-                      onChange={e => setFormData({...formData, equipment: {...formData.equipment!, hasBar: e.target.checked}})}
-                      className="rounded border-[var(--border)] bg-[var(--bg-input)] text-blue-500"
-                    />
-                    Bar
-                  </label>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Opening Hours */}
-        <div className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl overflow-hidden">
-          <button
-            onClick={() => toggleSection('hours')}
-            className="w-full flex items-center justify-between p-4 hover:bg-[var(--bg-hover)] transition-colors"
-          >
-            <h3 className="font-bold flex items-center gap-2">
-              <Clock className="w-4 h-4 text-purple-500" />
-              Horaires d'ouverture
-            </h3>
-            {sections.hours ? <Eye className="w-4 h-4 text-[var(--text-secondary)]" /> : <EyeOff className="w-4 h-4 text-[var(--text-secondary)]" />}
-          </button>
-
-          {sections.hours && (
-            <div className="p-4 border-t border-[var(--border)] space-y-2 animate-in fade-in slide-in-from-top-2">
-              {Object.entries(formData.openingHours || {}).map(([day, hours]) => {
-                const dayLabels: any = { monday: 'Lundi', tuesday: 'Mardi', wednesday: 'Mercredi', thursday: 'Jeudi', friday: 'Vendredi', saturday: 'Samedi', sunday: 'Dimanche' };
-                return (
-                  <div key={day} className="flex items-center justify-between py-2 border-b border-[var(--border)] last:border-0">
-                    <div className="w-24 font-medium text-[var(--text-secondary)]">{dayLabels[day]}</div>
-                    <div className="flex items-center gap-4">
-                      <label className="flex items-center gap-2 text-xs text-[var(--text-muted)] cursor-pointer">
+              {sections.general && (
+                <div className="p-4 border-t border-[var(--border)] space-y-4 animate-in fade-in slide-in-from-top-2">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Effectif</label>
+                      <div className="relative">
+                        <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                         <input
-                          type="checkbox"
-                          checked={hours.closed}
-                          onChange={e => setFormData({
-                            ...formData,
-                            openingHours: {
-                              ...formData.openingHours!,
-                              [day]: { ...hours, closed: e.target.checked }
-                            }
-                          })}
-                          className="rounded border-[var(--border)] bg-[var(--bg-input)] text-red-500"
+                          type="number"
+                          value={formData.teamSize || ''}
+                          onChange={e => setFormData({...formData, teamSize: parseInt(e.target.value) || 0})}
+                          className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 pl-10 focus:ring-1 focus:ring-blue-500"
+                          placeholder="0"
                         />
-                        Fermé
-                      </label>
-
-                      {!hours.closed && (
-                        <>
-                          <input
-                            type="time"
-                            value={hours.open}
-                            onChange={e => setFormData({
-                              ...formData,
-                              openingHours: {
-                                ...formData.openingHours!,
-                                [day]: { ...hours, open: e.target.value }
-                              }
-                            })}
-                            className="bg-[var(--bg-input)] border border-[var(--border)] rounded px-2 py-1 text-sm"
-                          />
-                          <span className="text-[var(--text-muted)]">-</span>
-                          <input
-                            type="time"
-                            value={hours.close}
-                            onChange={e => setFormData({
-                              ...formData,
-                              openingHours: {
-                                ...formData.openingHours!,
-                                [day]: { ...hours, close: e.target.value }
-                              }
-                            })}
-                            className="bg-[var(--bg-input)] border border-[var(--border)] rounded px-2 py-1 text-sm"
-                          />
-                        </>
-                      )}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Surface (m²)</label>
+                      <div className="relative">
+                        <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                        <input
+                          type="number"
+                          value={formData.surface || ''}
+                          onChange={e => setFormData({...formData, surface: parseInt(e.target.value) || 0})}
+                          className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 pl-10 focus:ring-1 focus:ring-blue-500"
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Capacité</label>
+                      <div className="relative">
+                        <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                        <input
+                          type="number"
+                          value={formData.capacity || ''}
+                          onChange={e => setFormData({...formData, capacity: parseInt(e.target.value) || 0})}
+                          className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 pl-10 focus:ring-1 focus:ring-blue-500"
+                          placeholder="0"
+                        />
+                      </div>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+
+            {/* Access Info */}
+            <div className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl overflow-hidden">
+              <button
+                onClick={() => toggleSection('access')}
+                className="w-full flex items-center justify-between p-4 hover:bg-[var(--bg-hover)] transition-colors"
+              >
+                <h3 className="font-bold flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-yellow-500" />
+                  Infos d'accès
+                </h3>
+                {sections.access ? <Eye className="w-4 h-4 text-[var(--text-secondary)]" /> : <EyeOff className="w-4 h-4 text-[var(--text-secondary)]" />}
+              </button>
+
+              {sections.access && (
+                <div className="p-4 border-t border-[var(--border)] space-y-4 animate-in fade-in slide-in-from-top-2">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Digicode</label>
+                      <input
+                        type="text"
+                        value={formData.access?.digicode || ''}
+                        onChange={e => setFormData({...formData, access: {...formData.access, digicode: e.target.value}})}
+                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm"
+                        placeholder="Ex: 1234A"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Responsable</label>
+                      <input
+                        type="text"
+                        value={formData.access?.contactName || ''}
+                        onChange={e => setFormData({...formData, access: {...formData.access, contactName: e.target.value}})}
+                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm"
+                        placeholder="Nom Prénom"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Instructions d'accès</label>
+                    <textarea
+                      value={formData.access?.instructions || ''}
+                      onChange={e => setFormData({...formData, access: {...formData.access, instructions: e.target.value}})}
+                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm min-h-[80px]"
+                      placeholder="Entrée fournisseurs, étage, code ascenseur..."
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-2 border-t border-[var(--border)]">
+                    <div>
+                      <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">WiFi SSID</label>
+                      <input
+                        type="text"
+                        value={formData.access?.wifiSSID || ''}
+                        onChange={e => setFormData({...formData, access: {...formData.access, wifiSSID: e.target.value}})}
+                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">WiFi Password</label>
+                      <input
+                        type="text"
+                        value={formData.access?.wifiPassword || ''}
+                        onChange={e => setFormData({...formData, access: {...formData.access, wifiPassword: e.target.value}})}
+                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Technical Info */}
+            <div className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl overflow-hidden">
+              <button
+                onClick={() => toggleSection('technical')}
+                className="w-full flex items-center justify-between p-4 hover:bg-[var(--bg-hover)] transition-colors"
+              >
+                <h3 className="font-bold flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-orange-500" />
+                  Technique
+                </h3>
+                {sections.technical ? <Eye className="w-4 h-4 text-[var(--text-secondary)]" /> : <EyeOff className="w-4 h-4 text-[var(--text-secondary)]" />}
+              </button>
+
+              {sections.technical && (
+                <div className="p-4 border-t border-[var(--border)] space-y-4 animate-in fade-in slide-in-from-top-2">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Type Électrique</label>
+                      <select
+                        value={formData.technical?.elecType}
+                        onChange={e => setFormData({...formData, technical: {...formData.technical!, elecType: e.target.value as any}})}
+                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm"
+                      >
+                        <option value="UNKNOWN">Inconnu</option>
+                        <option value="SINGLE_PHASE">Monophasé</option>
+                        <option value="THREE_PHASE">Triphasé</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Type Gaz</label>
+                      <select
+                        value={formData.technical?.gasType}
+                        onChange={e => setFormData({...formData, technical: {...formData.technical!, gasType: e.target.value as any}})}
+                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm"
+                      >
+                        <option value="NONE">Aucun</option>
+                        <option value="CITY">Gaz de ville</option>
+                        <option value="BOTTLE">Bouteille</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-6 pt-2">
+                    <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.technical?.hasAirConditioning}
+                        onChange={e => setFormData({...formData, technical: {...formData.technical!, hasAirConditioning: e.target.checked}})}
+                        className="rounded border-[var(--border)] bg-[var(--bg-input)] text-blue-500"
+                      />
+                      Climatisation
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.technical?.hasVentilation}
+                        onChange={e => setFormData({...formData, technical: {...formData.technical!, hasVentilation: e.target.checked}})}
+                        className="rounded border-[var(--border)] bg-[var(--bg-input)] text-blue-500"
+                      />
+                      Extraction
+                    </label>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Equipment Info */}
+            <div className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl overflow-hidden">
+              <button
+                onClick={() => toggleSection('equipment')}
+                className="w-full flex items-center justify-between p-4 hover:bg-[var(--bg-hover)] transition-colors"
+              >
+                <h3 className="font-bold flex items-center gap-2">
+                  <Box className="w-4 h-4 text-green-500" />
+                  Installations
+                </h3>
+                {sections.equipment ? <Eye className="w-4 h-4 text-[var(--text-secondary)]" /> : <EyeOff className="w-4 h-4 text-[var(--text-secondary)]" />}
+              </button>
+
+              {sections.equipment && (
+                <div className="p-4 border-t border-[var(--border)] space-y-4 animate-in fade-in slide-in-from-top-2">
+                  <div>
+                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Système de Caisse (POS)</label>
+                    <input
+                      type="text"
+                      value={formData.equipment?.posSystem || ''}
+                      onChange={e => setFormData({...formData, equipment: {...formData.equipment!, posSystem: e.target.value}})}
+                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 focus:ring-1 focus:ring-blue-500"
+                      placeholder="Ex: Lightspeed, Tiller..."
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap gap-6 pt-2">
+                    <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.equipment?.hasTerrace}
+                        onChange={e => setFormData({...formData, equipment: {...formData.equipment!, hasTerrace: e.target.checked}})}
+                        className="rounded border-[var(--border)] bg-[var(--bg-input)] text-blue-500"
+                      />
+                      Terrasse
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.equipment?.hasPrivateRooms}
+                        onChange={e => setFormData({...formData, equipment: {...formData.equipment!, hasPrivateRooms: e.target.checked}})}
+                        className="rounded border-[var(--border)] bg-[var(--bg-input)] text-blue-500"
+                      />
+                      Salons Privés
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.equipment?.hasBar}
+                        onChange={e => setFormData({...formData, equipment: {...formData.equipment!, hasBar: e.target.checked}})}
+                        className="rounded border-[var(--border)] bg-[var(--bg-input)] text-blue-500"
+                      />
+                      Bar
+                    </label>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Opening Hours */}
+            <div className="bg-[var(--bg-hover)] border border-[var(--border)] rounded-2xl overflow-hidden">
+              <button
+                onClick={() => toggleSection('hours')}
+                className="w-full flex items-center justify-between p-4 hover:bg-[var(--bg-hover)] transition-colors"
+              >
+                <h3 className="font-bold flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-purple-500" />
+                  Horaires d'ouverture
+                </h3>
+                {sections.hours ? <Eye className="w-4 h-4 text-[var(--text-secondary)]" /> : <EyeOff className="w-4 h-4 text-[var(--text-secondary)]" />}
+              </button>
+
+              {sections.hours && (
+                <div className="p-4 border-t border-[var(--border)] space-y-2 animate-in fade-in slide-in-from-top-2">
+                  {Object.entries(formData.openingHours || {}).map(([day, hours]) => {
+                    const dayLabels: any = { monday: 'Lundi', tuesday: 'Mardi', wednesday: 'Mercredi', thursday: 'Jeudi', friday: 'Vendredi', saturday: 'Samedi', sunday: 'Dimanche' };
+                    return (
+                      <div key={day} className="flex items-center justify-between py-2 border-b border-[var(--border)] last:border-0">
+                        <div className="w-24 font-medium text-[var(--text-secondary)]">{dayLabels[day]}</div>
+                        <div className="flex items-center gap-4">
+                          <label className="flex items-center gap-2 text-xs text-[var(--text-muted)] cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={hours.closed}
+                              onChange={e => setFormData({
+                                ...formData,
+                                openingHours: {
+                                  ...formData.openingHours!,
+                                  [day]: { ...hours, closed: e.target.checked }
+                                }
+                              })}
+                              className="rounded border-[var(--border)] bg-[var(--bg-input)] text-red-500"
+                            />
+                            Fermé
+                          </label>
+
+                          {!hours.closed && (
+                            <>
+                              <input
+                                type="time"
+                                value={hours.open}
+                                onChange={e => setFormData({
+                                  ...formData,
+                                  openingHours: {
+                                    ...formData.openingHours!,
+                                    [day]: { ...hours, open: e.target.value }
+                                  }
+                                })}
+                                className="bg-[var(--bg-input)] border border-[var(--border)] rounded px-2 py-1 text-sm"
+                              />
+                              <span className="text-[var(--text-muted)]">-</span>
+                              <input
+                                type="time"
+                                value={hours.close}
+                                onChange={e => setFormData({
+                                  ...formData,
+                                  openingHours: {
+                                    ...formData.openingHours!,
+                                    [day]: { ...hours, close: e.target.value }
+                                  }
+                                })}
+                                className="bg-[var(--bg-input)] border border-[var(--border)] rounded px-2 py-1 text-sm"
+                              />
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </>
+        )}
 
         {/* ── Documents obligatoires du gérant ── */}
         {needsDocuments && (
@@ -560,12 +540,12 @@ export default function VenueForm({ initialData, onClose, onSuccess }: VenueForm
               <h3 className="font-bold flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-blue-500" />
                 Documents obligatoires
-                {!allDocsVerified && (
+                {!allDocsUploaded && (
                   <span className="text-[10px] font-bold bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full ml-2">
                     Requis
                   </span>
                 )}
-                {allDocsVerified && (
+                {allDocsUploaded && (
                   <span className="text-[10px] font-bold bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full ml-2">
                     Complet
                   </span>

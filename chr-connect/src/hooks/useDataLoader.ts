@@ -19,11 +19,13 @@ export function useDataLoader() {
   const loaded = useRef(false);
 
   useEffect(() => {
+    console.log('[useDataLoader] check:', { user: !!user, profile: !!profile, loaded: loaded.current });
     if (!user || !profile || loaded.current) return;
     loaded.current = true;
 
     const userId = user.id;
 
+    console.log('[useDataLoader] Loading data for user:', userId);
     // Charger en parallèle
     Promise.allSettled([
       useVenuesStore.getState().fetchVenues(userId),

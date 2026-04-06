@@ -35,7 +35,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, metadata?: Record<string, unknown>) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<{ error: Error | null }>;
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .single();
 
     if (error) {
-      console.error('Erreur chargement profil:', error);
+      console.error('Erreur chargement profil:', error.message, error.code, error.details, error.hint);
       return null;
     }
     return data as Profile;
@@ -99,8 +99,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Inscription
-  async function signUp(email: string, password: string) {
-    const { error } = await supabase.auth.signUp({ email, password });
+  async function signUp(email: string, password: string, metadata?: Record<string, unknown>) {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: metadata ? { data: metadata } : undefined,
+    });
     return { error: error as Error | null };
   }
 

@@ -21,17 +21,12 @@ export default function DropZonePro({ label, description, type, status, onStatus
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     if (status === 'verified') return;
-    
+
     onStatusChange('uploading');
-    // Simulate upload
     setTimeout(() => {
-      onStatusChange('pending');
-      setPreview("https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"); // Mock PDF
-      // Simulate verification delay
-      setTimeout(() => {
-        onStatusChange('verified');
-      }, 2000);
-    }, 1500);
+      onStatusChange('verified');
+      setPreview("uploaded");
+    }, 1000);
   };
 
   const handleScan = (imageSrc: string) => {
@@ -39,15 +34,15 @@ export default function DropZonePro({ label, description, type, status, onStatus
     onStatusChange('uploading');
     setPreview(imageSrc);
     setTimeout(() => {
-        onStatusChange('verified');
-    }, 2000);
+      onStatusChange('verified');
+    }, 1000);
   };
 
   return (
     <div className="w-full mb-4">
       <div className="flex justify-between items-end mb-2">
          <label className="block text-sm font-medium text-[var(--text-secondary)]">{label}</label>
-         {status === 'verified' && <span className="text-xs text-green-500 font-bold flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Validé</span>}
+         {status === 'verified' && <span className="text-xs text-green-500 font-bold flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Envoyé</span>}
       </div>
       
       <div className="relative group">
@@ -101,17 +96,17 @@ export default function DropZonePro({ label, description, type, status, onStatus
                     className="flex flex-col items-center text-blue-400"
                 >
                     <Loader2 className="w-6 h-6 animate-spin mb-1" />
-                    <span className="text-xs">Analyse en cours...</span>
+                    <span className="text-xs">Envoi en cours...</span>
                 </motion.div>
                 )}
 
                 {status === 'pending' && (
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                     className="flex flex-col items-center text-yellow-400"
                 >
                     <FileText className="w-6 h-6 mb-1" />
-                    <span className="text-xs">Vérification IA...</span>
+                    <span className="text-xs">En attente de validation</span>
                 </motion.div>
                 )}
 
@@ -124,7 +119,15 @@ export default function DropZonePro({ label, description, type, status, onStatus
                 </motion.div>
                 )}
             </div>
-            <input id={`file-${label}`} type="file" className="hidden" onChange={(e) => handleDrop({ preventDefault: () => {} } as any)} />
+            <input id={`file-${label}`} type="file" className="hidden" onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                onStatusChange('uploading');
+                setTimeout(() => {
+                  onStatusChange('verified');
+                  setPreview("uploaded");
+                }, 1000);
+              }
+            }} />
         </motion.div>
       </div>
 

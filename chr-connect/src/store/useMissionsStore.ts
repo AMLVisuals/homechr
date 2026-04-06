@@ -327,11 +327,12 @@ export const useMissionsStore = create<MissionsState>()(
       fetchMissions: async (patronId: string) => {
         set({ isLoading: true, error: null });
         try {
-          const { data: missions } = await fetchMissionsFromSupabase(patronId);
+          const { data: missions, error } = await fetchMissionsFromSupabase(patronId);
+          console.log('[fetchMissions] result:', { count: missions?.length, error, patronId });
           if (missions && missions.length > 0) {
             set({ missions: missions as Mission[], isLoading: false });
           } else {
-            set({ isLoading: false });
+            set({ missions: [], isLoading: false });
           }
         } catch (err) {
           console.error('[useMissionsStore] fetchMissions error:', err);
@@ -375,7 +376,10 @@ export const useMissionsStore = create<MissionsState>()(
       },
     }),
     {
-      name: 'missions-storage-v14', // v14: dispute/litige system
+      name: 'missions-storage-v15',
+      partialize: (state) => ({
+        teamSchedule: state.teamSchedule,
+      }),
     }
   )
 );

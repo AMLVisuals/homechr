@@ -19,6 +19,7 @@ import { calculateTravelCost } from '@/lib/financial-engine';
 import { getMissionFlowType } from '@/lib/utils';
 
 import { useMissionsStore } from '@/store/useMissionsStore';
+import { useVenuesStore } from '@/store/useVenuesStore';
 import { useStore } from '@/store/useStore';
 import { useDPAEStore } from '@/store/useDPAEStore';
 import { Mission, MissionCandidate } from '@/types/missions';
@@ -35,8 +36,10 @@ interface MissionDetailsModalProps {
 
 export default function MissionDetailsModal({ mission, isOpen, onClose }: MissionDetailsModalProps) {
   const { addReview, generateInvoice, payInvoice, syncUpdateMission, rejectQuote, validateStaffMission, setPartsStatus, selectCandidate, rejectCandidate } = useMissionsStore();
+  const { venues } = useVenuesStore();
   const isPremium = useStore((s) => s.isPremium);
   const dpaeDeclaration = useDPAEStore((s) => mission ? s.getDeclarationByMission(mission.id) : undefined);
+  const missionVenue = mission?.venueId ? venues.find(v => v.id === mission.venueId) : null;
   const [showDPAEWizard, setShowDPAEWizard] = useState(false);
   const [showDisputeModal, setShowDisputeModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -310,9 +313,9 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
               </span>
             </div>
             <p className="text-[var(--text-secondary)] text-sm flex items-center gap-2">
-              <Clock className="w-3 h-3" /> {mission.date || "Date non définie"}
+              <Clock className="w-3 h-3" /> {mission.createdAt ? new Date(mission.createdAt).toLocaleDateString('fr-FR') : mission.date || "Aujourd'hui"}
               <span className="w-1 h-1 bg-[var(--text-muted)] rounded-full" />
-              <MapPin className="w-3 h-3" /> {mission.location?.address || 'Adresse inconnue'}
+              <MapPin className="w-3 h-3" /> {missionVenue?.name || mission.location?.address || 'Non assigné'}
             </p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-[var(--bg-active)] rounded-full transition-colors">
@@ -957,7 +960,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                               <div className="relative pl-6">
                                 <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-gray-500 ring-4 ring-black" />
                                 <p className="text-sm text-[var(--text-primary)] font-medium">Mission créée</p>
-                                <p className="text-xs text-[var(--text-muted)]">{mission.date || "Date inconnue"}</p>
+                                <p className="text-xs text-[var(--text-muted)]">{mission.createdAt ? new Date(mission.createdAt).toLocaleDateString('fr-FR') : "Aujourd'hui"}</p>
                               </div>
 
                               {/* Search Step */}

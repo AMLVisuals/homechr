@@ -90,12 +90,6 @@ export const PATRON_DOCUMENTS: DocumentRequirement[] = [
     description: "Preuve d'existence de moins de 3 mois",
     required: true,
   },
-  {
-    id: 'RIB',
-    label: 'RIB / IBAN',
-    description: 'Pour les prélèvements',
-    required: true,
-  },
 ];
 
 // ── Helper : récupérer les documents par rôle + catégorie ──

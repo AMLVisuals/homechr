@@ -119,7 +119,7 @@ interface MissionsTabProps {
 
 export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
   const { missions } = useMissionsStore();
-  const { activeVenueId } = useVenuesStore();
+  const { activeVenueId, venues } = useVenuesStore();
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -401,7 +401,7 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
                     <div className="flex items-center gap-2 text-xs md:text-sm text-[var(--text-secondary)]">
                       <span className="font-medium text-[var(--text-secondary)] truncate">{mission.category}</span>
                       <span className="shrink-0">•</span>
-                      <span className="shrink-0">{mission.date}</span>
+                      <span className="shrink-0">{mission.createdAt ? new Date(mission.createdAt).toLocaleDateString('fr-FR') : mission.date || "Aujourd'hui"}</span>
                     </div>
                   </div>
                 </div>
@@ -437,7 +437,7 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
               <div className="flex items-center gap-4 md:gap-6 pl-3 md:pl-4 text-xs md:text-sm text-[var(--text-muted)]">
                 <div className="flex items-center gap-1.5 truncate">
                   <MapPin className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">{mission.location?.address || 'Adresse inconnue'}</span>
+                  <span className="truncate">{venues.find(v => v.id === mission.venueId)?.name || mission.location?.address || 'Non assigné'}</span>
                 </div>
                 {mission.expert && mission.expert !== 'En attente' && (
                   <div className="flex items-center gap-1.5 shrink-0">

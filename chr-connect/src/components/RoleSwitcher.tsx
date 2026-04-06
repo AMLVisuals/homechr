@@ -73,22 +73,20 @@ export default function RoleSwitcher() {
       return;
     }
     setIsSubmitting(true);
-    const { error } = await signUp(authForm.email, authForm.password);
-    setIsSubmitting(false);
-    if (error) {
-      setAuthError(error.message || 'Erreur lors de la création du compte.');
-      return;
-    }
-    // Mettre à jour le profil avec nom, téléphone et rôle
     const nameParts = authForm.name.trim().split(' ');
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
-    await updateProfile({
+    const { error } = await signUp(authForm.email, authForm.password, {
       first_name: firstName,
       last_name: lastName,
       phone: authForm.phone,
       role: selectedRole || 'PATRON',
     });
+    setIsSubmitting(false);
+    if (error) {
+      setAuthError(error.message || 'Erreur lors de la création du compte.');
+      return;
+    }
     if (selectedRole === 'WORKER') {
       setStep('category');
     } else {

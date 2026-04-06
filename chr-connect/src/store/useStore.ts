@@ -82,7 +82,6 @@ export const useStore = create<AppState>((set, get) => ({
   patronDocUploads: [
     { type: 'IDENTITY', status: 'idle' },
     { type: 'ATTESTATION_PRO_KBIS', status: 'idle' },
-    { type: 'RIB', status: 'idle' },
   ],
   setPatronDocStatus: (type, status, fileName) => set((state) => ({
     patronDocUploads: state.patronDocUploads.map(d =>

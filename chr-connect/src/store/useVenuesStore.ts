@@ -108,7 +108,11 @@ export const useVenuesStore = create<VenuesState>((set, get) => ({
   syncAddVenue: async (venueData, ownerId) => {
     set({ isLoading: true, error: null });
     try {
-      const { data: created } = await supabaseCreateVenue({ ...venueData, owner_id: ownerId });
+      const { data: created, error: createError } = await supabaseCreateVenue({ ...venueData, owner_id: ownerId });
+      if (createError) {
+        console.error('[syncAddVenue] Supabase error:', createError.message, createError.details, createError.hint);
+        throw new Error(createError.message);
+      }
       if (!created) throw new Error('Création échouée');
       set((state) => ({
         venues: [...state.venues, created],

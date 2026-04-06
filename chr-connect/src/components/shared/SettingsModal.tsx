@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sun, Moon, Crown, ChevronRight, LogOut } from 'lucide-react';
 import { useStore } from '@/store/useStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import PremiumBadge from './PremiumBadge';
 
@@ -15,13 +16,15 @@ interface SettingsModalProps {
 
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { theme, setTheme, isPremium, setPremium, setUserRole } = useStore();
+  const { signOut } = useAuth();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     onClose();
+    await signOut();
     setUserRole(null);
     router.push('/');
   };

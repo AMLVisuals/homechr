@@ -185,14 +185,16 @@ export default function VenueDetails({ venue, readOnly = false, onEdit, onDelete
                 )}
               </div>
 
-              <div className="bg-[var(--bg-hover)] rounded-2xl p-6 border border-[var(--border)]">
-                <h4 className="text-sm font-bold text-[var(--text-primary)] mb-3 flex items-center gap-2">
-                  <Truck className="w-4 h-4 text-orange-400" /> Instructions Livraison
-                </h4>
-                <p className="text-[var(--text-muted)] text-sm leading-relaxed">
-                  {venue.access?.instructions || "Aucune instruction spécifique."}
-                </p>
-              </div>
+              {venue.access?.instructions && (
+                <div className="bg-[var(--bg-hover)] rounded-2xl p-6 border border-[var(--border)]">
+                  <h4 className="text-sm font-bold text-[var(--text-primary)] mb-3 flex items-center gap-2">
+                    Instructions d'accès
+                  </h4>
+                  <p className="text-[var(--text-muted)] text-sm leading-relaxed">
+                    {venue.access.instructions}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Technical Info */}
