@@ -20,6 +20,7 @@ interface AppState {
   setUserRole: (role: UserRole) => void;
 
   workerSkills: WorkerSkill[];
+  setWorkerSkills: (skills: WorkerSkill[]) => void;
   toggleWorkerSkill: (skill: WorkerSkill) => void;
 
   isOnAir: boolean;
@@ -53,6 +54,7 @@ export const useStore = create<AppState>((set, get) => ({
   setUserRole: (role) => set({ userRole: role }),
 
   workerSkills: [],
+  setWorkerSkills: (skills) => set({ workerSkills: skills }),
   toggleWorkerSkill: (skill) => set((state) => ({
     workerSkills: state.workerSkills.includes(skill)
       ? state.workerSkills.filter(s => s !== skill)

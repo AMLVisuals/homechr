@@ -49,10 +49,7 @@ import MaintenanceAlertsBanner from './maintenance/MaintenanceAlertsBanner';
 import Sidebar from './Sidebar';
 import SettingsModal from '../shared/SettingsModal';
 
-const UPCOMING_MISSIONS = [
-  { id: 'u1', title: 'Maintenance Préventive Clim', date: 'Demain, 09:00', expert: 'ClimExpress', category: 'TECHNICIENS' },
-  { id: 'u2', title: 'Extra Serveur (x2)', date: 'Samedi 15 Juin, 18:00', expert: 'À confirmer', category: 'PERSONNEL' },
-];
+const UPCOMING_MISSIONS: { id: string; title: string; date: string; expert: string; category: string }[] = [];
 
 export default function PatronDashboard() {
   const { setUserRole } = useStore();
@@ -139,13 +136,13 @@ export default function PatronDashboard() {
   const activeMissions = useMemo(() => {
     if (!activeVenueId) return [];
     return missions
-      .filter(m => m.venueId === activeVenueId && ['IN_PROGRESS', 'SEARCHING', 'PENDING', 'SCHEDULED'].includes(m.status))
+      .filter(m => m.venueId === activeVenueId && ['IN_PROGRESS', 'SCHEDULED'].includes(m.status))
       .slice(0, 5)
       .map(m => ({
         ...m,
         icon: ICON_MAP[m.iconName || 'Wrench'] || Wrench,
         displayTime: m.date || 'En cours',
-        displayStatus: m.status === 'IN_PROGRESS' ? 'En cours' : m.status === 'SEARCHING' ? 'Recherche...' : m.status === 'SCHEDULED' ? 'Prévu' : 'En attente'
+        displayStatus: m.status === 'SCHEDULED' ? 'Acceptée' : 'En cours'
       }));
   }, [missions, activeVenueId]);
 

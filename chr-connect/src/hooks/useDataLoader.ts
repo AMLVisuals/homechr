@@ -9,6 +9,7 @@ import { useStockStore } from '@/store/useStockStore';
 import { useNotificationsStore } from '@/store/useNotificationsStore';
 import { useDocumentsStore } from '@/store/useDocumentsStore';
 import { useCalendarStore } from '@/store/calendarStore';
+import { useToast } from '@/components/ui/toast';
 
 /**
  * Hook qui charge toutes les données Supabase quand l'utilisateur se connecte.
@@ -17,6 +18,7 @@ import { useCalendarStore } from '@/store/calendarStore';
 export function useDataLoader() {
   const { user, profile } = useAuth();
   const loaded = useRef(false);
+  const { error: showError } = useToast();
 
   useEffect(() => {
     console.log('[useDataLoader] check:', { user: !!user, profile: !!profile, loaded: loaded.current });
@@ -44,6 +46,7 @@ export function useDataLoader() {
       const failed = results.filter(r => r.status === 'rejected');
       if (failed.length > 0) {
         console.warn(`[useDataLoader] ${failed.length} chargement(s) échoué(s)`);
+        showError('Erreur de connexion', 'Certaines données n\'ont pas pu être chargées. Vérifiez votre connexion.');
       }
     });
   }, [user, profile]);

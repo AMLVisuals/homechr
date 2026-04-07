@@ -3,13 +3,15 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  CheckCircle2, CalendarClock, UserPlus, Radar,
-  MapPin, Clock, Star, Euro, XCircle, ChevronRight,
+  CheckCircle2, CalendarClock, UserPlus, Radar, Search,
+  MapPin, Clock, Star, Euro, XCircle, ChevronRight, Send, Loader2, Briefcase,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useStore } from '@/store/useStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { Mission } from '@/types/missions';
+import { getSearchingMissions, applyToMission, getMyCandidatures, cancelCandidature } from '@/lib/supabase-helpers';
 import MissionRadar from './MissionRadar';
 
 interface WorkerMissionsPageProps {
@@ -20,15 +22,16 @@ interface WorkerMissionsPageProps {
 }
 
 const TABS = [
-  { id: 'COMPLETED', label: 'Effectuées', icon: CheckCircle2, color: 'text-green-400' },
-  { id: 'UPCOMING', label: 'À venir', icon: CalendarClock, color: 'text-blue-400' },
+  { id: 'SEARCH', label: 'Rechercher', icon: Search, color: 'text-amber-400' },
   { id: 'CANDIDATURES', label: 'Candidatures', icon: UserPlus, color: 'text-purple-400' },
+  { id: 'UPCOMING', label: 'À venir', icon: CalendarClock, color: 'text-blue-400' },
+  { id: 'COMPLETED', label: 'Effectuées', icon: CheckCircle2, color: 'text-green-400' },
 ];
 
 export default function WorkerMissionsPage({ authorizedCategories, radarOverlay, initialTab }: WorkerMissionsPageProps) {
   const { missions, removeCandidate } = useMissionsStore();
   const isOnAir = useStore((s) => s.isOnAir);
-  const [activeTab, setActiveTab] = useState(initialTab || 'COMPLETED');
+  const [activeTab, setActiveTab] = useState(initialTab || 'SEARCH');
 
   // All tabs including Radar (only when available)
   const allTabs = useMemo(() => {
@@ -51,13 +54,13 @@ export default function WorkerMissionsPage({ authorizedCategories, radarOverlay,
         setActiveTab('RADAR');
       }
       if (!isOnAir && prevOnAir.current && activeTab === 'RADAR') {
-        setActiveTab('COMPLETED');
+        setActiveTab('SEARCH');
       }
     }
     prevOnAir.current = isOnAir;
   }, [isOnAir, activeTab]);
 
-  const effectiveTab = activeTab === 'RADAR' && !isOnAir ? 'COMPLETED' : activeTab;
+  const effectiveTab = activeTab === 'RADAR' && !isOnAir ? 'SEARCH' : activeTab;
 
   // Data
   const completedMissions = useMemo(() =>
@@ -120,6 +123,11 @@ export default function WorkerMissionsPage({ authorizedCategories, radarOverlay,
       {/* Content */}
       <div className="flex-1 min-h-0">
         <AnimatePresence mode="wait">
+          {effectiveTab === 'SEARCH' && (
+            <TabContent key="search">
+              <AvailableMissionsList />
+            </TabContent>
+          )}
           {effectiveTab === 'COMPLETED' && (
             <TabContent key="completed">
               <CompletedList missions={completedMissions} />
@@ -132,7 +140,7 @@ export default function WorkerMissionsPage({ authorizedCategories, radarOverlay,
           )}
           {effectiveTab === 'CANDIDATURES' && (
             <TabContent key="candidatures">
-              <CandidaturesList missions={myCandidatures} onCancel={removeCandidate} />
+              <SupabaseCandidaturesList />
             </TabContent>
           )}
           {effectiveTab === 'RADAR' && (
@@ -160,6 +168,276 @@ function TabContent({ children, full }: { children: React.ReactNode; full?: bool
     >
       {children}
     </motion.div>
+  );
+}
+
+/* ── Available Missions (from Supabase) ───────────── */
+
+function AvailableMissionsList() {
+  const { profile } = useAuth();
+  const [missions, setMissions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [applyingId, setApplyingId] = useState<string | null>(null);
+  const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    loadMissions();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id]);
+
+  async function loadMissions() {
+    setLoading(true);
+    setError('');
+    try {
+      const [missionsRes, candidaturesRes] = await Promise.all([
+        getSearchingMissions(),
+        profile ? getMyCandidatures(profile.id) : Promise.resolve({ data: [], error: null }),
+      ]);
+      if (missionsRes.error) {
+        console.error('[AvailableMissions] error:', missionsRes.error);
+        setError('Impossible de charger les missions');
+      } else {
+        setMissions(missionsRes.data || []);
+      }
+      if (candidaturesRes.data) {
+        const ids = new Set(candidaturesRes.data.map((c: any) => c.missionId));
+        setAppliedIds(ids);
+      }
+    } catch (err) {
+      console.error('[AvailableMissions] exception:', err);
+      setError('Erreur de chargement');
+    }
+    setLoading(false);
+  }
+
+  async function handleApply(mission: any) {
+    if (!profile) return;
+    setApplyingId(mission.id);
+    setError('');
+    const { data, error } = await applyToMission({
+      missionId: mission.id,
+      workerId: profile.id,
+      name: `${profile.first_name} ${profile.last_name}`.trim(),
+      specialty: profile.skills?.[0] || '',
+      message: '',
+    });
+    console.log('[handleApply] result:', { data, error });
+    if (error) {
+      setError(error.message || 'Erreur lors de la candidature');
+    } else {
+      setAppliedIds(prev => new Set(prev).add(mission.id));
+    }
+    setApplyingId(null);
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[300px]">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--text-muted)]" />
+      </div>
+    );
+  }
+
+  // Filtrer les missions déjà postulées
+  const availableMissions = missions.filter(m => !appliedIds.has(m.id));
+
+  if (availableMissions.length === 0) {
+    return (
+      <EmptyState
+        icon={Search}
+        title={missions.length > 0 ? "Vous avez postulé à toutes les missions" : "Aucune mission disponible"}
+        subtitle={missions.length > 0 ? "Consultez l'onglet Candidatures pour suivre vos candidatures" : "Les missions publiées par les patrons apparaîtront ici"}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {error && (
+        <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+          {error}
+        </div>
+      )}
+      {availableMissions.map((m: any) => {
+        const hasApplied = appliedIds.has(m.id);
+        const isApplying = applyingId === m.id;
+        return (
+          <div key={m.id} className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-4 transition-all hover:border-amber-500/30" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                <Briefcase className="w-5 h-5 text-amber-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-sm text-[var(--text-primary)] truncate">{m.title || 'Mission sans titre'}</h4>
+                {m.description && (
+                  <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">{m.description}</p>
+                )}
+                <div className="flex items-center gap-2 mt-2 text-xs text-[var(--text-muted)] flex-wrap">
+                  {m.staffingRole && (
+                    <span className="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full font-medium">{m.staffingRole}</span>
+                  )}
+                  {m.staffingDate && (
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {new Date(m.staffingDate).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
+                      {m.staffingStartTime && ` ${m.staffingStartTime}`}
+                      {m.staffingEndTime && `-${m.staffingEndTime}`}
+                    </span>
+                  )}
+                  {m.priority === 'URGENT' && (
+                    <span className="bg-red-500/10 text-red-400 px-2 py-0.5 rounded-full font-bold">URGENT</span>
+                  )}
+                </div>
+                {(m.priceEstimatedMin || m.priceEstimatedMax || m.staffingHourlyRate) && (
+                  <div className="flex items-center gap-1 mt-2 text-sm font-bold text-[var(--text-primary)]">
+                    <Euro className="w-3.5 h-3.5 text-emerald-400" />
+                    {m.staffingHourlyRate
+                      ? `${m.staffingHourlyRate}€/h`
+                      : m.priceEstimatedMin && m.priceEstimatedMax
+                        ? `${m.priceEstimatedMin}€ - ${m.priceEstimatedMax}€`
+                        : m.priceEstimatedMin ? `À partir de ${m.priceEstimatedMin}€` : ''
+                    }
+                  </div>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={() => handleApply(m)}
+              disabled={hasApplied || isApplying}
+              className={clsx(
+                "w-full mt-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors",
+                hasApplied
+                  ? "bg-green-500/10 border border-green-500/20 text-green-400"
+                  : "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-400 hover:to-orange-400 shadow-lg shadow-amber-500/20"
+              )}
+            >
+              {isApplying ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : hasApplied ? (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Candidature envoyée
+                </>
+              ) : (
+                <>
+                  <Send className="w-3.5 h-3.5" />
+                  Postuler
+                </>
+              )}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Candidatures from Supabase ───────────────────── */
+
+function SupabaseCandidaturesList() {
+  const { profile } = useAuth();
+  const [candidatures, setCandidatures] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (profile) loadCandidatures();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id]);
+
+  async function loadCandidatures() {
+    setLoading(true);
+    const { data } = await getMyCandidatures(profile!.id);
+    setCandidatures(data || []);
+    setLoading(false);
+  }
+
+  async function handleCancel(candidateId: string) {
+    setCancellingId(candidateId);
+    await cancelCandidature(candidateId);
+    setCandidatures(prev => prev.filter(c => c.id !== candidateId));
+    setCancellingId(null);
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[300px]">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--text-muted)]" />
+      </div>
+    );
+  }
+
+  if (candidatures.length === 0) {
+    return (
+      <EmptyState
+        icon={UserPlus}
+        title="Aucune candidature"
+        subtitle="Postulez à des missions depuis l'onglet Rechercher"
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {candidatures.map((c: any) => {
+        const m = c.mission;
+        const st = c.status || 'PENDING';
+        return (
+          <div key={c.id} className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-4 transition-all" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="flex items-center gap-4">
+              <div className={clsx(
+                "w-11 h-11 rounded-xl flex items-center justify-center shrink-0",
+                st === 'ACCEPTED' ? "bg-green-500/10" : st === 'REJECTED' ? "bg-red-500/10" : "bg-purple-500/10"
+              )}>
+                {st === 'ACCEPTED' ? <CheckCircle2 className="w-5 h-5 text-green-400" /> :
+                 st === 'REJECTED' ? <XCircle className="w-5 h-5 text-red-400" /> :
+                 <UserPlus className="w-5 h-5 text-purple-400" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-sm text-[var(--text-primary)] truncate">{m?.title || 'Mission'}</h4>
+                <div className="flex items-center gap-2 mt-1 text-xs text-[var(--text-muted)]">
+                  {m?.staffingDate && (
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {new Date(m.staffingDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                      {m.staffingStartTime && ` ${m.staffingStartTime}`}
+                    </span>
+                  )}
+                  <span className="text-[10px] text-[var(--text-muted)]">
+                    {new Date(c.appliedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+              </div>
+              <span className={clsx(
+                "text-[10px] font-bold uppercase px-2 py-0.5 rounded-full shrink-0",
+                st === 'ACCEPTED' ? "bg-green-500/20 text-green-400" :
+                st === 'REJECTED' ? "bg-red-500/20 text-red-400" :
+                "bg-purple-500/20 text-purple-400"
+              )}>
+                {st === 'ACCEPTED' ? 'Acceptée' : st === 'REJECTED' ? 'Refusée' : 'En attente'}
+              </span>
+            </div>
+            {st === 'PENDING' && (
+              <button
+                onClick={() => handleCancel(c.id)}
+                disabled={cancellingId === c.id}
+                className="w-full mt-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2"
+              >
+                {cancellingId === c.id ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <>
+                    <XCircle className="w-3.5 h-3.5" />
+                    Annuler ma candidature
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

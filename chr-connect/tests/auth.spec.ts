@@ -65,7 +65,8 @@ test.describe('Authentication flow', () => {
     await page.getByRole('button', { name: 'Créer un compte' }).first().click();
 
     // All register fields should be visible
-    await expect(page.getByPlaceholder('Nom complet')).toBeVisible();
+    await expect(page.getByPlaceholder('Nom', { exact: true })).toBeVisible();
+    await expect(page.getByPlaceholder('Prénom', { exact: true })).toBeVisible();
     await expect(page.getByPlaceholder('Adresse email')).toBeVisible();
     await expect(page.getByPlaceholder('Téléphone')).toBeVisible();
     await expect(page.getByPlaceholder('Mot de passe', { exact: true })).toBeVisible();

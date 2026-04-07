@@ -32,15 +32,12 @@ test.describe('Navigation', () => {
     await expect(page.getByText('Choisissez votre domaine')).toBeVisible({ timeout: 10_000 });
   });
 
-  test('patron dashboard has expected sidebar sections', async ({ page }) => {
-    // Navigate directly to patron dashboard
+  test('patron dashboard redirects to role selection when not authenticated', async ({ page }) => {
     await page.goto('/patron/tableau-de-bord');
     await page.waitForLoadState('networkidle');
 
-    // On desktop, the sidebar should show key navigation items
-    // The sidebar contains: Mon tableau de bord, Missions, Mon Equipe, Planning, etc.
-    await expect(page.getByText('Mon tableau de bord')).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText('Missions').first()).toBeVisible();
+    // Should redirect to role selection
+    await expect(page.getByText('Demandeur')).toBeVisible({ timeout: 10_000 });
   });
 
   test('/auth page shows admin login form', async ({ page }) => {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Briefcase, Check, ChevronRight, ArrowLeft, Mail, Lock, Phone, UserPlus, LogIn, FileText, Building2, Loader2 } from 'lucide-react';
+import { User, Briefcase, Check, ChevronRight, ArrowLeft, Mail, Lock, Phone, UserPlus, LogIn, FileText, Building2, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { CATEGORIES, COMING_SOON_CATEGORIES } from '@/data/categories';
@@ -29,14 +29,16 @@ export default function RoleSwitcher() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Auth form state
-  const [authForm, setAuthForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+  const [authForm, setAuthForm] = useState({ firstName: '', lastName: '', email: '', phone: '', password: '', confirmPassword: '' });
   const [authError, setAuthError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleRoleSelect = (role: 'PATRON' | 'WORKER') => {
     setSelectedRole(role);
     setAuthMode('login');
     setAuthError('');
-    setAuthForm({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+    setAuthForm({ firstName: '', lastName: '', email: '', phone: '', password: '', confirmPassword: '' });
     setStep('auth');
   };
 
@@ -60,7 +62,7 @@ export default function RoleSwitcher() {
 
   const handleRegister = async () => {
     setAuthError('');
-    if (!authForm.name || !authForm.email || !authForm.phone || !authForm.password || !authForm.confirmPassword) {
+    if (!authForm.firstName || !authForm.lastName || !authForm.email || !authForm.phone || !authForm.password || !authForm.confirmPassword) {
       setAuthError('Veuillez remplir tous les champs.');
       return;
     }
@@ -72,26 +74,45 @@ export default function RoleSwitcher() {
       setAuthError('Le mot de passe doit contenir au moins 6 caractères.');
       return;
     }
+    if (selectedRole === 'WORKER') {
+      // WORKER : on collecte d'abord les skills, le signUp sera fait à la dernière étape
+      setStep('category');
+    } else {
+      // PATRON : signUp immédiat
+      setIsSubmitting(true);
+      const { error } = await signUp(authForm.email, authForm.password, {
+        first_name: authForm.firstName.trim(),
+        last_name: authForm.lastName.trim(),
+        phone: authForm.phone,
+        role: 'PATRON',
+      });
+      setIsSubmitting(false);
+      if (error) {
+        setAuthError(error.message || 'Erreur lors de la création du compte.');
+        return;
+      }
+      setUserRole('PATRON');
+    }
+  };
+
+  // SignUp final pour WORKER (appelé après sélection des skills)
+  const handleWorkerSignUp = async () => {
     setIsSubmitting(true);
-    const nameParts = authForm.name.trim().split(' ');
-    const firstName = nameParts[0] || '';
-    const lastName = nameParts.slice(1).join(' ') || '';
     const { error } = await signUp(authForm.email, authForm.password, {
-      first_name: firstName,
-      last_name: lastName,
+      first_name: authForm.firstName.trim(),
+      last_name: authForm.lastName.trim(),
       phone: authForm.phone,
-      role: selectedRole || 'PATRON',
+      role: 'WORKER',
+      skills: selectedSkills,
+      employment_category: employmentCategory,
     });
     setIsSubmitting(false);
     if (error) {
       setAuthError(error.message || 'Erreur lors de la création du compte.');
+      setStep('auth');
       return;
     }
-    if (selectedRole === 'WORKER') {
-      setStep('category');
-    } else {
-      setUserRole('PATRON');
-    }
+    setUserRole('WORKER');
   };
 
   const handleStatusSelect = (category: EmploymentCategory) => {
@@ -211,15 +232,26 @@ export default function RoleSwitcher() {
 
               <div className="space-y-3">
                 {authMode === 'register' && (
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
-                    <input
-                      type="text"
-                      placeholder="Nom complet"
-                      value={authForm.name}
-                      onChange={(e) => setAuthForm(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-colors"
-                    />
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                      <input
+                        type="text"
+                        placeholder="Nom"
+                        value={authForm.lastName}
+                        onChange={(e) => setAuthForm(prev => ({ ...prev, lastName: e.target.value }))}
+                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-colors"
+                      />
+                    </div>
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        placeholder="Prénom"
+                        value={authForm.firstName}
+                        onChange={(e) => setAuthForm(prev => ({ ...prev, firstName: e.target.value }))}
+                        className="w-full pl-4 pr-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-colors"
+                      />
+                    </div>
                   </div>
                 )}
 
@@ -250,24 +282,38 @@ export default function RoleSwitcher() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     placeholder="Mot de passe"
                     value={authForm.password}
                     onChange={(e) => setAuthForm(prev => ({ ...prev, password: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-colors"
+                    className="w-full pl-10 pr-12 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-colors"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
 
                 {authMode === 'register' && (
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                     <input
-                      type="password"
+                      type={showConfirmPassword ? 'text' : 'password'}
                       placeholder="Confirmer le mot de passe"
                       value={authForm.confirmPassword}
                       onChange={(e) => setAuthForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-colors"
+                      className="w-full pl-10 pr-12 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 transition-colors"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
                   </div>
                 )}
               </div>
@@ -486,13 +532,19 @@ export default function RoleSwitcher() {
               </div>
               <button
                 onClick={async () => {
-                  await updateProfile({
-                    skills: selectedSkills,
-                    employment_category: employmentCategory,
-                  });
-                  setUserRole('WORKER');
+                  if (authMode === 'register') {
+                    // Inscription : signUp avec toutes les données
+                    await handleWorkerSignUp();
+                  } else {
+                    // Connexion : mettre à jour le profil existant
+                    await updateProfile({
+                      skills: selectedSkills,
+                      employment_category: employmentCategory,
+                    });
+                    setUserRole('WORKER');
+                  }
                 }}
-                disabled={selectedSkills.length === 0}
+                disabled={selectedSkills.length === 0 || isSubmitting}
                 className={clsx(
                   "mt-4 md:mt-6 w-full py-3 md:py-4 font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm md:text-base",
                   selectedSkills.length > 0

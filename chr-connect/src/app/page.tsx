@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useStore } from '@/store/useStore';
 import { useNotificationsStore, formatTimeAgo } from '@/store/useNotificationsStore';
 import { useMissionEngine } from '@/store/mission-engine';
@@ -13,9 +13,9 @@ import DispatchSearchingOverlay from '@/components/provider/DispatchSearchingOve
 import { useMissionDispatch } from '@/hooks/useMissionDispatch';
 import { useMissionDispatchStore } from '@/store/useMissionDispatchStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home as HomeIcon, Bell, Briefcase, UserCircle, Power, CheckCircle, AlertTriangle, MapPin, Euro } from 'lucide-react';
+import { Home as HomeIcon, Bell, Briefcase, UserCircle, Power, CheckCircle, AlertTriangle, MapPin, Euro, LogOut } from 'lucide-react';
 import { clsx } from 'clsx';
-import { SIMULATED_PROFILES } from '@/constants/profiles';
+import { useAuth } from '@/contexts/AuthContext';
 import WorkerHub from '@/components/provider/WorkerHub';
 import WorkerMissionsPage from '@/components/provider/WorkerMissionsPage';
 
@@ -26,7 +26,8 @@ const NAV_ITEMS = [
 ];
 
 export default function Home() {
-  const { userRole, setUserRole, isOnAir, toggleOnAir, setIsOnAir } = useStore();
+  const { userRole, setUserRole, isOnAir, toggleOnAir, setIsOnAir, workerSkills } = useStore();
+  const { profile, signOut } = useAuth();
   const { notifications, syncMarkAsRead, markAllAsRead } = useNotificationsStore();
   const unreadCount = notifications.filter((n) => !n.read).length;
   const status = useMissionEngine((s) => s.status);
@@ -43,11 +44,12 @@ export default function Home() {
     : 'PROFILE';
 
   const isAvailable = isOnAir;
-  const [currentProfile, setCurrentProfile] = useState(() => {
-    if (typeof window === 'undefined') return SIMULATED_PROFILES[0];
-    const savedId = localStorage.getItem('chr-worker-profile');
-    return SIMULATED_PROFILES.find(p => p.id === savedId) || SIMULATED_PROFILES[0];
-  });
+  const currentProfile = useMemo(() => ({
+    id: profile?.id || '',
+    name: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Prestataire' : 'Prestataire',
+    specialty: profile?.employment_category || '',
+    authorizedCategories: profile?.skills || [],
+  }), [profile]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showOnlineConfirm, setShowOnlineConfirm] = useState(false);
 
@@ -77,6 +79,13 @@ export default function Home() {
     authorizedCategories: currentProfile.authorizedCategories,
     enabled: workerView === 'MISSIONS',
   });
+
+  // Synchro skills Supabase → store Zustand
+  useEffect(() => {
+    if (profile?.skills && profile.skills.length > 0 && workerSkills.length === 0) {
+      useStore.getState().setWorkerSkills(profile.skills);
+    }
+  }, [profile?.skills, workerSkills.length]);
 
   useEffect(() => {
     if (pathname !== '/') return;
@@ -329,6 +338,17 @@ export default function Home() {
               </button>
             );
           })}
+          <button
+            onClick={async () => {
+              await signOut();
+              setUserRole(null);
+              router.push('/');
+            }}
+            className="flex flex-col items-center gap-0.5 py-2.5 px-5 rounded-xl transition-all text-red-400 hover:text-red-500"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="text-[10px] font-bold">Déconnexion</span>
+          </button>
         </div>
       </nav>
 

@@ -1,11 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useStore } from '@/store/useStore';
+import { useAuth } from '@/contexts/AuthContext';
 import PatronDashboard from '@/components/patron/PatronDashboard';
 
-export default function StockPage() {
+export default function PatronPage() {
   const { setUserRole } = useStore();
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -13,12 +17,16 @@ export default function StockPage() {
   }, []);
 
   useEffect(() => {
-    if (mounted) {
-      setUserRole('PATRON');
+    if (mounted && !loading) {
+      if (!user) {
+        router.replace('/');
+      } else {
+        setUserRole('PATRON');
+      }
     }
-  }, [mounted, setUserRole]);
+  }, [mounted, loading, user, setUserRole, router]);
 
-  if (!mounted) return null;
+  if (!mounted || loading || !user) return null;
 
   return <PatronDashboard />;
 }

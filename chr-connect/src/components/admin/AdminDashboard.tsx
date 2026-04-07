@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
 import { Menu, X, LogOut, Shield, ShieldCheck } from 'lucide-react';
 import { useAdminStore } from '@/store/useAdminStore';
+import { supabase } from '@/lib/supabase';
 import AdminSidebar from './AdminSidebar';
 import AdminOverviewTab from './tabs/AdminOverviewTab';
 import AdminUsersTab from './tabs/AdminUsersTab';
@@ -54,7 +55,8 @@ export default function AdminDashboard() {
 
   const isAdmin = adminUser.role === 'ADMIN';
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     logout();
     router.push('/auth');
   };

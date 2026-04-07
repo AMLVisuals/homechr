@@ -5,10 +5,13 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAdminStore } from '@/store/useAdminStore';
+import { supabase } from '@/lib/supabase';
+
+const ADMIN_EMAILS = ['admin@home-chr.fr', 'support@home-chr.fr'];
 
 export default function AuthPage() {
   const router = useRouter();
-  const { isAuthenticated, login } = useAdminStore();
+  const { isAuthenticated } = useAdminStore();
   const [mounted, setMounted] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,19 +29,68 @@ export default function AuthPage() {
     }
   }, [mounted, isAuthenticated, router]);
 
+  const loginWithSupabase = async (loginEmail: string, loginPassword: string): Promise<boolean> => {
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
+      email: loginEmail,
+      password: loginPassword,
+    });
+
+    if (authError || !data.user) {
+      setError('Email ou mot de passe incorrect');
+      return false;
+    }
+
+    const userEmail = data.user.email?.toLowerCase() ?? '';
+
+    if (!ADMIN_EMAILS.includes(userEmail)) {
+      await supabase.auth.signOut();
+      setError('Acces reserve aux administrateurs');
+      return false;
+    }
+
+    // Fetch profile to get name
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('first_name, last_name, role')
+      .eq('id', data.user.id)
+      .single();
+
+    const name = profile
+      ? `${profile.first_name ?? ''} ${profile.last_name ?? ''}`.trim() || userEmail
+      : userEmail;
+
+    // Determine admin role from email
+    const adminRole = userEmail === 'support@home-chr.fr' ? 'SUPPORT' as const : 'ADMIN' as const;
+
+    // Set the admin store state
+    useAdminStore.getState().login(email, password); // keep mock store in sync for guards
+    useAdminStore.setState({
+      isAuthenticated: true,
+      adminUser: {
+        id: data.user.id,
+        email: userEmail,
+        name,
+        role: adminRole,
+      },
+    });
+
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // Simulate network delay
-    await new Promise((r) => setTimeout(r, 600));
-
-    const success = login(email, password);
-    if (success) {
-      router.push('/admin/tableau-de-bord');
-    } else {
-      setError('Email ou mot de passe incorrect');
+    try {
+      const success = await loginWithSupabase(email, password);
+      if (success) {
+        router.push('/admin/tableau-de-bord');
+      } else {
+        setLoading(false);
+      }
+    } catch {
+      setError('Erreur de connexion. Veuillez reessayer.');
       setLoading(false);
     }
   };
@@ -146,14 +198,20 @@ export default function AuthPage() {
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => { login('admin@home-chr.fr', 'admin123'); router.push('/admin/tableau-de-bord'); }}
+                  onClick={async () => {
+                    const success = await loginWithSupabase('admin@home-chr.fr', 'admin123');
+                    if (success) router.push('/admin/tableau-de-bord');
+                  }}
                   className="flex-1 py-2 rounded-lg bg-emerald-500/10 text-emerald-500 text-xs font-bold border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors"
                 >
                   Admin
                 </button>
                 <button
                   type="button"
-                  onClick={() => { login('support@home-chr.fr', 'support123'); router.push('/admin/tableau-de-bord'); }}
+                  onClick={async () => {
+                    const success = await loginWithSupabase('support@home-chr.fr', 'support123');
+                    if (success) router.push('/admin/tableau-de-bord');
+                  }}
                   className="flex-1 py-2 rounded-lg bg-teal-500/10 text-teal-500 text-xs font-bold border border-teal-500/20 hover:bg-teal-500/20 transition-colors"
                 >
                   Support

@@ -53,6 +53,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Appliquer les données d'onboarding en attente + metadata auth manquantes
+  async function applyPendingOnboarding(authUser: User, currentProfile: Profile | null): Promise<Profile | null> {
+    if (!currentProfile) return null;
+
+    const updates: Partial<Profile> = {};
+
+    // Si le profil a des champs vides, les remplir depuis les metadata auth
+    const meta = authUser.user_metadata || {};
+    if (!currentProfile.first_name && meta.first_name) {
+      updates.first_name = meta.first_name;
+    }
+    if (!currentProfile.last_name && meta.last_name) {
+      updates.last_name = meta.last_name;
+    }
+    if (!currentProfile.phone && meta.phone) {
+      updates.phone = meta.phone;
+    }
+    if (!currentProfile.role && meta.role) {
+      updates.role = meta.role;
+    }
+
+    // Appliquer les données d'onboarding stockées en localStorage
+    if (typeof window !== 'undefined') {
+      const pendingRaw = localStorage.getItem('chr-onboarding-pending');
+      if (pendingRaw) {
+        try {
+          const pending = JSON.parse(pendingRaw);
+          if (pending.skills?.length && (!currentProfile.skills || currentProfile.skills.length === 0)) {
+            updates.skills = pending.skills;
+          }
+          if (pending.employment_category && !currentProfile.employment_category) {
+            updates.employment_category = pending.employment_category;
+          }
+          localStorage.removeItem('chr-onboarding-pending');
+        } catch { /* ignore invalid JSON */ }
+      }
+    }
+
+    if (Object.keys(updates).length > 0) {
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', authUser.id);
+
+      if (!error) {
+        return { ...currentProfile, ...updates };
+      }
+      console.error('Erreur mise à jour profil onboarding:', error.message);
+    }
+
+    return currentProfile;
+  }
+
   // Charger le profil depuis Supabase
   async function fetchProfile(userId: string) {
     const { data, error } = await supabase
@@ -75,7 +128,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id).then(setProfile);
+        fetchProfile(session.user.id).then(async (p) => {
+          const updated = await applyPendingOnboarding(session!.user, p);
+          setProfile(updated);
+        });
       }
       setLoading(false);
     });
@@ -86,7 +142,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          const p = await fetchProfile(session.user.id);
+          let p = await fetchProfile(session.user.id);
+          p = await applyPendingOnboarding(session.user, p);
           setProfile(p);
         } else {
           setProfile(null);

@@ -272,6 +272,26 @@ export async function applyToMission(candidate: Record<string, any>) {
   return { data: data ? toCamelCase(data) : null, error };
 }
 
+export async function getMyCandidatures(workerId: string) {
+  const { data, error } = await supabase
+    .from('mission_candidates')
+    .select('*, missions(*)')
+    .eq('worker_id', workerId)
+    .order('applied_at', { ascending: false });
+  return { data: (data ?? []).map(d => ({
+    ...toCamelCase(d),
+    mission: d.missions ? toCamelCase(d.missions) : null,
+  })), error };
+}
+
+export async function cancelCandidature(candidateId: string) {
+  const { error } = await supabase
+    .from('mission_candidates')
+    .delete()
+    .eq('id', candidateId);
+  return { error };
+}
+
 export async function updateCandidateStatus(candidateId: string, status: 'ACCEPTED' | 'REJECTED') {
   const { error } = await supabase
     .from('mission_candidates')

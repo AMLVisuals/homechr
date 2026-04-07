@@ -108,8 +108,7 @@ function formatMonthKey(key: string): string {
 const STATUS_FILTERS = [
   { id: 'ALL', label: 'Tout' },
   { id: 'ACTION_REQUIRED', label: 'Action requise' },
-  { id: 'IN_PROGRESS', label: 'En cours' },
-  { id: 'SCHEDULED', label: 'Planifié' },
+  { id: 'SCHEDULED', label: 'Acceptée' },
   { id: 'ARCHIVES', label: 'Archives' },
 ];
 
@@ -423,8 +422,8 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
                     {(mission.status === 'IN_PROGRESS' || mission.status === 'PENDING_VALIDATION' || mission.status === 'QUOTE_SENT' || mission.status === 'AWAITING_PATRON_CONFIRMATION') && <div className={clsx("w-1.5 h-1.5 rounded-full animate-pulse", mission.status === 'AWAITING_PATRON_CONFIRMATION' ? 'bg-amber-400' : mission.status === 'PENDING_VALIDATION' ? 'bg-amber-400' : mission.status === 'QUOTE_SENT' ? 'bg-orange-400' : 'bg-blue-400')} />}
                     {mission.status === 'AWAITING_PATRON_CONFIRMATION' ? 'À confirmer' :
                      mission.status === 'IN_PROGRESS' ? 'En cours' :
-                     mission.status === 'COMPLETED' ? 'Terminé' :
-                     mission.status === 'SCHEDULED' ? 'Planifié' :
+                     mission.status === 'COMPLETED' ? 'Archivée' :
+                     mission.status === 'SCHEDULED' ? 'Acceptée' :
                      mission.status === 'PENDING_VALIDATION' ? 'À valider' :
                      mission.status === 'QUOTE_SENT' ? 'Devis reçu' :
                      mission.status === 'DIAGNOSING' ? 'Diagnostic' :

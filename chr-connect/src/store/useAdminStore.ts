@@ -29,26 +29,14 @@ interface AdminState {
 const INITIAL_STAFF: StaffAccount[] = [
   {
     id: 'adm_001',
-    name: 'Laurent Dupont',
+    name: 'Admin Home CHR',
     email: 'admin@home-chr.fr',
-    phone: '+33 6 12 34 56 78',
+    phone: '',
     role: 'ADMIN',
-    jobTitle: 'Directeur technique',
+    jobTitle: 'Administrateur',
     status: 'ACTIVE',
-    createdAt: '2025-05-01T10:00:00Z',
-    lastLoginAt: '2026-03-12T08:30:00Z',
-    notes: 'Fondateur — accès total',
-  },
-  {
-    id: 'adm_002',
-    name: 'Marie Lefèvre',
-    email: 'support@home-chr.fr',
-    phone: '+33 6 98 76 54 32',
-    role: 'SUPPORT',
-    jobTitle: 'Chargée de support client',
-    status: 'ACTIVE',
-    createdAt: '2025-09-15T14:00:00Z',
-    lastLoginAt: '2026-03-11T17:45:00Z',
+    createdAt: '2026-04-07T00:00:00Z',
+    lastLoginAt: new Date().toISOString(),
   },
 ];
 

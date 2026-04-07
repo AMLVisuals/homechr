@@ -23,6 +23,7 @@ import { useVenuesStore } from '@/store/useVenuesStore';
 import { useStore } from '@/store/useStore';
 import { useDPAEStore } from '@/store/useDPAEStore';
 import { Mission, MissionCandidate } from '@/types/missions';
+import { getCandidatesByMission, updateCandidateStatus } from '@/lib/supabase-helpers';
 import DPAEWizard from '../dpae/DPAEWizard';
 import DisputeReportModal from '../disputes/DisputeReportModal';
 import PostMissionReviewModal from '../reviews/PostMissionReviewModal';
@@ -69,7 +70,30 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
   const [selectedProvider, setSelectedProvider] = useState<ProviderProfile | null>(null);
   const [mounted, setMounted] = useState(false);
 
+  // Candidatures Supabase
+  const [supabaseCandidates, setSupabaseCandidates] = useState<MissionCandidate[]>([]);
+
   useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    if (isOpen && mission?.id) {
+      getCandidatesByMission(mission.id).then(({ data }) => {
+        if (data && data.length > 0) {
+          const mapped: MissionCandidate[] = data.map((c: any) => ({
+            id: c.id,
+            name: c.name || 'Prestataire',
+            specialty: c.specialty || '',
+            rating: c.rating || 0,
+            avatar: c.avatar || '',
+            completedMissions: c.completedMissions || 0,
+            status: c.status || 'PENDING',
+            message: c.message || '',
+          }));
+          setSupabaseCandidates(mapped);
+        }
+      });
+    }
+  }, [isOpen, mission?.id]);
 
   if (!isOpen || !mission || !mounted) return null;
 
@@ -191,7 +215,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
     setShowProviderProfile(true);
   };
 
-  const candidates = mission?.candidates || [];
+  const candidates = supabaseCandidates.length > 0 ? supabaseCandidates : (mission?.candidates || []);
   const requiredWorkers = mission?.requiredWorkers || 1;
   const acceptedCandidates = candidates.filter(c => c.status === 'ACCEPTED').length;
   const pendingCandidates = candidates.filter(c => c.status === 'PENDING').length;
@@ -255,7 +279,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
       case 'SEARCHING':
         return { label: 'En recherche', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' };
       case 'SCHEDULED':
-        return { label: 'Programmée', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' };
+        return { label: 'Acceptée', color: 'bg-green-500/20 text-green-400 border-green-500/30' };
       case 'ON_WAY':
         return { label: 'En route', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30' };
       case 'ON_SITE':
@@ -263,7 +287,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
       case 'IN_PROGRESS':
         return { label: 'En cours', color: 'bg-blue-600/20 text-blue-400 border-blue-600/30' };
       case 'COMPLETED':
-        return { label: 'Terminée', color: 'bg-green-500/20 text-green-400 border-green-500/30' };
+        return { label: 'Archivée', color: 'bg-gray-500/20 text-gray-400 border-gray-500/30' };
       case 'CANCELLED':
         return { label: 'Annulée', color: 'bg-red-500/20 text-red-400 border-red-500/30' };
       case 'PENDING_VALIDATION':
@@ -332,12 +356,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
               {/* Map Placeholder */}
               <div className="aspect-square rounded-2xl overflow-hidden relative bg-[var(--bg-active)] group">
                 {/* Mock Map UI */}
-                <div 
-                  className="absolute inset-0 opacity-50 bg-cover bg-center"
-                  style={{
-                    backgroundImage: `url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/${mission.location?.lng || 2.3522},${mission.location?.lat || 48.8566},13,0/600x600?access_token=pk.eyJ1IjoiYnJrY29kZXVyIiwiYSI6ImNsZ3J6b3J6djBkNmwzaG14YXJ4bGF5aGwifQ.jS-2_1Jg-5Y_1')`
-                  }}
-                />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 to-purple-900/30" />
                 
                 {/* Venue Marker */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.5)] animate-pulse" />
@@ -1250,14 +1269,24 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                       {!allSlotsFilled && candidate.status === 'PENDING' && (
                                         <>
                                           <button
-                                            onClick={() => rejectCandidate(mission.id, candidate.id)}
+                                            onClick={async () => {
+                                              await updateCandidateStatus(candidate.id, 'REJECTED');
+                                              setSupabaseCandidates(prev => prev.map(c => c.id === candidate.id ? { ...c, status: 'REJECTED' as const } : c));
+                                              rejectCandidate(mission.id, candidate.id);
+                                            }}
                                             className="py-2.5 px-4 rounded-xl bg-[var(--bg-active)] border border-[var(--border)] text-[var(--text-secondary)] text-xs font-bold hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-colors flex items-center justify-center gap-1.5"
                                           >
                                             <XCircle className="w-3.5 h-3.5" />
                                             Refuser
                                           </button>
                                           <button
-                                            onClick={() => selectCandidate(mission.id, candidate.id)}
+                                            onClick={async () => {
+                                              await updateCandidateStatus(candidate.id, 'ACCEPTED');
+                                              setSupabaseCandidates(prev => prev.map(c => c.id === candidate.id ? { ...c, status: 'ACCEPTED' as const } : c));
+                                              selectCandidate(mission.id, candidate.id);
+                                              // Passer la mission en SCHEDULED dans Supabase
+                                              await syncUpdateMission(mission.id, { status: 'SCHEDULED', providerId: candidate.id });
+                                            }}
                                             className="py-2.5 px-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold hover:bg-green-500/20 transition-colors flex items-center justify-center gap-1.5"
                                           >
                                             <CheckCircle2 className="w-3.5 h-3.5" />

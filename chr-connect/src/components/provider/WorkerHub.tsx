@@ -12,6 +12,7 @@ import { clsx } from 'clsx';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useStore } from '@/store/useStore';
 import { useMissionDispatchStore } from '@/store/useMissionDispatchStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import DocumentExpiryBanner from '@/components/shared/DocumentExpiryBanner';
 
@@ -121,8 +122,9 @@ export default function WorkerHub({ currentProfile, onGoOnline }: WorkerHubProps
   const monthLabel = `${MONTHS[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
   const stats = MONTHLY_DATA[monthKey] || { revenue: 0, missions: 0, rating: 0 };
 
-  const firstName = currentProfile.name.split(' ')[0];
+  const firstName = currentProfile.name === 'Prestataire' ? '' : currentProfile.name.split(' ')[0];
   const { workerSkills, toggleWorkerSkill } = useStore();
+  const { updateProfile } = useAuth();
   const [rolesOpen, setRolesOpen] = useState(false);
 
   // Résumé des rôles sélectionnés pour l'affichage fermé
@@ -141,7 +143,9 @@ export default function WorkerHub({ currentProfile, onGoOnline }: WorkerHubProps
         </div>
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-            Bienvenue, {firstName}
+            {firstName ? `Bienvenue, ${firstName}` : (
+              <span className="inline-block w-40 h-7 bg-[var(--bg-hover)] rounded-lg animate-pulse" />
+            )}
           </h1>
         </div>
       </div>
@@ -149,7 +153,7 @@ export default function WorkerHub({ currentProfile, onGoOnline }: WorkerHubProps
       {/* ── Alertes expiration documents ─────────── */}
       <DocumentExpiryBanner />
 
-      {/* ── Mes rôles (dépliant) ─────────── */}
+      {/* ── Mes rôles (lecture seule) ─────────── */}
       <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] overflow-hidden" style={{ boxShadow: 'var(--shadow-card)' }}>
         <button
           onClick={() => setRolesOpen(!rolesOpen)}
@@ -169,7 +173,7 @@ export default function WorkerHub({ currentProfile, onGoOnline }: WorkerHubProps
                   }
                 </p>
               ) : (
-                <p className="text-xs text-[var(--text-muted)] mt-0.5">Sélectionnez vos compétences</p>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">Aucun rôle défini</p>
               )}
             </div>
           </div>
@@ -194,35 +198,24 @@ export default function WorkerHub({ currentProfile, onGoOnline }: WorkerHubProps
               transition={{ duration: 0.25, ease: 'easeInOut' }}
               className="overflow-hidden"
             >
-              <div className="px-4 pb-4 space-y-4 border-t border-[var(--border)] pt-3">
-                {ROLE_GROUPS.map((group) => (
-                  <div key={group.label}>
-                    <p className="text-[10px] uppercase tracking-wider font-bold text-[var(--text-muted)] mb-2">
-                      {group.label}
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {group.roles.map((role) => {
-                        const isActive = workerSkills.includes(role.id);
-                        return (
-                          <motion.button
-                            key={role.id}
-                            whileTap={{ scale: 0.93 }}
-                            onClick={() => toggleWorkerSkill(role.id)}
-                            className={clsx(
-                              "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all border",
-                              isActive
-                                ? "bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20"
-                                : "bg-[var(--bg-hover)] text-[var(--text-secondary)] border-[var(--border)] hover:border-blue-400/50"
-                            )}
-                          >
-                            {isActive && <Check className="w-3 h-3" />}
-                            {role.label}
-                          </motion.button>
-                        );
-                      })}
-                    </div>
+              <div className="px-4 pb-4 border-t border-[var(--border)] pt-3">
+                {selectedLabels.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedLabels.map((label) => (
+                      <span
+                        key={label}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-600 text-white border border-blue-600 shadow-sm shadow-blue-500/20"
+                      >
+                        <Check className="w-3 h-3" />
+                        {label}
+                      </span>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <p className="text-sm text-[var(--text-muted)] text-center py-2">
+                    Vos rôles sont définis lors de l'inscription.
+                  </p>
+                )}
               </div>
             </motion.div>
           )}

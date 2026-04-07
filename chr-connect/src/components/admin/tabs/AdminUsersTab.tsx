@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Users, Briefcase, Crown, Ban, X, UserCheck, UserX, CheckCircle2, AlertTriangle, XCircle, Clock, FileText, Shield, CreditCard, Award, Building2, FileCheck } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAdminStore } from '@/store/useAdminStore';
+import { supabase } from '@/lib/supabase';
 import type { PlatformUser, UserStatus, UserDocument, DocumentStatus } from '@/types/admin';
 
 type FilterType = 'ALL' | 'PATRONS' | 'WORKERS' | 'PREMIUM' | 'SUSPENDED' | 'NON_COMPLIANT';
@@ -65,6 +66,83 @@ export default function AdminUsersTab() {
   const [filter, setFilter] = useState<FilterType>('ALL');
   const [users, setUsers] = useState<PlatformUser[]>([]);
   const [selectedUser, setSelectedUser] = useState<PlatformUser | null>(null);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+
+  // Fetch users from Supabase on mount
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        // Fetch profiles
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (profilesError) {
+          console.error('[AdminUsersTab] Error fetching profiles:', profilesError);
+          return;
+        }
+
+        if (!profiles || profiles.length === 0) {
+          setUsers([]);
+          return;
+        }
+
+        // Fetch compliance_documents for all users
+        const { data: docs } = await supabase
+          .from('compliance_documents')
+          .select('*');
+
+        // Group documents by worker_id
+        const docsByUser: Record<string, UserDocument[]> = {};
+        if (docs) {
+          for (const doc of docs) {
+            const userId = doc.worker_id;
+            if (!docsByUser[userId]) docsByUser[userId] = [];
+            docsByUser[userId].push({
+              id: doc.id,
+              label: doc.type?.replace(/_/g, ' ') ?? 'Document',
+              status: (doc.status === 'VERIFIED' ? 'VERIFIED'
+                : doc.status === 'PENDING' ? 'PENDING'
+                : doc.status === 'EXPIRED' ? 'EXPIRED'
+                : 'MISSING') as DocumentStatus,
+              required: true,
+              uploadedAt: doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString('fr-FR') : undefined,
+              fileName: doc.file_url ?? undefined,
+            });
+          }
+        }
+
+        // Exclure les comptes admin de la liste
+        const ADMIN_EMAILS = ['admin@home-chr.fr', 'support@home-chr.fr'];
+        const filteredProfiles = profiles.filter(p => !ADMIN_EMAILS.includes(p.email?.toLowerCase()));
+
+        // Map profiles to PlatformUser
+        const mapped: PlatformUser[] = filteredProfiles.map((p) => ({
+          id: p.id,
+          name: `${p.first_name ?? ''} ${p.last_name ?? ''}`.trim() || p.email || 'Sans nom',
+          email: p.email ?? '',
+          type: (p.role === 'PATRON' ? 'PATRON' : 'WORKER') as PlatformUser['type'],
+          city: p.city ?? '',
+          missions: 0,
+          premium: p.subscription_tier !== 'FREE' && p.subscription_tier != null,
+          status: 'ACTIVE' as UserStatus,
+          totalSpent: 0,
+          totalEarned: 0,
+          createdAt: p.created_at ? new Date(p.created_at).toLocaleDateString('fr-FR') : '',
+          establishmentName: undefined,
+          documents: docsByUser[p.id] ?? [],
+        }));
+
+        setUsers(mapped);
+      } catch (err) {
+        console.error('[AdminUsersTab] Unexpected error:', err);
+      } finally {
+        setLoadingUsers(false);
+      }
+    }
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -311,8 +389,11 @@ export default function AdminUsersTab() {
           })}
         </div>
 
-        {filteredUsers.length === 0 && (
-          <div className="p-12 text-center text-[var(--text-muted)] text-sm">Aucun utilisateur trouvé</div>
+        {loadingUsers && (
+          <div className="p-12 text-center text-[var(--text-muted)] text-sm">Chargement des utilisateurs...</div>
+        )}
+        {!loadingUsers && filteredUsers.length === 0 && (
+          <div className="p-12 text-center text-[var(--text-muted)] text-sm">Aucun utilisateur trouve</div>
         )}
       </div>
 
