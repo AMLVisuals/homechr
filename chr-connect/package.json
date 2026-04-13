@@ -17,7 +17,11 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@stripe/stripe-js": "^8.11.0",
     "@supabase/supabase-js": "^2.100.0",
+    "@tailwindcss/postcss": "^4",
     "@types/leaflet": "^1.9.21",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.25",
@@ -29,8 +33,11 @@
     "react-hook-form": "^7.68.0",
     "react-leaflet": "^5.0.0",
     "react-webcam": "^7.2.0",
+    "sharp": "^0.34.5",
     "stripe": "^20.4.1",
     "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4",
+    "typescript": "^5",
     "wavesurfer.js": "^7.12.1",
     "zod": "^4.1.13",
     "zustand": "^5.0.9"
@@ -40,16 +47,9 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
     "baseline-browser-mapping": "^2.10.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.7",
-    "playwright": "^1.58.2",
-    "sharp": "^0.34.5",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "playwright": "^1.58.2"
   }
 }
