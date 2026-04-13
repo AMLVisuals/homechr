@@ -105,7 +105,7 @@ export const useStockStore = create<StockState>()(
         set({ isLoading: true, error: null });
         try {
           const { data } = await getStockByVenue(venueId);
-          set({ items: data ?? [], isLoading: false });
+          set({ items: (data as StockItem[] | null) ?? [], isLoading: false });
         } catch (err) {
           console.error('[useStockStore] fetchStock failed, keeping local data:', err);
           set({ isLoading: false, error: err instanceof Error ? err.message : 'Erreur lors du chargement du stock' });

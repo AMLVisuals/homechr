@@ -85,11 +85,12 @@ export const useVenuesStore = create<VenuesState>((set, get) => ({
     try {
       const { data: venues } = await getVenuesByOwner(ownerId);
       if (venues && venues.length > 0) {
+        const typedVenues = venues as Venue[];
         set({
-          venues,
-          activeVenueId: get().activeVenueId && venues.some((v: any) => v.id === get().activeVenueId)
+          venues: typedVenues,
+          activeVenueId: get().activeVenueId && typedVenues.some((v) => v.id === get().activeVenueId)
             ? get().activeVenueId
-            : venues[0].id,
+            : typedVenues[0].id,
           isLoading: false,
         });
       } else {
@@ -114,12 +115,13 @@ export const useVenuesStore = create<VenuesState>((set, get) => ({
         throw new Error(createError.message);
       }
       if (!created) throw new Error('Création échouée');
+      const typedCreated = created as Venue;
       set((state) => ({
-        venues: [...state.venues, created],
-        activeVenueId: created.id,
+        venues: [...state.venues, typedCreated],
+        activeVenueId: typedCreated.id,
         isLoading: false,
       }));
-      return created;
+      return typedCreated;
     } catch (error) {
       console.error('[useVenuesStore] syncAddVenue failed:', error);
       set({

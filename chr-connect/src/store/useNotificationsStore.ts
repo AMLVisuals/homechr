@@ -98,7 +98,7 @@ export const useNotificationsStore = create<NotificationsState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const { data } = await getNotifications(userId);
-      set({ notifications: data ?? [], isLoading: false });
+      set({ notifications: (data as Notification[] | null) ?? [], isLoading: false });
     } catch (err) {
       console.error('[useNotificationsStore] fetchNotifications failed, keeping local data:', err);
       set({ isLoading: false, error: err instanceof Error ? err.message : 'Erreur lors du chargement des notifications' });

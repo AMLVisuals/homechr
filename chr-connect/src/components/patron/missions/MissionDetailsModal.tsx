@@ -88,6 +88,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
             completedMissions: c.completedMissions || 0,
             status: c.status || 'PENDING',
             message: c.message || '',
+            appliedAt: c.appliedAt || c.created_at || new Date().toISOString(),
           }));
           setSupabaseCandidates(mapped);
         }
@@ -337,7 +338,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
               </span>
             </div>
             <p className="text-[var(--text-secondary)] text-sm flex items-center gap-2">
-              <Clock className="w-3 h-3" /> {mission.createdAt ? new Date(mission.createdAt).toLocaleDateString('fr-FR') : mission.date || "Aujourd'hui"}
+              <Clock className="w-3 h-3" /> {mission.date ? new Date(mission.date).toLocaleDateString('fr-FR') : "Aujourd'hui"}
               <span className="w-1 h-1 bg-[var(--text-muted)] rounded-full" />
               <MapPin className="w-3 h-3" /> {missionVenue?.name || mission.location?.address || 'Non assigné'}
             </p>
@@ -979,7 +980,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                               <div className="relative pl-6">
                                 <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-gray-500 ring-4 ring-black" />
                                 <p className="text-sm text-[var(--text-primary)] font-medium">Mission créée</p>
-                                <p className="text-xs text-[var(--text-muted)]">{mission.createdAt ? new Date(mission.createdAt).toLocaleDateString('fr-FR') : "Aujourd'hui"}</p>
+                                <p className="text-xs text-[var(--text-muted)]">{mission.date ? new Date(mission.date).toLocaleDateString('fr-FR') : "Aujourd'hui"}</p>
                               </div>
 
                               {/* Search Step */}
@@ -1285,7 +1286,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                               setSupabaseCandidates(prev => prev.map(c => c.id === candidate.id ? { ...c, status: 'ACCEPTED' as const } : c));
                                               selectCandidate(mission.id, candidate.id);
                                               // Passer la mission en SCHEDULED dans Supabase
-                                              await syncUpdateMission(mission.id, { status: 'SCHEDULED', providerId: candidate.id });
+                                              await syncUpdateMission(mission.id, { status: 'SCHEDULED', provider: { id: candidate.id, name: candidate.name, rating: candidate.rating, completedMissions: candidate.completedMissions, bio: '', phone: '' } });
                                             }}
                                             className="py-2.5 px-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold hover:bg-green-500/20 transition-colors flex items-center justify-center gap-1.5"
                                           >

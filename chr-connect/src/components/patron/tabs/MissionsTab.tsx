@@ -400,7 +400,7 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
                     <div className="flex items-center gap-2 text-xs md:text-sm text-[var(--text-secondary)]">
                       <span className="font-medium text-[var(--text-secondary)] truncate">{mission.category}</span>
                       <span className="shrink-0">•</span>
-                      <span className="shrink-0">{mission.createdAt ? new Date(mission.createdAt).toLocaleDateString('fr-FR') : mission.date || "Aujourd'hui"}</span>
+                      <span className="shrink-0">{mission.date ? new Date(mission.date).toLocaleDateString('fr-FR') : "Aujourd'hui"}</span>
                     </div>
                   </div>
                 </div>

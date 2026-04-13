@@ -69,7 +69,7 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const { data } = await getCalendarEvents(userId, month);
-      set({ events: data ?? [], isLoading: false });
+      set({ events: (data as CalendarEvent[] | null) ?? [], isLoading: false });
     } catch (err) {
       console.error('[calendarStore] fetchEvents failed, keeping local data:', err);
       set({ isLoading: false, error: err instanceof Error ? err.message : 'Erreur lors du chargement des evenements' });

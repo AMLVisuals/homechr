@@ -79,7 +79,7 @@ export const useDocumentsStore = create<DocumentsState>()(
         set({ isLoading: true, error: null });
         try {
           const { data } = await getDocumentsByOwner(ownerId);
-          set({ documents: data ?? [], isLoading: false });
+          set({ documents: (data as StoredDocument[] | null) ?? [], isLoading: false });
         } catch (err) {
           console.error('[useDocumentsStore] fetchDocuments failed, keeping local data:', err);
           set({ isLoading: false, error: err instanceof Error ? err.message : 'Erreur lors du chargement des documents' });
