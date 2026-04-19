@@ -105,6 +105,7 @@ export type CandidateStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 
 export interface MissionCandidate {
   id: string;
+  workerId?: string;
   name: string;
   specialty: string;
   rating: number;
@@ -113,11 +114,13 @@ export interface MissionCandidate {
   appliedAt: string; // ISO date
   status: CandidateStatus;
   message?: string; // Optional motivation message
+  identityVerified?: boolean; // Stripe Connect KYC complete
 }
 
 export interface Mission {
   id: string;
   title: string;
+  patronId?: string; // Supabase auth user ID du patron
   venue?: string; // Patron's name/venue
   venueId?: string;
   type?: MissionType;
@@ -213,6 +216,13 @@ export interface Mission {
   dpaeReceiptId?: string;        // AEE URSSAF
   actualHoursWorked?: number;
   payslipUrl?: string;
+
+  // ── Paiement Stripe Connect ──
+  stripePaymentIntentId?: string;
+  paymentStatus?: 'NONE' | 'PENDING' | 'AUTHORIZED' | 'CAPTURED' | 'RELEASED' | 'REFUNDED' | 'FAILED';
+  authorizedAmount?: number;
+  capturedAmount?: number;
+  platformFeeAmount?: number;
 
   // Dispute / Litige
   dispute?: {

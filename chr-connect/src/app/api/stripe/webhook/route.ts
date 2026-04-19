@@ -41,8 +41,107 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
+  // Idempotence : ignore l'événement s'il a déjà été traité
+  if (event?.id) {
+    const { data: existing } = await supabaseAdmin
+      .from('stripe_events')
+      .select('id, processed')
+      .eq('stripe_event_id', event.id)
+      .maybeSingle();
+
+    if (existing?.processed) {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+
+    await supabaseAdmin.from('stripe_events').upsert(
+      {
+        stripe_event_id: event.id,
+        type: event.type,
+        object_id: (event.data?.object as any)?.id || null,
+        account_id: (event as any).account || null,
+        payload: event,
+        processed: false,
+      },
+      { onConflict: 'stripe_event_id' }
+    );
+  }
+
   try {
     switch (event.type) {
+      // ── Compte Connect mis à jour (KYC progressé / terminé) ──
+      case 'account.updated': {
+        const account = event.data.object;
+        await supabaseAdmin
+          .from('profiles')
+          .update({
+            stripe_charges_enabled: account.charges_enabled ?? false,
+            stripe_payouts_enabled: account.payouts_enabled ?? false,
+            stripe_details_submitted: account.details_submitted ?? false,
+          })
+          .eq('stripe_account_id', account.id);
+        break;
+      }
+
+      // ── Préauto réussie : fonds bloqués sur carte patron ──
+      case 'payment_intent.amount_capturable_updated':
+      case 'payment_intent.requires_action': {
+        const pi = event.data.object;
+        const missionId = pi.metadata?.mission_id;
+        if (missionId && pi.amount_capturable > 0) {
+          await supabaseAdmin
+            .from('missions')
+            .update({
+              payment_status: 'AUTHORIZED',
+              authorized_at: new Date().toISOString(),
+            })
+            .eq('id', missionId);
+        }
+        break;
+      }
+
+      // ── Paiement capturé (fonds transférés au worker via Connect) ──
+      case 'payment_intent.succeeded': {
+        const pi = event.data.object;
+        const missionId = pi.metadata?.mission_id;
+        if (missionId) {
+          await supabaseAdmin
+            .from('missions')
+            .update({
+              payment_status: 'CAPTURED',
+              captured_amount: (pi.amount_received || 0) / 100,
+              captured_at: new Date().toISOString(),
+            })
+            .eq('id', missionId);
+        }
+        break;
+      }
+
+      // ── Paiement échoué ──
+      case 'payment_intent.payment_failed': {
+        const pi = event.data.object;
+        const missionId = pi.metadata?.mission_id;
+        if (missionId) {
+          await supabaseAdmin
+            .from('missions')
+            .update({ payment_status: 'FAILED' })
+            .eq('id', missionId);
+        }
+        break;
+      }
+
+      // ── Remboursement ──
+      case 'charge.refunded': {
+        const charge = event.data.object;
+        const piId = charge.payment_intent;
+        if (piId) {
+          await supabaseAdmin
+            .from('missions')
+            .update({ payment_status: 'REFUNDED' })
+            .eq('stripe_payment_intent_id', piId);
+        }
+        break;
+      }
+
       // ── Paiement unique réussi (mission fee 20€) ──
       case 'checkout.session.completed': {
         const session = event.data.object;
@@ -119,15 +218,28 @@ export async function POST(req: NextRequest) {
         break;
       }
 
-      // ── Paiement échoué ──
+      // ── Paiement échoué sur abonnement ──
       case 'invoice.payment_failed': {
         const invoice = event.data.object;
         console.warn('[Stripe] Paiement échoué pour subscription:', invoice.subscription);
         break;
       }
     }
-  } catch (error) {
+
+    if (event?.id) {
+      await supabaseAdmin
+        .from('stripe_events')
+        .update({ processed: true })
+        .eq('stripe_event_id', event.id);
+    }
+  } catch (error: any) {
     console.error('[Stripe Webhook] Processing error:', error);
+    if (event?.id) {
+      await supabaseAdmin
+        .from('stripe_events')
+        .update({ error: error?.message || String(error) })
+        .eq('stripe_event_id', event.id);
+    }
   }
 
   return NextResponse.json({ received: true });

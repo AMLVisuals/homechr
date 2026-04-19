@@ -63,7 +63,7 @@ export default function PremiumUpsellModal({ isOpen, onClose }: PremiumUpsellMod
                   <Crown className="w-6 h-6 text-black" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-[var(--text-primary)]">Home CHR Pro</h2>
+                  <h2 className="text-2xl font-bold text-[var(--text-primary)]">ConnectCHR Pro</h2>
                   <p className="text-sm text-amber-500">Debloquez toutes les fonctionnalites</p>
                 </div>
               </div>

@@ -13,7 +13,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[Home CHR] Erreur globale:', error);
+    console.error('[ConnectCHR] Erreur globale:', error);
   }, [error]);
 
   return (

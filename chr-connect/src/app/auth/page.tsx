@@ -116,7 +116,7 @@ export default function AuthPage() {
             <div className="w-16 h-16 bg-gradient-to-tr from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center font-bold text-2xl text-white mb-4 shadow-lg shadow-emerald-500/20">
               C
             </div>
-            <h1 className="text-2xl font-bold text-[var(--text-primary)]">Home CHR</h1>
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">ConnectCHR</h1>
             <p className="text-sm text-[var(--text-muted)] mt-1">Espace Administration</p>
           </div>
 

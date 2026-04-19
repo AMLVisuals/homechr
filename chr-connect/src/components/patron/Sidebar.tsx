@@ -48,7 +48,7 @@ export default function Sidebar({ activeTab, onSettingsClick, layoutId = 'active
         <div className="w-8 h-8 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-xl flex items-center justify-center font-bold text-lg text-white">
           C
         </div>
-        <span className="ml-3 font-bold text-xl tracking-wider text-[var(--text-primary)]">CONNECT</span>
+        <span className="ml-3 font-bold text-xl tracking-wider text-[var(--text-primary)]">ConnectCHR</span>
       </div>
 
       <nav className="flex-1 py-6 space-y-2 px-3">

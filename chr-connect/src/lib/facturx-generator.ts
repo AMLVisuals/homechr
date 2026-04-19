@@ -300,7 +300,7 @@ export function generateInvoiceHTML(data: FacturXData): string {
     <!-- Header -->
     <div class="header">
       <div>
-        <div class="logo">Home CHR</div>
+        <div class="logo">ConnectCHR</div>
         <div class="logo-subtitle">Plateforme HORECA de confiance</div>
       </div>
       <div class="invoice-info">
@@ -414,7 +414,7 @@ export function generateInvoiceHTML(data: FacturXData): string {
 
     <!-- Footer -->
     <div class="footer">
-      <div class="footer-logo">Home CHR</div>
+      <div class="footer-logo">ConnectCHR</div>
       <p>Facture électronique générée automatiquement — Factur-X conforme</p>
       <p>www.home-chr.fr | contact@home-chr.fr</p>
     </div>

@@ -3,11 +3,17 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sun, Moon, Crown, ChevronRight, LogOut } from 'lucide-react';
+import { X, Sun, Moon, Crown, ChevronRight, LogOut, Bell, BellOff, Loader2 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import PremiumBadge from './PremiumBadge';
+import {
+  isPushSupported,
+  getExistingSubscription,
+  subscribeToPush,
+  unsubscribeFromPush,
+} from '@/lib/push-client';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -16,11 +22,53 @@ interface SettingsModalProps {
 
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { theme, setTheme, isPremium, setPremium, setUserRole } = useStore();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [pushState, setPushState] = useState<'unsupported' | 'denied' | 'on' | 'off' | 'loading'>('loading');
+  const [pushError, setPushError] = useState<string | null>(null);
 
   useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    (async () => {
+      if (!isPushSupported()) {
+        setPushState('unsupported');
+        return;
+      }
+      if (typeof Notification !== 'undefined' && Notification.permission === 'denied') {
+        setPushState('denied');
+        return;
+      }
+      const sub = await getExistingSubscription();
+      setPushState(sub ? 'on' : 'off');
+    })();
+  }, [isOpen]);
+
+  const handleTogglePush = async () => {
+    if (!user?.id) return;
+    setPushError(null);
+    const previous = pushState;
+    setPushState('loading');
+    if (previous === 'on') {
+      const { ok, error } = await unsubscribeFromPush(user.id);
+      if (!ok) {
+        setPushError(error || 'Échec désinscription.');
+        setPushState('on');
+        return;
+      }
+      setPushState('off');
+    } else {
+      const { ok, error } = await subscribeToPush(user.id);
+      if (!ok) {
+        setPushError(error || 'Échec inscription push.');
+        setPushState(typeof Notification !== 'undefined' && Notification.permission === 'denied' ? 'denied' : 'off');
+        return;
+      }
+      setPushState('on');
+    }
+  };
 
   const handleLogout = async () => {
     onClose();
@@ -135,6 +183,54 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               {/* Notifications */}
               <section>
                 <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Notifications</h3>
+
+                <div className="mb-3 p-3 rounded-xl border border-[var(--border)] bg-[var(--bg-hover)]">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+                        {pushState === 'on' ? <Bell className="w-4 h-4 text-blue-500" /> : <BellOff className="w-4 h-4 text-[var(--text-muted)]" />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-[var(--text-primary)]">Notifications push</p>
+                        <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
+                          {pushState === 'unsupported' && 'Non supporté par ce navigateur'}
+                          {pushState === 'denied' && 'Bloqué dans les réglages du navigateur'}
+                          {pushState === 'on' && 'Activées sur cet appareil'}
+                          {pushState === 'off' && 'Désactivées'}
+                          {pushState === 'loading' && 'Chargement...'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleTogglePush}
+                      disabled={pushState === 'loading' || pushState === 'unsupported' || pushState === 'denied' || !user?.id}
+                      className="shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                      aria-label="Activer les notifications push"
+                    >
+                      {pushState === 'loading' ? (
+                        <Loader2 className="w-5 h-5 animate-spin text-[var(--text-muted)]" />
+                      ) : (
+                        <div
+                          className={`w-11 h-6 rounded-full relative transition-colors ${
+                            pushState === 'on' ? 'bg-blue-500' : 'bg-[var(--bg-active)]'
+                          }`}
+                        >
+                          <div
+                            className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                              pushState === 'on' ? 'translate-x-[22px]' : 'translate-x-0.5'
+                            }`}
+                          />
+                        </div>
+                      )}
+                    </button>
+                  </div>
+
+                  {pushError && (
+                    <p className="mt-2 text-[11px] text-red-400">{pushError}</p>
+                  )}
+                </div>
+
                 <div className="space-y-2">
                   {['Missions', 'Factures', 'Bulletins de paie'].map((item) => (
                     <div key={item} className="flex items-center justify-between p-3 rounded-xl border border-[var(--border)]">
@@ -158,7 +254,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <LogOut className="w-4 h-4" />
                 Déconnexion
               </button>
-              <p className="text-xs text-[var(--text-muted)] text-center">Home CHR v1.0</p>
+              <p className="text-xs text-[var(--text-muted)] text-center">ConnectCHR v1.0</p>
             </div>
           </motion.div>
         </>

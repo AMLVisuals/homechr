@@ -49,7 +49,7 @@ import MaintenanceAlertsBanner from './maintenance/MaintenanceAlertsBanner';
 import Sidebar from './Sidebar';
 import SettingsModal from '../shared/SettingsModal';
 
-const UPCOMING_MISSIONS: { id: string; title: string; date: string; expert: string; category: string }[] = [];
+const MONTH_SHORT_FR = ['JAN', 'FÉV', 'MAR', 'AVR', 'MAI', 'JUIN', 'JUIL', 'AOÛ', 'SEPT', 'OCT', 'NOV', 'DÉC'];
 
 export default function PatronDashboard() {
   const { setUserRole } = useStore();
@@ -92,10 +92,108 @@ export default function PatronDashboard() {
   const [showSettings, setShowSettings] = useState(false);
   const [globalSearch, setGlobalSearch] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [welcomeDismissed, setWelcomeDismissed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setWelcomeDismissed(localStorage.getItem('patron-welcome-dismissed') === '1');
+    }
+  }, []);
+
+  const dismissWelcome = () => {
+    setWelcomeDismissed(true);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('patron-welcome-dismissed', '1');
+    }
+  };
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { status } = useMissionEngine();
   const { team } = useMissionsStore();
   const { documents } = useDocumentsStore();
+
+  const monthlyStats = useMemo(() => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const prevDate = new Date(currentYear, currentMonth - 1, 1);
+    const prevMonth = prevDate.getMonth();
+    const prevYear = prevDate.getFullYear();
+
+    const monthName = now.toLocaleDateString('fr-FR', { month: 'long' });
+    const monthLabel = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+    const parsePrice = (p: string | number | undefined): number => {
+      if (p == null) return 0;
+      if (typeof p === 'number') return p;
+      const n = parseFloat(String(p).replace(/[^\d.,-]/g, '').replace(',', '.'));
+      return isNaN(n) ? 0 : n;
+    };
+
+    const inMonth = (iso: string | undefined, m: number, y: number) => {
+      if (!iso) return false;
+      const d = new Date(iso);
+      return d.getMonth() === m && d.getFullYear() === y;
+    };
+
+    const completed = missions.filter(x => x.status === 'COMPLETED');
+    const current = completed.filter(x => inMonth(x.scheduledDate || x.date, currentMonth, currentYear));
+    const previous = completed.filter(x => inMonth(x.scheduledDate || x.date, prevMonth, prevYear));
+
+    const spent = current.reduce((s, x) => s + parsePrice(x.price), 0);
+    const prevSpent = previous.reduce((s, x) => s + parsePrice(x.price), 0);
+    const trend = prevSpent > 0 ? Math.round(((spent - prevSpent) / prevSpent) * 100) : null;
+
+    const ratings = current.map(x => x.review?.rating).filter((r): r is number => typeof r === 'number' && r > 0);
+    const avgRating = ratings.length > 0 ? (ratings.reduce((s, r) => s + r, 0) / ratings.length) : null;
+
+    const scheduledThisMonth = missions.filter(x => {
+      if (x.status !== 'SCHEDULED' && x.status !== 'ON_WAY' && x.status !== 'ON_SITE' && x.status !== 'IN_PROGRESS') return false;
+      return inMonth(x.scheduledDate || x.date, currentMonth, currentYear);
+    });
+    const committed = scheduledThisMonth.reduce((s, x) => s + parsePrice(x.price), 0);
+    const projection = spent + committed;
+
+    const avgCost = current.length > 0 ? spent / current.length : null;
+
+    return {
+      monthLabel,
+      spent,
+      missionsCount: current.length,
+      avgRating,
+      trend,
+      projection,
+      committed,
+      avgCost,
+    };
+  }, [missions]);
+
+  const upcomingMissions = useMemo(() => {
+    const now = new Date();
+    return missions
+      .filter(m => {
+        if (!['SCHEDULED', 'ON_WAY', 'ON_SITE', 'SEARCHING'].includes(m.status)) return false;
+        const iso = m.scheduledDate || m.date;
+        if (!iso) return false;
+        const d = new Date(iso);
+        return !isNaN(d.getTime()) && d >= now;
+      })
+      .sort((a, b) => {
+        const da = new Date(a.scheduledDate || a.date || 0).getTime();
+        const db = new Date(b.scheduledDate || b.date || 0).getTime();
+        return da - db;
+      })
+      .slice(0, 3)
+      .map(m => {
+        const d = new Date(m.scheduledDate || m.date || '');
+        return {
+          id: m.id,
+          title: m.title,
+          monthShort: MONTH_SHORT_FR[d.getMonth()],
+          day: d.getDate(),
+          time: d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        };
+      });
+  }, [missions]);
 
   useEffect(() => {
     setActiveTab(getInitialTab(pathname));
@@ -368,16 +466,23 @@ export default function PatronDashboard() {
         <div className={clsx("flex-1 overflow-y-auto custom-scrollbar", ['PLANNING', 'INVOICES', 'PAYSLIPS'].includes(activeTab) ? "p-0 lg:p-8" : "p-4 lg:p-8")}>
           {activeTab === 'DASHBOARD' && (
             <div className="max-w-7xl mx-auto space-y-10">
-              {/* Onboarding — shown when no missions exist */}
-              {missions.length === 0 && (
+              {/* Onboarding — shown when no missions exist and not dismissed */}
+              {missions.length === 0 && !welcomeDismissed && (
                 <motion.section
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent border border-blue-500/20 rounded-3xl p-6 md:p-10 text-center md:text-left"
+                  className="relative bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent border border-blue-500/20 rounded-3xl p-6 md:p-10 text-center md:text-left"
                 >
+                  <button
+                    onClick={dismissWelcome}
+                    aria-label="Fermer le message de bienvenue"
+                    className="absolute top-4 right-4 p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                   <div className="max-w-2xl mx-auto md:mx-0 space-y-4">
                     <h2 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">
-                      Bienvenue sur Home CHR
+                      Bienvenue sur ConnectCHR
                     </h2>
                     <p className="text-[var(--text-secondary)] text-sm md:text-base leading-relaxed">
                       Commencez par configurer votre établissement, puis créez votre première demande — personnel extra, technicien, maintenance...
@@ -528,15 +633,60 @@ export default function PatronDashboard() {
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl rounded-full -mr-10 -mt-10" />
                     <h3 className="font-bold text-[var(--text-muted)] mb-6 uppercase text-xs tracking-wider">Activité du mois</h3>
                     <div className="flex items-baseline gap-2 mb-1">
-                      <span className="text-4xl font-bold text-[var(--text-primary)]">2,450€</span>
-                      <span className="text-sm text-green-500 font-medium">+12%</span>
+                      <span className="text-4xl font-bold text-[var(--text-primary)]">
+                        {monthlyStats.spent.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}€
+                      </span>
+                      {monthlyStats.trend !== null && (
+                        <span className={clsx('text-sm font-medium', monthlyStats.trend >= 0 ? 'text-green-500' : 'text-red-500')}>
+                          {monthlyStats.trend >= 0 ? '+' : ''}{monthlyStats.trend}%
+                        </span>
+                      )}
                     </div>
-                    <p className="text-sm text-[var(--text-muted)] mb-6">Dépensé en Juin</p>
+                    <p className="text-sm text-[var(--text-muted)] mb-6">Dépensé en {monthlyStats.monthLabel}</p>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-[var(--bg-hover)] rounded-xl p-3"><div className="text-2xl font-bold text-[var(--text-primary)] mb-1">8</div><div className="text-xs text-[var(--text-secondary)]">Missions</div></div>
-                      <div className="bg-[var(--bg-hover)] rounded-xl p-3"><div className="text-2xl font-bold text-[var(--text-primary)] mb-1">4.9</div><div className="text-xs text-[var(--text-secondary)]">Note Moy.</div></div>
+                      <div className="bg-[var(--bg-hover)] rounded-xl p-3">
+                        <div className="text-2xl font-bold text-[var(--text-primary)] mb-1">{monthlyStats.missionsCount}</div>
+                        <div className="text-xs text-[var(--text-secondary)]">Missions</div>
+                      </div>
+                      <div className="bg-[var(--bg-hover)] rounded-xl p-3">
+                        <div className="text-2xl font-bold text-[var(--text-primary)] mb-1">
+                          {monthlyStats.avgRating !== null ? monthlyStats.avgRating.toFixed(1) : '—'}
+                        </div>
+                        <div className="text-xs text-[var(--text-secondary)]">Note Moy.</div>
+                      </div>
                     </div>
                   </div>
+
+                  {/* Prévision masse salariale */}
+                  {(monthlyStats.committed > 0 || monthlyStats.projection > 0) && (
+                    <div className="bg-[var(--bg-card)] p-5 rounded-3xl border border-[var(--border)]" style={{ boxShadow: 'var(--shadow-card)' }}>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-bold text-[var(--text-muted)] uppercase text-xs tracking-wider">Prévision fin de mois</h3>
+                      </div>
+                      <div className="flex items-baseline gap-2 mb-4">
+                        <span className="text-3xl font-bold text-[var(--text-primary)]">
+                          {monthlyStats.projection.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}€
+                        </span>
+                      </div>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-[var(--text-muted)]">Déjà dépensé</span>
+                          <span className="text-[var(--text-secondary)] font-medium">{monthlyStats.spent.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}€</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[var(--text-muted)]">Engagé (missions à venir)</span>
+                          <span className="text-[var(--text-secondary)] font-medium">{monthlyStats.committed.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}€</span>
+                        </div>
+                        {monthlyStats.avgCost !== null && (
+                          <div className="flex justify-between pt-2 border-t border-[var(--border)]">
+                            <span className="text-[var(--text-muted)]">Coût moyen / mission</span>
+                            <span className="text-[var(--text-primary)] font-bold">{monthlyStats.avgCost.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}€</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Upcoming */}
                   <div className="bg-[var(--bg-card)] rounded-3xl border border-[var(--border)] overflow-hidden" style={{ boxShadow: 'var(--shadow-card)' }}>
                     <div className="p-5 border-b border-[var(--border)] flex justify-between items-center">
@@ -544,19 +694,33 @@ export default function PatronDashboard() {
                       <Calendar className="w-4 h-4 text-[var(--text-muted)]" />
                     </div>
                     <div className="divide-y divide-[var(--border)]">
-                      {UPCOMING_MISSIONS.map((mission) => (
-                        <div key={mission.id} onClick={() => setActiveTab('PLANNING')} className="p-4 hover:bg-[var(--bg-hover)] transition-colors cursor-pointer">
-                          <div className="flex items-start gap-3">
-                            <div className="flex flex-col items-center justify-center w-10 h-10 bg-[var(--bg-hover)] rounded-lg border border-[var(--border)] text-xs font-bold text-[var(--text-muted)]">
-                              <span>JUIN</span><span className="text-[var(--text-primary)] text-sm">15</span>
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-sm text-[var(--text-primary)] mb-1">{mission.title}</h4>
-                              <p className="text-xs text-[var(--text-muted)] flex items-center gap-1"><Clock className="w-3 h-3" /> {mission.date.split(', ')[1]}</p>
+                      {upcomingMissions.length === 0 ? (
+                        <div className="p-6 text-center">
+                          <Calendar className="w-8 h-8 text-[var(--text-muted)] mx-auto mb-3 opacity-50" />
+                          <p className="text-sm text-[var(--text-muted)] mb-3">Aucune mission planifiée</p>
+                          <button
+                            onClick={() => setShowNewRequestModal(true)}
+                            className="text-xs font-bold text-blue-500 hover:text-blue-400 transition-colors"
+                          >
+                            Créer une demande
+                          </button>
+                        </div>
+                      ) : (
+                        upcomingMissions.map((mission) => (
+                          <div key={mission.id} onClick={() => setActiveTab('PLANNING')} className="p-4 hover:bg-[var(--bg-hover)] transition-colors cursor-pointer">
+                            <div className="flex items-start gap-3">
+                              <div className="flex flex-col items-center justify-center w-10 h-10 bg-[var(--bg-hover)] rounded-lg border border-[var(--border)] text-xs font-bold text-[var(--text-muted)]">
+                                <span>{mission.monthShort}</span>
+                                <span className="text-[var(--text-primary)] text-sm">{mission.day}</span>
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-sm text-[var(--text-primary)] mb-1">{mission.title}</h4>
+                                <p className="text-xs text-[var(--text-muted)] flex items-center gap-1"><Clock className="w-3 h-3" /> {mission.time}</p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))
+                      )}
                     </div>
                     <button onClick={() => setActiveTab('PLANNING')} className="w-full py-3 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors uppercase tracking-wider">Voir tout le planning</button>
                   </div>

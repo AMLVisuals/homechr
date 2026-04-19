@@ -1,31 +1,62 @@
 import { DPAEDeclaration } from '@/types/dpae';
+import { URSSAF_IS_CONFIGURED } from '@/lib/urssaf-dpae';
 
 /**
- * Mock DPAE Service
- * In production, this would call the URSSAF API (net-entreprises)
- * via machine-to-machine auth (XML format).
+ * DPAE Service — bascule automatiquement :
+ *   - URSSAF API réelle si URSSAF_API_KEY + URSSAF_SIRET sont en env
+ *   - Mock sinon (dev)
  */
 
 export async function submitDPAE(declaration: DPAEDeclaration): Promise<{
   success: boolean;
   reference?: string;
   error?: string;
+  mode?: 'MOCK' | 'URSSAF_API';
 }> {
-  // Simulate network delay
-  await new Promise((r) => setTimeout(r, 2000));
-
-  // Mock: 95% success rate
-  if (Math.random() > 0.95) {
+  if (!URSSAF_IS_CONFIGURED) {
+    await new Promise((r) => setTimeout(r, 1500));
+    if (Math.random() > 0.95) {
+      return {
+        success: false,
+        error: 'Erreur URSSAF: Numéro de sécurité sociale invalide',
+        mode: 'MOCK',
+      };
+    }
     return {
-      success: false,
-      error: 'Erreur URSSAF: Numéro de sécurité sociale invalide',
+      success: true,
+      reference: `DPAE-MOCK-${Date.now().toString(36).toUpperCase()}`,
+      mode: 'MOCK',
     };
   }
 
-  return {
-    success: true,
-    reference: `DPAE-${Date.now().toString(36).toUpperCase()}`,
-  };
+  // Vrai appel URSSAF via lib/urssaf-dpae.ts
+  try {
+    const { submitDpae } = await import('@/lib/urssaf-dpae');
+    const result = await submitDpae({
+      missionId: (declaration as any).missionId || `dpae-${Date.now()}`,
+      workerFirstName: declaration.employeeFirstName,
+      workerLastName: declaration.employeeLastName,
+      workerBirthDate: declaration.employeeBirthDate,
+      workerBirthCity: (declaration as any).employeeBirthCity,
+      workerBirthDept: (declaration as any).employeeBirthDept,
+      workerSocialNumber: declaration.employeeSSN,
+      startDate: declaration.startDate,
+      endDate: declaration.endDate,
+      contractType: 'CDD_USAGE',
+      employerSiret: declaration.employerSiret,
+    });
+    return {
+      success: !!result.receiptId,
+      reference: result.receiptId || undefined,
+      mode: 'URSSAF_API',
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err?.message || 'Erreur URSSAF',
+      mode: 'URSSAF_API',
+    };
+  }
 }
 
 export function generateContractHTML(declaration: DPAEDeclaration): string {
@@ -139,7 +170,7 @@ export function generateContractHTML(declaration: DPAEDeclaration): string {
   </div>
 
   <div class="footer">
-    <p>Contrat généré par Home CHR — ${new Date().toLocaleDateString('fr-FR')}</p>
+    <p>Contrat généré par ConnectCHR — ${new Date().toLocaleDateString('fr-FR')}</p>
     <p>Ce document a valeur de contrat de travail une fois signé par les deux parties.</p>
   </div>
 </body>

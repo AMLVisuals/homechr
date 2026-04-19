@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, AlertTriangle, Camera, Send, ShieldAlert, CheckCircle2, RefreshCw } from 'lucide-react';
+import { X, AlertTriangle, Camera, Send, ShieldAlert, CheckCircle2, RefreshCw, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
 import { DisputeReason, DISPUTE_REASONS } from '@/types/missions';
@@ -23,12 +23,14 @@ export default function DisputeReportModal({
   isOpen,
   onClose,
 }: DisputeReportModalProps) {
-  const { reportDispute } = useMissionsStore();
+  const { syncReportDispute } = useMissionsStore();
   const { syncAddNotification } = useNotificationsStore();
   const [step, setStep] = useState<'REASON' | 'DETAILS' | 'SUCCESS'>('REASON');
   const [selectedReason, setSelectedReason] = useState<DisputeReason | null>(null);
   const [description, setDescription] = useState('');
   const [photos, setPhotos] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -38,10 +40,23 @@ export default function DisputeReportModal({
     DAMAGE: AlertTriangle,
   };
 
-  const handleSubmit = () => {
-    if (!selectedReason || !description.trim()) return;
+  const handleSubmit = async () => {
+    if (!selectedReason || !description.trim() || submitting) return;
+    setSubmitting(true);
+    setSubmitError(null);
 
-    reportDispute(missionId, selectedReason, description.trim(), photos.length > 0 ? photos : undefined);
+    const result = await syncReportDispute(
+      missionId,
+      selectedReason,
+      description.trim(),
+      photos.length > 0 ? photos : undefined
+    );
+
+    if (!result.ok) {
+      setSubmitError(result.error || 'Erreur serveur');
+      setSubmitting(false);
+      return;
+    }
 
     syncAddNotification({
       title: 'Litige ouvert',
@@ -49,7 +64,6 @@ export default function DisputeReportModal({
       type: 'dispute',
     });
 
-    // If no-show, also notify about free replacement
     if (selectedReason === 'NO_SHOW') {
       syncAddNotification({
         title: 'Remplacement gratuit',
@@ -58,6 +72,7 @@ export default function DisputeReportModal({
       });
     }
 
+    setSubmitting(false);
     setStep('SUCCESS');
   };
 
@@ -251,13 +266,19 @@ export default function DisputeReportModal({
                   </div>
                 )}
 
+                {submitError && (
+                  <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-400">
+                    {submitError}
+                  </div>
+                )}
+
                 {/* Submit */}
                 <button
                   onClick={handleSubmit}
-                  disabled={!description.trim()}
+                  disabled={!description.trim() || submitting}
                   className="w-full py-3.5 bg-red-500 hover:bg-red-400 text-white rounded-xl font-bold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  <Send className="w-4 h-4" />
+                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   Envoyer le signalement
                 </button>
               </motion.div>

@@ -15,6 +15,7 @@
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-slot": "^1.2.4",
+    "@stripe/react-stripe-js": "^6.2.0",
     "@stripe/stripe-js": "^8.11.0",
     "@supabase/supabase-js": "^2.100.0",
     "@tailwindcss/postcss": "^4",
@@ -38,6 +39,7 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "wavesurfer.js": "^7.12.1",
+    "web-push": "^3.6.7",
     "zod": "^4.1.13",
     "zustand": "^5.0.9"
   },
@@ -46,6 +48,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
+    "@types/web-push": "^3.6.4",
     "baseline-browser-mapping": "^2.10.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.7",

@@ -7,7 +7,7 @@ import {
   X, MapPin, Clock, Camera, Mic, Star, Send,
   User, Phone, MessageSquare, Video, Image as ImageIcon,
   AlertCircle, Navigation, ChevronRight, CheckCircle2, Package, FileText,
-  XCircle, Users, Eye, Play, AlertTriangle
+  XCircle, Users, Eye, Play, AlertTriangle, CreditCard, ShieldCheck, Loader2
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import FullScreenGallery from '@/components/shared/FullScreenGallery';
@@ -24,9 +24,13 @@ import { useStore } from '@/store/useStore';
 import { useDPAEStore } from '@/store/useDPAEStore';
 import { Mission, MissionCandidate } from '@/types/missions';
 import { getCandidatesByMission, updateCandidateStatus } from '@/lib/supabase-helpers';
+import { supabase } from '@/lib/supabase';
 import DPAEWizard from '../dpae/DPAEWizard';
 import DisputeReportModal from '../disputes/DisputeReportModal';
 import PostMissionReviewModal from '../reviews/PostMissionReviewModal';
+import ChatThreadModal from '@/components/shared/ChatThreadModal';
+import MissionPaymentModal from './MissionPaymentModal';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface MissionDetailsModalProps {
   mission: Mission | null;
@@ -36,6 +40,7 @@ interface MissionDetailsModalProps {
 
 
 export default function MissionDetailsModal({ mission, isOpen, onClose }: MissionDetailsModalProps) {
+  const { user } = useAuth();
   const { addReview, generateInvoice, payInvoice, syncUpdateMission, rejectQuote, validateStaffMission, setPartsStatus, selectCandidate, rejectCandidate } = useMissionsStore();
   const { venues } = useVenuesStore();
   const isPremium = useStore((s) => s.isPremium);
@@ -44,6 +49,10 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
   const [showDPAEWizard, setShowDPAEWizard] = useState(false);
   const [showDisputeModal, setShowDisputeModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [capturingPayment, setCapturingPayment] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'DETAILS' | 'EVIDENCE' | 'PROVIDER' | 'INVOICE' | 'QUOTE' | 'CANDIDATES'>('DETAILS');
   const [showRating, setShowRating] = useState(false);
   const [showProviderProfile, setShowProviderProfile] = useState(false);
@@ -76,24 +85,46 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
   useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
-    if (isOpen && mission?.id) {
-      getCandidatesByMission(mission.id).then(({ data }) => {
-        if (data && data.length > 0) {
-          const mapped: MissionCandidate[] = data.map((c: any) => ({
-            id: c.id,
-            name: c.name || 'Prestataire',
-            specialty: c.specialty || '',
-            rating: c.rating || 0,
-            avatar: c.avatar || '',
-            completedMissions: c.completedMissions || 0,
-            status: c.status || 'PENDING',
-            message: c.message || '',
-            appliedAt: c.appliedAt || c.created_at || new Date().toISOString(),
-          }));
-          setSupabaseCandidates(mapped);
-        }
-      });
-    }
+    if (!isOpen || !mission?.id) return;
+
+    const loadCandidates = async () => {
+      const { data } = await getCandidatesByMission(mission.id);
+      if (!data) return;
+      const mapped: MissionCandidate[] = data.map((c: any) => ({
+        id: c.id,
+        workerId: c.workerId || c.worker_id,
+        name: c.name || 'Prestataire',
+        specialty: c.specialty || '',
+        rating: c.rating || 0,
+        avatar: c.avatar || '',
+        completedMissions: c.completedMissions || 0,
+        status: c.status || 'PENDING',
+        message: c.message || '',
+        appliedAt: c.appliedAt || c.created_at || new Date().toISOString(),
+        identityVerified: !!c.identityVerified,
+      }));
+      setSupabaseCandidates(mapped);
+    };
+
+    loadCandidates();
+
+    const channel = supabase
+      .channel(`mission-candidates:${mission.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'mission_candidates',
+          filter: `mission_id=eq.${mission.id}`,
+        },
+        () => loadCandidates()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [isOpen, mission?.id]);
 
   if (!isOpen || !mission || !mounted) return null;
@@ -201,7 +232,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
       ],
       portfolio: [],
       experiences: [
-        { id: '1', role: candidate.specialty, company: 'Indépendant', startDate: '2020', description: `${candidate.completedMissions} missions réalisées sur Home CHR` }
+        { id: '1', role: candidate.specialty, company: 'Indépendant', startDate: '2020', description: `${candidate.completedMissions} missions réalisées sur ConnectCHR` }
       ],
       reviews: [],
       languages: ['Français'],
@@ -489,12 +520,137 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                         <Phone className="w-3 h-3" /> Appeler
                       </button>
                       <button
-                        onClick={(e) => { e.stopPropagation(); }}
-                        className="flex-1 py-2 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] rounded-xl text-xs font-bold text-[var(--text-primary)] transition-colors flex items-center justify-center gap-2"
+                        onClick={(e) => { e.stopPropagation(); setShowChatModal(true); }}
+                        disabled={!mission.provider?.id}
+                        className="flex-1 py-2 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-xs font-bold text-[var(--text-primary)] transition-colors flex items-center justify-center gap-2"
                       >
                         <MessageSquare className="w-3 h-3" /> Message
                       </button>
                     </div>
+
+                  {/* Paiement Stripe Connect */}
+                  {(() => {
+                    const ps = mission.paymentStatus || 'NONE';
+                    const canPreauth = ['SCHEDULED', 'ON_WAY', 'ON_SITE'].includes(mission.status) && (ps === 'NONE' || ps === 'RELEASED' || ps === 'FAILED');
+                    const canCapture = mission.status === 'COMPLETED' && ps === 'AUTHORIZED';
+                    const amount = mission.authorizedAmount || (typeof mission.price === 'number' ? mission.price : parseFloat(String(mission.price || '0').replace(/[^\d.]/g, ''))) || 0;
+
+                    if (canPreauth && mission.provider?.id && amount > 0) {
+                      return (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setShowPaymentModal(true); }}
+                          className="w-full mt-3 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors"
+                        >
+                          <CreditCard className="w-4 h-4" />
+                          Préautoriser le paiement ({amount.toFixed(2)} €)
+                        </button>
+                      );
+                    }
+
+                    if (ps === 'AUTHORIZED') {
+                      const canRelease = ['SCHEDULED', 'ON_WAY'].includes(mission.status);
+                      return (
+                        <>
+                          <div className="mt-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center gap-2">
+                            <ShieldCheck className="w-4 h-4 text-blue-400 shrink-0" />
+                            <p className="text-xs text-blue-400 flex-1">
+                              <strong>{amount.toFixed(2)} €</strong> bloqués — transfert au prestataire à la validation de la mission
+                            </p>
+                          </div>
+                          {canRelease && (
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                if (!confirm('Annuler la préautorisation ? Les fonds seront libérés sur votre carte.')) return;
+                                setCapturingPayment(true);
+                                setPaymentError(null);
+                                try {
+                                  const res = await fetch('/api/stripe/payment/release', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ missionId: mission.id }),
+                                  });
+                                  const data = await res.json();
+                                  if (!res.ok) throw new Error(data.error || 'Échec de la libération');
+                                  await syncUpdateMission(mission.id, { paymentStatus: 'RELEASED' });
+                                } catch (err: any) {
+                                  setPaymentError(err?.message || 'Erreur');
+                                } finally {
+                                  setCapturingPayment(false);
+                                }
+                              }}
+                              disabled={capturingPayment}
+                              className="w-full mt-2 py-2 bg-[var(--bg-hover)] hover:bg-red-500/10 border border-[var(--border)] hover:border-red-500/30 text-[var(--text-muted)] hover:text-red-400 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-2"
+                            >
+                              {capturingPayment ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
+                              Annuler la préautorisation
+                            </button>
+                          )}
+                          {paymentError && (
+                            <p className="mt-1 text-[11px] text-red-400">{paymentError}</p>
+                          )}
+                        </>
+                      );
+                    }
+
+                    if (canCapture) {
+                      return (
+                        <>
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              setCapturingPayment(true);
+                              setPaymentError(null);
+                              try {
+                                const res = await fetch('/api/stripe/payment/capture', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ missionId: mission.id }),
+                                });
+                                const data = await res.json();
+                                if (!res.ok) throw new Error(data.error || 'Échec de la capture');
+                                await syncUpdateMission(mission.id, { paymentStatus: 'CAPTURED', capturedAmount: data.amount });
+                              } catch (err: any) {
+                                setPaymentError(err?.message || 'Erreur');
+                              } finally {
+                                setCapturingPayment(false);
+                              }
+                            }}
+                            disabled={capturingPayment}
+                            className="w-full mt-3 py-3 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors"
+                          >
+                            {capturingPayment ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                            Libérer le paiement ({amount.toFixed(2)} €)
+                          </button>
+                          {paymentError && (
+                            <p className="mt-1 text-[11px] text-red-400">{paymentError}</p>
+                          )}
+                        </>
+                      );
+                    }
+
+                    if (ps === 'CAPTURED') {
+                      return (
+                        <div className="mt-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                          <p className="text-xs text-green-500 flex-1">
+                            Paiement transféré au prestataire ({(mission.capturedAmount || amount).toFixed(2)} €)
+                          </p>
+                        </div>
+                      );
+                    }
+
+                    if (ps === 'REFUNDED') {
+                      return (
+                        <div className="mt-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                          <p className="text-xs text-red-400">Paiement remboursé</p>
+                        </div>
+                      );
+                    }
+
+                    return null;
+                  })()}
 
                   {mission.status === 'COMPLETED' && (
                     <>
@@ -1228,6 +1384,12 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                       <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap">
                                           <h4 className="font-bold text-sm text-[var(--text-primary)]">{candidate.name}</h4>
+                                          {candidate.identityVerified && (
+                                            <span title="Identité vérifiée (Stripe KYC)" className="text-[10px] font-bold text-blue-400 uppercase bg-blue-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                              <ShieldCheck className="w-3 h-3" />
+                                              Vérifié
+                                            </span>
+                                          )}
                                           {isSelected && (
                                             <span className="text-[10px] font-bold text-green-400 uppercase bg-green-500/10 px-2 py-0.5 rounded-full">Sélectionné</span>
                                           )}
@@ -1285,8 +1447,26 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                               await updateCandidateStatus(candidate.id, 'ACCEPTED');
                                               setSupabaseCandidates(prev => prev.map(c => c.id === candidate.id ? { ...c, status: 'ACCEPTED' as const } : c));
                                               selectCandidate(mission.id, candidate.id);
+                                              const workerProfileId = candidate.workerId || candidate.id;
                                               // Passer la mission en SCHEDULED dans Supabase
-                                              await syncUpdateMission(mission.id, { status: 'SCHEDULED', provider: { id: candidate.id, name: candidate.name, rating: candidate.rating, completedMissions: candidate.completedMissions, bio: '', phone: '' } });
+                                              await syncUpdateMission(mission.id, { status: 'SCHEDULED', provider: { id: workerProfileId, name: candidate.name, rating: candidate.rating, completedMissions: candidate.completedMissions, bio: '', phone: '' } });
+
+                                              if (candidate.workerId) {
+                                                fetch('/api/push/send', {
+                                                  method: 'POST',
+                                                  headers: { 'Content-Type': 'application/json' },
+                                                  body: JSON.stringify({
+                                                    userId: candidate.workerId,
+                                                    payload: {
+                                                      title: 'Candidature acceptée ✅',
+                                                      body: `Vous êtes retenu pour "${mission.title}"`,
+                                                      url: '/prestataire/mes-missions',
+                                                      tag: `mission-accept-${mission.id}`,
+                                                      requireInteraction: true,
+                                                    },
+                                                  }),
+                                                }).catch(() => {});
+                                              }
                                             }}
                                             className="py-2.5 px-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold hover:bg-green-500/20 transition-colors flex items-center justify-center gap-1.5"
                                           >
@@ -1478,10 +1658,51 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
         <PostMissionReviewModal
           missionId={mission.id}
           missionTitle={mission.title}
+          providerId={mission.provider?.id || ''}
           providerName={mission.provider?.name || mission.expert || 'Prestataire'}
           providerAvatar={mission.provider?.avatar}
           isOpen={showReviewModal}
           onClose={() => setShowReviewModal(false)}
+        />
+      )}
+    </AnimatePresence>
+
+    {/* Chat thread modal */}
+    <AnimatePresence>
+      {showChatModal && mission && user?.id && mission.provider?.id && (
+        <ChatThreadModal
+          missionId={mission.id}
+          missionTitle={mission.title}
+          patronId={user.id}
+          workerId={mission.provider.id}
+          peerName={mission.provider.name}
+          peerAvatar={mission.provider.avatar}
+          peerId={mission.provider.id}
+          senderName={user.user_metadata?.first_name || 'Patron'}
+          isOpen={showChatModal}
+          onClose={() => setShowChatModal(false)}
+        />
+      )}
+    </AnimatePresence>
+
+    {/* Payment preauth modal */}
+    <AnimatePresence>
+      {showPaymentModal && mission && mission.provider?.id && (
+        <MissionPaymentModal
+          missionId={mission.id}
+          missionTitle={mission.title}
+          workerUserId={mission.provider.id}
+          amountEuros={
+            mission.authorizedAmount ||
+            (typeof mission.price === 'number'
+              ? mission.price
+              : parseFloat(String(mission.price || '0').replace(/[^\d.]/g, '')) || 0)
+          }
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          onSuccess={() => {
+            syncUpdateMission(mission.id, { paymentStatus: 'AUTHORIZED' });
+          }}
         />
       )}
     </AnimatePresence>

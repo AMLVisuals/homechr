@@ -1,0 +1,637 @@
+# ConnectCHR — Plan de tests manuels
+
+> Document destiné au testeur QA. Le dev ne teste pas l'UI lui-même.
+> À chaque nouveau sprint, de nouvelles sections seront ajoutées en bas.
+> Dernière mise à jour : **2026-04-19** (après Sprint 4 — tous sprints MVP codés).
+
+---
+
+## Pré-requis environnement
+
+### 1. Variables d'environnement (`.env.local`)
+Vérifier que ces clés existent et sont renseignées :
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+- `STRIPE_SECRET_KEY`
+- `NEXT_PUBLIC_VAPID_PUBLIC_KEY` *(Sprint 1)*
+- `VAPID_PRIVATE_KEY` *(Sprint 1)*
+- `VAPID_SUBJECT` *(Sprint 1)*
+- `SUPABASE_SERVICE_ROLE_KEY` *(Sprint 1 — à ajouter manuellement depuis Supabase Dashboard → Settings → API)*
+
+### 2. Migrations SQL Supabase appliquées
+Exécuter dans l'ordre via Supabase SQL Editor :
+1. `supabase-schema.sql` (base, déjà appliqué normalement)
+2. `supabase-schema-sprint1.sql` → chat + push_subscriptions
+3. `supabase-schema-sprint2.sql` → Realtime missions + index GIN skills
+4. `supabase-schema-sprint3.sql` → colonnes Stripe Connect sur profiles/missions + stripe_events
+5. `supabase-schema-sprint4.sql` → colonnes signature sur dpae_contracts + table payslip_jobs + mode submission DPAE
+
+### 3. Comptes de test — À CRÉER PAR LE TESTEUR
+
+Le testeur crée les comptes via le signup de l'app (c'est le **premier test** à effectuer — valide le parcours d'inscription). Il doit ensuite **partager les credentials** avec le dev dans un canal privé (Slack DM, email sécurisé, 1Password partagé, etc.) pour que le dev puisse aussi s'y connecter au besoin (diagnostic, vérif data, etc.).
+
+**Comptes à créer** :
+
+| Rôle | Email suggéré | Remarque |
+|---|---|---|
+| **Patron 1** | `patron1.test@connectchr.fr` | Pour tester le côté établissement |
+| **Patron 2** | `patron2.test@connectchr.fr` | Pour tester interactions multi-patrons |
+| **Prestataire 1** | `presta1.test@connectchr.fr` | Remplir skills `["cuisine","extras"]` au signup |
+| **Prestataire 2** | `presta2.test@connectchr.fr` | Remplir skills `["plomberie","techniciens"]` au signup |
+| **Admin** | `admin@home-chr.fr` | Déjà existant dans Supabase Auth — demander le mot de passe au dev |
+
+**Tableau à remplir et partager** (template) :
+
+```
+Patron 1  : patron1.test@connectchr.fr / <password>
+Patron 2  : patron2.test@connectchr.fr / <password>
+Presta 1  : presta1.test@connectchr.fr / <password>
+Presta 2  : presta2.test@connectchr.fr / <password>
+Admin     : admin@home-chr.fr          / <password déjà connu du dev>
+```
+
+**⚠️ Ne jamais** mettre ces credentials dans ce fichier, ni dans le repo Git, ni dans une issue publique. Uniquement dans un canal privé entre testeur et dev.
+
+**Vérif email Supabase** : en plan free, limite de 2 emails de confirmation par heure. Le testeur peut désactiver "Confirm email" dans Supabase Auth > Settings pour accélérer les tests (à réactiver avant passage en prod).
+
+### 4. Lancement
+```bash
+npm run dev
+# Tester sur http://localhost:3000
+# Pour tester push : installer l'app en PWA ou utiliser 2 navigateurs différents
+```
+
+---
+
+## 🏢 INTÉGRATIONS EXTERNES — À CRÉER PAR LE RESPONSABLE LÉGAL
+
+> Ces 3 intégrations nécessitent l'**identité légale de la société** (SIRET, représentant légal, RIB société, certificat numérique).
+> Elles doivent être **créées par la personne qui gère la société ConnectCHR** — celle qui a accès aux infos KBIS, carte bancaire société, etc.
+>
+> Ce n'est **PAS un travail de développeur**. Le dev a préparé tout le code, il attend juste les clés API à coller dans `.env.local`.
+
+### État actuel (2026-04-19)
+| Service | Compte créé ? | Code prêt ? | Mode actuel |
+|---|---|---|---|
+| Yousign | ❌ À créer | ✅ | Route renvoie 503 si vide |
+| PayFit | ❌ À créer | ✅ | Stub : bulletin BDD mais pas de PDF |
+| URSSAF Net-Entreprises | ❌ À créer | ✅ | MOCK : 95% succès factice |
+
+### Tâche 1 — 🟢 YOUSIGN (priorité haute, 5 min, gratuit en sandbox)
+
+**Pourquoi** : signature électronique des contrats CDD entre patron et prestataire.
+
+**Étapes** :
+1. Aller sur https://yousign.com → **Sign up / Essai gratuit**
+2. Email pro, mot de passe, nom société = `ConnectCHR`
+3. Dashboard Yousign → menu **Developers** ou **API keys**
+4. Créer une API key mode **Sandbox** (test, gratuit, 5 signatures/mois)
+5. Copier la clé (format `ak_sandbox_xxxxxxxx`)
+6. **Transmettre au dev** la clé dans un canal privé
+
+Le dev ajoutera dans `.env.local` :
+```
+YOUSIGN_API_KEY=ak_sandbox_xxxxxxxx
+```
+
+Pour la **prod** (après validation MVP) : même dashboard → passer en "Production" → API key différente → transmettre au dev pour Vercel env.
+
+**Webhook à configurer** (quand l'app sera déployée Vercel) :
+- Dashboard Yousign → **Webhooks** → **Add endpoint**
+- URL : `https://connectchr.vercel.app/api/contracts/webhook`
+- Events à cocher : `signature_request.done`, `signer.declined`, `signature_request.expired`
+- Copier le **Signing Secret** → transmettre au dev → variable `YOUSIGN_WEBHOOK_SECRET`
+
+---
+
+### Tâche 2 — 🔴 URSSAF Net-Entreprises (priorité haute mais délai long, ~400€/an)
+
+**Pourquoi** : DPAE obligatoire légalement avant chaque mission STAFF.
+
+**Étapes** :
+1. Aller sur https://www.net-entreprises.fr
+2. **S'inscrire en tant que tiers-déclarant** (ConnectCHR déclare pour le compte des patrons)
+3. Choisir le service **DPAE - EDI/API**
+4. Télécharger la convention → la faire signer par le représentant légal → renvoyer par courrier ou espace sécurisé
+5. **Commander un certificat numérique X.509** chez une AC agréée :
+   - ChamberSign : https://www.chambersign.fr (~220€/an)
+   - Certigna : https://www.certigna.com (~260€/an)
+   - Certinomis : https://www.certinomis.fr (~240€/an)
+6. Une fois le certificat obtenu (papier + fichier .p12) → envoyer le certificat à Net-Entreprises pour activation
+7. Délai total : **2-3 semaines**
+8. Une fois activé, récupérer :
+   - L'API key / clé technique
+   - Le certificat au format fichier
+9. **Transmettre au dev** → il configurera `URSSAF_API_KEY`, `URSSAF_SIRET`, et le certificat côté serveur
+
+**Alternative provisoire** (en attendant les accès API) : le patron télécharge le contrat PDF généré par l'app et soumet lui-même la DPAE sur https://www.net-entreprises.fr. Standard dans le HoReCa indépendant.
+
+---
+
+### Tâche 3 — 🟡 PayFit (priorité moyenne, à activer quand volume > 20 missions/mois)
+
+**Pourquoi** : génération automatique des bulletins de paie pour les prestataires extras.
+
+**Étapes** :
+1. Envoyer un email à `partners@payfit.com` avec :
+   - Nom société : ConnectCHR
+   - SIRET
+   - Description : "Plateforme marketplace de mise en relation HoReCa + personnel extra, besoin de générer des bulletins via API pour nos clients patrons"
+   - Volumétrie estimée (ex : 50 missions/mois)
+2. Un commercial PayFit va recontacter (délai 3-5 jours)
+3. Démo + négociation contractuelle (délai 4-8 semaines au total)
+4. Une fois le contrat signé, PayFit fournit :
+   - `PAYFIT_API_KEY`
+   - `PAYFIT_COMPANY_ID`
+5. **Transmettre au dev**
+
+**Coût estimé** : plusieurs k€/mois en fonction du nombre de bulletins. À chiffrer avec PayFit.
+
+**Alternative** : en attendant, le code stocke les bulletins en BDD avec calcul brut/net simple (approximation charges 22%). À long terme, passer sur PayFit ou équivalent (Silae, Lucca).
+
+---
+
+### Ce que le testeur/responsable légal DOIT transmettre au dev
+
+Dans un canal privé (Slack DM, email chiffré, 1Password partagé — **jamais** dans ce repo Git) :
+
+```
+## Yousign (sandbox dans un premier temps)
+YOUSIGN_API_KEY=ak_sandbox_xxxxxxxx
+YOUSIGN_WEBHOOK_SECRET=whsec_xxxxxx (à fournir après config webhook)
+
+## URSSAF (quand obtenu, peut prendre 2-3 semaines)
+URSSAF_API_KEY=xxx
+URSSAF_SIRET=xxxxxxxxxxxxxx
++ certificat .p12 (fichier) transmis via canal sécurisé
+
+## PayFit (quand obtenu, peut prendre 4-8 semaines)
+PAYFIT_API_KEY=xxx
+PAYFIT_COMPANY_ID=xxx
+```
+
+---
+
+### Ce que le testeur PEUT tester MAINTENANT (sans attendre les accès externes)
+
+Toute l'app fonctionne en stub/mock pour ces 3 services. Ce qui veut dire :
+
+✅ **Testable dès maintenant** :
+- Génération du contrat CDD (HTML/PDF existant)
+- Parcours DPAE côté patron (résultat simulé avec reference `MOCK-xxx`)
+- Création d'un job de bulletin (enregistré en BDD avec brut/net calculés)
+- Tout le reste de l'app (chat, paiement Stripe, matching, notation, litiges…)
+
+❌ **Pas testable tant que les clés ne sont pas fournies** :
+- Recevoir un vrai email Yousign avec lien de signature
+- Voir un vrai AEE URSSAF sur net-entreprises.fr
+- Télécharger un PDF de bulletin PayFit finalisé
+
+Ces tests seront ajoutés en **passe n°2** une fois les clés transmises.
+
+---
+
+## SPRINT 0 — Quick wins visuels
+
+### T0.1 — Marque unifiée "ConnectCHR"
+- [ ] Ouvrir `/` → title onglet navigateur affiche "ConnectCHR"
+- [ ] Login → h1 = "ConnectCHR"
+- [ ] Sidebar patron (logo en haut) → texte = "ConnectCHR"
+- [ ] Settings (roue) → footer affiche "ConnectCHR v1.0"
+- [ ] Modal "Passer Premium" → "ConnectCHR Pro"
+- [ ] Modal "Ajouter équipement" → texte scan mentionne "QR code ConnectCHR"
+- [ ] Manifest PWA (DevTools > Application > Manifest) → name = "ConnectCHR"
+- [ ] Aucune occurrence de "Home CHR" ou "CHR Connect" en user-facing
+
+### T0.2 — Dashboard patron dynamique
+**Setup** : patron avec au moins 3 missions COMPLETED dans le mois courant + ≥ 1 mission dans le mois précédent.
+- [ ] Carte "Activité du mois" → affiche le **mois courant en français** (ex. "Dépensé en Avril"), PAS "Juin"
+- [ ] Montant dépensé = somme réelle des `price` des missions COMPLETED du mois → pas "2450€" en dur
+- [ ] Trend +X% / -X% cohérent avec la comparaison au mois précédent (green si +, red si -)
+- [ ] Nombre de missions = vrai count
+- [ ] Note moyenne = moyenne des `review.rating` du mois (ou "—" si aucune note)
+- [ ] Section "À Venir" : top 3 missions planifiées (status SCHEDULED/ON_WAY/…) triées par date, avec **vraies** dates/heures (jour + mois FR + heure)
+- [ ] Quand 0 missions planifiées → empty state "Aucune mission planifiée" + bouton "Créer une demande"
+
+### T0.3 — Bannière bienvenue dismissible
+- [ ] Login patron neuf (0 missions) → bannière "Bienvenue sur ConnectCHR" visible
+- [ ] Bouton X en haut à droite de la bannière → clic → bannière disparaît
+- [ ] Rafraîchir la page → bannière reste fermée (persistée en `localStorage`)
+- [ ] Effacer localStorage + rafraîchir → bannière réapparaît
+
+---
+
+## SPRINT 1 — Fondations temps réel
+
+### T1.1 — Notation croisée persistée
+**Setup** : mission en status COMPLETED avec provider assigné, les 2 côtés connectés.
+- [ ] Côté patron : ouvrir mission COMPLETED → bouton "Noter la prestation" visible
+- [ ] Clic → modal s'ouvre avec étoiles cliquables
+- [ ] Choisir 4 étoiles + commentaire → "Envoyer mon avis"
+- [ ] Si le prestataire n'a PAS encore noté → écran "En attente de l'avis du prestataire" (Clock icon, texte bleu)
+- [ ] Fermer, vérifier dans Supabase : table `mission_reviews` contient 1 row avec reviewer_id=patron, reviewee_id=provider, rating=4
+- [ ] Le prestataire soumet son avis côté worker (TODO: UI worker à venir)
+- [ ] Rouvrir modal patron → s'il y a les 2 avis, écran "Avis croisés" révélant rating+commentaire des deux
+- [ ] Erreur réseau pendant submit → message rouge "Impossible d'enregistrer l'avis", pas de duplicate
+
+### T1.2 — Chat Supabase Realtime (côté patron)
+**Setup** : mission avec provider assigné, 2 navigateurs (patron et worker).
+- [ ] Ouvrir mission côté patron → bloc provider → bouton "Message" cliquable
+- [ ] Clic → modal chat s'ouvre, affiche nom + avatar + titre mission
+- [ ] Premier ouverture : empty state "Démarrez la conversation"
+- [ ] Taper message + Enter → envoi instantané, apparaît à droite en bleu
+- [ ] Taper Shift+Enter → nouvelle ligne (pas envoi)
+- [ ] Ouvrir le même thread côté worker (via chat côté prestataire — pas encore implémenté, tester plutôt via insertion manuelle Supabase ou attendre Sprint 1 bis)
+- [ ] Vérifier Supabase : table `message_threads` a 1 row pour cette mission, `messages` contient les messages envoyés
+- [ ] Timestamp affiché sous chaque message (HH:MM)
+- [ ] Scroll auto vers le bas à l'ouverture et à chaque nouveau message
+- [ ] Si le Service Worker n'est pas actif / Realtime cassé → pas de crash, le bouton d'envoi reste fonctionnel
+
+### T1.3 — Notifications push (infrastructure)
+**Setup** : `SUPABASE_SERVICE_ROLE_KEY` dans `.env.local`, serveur redémarré. Navigateur Chrome/Edge/Firefox récent (pas Safari iOS < 16.4).
+- [ ] Ouvrir **Paramètres** (roue) → section Notifications → toggle "Notifications push"
+- [ ] État initial = "Désactivées"
+- [ ] Clic sur toggle → popup navigateur demande la permission
+- [ ] Accepter → toggle devient bleu, état = "Activées sur cet appareil"
+- [ ] Vérifier Supabase : table `push_subscriptions` contient 1 row pour cet user (endpoint, p256dh, auth, user_agent)
+- [ ] Refuser popup → toggle reste off, état = "Bloqué dans les réglages du navigateur", toggle désactivé
+- [ ] Cliquer à nouveau sur le toggle activé → désinscription, toggle devient gris, row supprimée dans Supabase
+- [ ] Tester navigateur non supporté (ex. Safari iOS 15) → état = "Non supporté par ce navigateur", toggle grisé
+
+### T1.4 — Push notif sur message chat
+**Setup** : worker a activé le push, patron envoie un message.
+- [ ] Patron ouvre chat avec worker → envoie "Bonjour, à demain 9h"
+- [ ] Worker (autre navigateur, même ONGLET FERMÉ ou en arrière-plan) reçoit une notif système "<Prénom patron>" / "Bonjour, à demain 9h"
+- [ ] Clic sur notif → ouvre l'app sur `/patron/missions` (ou devrait idéalement ouvrir le thread — à améliorer)
+- [ ] Message > 120 caractères → body tronqué avec "…"
+
+---
+
+## SPRINT 2 — Matching temps réel
+
+### T2.1 — Realtime côté prestataire
+**Setup** : 1 patron + 2 prestataires connectés dans 3 navigateurs différents.
+- [ ] Prestataire A ouvre onglet "Rechercher" → aucune mission
+- [ ] Patron crée une nouvelle mission SEARCHING avec skills (ex. `["cuisine", "extras"]`)
+- [ ] Prestataire A **voit la mission apparaître automatiquement** sans refresh (< 2s)
+- [ ] Prestataire B idem
+- [ ] Patron annule la mission → elle disparaît des 2 listes prestataires en direct
+
+### T2.2 — Push aux workers matchés
+**Setup** : prestataire A a skill `"cuisine"`, prestataire B a skill `"plomberie"`, les 2 ont activé push. Patron crée une mission avec skills `["cuisine"]`.
+- [ ] Prestataire A reçoit une notif push "Nouvelle mission" (titre mission)
+- [ ] Prestataire B ne reçoit **pas** de push (skill non matchée)
+- [ ] Si la mission est `urgent: true` → push prefix "⚡ Urgent — …" et `requireInteraction: true` (notif reste jusqu'à interaction)
+- [ ] Clic sur notif → ouvre `/prestataire/mes-missions`
+
+### T2.3 — Realtime côté patron
+**Setup** : patron a ouvert le modal de sa mission SEARCHING.
+- [ ] Prestataire A postule → patron voit la candidature apparaître **sans refresh** dans l'onglet Candidatures du modal
+- [ ] Prestataire B postule → même comportement, liste se met à jour
+- [ ] Prestataire A annule sa candidature → disparaît côté patron en direct
+
+### T2.4 — Push patron sur candidature
+**Setup** : patron a activé push.
+- [ ] Prestataire A postule → patron reçoit une notif "Nouvelle candidature / \<Nom prestataire\> souhaite rejoindre \"\<Titre mission\>\""
+- [ ] Clic notif → ouvre `/patron/missions`
+
+### T2.5 — Acceptation candidat + push
+**Setup** : plusieurs candidats sur une mission, patron choisit l'un.
+- [ ] Patron clique "Choisir" sur un candidat → candidat passe en "ACCEPTED"
+- [ ] Mission passe en status SCHEDULED
+- [ ] Le candidat choisi (s'il a push activé) reçoit "Candidature acceptée ✅ / Vous êtes retenu pour \"\<Titre\>\""
+- [ ] Notif a `requireInteraction: true` (reste jusqu'à clic)
+- [ ] Clic → ouvre `/prestataire/mes-missions`
+
+---
+
+---
+
+## SPRINT 3 — Stripe Connect marketplace
+
+> **Pré-requis Stripe** (à faire en amont par l'équipe dev/ops, pas par le testeur) :
+> 1. Dans Stripe Dashboard (mode test) → Settings → Connect → **Enable Connect**
+> 2. Activer **Express accounts** (platform accounts)
+> 3. Branding : logo, nom plateforme "ConnectCHR"
+> 4. Webhook endpoint à créer : `https://<url>/api/stripe/webhook`
+>    - Events à écouter : `account.updated`, `payment_intent.succeeded`, `payment_intent.amount_capturable_updated`, `payment_intent.requires_action`, `payment_intent.payment_failed`, `charge.refunded`, `checkout.session.completed`, `invoice.paid`, `customer.subscription.deleted`, `invoice.payment_failed`
+>    - Copier le `whsec_...` → `.env.local` `STRIPE_WEBHOOK_SECRET`
+> 5. Tests avec Stripe test cards : `4242 4242 4242 4242` (succès), `4000 0025 0000 3155` (3DS requis), `4000 0000 0000 9995` (insufficient funds)
+
+### T3.1 — Onboarding Connect côté prestataire
+**Setup** : compte prestataire neuf, sans `stripe_account_id` en base.
+- [ ] Ouvrir `/prestataire/mon-profil` → onglet **Identité**
+- [ ] En haut de la page : carte "Recevoir des paiements" avec bouton **"Activer les paiements"**
+- [ ] Clic → redirect vers page hébergée Stripe (URL commence par `https://connect.stripe.com/setup/...`)
+- [ ] Remplir l'onboarding (en mode test Stripe : cocher cases + fake data, ajouter IBAN test FR `FR1420041010050500013M02606`)
+- [ ] Finaliser → retour sur `/prestataire/mon-profil?stripe=return`
+- [ ] Carte affiche maintenant "Paiements activés" (vert) avec icône check
+- [ ] Vérifier Supabase `profiles` : `stripe_account_id` renseigné, `stripe_charges_enabled=true`, `stripe_payouts_enabled=true`, `stripe_details_submitted=true`
+
+### T3.2 — Onboarding interrompu
+- [ ] Compte neuf, clic "Activer les paiements", **fermer la page Stripe avant la fin**
+- [ ] Revenir sur `/prestataire/mon-profil` → la carte doit afficher "Vérification en cours" (orange) + bouton "Compléter mon dossier"
+- [ ] Liste des `requirementsDue` visible (ex. "external account", "document front")
+- [ ] Clic sur "Compléter mon dossier" → renvoie sur l'onboarding Stripe pour finir
+
+### T3.3 — Préautorisation du paiement (patron)
+**Setup** : mission SCHEDULED avec provider Stripe-actif, patron avec carte de test.
+- [ ] Côté patron, ouvrir la mission SCHEDULED
+- [ ] Bloc provider : **bouton bleu "Préautoriser le paiement (X.XX €)"** visible
+- [ ] Clic → modal s'ouvre avec décomposition : montant prestataire + frais plateforme 15% + total
+- [ ] Message "Les fonds seront bloqués… prélevés qu'après validation"
+- [ ] Saisir carte `4242 4242 4242 4242`, date future, CVC `123` → "Confirmer et bloquer"
+- [ ] Écran succès "Paiement préautorisé" → modal se ferme après 1.5s
+- [ ] Mission affiche badge bleu "X.XX € bloqués — transfert au prestataire à la validation"
+- [ ] Vérifier Supabase `missions` : `stripe_payment_intent_id`, `payment_status='AUTHORIZED'`, `authorized_amount`, `platform_fee_amount`
+- [ ] Vérifier Stripe dashboard (Payments) : un PaymentIntent en `requires_capture` avec application_fee + transfer_data.destination
+
+### T3.4 — Échec de préautorisation
+- [ ] Tenter avec carte `4000 0000 0000 9995` (insufficient funds)
+- [ ] Message d'erreur rouge "Le paiement a échoué / fonds insuffisants"
+- [ ] Mission reste sans `payment_status` AUTHORIZED
+- [ ] Retenter avec une bonne carte → doit fonctionner
+
+### T3.5 — Préautorisation sans compte Connect du worker
+- [ ] Patron tente préautorisation sur mission avec worker qui n'a PAS activé ses paiements Stripe
+- [ ] Erreur "Le prestataire doit compléter son onboarding Stripe avant de recevoir des paiements"
+- [ ] Aucun PaymentIntent créé
+
+### T3.6 — Capture du paiement (mission terminée)
+**Setup** : mission avec `payment_status=AUTHORIZED`, passer au status `COMPLETED`.
+- [ ] Passer la mission en COMPLETED
+- [ ] Ouvrir la mission : bouton vert **"Libérer le paiement (X.XX €)"** visible
+- [ ] Clic → loader → devient "Paiement transféré au prestataire"
+- [ ] Vérifier Supabase : `payment_status='CAPTURED'`, `captured_amount` renseigné, `captured_at` daté
+- [ ] Stripe dashboard : le PaymentIntent passe en `succeeded`, la commission plateforme apparaît dans Applications fees
+- [ ] Côté compte Connect du worker (Stripe dashboard > Connected accounts > [worker]) : Balance augmentée du montant net
+
+### T3.7 — Annulation libère la préauto (patron change d'avis)
+**Setup** : mission avec `payment_status=AUTHORIZED`, appel manuel à `/api/stripe/payment/release` (pas de bouton UI pour l'instant — sera ajouté).
+- [ ] POST `/api/stripe/payment/release` avec `{ missionId }`
+- [ ] Supabase : `payment_status='RELEASED'`
+- [ ] Stripe : PaymentIntent `canceled`
+- [ ] Aucun débit effectif sur la carte patron
+
+### T3.8 — Webhook + idempotence
+- [ ] Vérifier que le webhook reçoit bien les événements (Stripe dashboard > Developers > Webhooks > voir les deliveries)
+- [ ] Table Supabase `stripe_events` : 1 row par événement reçu (unique sur `stripe_event_id`)
+- [ ] `processed=true` après traitement réussi
+- [ ] Si Stripe renvoie le même event (retry) → la route retourne `{duplicate: true}` sans re-traiter
+
+### T3.9 — Mission urgente majoration (rappel Sprint 2, lié)
+- [ ] Le prix "final" utilisé pour la préauto doit refléter l'éventuelle majoration urgente (15%+ si activée côté business)
+- [ ] La commission plateforme reste 15% du total
+
+### T3.10 — Bugs connus Sprint 3
+- Le bouton "Libérer le paiement" s'affiche uniquement si `payment_status='AUTHORIZED'` et `status='COMPLETED'` — si l'un des deux manque, il n'apparaît pas
+- Pas de UI pour annulation côté patron (release) — call API manuel requis
+- Pas de UI patron pour consulter l'historique des paiements (à faire Sprint 4)
+- Reversement au worker = géré par Stripe payout schedule (par défaut standard France = 7j ; à configurer manuellement en mode "daily" pour "48h" promis au prestataire)
+- Webhook en dev : utiliser `stripe listen --forward-to localhost:3000/api/stripe/webhook` pour avoir le `whsec_...` local
+
+---
+
+---
+
+## SPRINT 5 — Confiance
+
+### T5.1 — Ouvrir un litige (côté patron)
+**Setup** : mission COMPLETED avec provider assigné.
+- [ ] Ouvrir la mission côté patron → bouton rouge "Signaler un problème" visible (sous le bloc review)
+- [ ] Clic → modal s'ouvre, liste des motifs (NO_SHOW, QUALITY_ISSUE, DAMAGE, LATE_ARRIVAL, UNPROFESSIONAL, BILLING_DISPUTE, INCOMPLETE_WORK, OTHER)
+- [ ] Le motif NO_SHOW a un liseré rouge + badge "Mission de remplacement gratuite"
+- [ ] Sélectionner un motif → passage à l'étape Détails
+- [ ] Saisir description + ajouter 1-2 photos → bouton "Envoyer le signalement"
+- [ ] Loader pendant l'envoi → écran de succès "Signalement enregistré"
+- [ ] Vérifier Supabase `mission_disputes` : 1 row avec mission_id, reason, description, photos, status='OPEN'
+- [ ] Vérifier Supabase `missions` : la mission passe en status='DISPUTED'
+- [ ] Si le worker a activé push → il reçoit une notif "Litige ouvert / Un signalement a été déposé sur \"X\""
+- [ ] Le patron aussi reçoit la notif (car il est l'initiateur mais /api/missions/notify-dispute push aux 2 parties)
+
+### T5.2 — Erreur réseau pendant ouverture litige
+- [ ] Désactiver le wifi puis soumettre → message rouge "Erreur serveur" ou équivalent
+- [ ] La mission ne passe PAS en DISPUTED si l'insert Supabase a échoué
+- [ ] Réactiver réseau + retenter → succès
+
+### T5.3 — Modération chat : masquage numéro de téléphone
+**Setup** : chat ouvert entre patron et worker.
+- [ ] Envoyer un message : `Appelle-moi au 06 12 34 56 78 stp`
+- [ ] Le message reçu par l'autre partie affiche : `Appelle-moi au [numéro masqué] stp`
+- [ ] Côté expéditeur : toast orange en haut de la zone d'input "Partage de coordonnées externes masqué…" (visible 4s)
+- [ ] Vérifier Supabase `messages.body` : contient la version masquée, pas l'original
+
+### T5.4 — Modération chat : masquage email
+- [ ] Envoyer : `mon email c'est jean.dupont@gmail.com`
+- [ ] Affichage : `mon email c'est [email masqué]`
+- [ ] Toast modération visible
+
+### T5.5 — Modération chat : apps externes
+- [ ] Envoyer : `on se parle sur WhatsApp ou Telegram plutôt`
+- [ ] Affichage : `on se parle sur [application masquée] ou [application masquée] plutôt`
+- [ ] Toast modération visible
+
+### T5.6 — Pas de faux positif sur message normal
+- [ ] Envoyer : `Parfait, à demain 9h à l'adresse habituelle`
+- [ ] Message passe **sans modification** et sans toast
+- [ ] Même chose pour un prix : `Le tarif est de 150€ net`
+
+### T5.7 — Badge "Identité vérifiée" côté patron
+**Setup** : 2 candidats sur une mission
+- A : a complété son onboarding Stripe Connect (T3.1)
+- B : n'a PAS complété Stripe
+- [ ] Ouvrir la mission côté patron → onglet Candidatures
+- [ ] Candidat A affiche badge bleu **"Vérifié"** avec icône bouclier (à côté du nom)
+- [ ] Candidat B n'a PAS le badge
+- [ ] Hover sur le badge → tooltip "Identité vérifiée (Stripe KYC)"
+
+### T5.8 — Bugs connus Sprint 5
+- **Pas d'UI worker pour ouvrir un litige** : seul le patron peut signaler un problème depuis MissionDetailsModal. Les litiges côté worker doivent passer par le support manuel. UI à ajouter Sprint suivant.
+- **Modération chat côté client** : un utilisateur pourrait bypass en modifiant le JS. OK en MVP. Pour production : dupliquer la modération dans une DB function Postgres sur INSERT.
+- **Pas de workflow de médiation intégré** : actuellement status='OPEN' reste OPEN, aucun admin ne peut passer à UNDER_REVIEW/RESOLVED via l'UI. À faire.
+- **Pas de remboursement auto** : en cas de litige résolu en faveur du patron, pas de bouton "Rembourser" (appel manuel à Stripe requis).
+- **Pas de "blacklist réciproque"** côté patron/worker après litige.
+
+---
+
+---
+
+## SPRINT 6 — Différenciateurs (partiel)
+
+### T6.1 — Export .ics du planning
+**Setup** : patron avec au moins 3 missions ayant une `scheduledDate` ou `date`.
+- [ ] Ouvrir le tab **Planning**
+- [ ] Bouton **"Exporter"** (icône download) visible en haut à droite, à côté du filtre
+- [ ] Clic → téléchargement d'un fichier `connectchr-planning.ics`
+- [ ] Ouvrir le fichier dans un éditeur de texte : doit commencer par `BEGIN:VCALENDAR` et contenir un `BEGIN:VEVENT` par mission, avec `DTSTART`, `DTEND`, `SUMMARY`, `DESCRIPTION`
+- [ ] Double-clic sur le .ics → doit ouvrir dans le calendrier par défaut (Google Calendar import, Outlook, Apple Calendar)
+- [ ] Les missions apparaissent avec bonne date/heure/durée (120min par défaut si pas d'`estimatedDuration`)
+- [ ] Le SUMMARY = titre mission, DESCRIPTION contient prestataire + tarif + statut, LOCATION = adresse/venue
+- [ ] Si aucune mission planifiée → bouton Exporter grisé (disabled)
+
+### T6.2 — Mode offline renforcé
+**Setup** : navigateur Chrome/Edge, l'app a été chargée en ligne au moins une fois.
+- [ ] DevTools > Application > Service Workers → vérifier que `sw.js` est actif et à jour (`connectchr-static-v3`, `connectchr-dynamic-v3`)
+- [ ] DevTools > Network → cocher **Offline**
+- [ ] Rafraîchir la page `/` → affiche la version cache (pas d'erreur "You're offline")
+- [ ] Naviguer vers `/patron/equipements` → fonctionne (précaché)
+- [ ] Naviguer vers `/patron/planning` → fonctionne
+- [ ] Les images/fonts/JS sont servis depuis cache-first, pas de 404
+- [ ] Remettre online → tout se remet à jour normalement
+
+### T6.3 — Cache propre (pas de cache API)
+- [ ] Offline : essayer de créer une mission → échoue (normal, car API non cachée)
+- [ ] Les réponses Supabase et Stripe ne sont JAMAIS cachées (données sensibles, session-specific)
+
+### T6.4 — Bugs connus / reporté Sprint 6
+- **Drag-drop missions dans planning** : non implémenté — nécessite lib `@dnd-kit/core` + refactor du PlanningTab. Reporté Sprint 7+.
+- **Vue jour/semaine** : planning uniquement vue mois. Vue jour/semaine à ajouter.
+- **Détection conflits d'agenda** : pas en place (2 missions même heure = pas d'alerte).
+- **Devis maintenance UI patron** : [quote-intelligence](src/lib/quote-intelligence/) prêt côté worker, mais patron n'a pas encore l'UI pour valider un devis reçu. À faire.
+- **Mode offline sur données** : les données (missions, candidatures, équipements) viennent de Supabase (bypassées par le SW). Pour un vrai offline des données : IndexedDB + sync différée — gros chantier, non MVP.
+
+---
+
+---
+
+## SPRINT 7 — Prod readiness (partiel)
+
+### T7.1 — Prévision masse salariale (dashboard patron)
+**Setup** : patron avec missions COMPLETED et SCHEDULED dans le mois courant.
+- [ ] Dashboard patron → colonne droite → carte **"Prévision fin de mois"** visible (en-dessous "Activité du mois")
+- [ ] Gros chiffre = total projeté = `déjà dépensé + engagé`
+- [ ] Breakdown visible : "Déjà dépensé" + "Engagé (missions à venir)" + "Coût moyen / mission"
+- [ ] Si aucune mission engagée/complétée ce mois → carte **non affichée** (pas de bloc vide)
+- [ ] Chiffres cohérents : la somme déjà dépensée match la carte "Activité du mois"
+
+### T7.2 — Annulation préautorisation
+**Setup** : mission SCHEDULED avec `payment_status='AUTHORIZED'`.
+- [ ] Ouvrir la mission côté patron → sous le badge "X.XX € bloqués" → bouton **"Annuler la préautorisation"** (gris avec X)
+- [ ] Clic → `confirm()` natif du navigateur "Annuler la préautorisation ? Les fonds seront libérés..."
+- [ ] OK → loader → mission passe à `payment_status='RELEASED'`
+- [ ] Stripe dashboard : le PaymentIntent est en `canceled`
+- [ ] Aucun débit sur la carte patron
+- [ ] Si mission en ON_WAY/ON_SITE/COMPLETED → bouton n'apparaît PAS (trop tard pour libérer)
+
+### T7.3 — Micro-restants / bugs connus Sprint 7
+- **Chat côté prestataire** : toujours pas de bouton "Contacter le patron" côté worker (besoin de refactor mission-sheet côté worker).
+- **2FA (TOTP)** : non implémenté. À activer via Supabase Auth (Settings > Authentication > MFA) + ajouter UI enrollment dans Settings.
+- **Accessibilité WCAG AA** : non audité. Contrastes non vérifiés, labels ARIA incomplets.
+- **Charte couleur rationalisée** (rapport AML §3.2.5) : reporté.
+- **Header simplifié** (rapport AML §3.2.2) : reporté.
+- **Drag-drop planning** : reporté.
+- **Analytics benchmark anonymisé** : reporté (nécessite data de plusieurs établissements).
+
+---
+
+---
+
+## SPRINT 4 — Contractualisation légale (stubs plug-and-play)
+
+> **Important** : les 3 intégrations légales (Yousign, PayFit, URSSAF Net-Entreprises) nécessitent des accès API sur onboarding long.
+> Le code tourne en **mode STUB/MOCK** tant que les clés ne sont pas renseignées dans `.env.local`.
+>
+> | Intégration | Délai d'obtention | Contact |
+> |---|---|---|
+> | **Yousign** sandbox | immédiat (signup gratuit) | https://app.yousign.com |
+> | **Yousign** prod | 1-2 semaines (vérification entreprise) | idem |
+> | **PayFit** API partenaire | 4-8 semaines | partners@payfit.com |
+> | **URSSAF** Net-Entreprises | 2-3 semaines | convention + certificat X.509 |
+
+### T4.1 — Signature Yousign (mode stub si YOUSIGN_API_KEY vide)
+**Setup** : `YOUSIGN_API_KEY` **vide** dans `.env.local`.
+- [ ] Appeler l'API `POST /api/contracts/sign` avec un `contractId` valide
+- [ ] Réponse doit être une erreur **503** : "Yousign non configuré (YOUSIGN_API_KEY manquant dans .env.local)"
+- [ ] Aucune mutation en BDD (signature_status reste 'DRAFT')
+
+### T4.2 — Signature Yousign (mode réel, sandbox)
+**Setup** :
+1. Créer un compte Yousign sandbox : https://app.yousign.com → signup
+2. Dashboard Yousign → **Developers** → créer une API key sandbox
+3. Copier la clé dans `.env.local` : `YOUSIGN_API_KEY=xxx`
+4. Redémarrer `npm run dev`
+
+- [ ] Déclencher une signature via `POST /api/contracts/sign` avec body : `{contractId, pdfBase64}`
+  - `pdfBase64` = un PDF encodé en base64 (utiliser le contrat généré existant)
+- [ ] Réponse 200 avec `{signatureRequestId, patronSignLink, workerSignLink}`
+- [ ] BDD `dpae_contracts` : `signature_status='SENT'`, `yousign_request_id` rempli, `sent_at` daté
+- [ ] Email Yousign reçu par le patron ET le worker (emails réels)
+- [ ] Lien → page signature Yousign → signer avec code OTP SMS si phone fourni
+- [ ] Quand les 2 ont signé → webhook `/api/contracts/webhook` appelé par Yousign
+- [ ] BDD `dpae_contracts` : `signature_status='SIGNED'`, `signed_at`, `signed_pdf_url` renseignés
+- [ ] PDF signé téléchargeable depuis Supabase Storage bucket `documents`
+- [ ] Les 2 parties reçoivent une push "Contrat signé ✅"
+
+### T4.3 — Refus de signature (Yousign)
+- [ ] Un signataire refuse la signature dans Yousign → webhook `signer.declined`
+- [ ] BDD `dpae_contracts.signature_status='DECLINED'`
+- [ ] Pas de PDF stocké
+
+### T4.4 — DPAE URSSAF (mode MOCK par défaut)
+**Setup** : `URSSAF_API_KEY` vide (normal à ce stade).
+- [ ] Ouvrir une mission STAFF côté patron → onglet DPAE
+- [ ] Remplir le formulaire DPAE existant → Soumettre
+- [ ] Tourne en mode MOCK : 95% succès / 5% fake error
+- [ ] BDD `dpae_declarations` : `status='VALIDATED'`, `submission_mode='MOCK'`, `urssaf_reference='MOCK-xxx'`
+- [ ] La mission se débloque (`mission_unlocked=true`) si précédemment verrouillée
+
+### T4.5 — DPAE URSSAF (mode réel, quand configuré)
+**Setup** : clés URSSAF obtenues via convention Net-Entreprises + certificat X.509 + `URSSAF_API_KEY` + `URSSAF_SIRET` dans `.env.local`.
+- [ ] Même flow qu'en T4.4 mais `submission_mode='API_NET_ENTREPRISES'`
+- [ ] Le `urssaf_reference` = vrai AEE URSSAF (format `XXXXX-XXXXXXXX`)
+- [ ] Vérifier la déclaration sur https://www.net-entreprises.fr avec le SIRET employeur
+
+### T4.6 — Bulletins PayFit (mode STUB par défaut)
+**Setup** : `PAYFIT_API_KEY` vide.
+- [ ] Après validation de la mission (actualHoursWorked rempli), appeler `POST /api/payroll/generate` avec `{missionId, hourlyRateGross}`
+- [ ] Réponse 200 avec `{jobId, externalId: null, mode: 'STUB', configured: false}`
+- [ ] BDD `payslip_jobs` : 1 row avec `provider='PAYFIT'`, `status='PENDING'`, `gross_amount`, `net_amount` calculés (brut = h × taux ; net ≈ brut × 0.78)
+- [ ] Aucun PDF généré pour l'instant (stub uniquement)
+
+### T4.7 — Bulletins PayFit (mode réel, quand partenariat actif)
+**Setup** : `PAYFIT_API_KEY` + `PAYFIT_COMPANY_ID` dans `.env.local`.
+- [ ] Même appel → réponse `mode='PAYFIT_API'`, `externalId=<PayFit ID>`
+- [ ] BDD : `status='PROCESSING'`
+- [ ] Polling via `pollPayslipJob(jobId)` jusqu'à status='READY' et `payslip_pdf_url` rempli
+- [ ] Le PDF est téléchargeable par le worker depuis son profil
+
+### T4.8 — Bugs connus / limitations Sprint 4
+- **Pas d'UI patron pour déclencher la signature Yousign** : l'API `/api/contracts/sign` existe mais aucun bouton dans MissionDetailsModal → à ajouter. L'utilisateur doit appeler l'API via Postman ou console dev pour tester.
+- **Pas d'UI patron pour déclencher `/api/payroll/generate`** : même chose, à ajouter sur PayslipsTab.
+- **Bucket Storage `documents`** : doit exister dans Supabase Storage (vérifier Settings → Storage → bucket `documents` accessible en write par service_role). Si absent, créer manuellement.
+- **Webhook Yousign** : l'URL à renseigner côté Yousign dashboard = `https://<ton-domaine>/api/contracts/webhook`. En local, utiliser ngrok ou tester via sandbox events manuellement.
+- **Signature Yousign mode sandbox** : les emails et SMS sont réels mais en mode test. Les numéros doivent être vrais pour OTP SMS.
+- **Stubs PayFit** : `net_amount` est une approximation (brut × 0.78). Les vrais calculs HCR CCN (mutuelle, CSG/CRDS, etc.) ne sont pas encore faits → PayFit le fera en mode API_REEL.
+- **Génération PDF du contrat à signer** : l'API `/api/contracts/sign` attend un `pdfBase64`, mais actuellement le contrat est généré en **HTML** par `generateContractHTML`. Il faut soit convertir HTML→PDF côté client (jsPDF/html2pdf), soit ajouter une lib `puppeteer` côté serveur. TODO.
+
+---
+
+## Matrice navigateurs recommandée
+| Navigateur | Chat | Push | Realtime |
+|---|---|---|---|
+| Chrome desktop | ✓ | ✓ | ✓ |
+| Edge desktop | ✓ | ✓ | ✓ |
+| Firefox desktop | ✓ | ✓ | ✓ |
+| Safari desktop 16.4+ | ✓ | ✓ (PWA installée) | ✓ |
+| Chrome Android | ✓ | ✓ | ✓ |
+| Safari iOS 16.4+ | ✓ | ✓ (PWA home-screen) | ✓ |
+| Safari iOS < 16.4 | ✓ | ✗ | ✓ |
+
+## Bugs connus / limitations en cours
+
+- Chat côté **prestataire** pas encore implémenté (pas de bouton pour ouvrir le thread depuis le côté worker — prévu Sprint suivant)
+- Matching **par distance** pas actif (uniquement par skills) — colonnes lat/lng à ajouter sur `profiles`
+- Pas de **timeout progressif** (élargissement rayon auto si personne ne postule)
+- Le bouton **"Appeler"** dans MissionDetailsModal est non-fonctionnel (UI seulement)
+- Une notif push ne lie **pas encore** vers le thread exact du chat (ouvre `/patron/missions` générique)
+
+## Format rapport de bug
+Pour chaque bug trouvé, indiquer :
+- **Navigateur + OS** (ex. Chrome 121 / Windows 11)
+- **Compte utilisé** (patron / worker / email si spécifique)
+- **Étapes de reproduction** (numérotées)
+- **Résultat attendu vs observé**
+- **Console navigateur** (F12 > Console, copier les erreurs rouges)
+- **Network** (F12 > Network, filtrer sur l'API concernée si erreur HTTP)
+- **Screenshot/vidéo** si visuel

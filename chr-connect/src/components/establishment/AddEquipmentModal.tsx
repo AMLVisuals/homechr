@@ -442,7 +442,7 @@ export function AddEquipmentModal({
                       <div className="flex-1 text-left">
                         <p className="text-[var(--text-primary)] font-semibold text-lg">Scanner un QR Code</p>
                         <p className="text-[var(--text-muted)] text-sm">
-                          Scan rapide du QR code Home CHR sur l'équipement
+                          Scan rapide du QR code ConnectCHR sur l'équipement
                         </p>
                       </div>
                       <div className="px-3 py-1 bg-blue-500/20 rounded-full">

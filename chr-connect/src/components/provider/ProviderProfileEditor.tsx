@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { uploadAvatar, uploadComplianceDoc, getSignedUrl } from '@/lib/supabase-storage';
 import { supabase } from '@/lib/supabase';
 import { ActivityTab } from './tabs/PayslipsTab';
+import StripeOnboardingCard from './StripeOnboardingCard';
 
 const TABS = [
   { id: 'IDENTITY' as const, label: 'Identité', icon: ShieldCheck, color: 'text-violet-400' },
@@ -225,6 +226,9 @@ export default function ProviderProfileEditor() {
         {activeTab === 'IDENTITY' && (
           <TabContent key="identity">
             <div className="space-y-6">
+              {/* Onboarding Stripe Connect */}
+              <StripeOnboardingCard />
+
               {/* Pièce d'identité */}
               <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-5" style={{ boxShadow: 'var(--shadow-card)' }}>
                 <h3 className="font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">

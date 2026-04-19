@@ -12,6 +12,7 @@ import { useStore } from '@/store/useStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mission } from '@/types/missions';
 import { getSearchingMissions, applyToMission, getMyCandidatures, cancelCandidature } from '@/lib/supabase-helpers';
+import { subscribeToSearchingMissions, subscribeToMyCandidatures } from '@/lib/missions-realtime';
 import MissionRadar from './MissionRadar';
 
 interface WorkerMissionsPageProps {
@@ -186,6 +187,23 @@ function AvailableMissionsList() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id]);
 
+  useEffect(() => {
+    if (!profile?.id) return;
+
+    const unsubMissions = subscribeToSearchingMissions(() => {
+      loadMissions();
+    });
+    const unsubCandidatures = subscribeToMyCandidatures(profile.id, () => {
+      loadMissions();
+    });
+
+    return () => {
+      unsubMissions();
+      unsubCandidatures();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id]);
+
   async function loadMissions() {
     setLoading(true);
     setError('');
@@ -215,18 +233,29 @@ function AvailableMissionsList() {
     if (!profile) return;
     setApplyingId(mission.id);
     setError('');
+    const workerName = `${profile.first_name} ${profile.last_name}`.trim();
     const { data, error } = await applyToMission({
       missionId: mission.id,
       workerId: profile.id,
-      name: `${profile.first_name} ${profile.last_name}`.trim(),
+      name: workerName,
       specialty: profile.skills?.[0] || '',
       message: '',
     });
-    console.log('[handleApply] result:', { data, error });
     if (error) {
       setError(error.message || 'Erreur lors de la candidature');
     } else {
       setAppliedIds(prev => new Set(prev).add(mission.id));
+      fetch('/api/missions/notify-patron', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          missionId: mission.id,
+          event: 'NEW_CANDIDATE',
+          workerName,
+        }),
+      }).catch(() => {
+        /* best-effort */
+      });
     }
     setApplyingId(null);
   }

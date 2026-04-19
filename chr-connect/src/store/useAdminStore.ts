@@ -29,7 +29,7 @@ interface AdminState {
 const INITIAL_STAFF: StaffAccount[] = [
   {
     id: 'adm_001',
-    name: 'Admin Home CHR',
+    name: 'Admin ConnectCHR',
     email: 'admin@home-chr.fr',
     phone: '',
     role: 'ADMIN',

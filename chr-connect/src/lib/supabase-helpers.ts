@@ -257,10 +257,18 @@ export async function updateMission(missionId: string, updates: Record<string, a
 export async function getCandidatesByMission(missionId: string) {
   const { data, error } = await supabase
     .from('mission_candidates')
-    .select('*')
+    .select('*, worker:profiles!mission_candidates_worker_id_fkey(stripe_charges_enabled,stripe_details_submitted)')
     .eq('mission_id', missionId)
     .order('applied_at', { ascending: false });
-  return { data: (data ?? []).map(d => toCamelCase(d)), error };
+
+  const mapped = (data ?? []).map((d: any) => {
+    const { worker, ...rest } = d;
+    const camel = toCamelCase(rest) as any;
+    camel.identityVerified =
+      !!(worker?.stripe_charges_enabled && worker?.stripe_details_submitted);
+    return camel;
+  });
+  return { data: mapped, error };
 }
 
 export async function applyToMission(candidate: Record<string, any>) {

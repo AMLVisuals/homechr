@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, MapPin, Trash2, Edit2, Filter, Globe, X, FileText, Wrench } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, MapPin, Trash2, Edit2, Filter, Globe, X, FileText, Wrench, Download } from 'lucide-react';
+import { downloadIcs } from '@/lib/ics-export';
 import { clsx } from 'clsx';
 import { useCalendarStore, CalendarEvent, EventType } from '@/store/calendarStore';
 import { useVenuesStore } from '@/store/useVenuesStore';
@@ -262,6 +263,17 @@ export default function PlanningTab() {
             </div>
 
             <div className="flex items-center gap-2 md:gap-4 shrink-0">
+              {/* Export ICS */}
+              <button
+                onClick={() => downloadIcs(missions)}
+                disabled={missions.length === 0}
+                title="Exporter en .ics (Google Calendar, Apple Calendar, Outlook)"
+                className="flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--bg-input)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden md:inline text-xs font-bold uppercase tracking-wider">Exporter</span>
+              </button>
+
               {/* Filter Dropdown */}
               <div className="relative">
                 <button

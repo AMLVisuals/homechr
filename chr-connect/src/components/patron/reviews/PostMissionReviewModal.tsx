@@ -1,41 +1,33 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Star, Send, Camera, Video, Eye, EyeOff, UserCircle2, Building2 } from 'lucide-react';
+import { X, Star, Send, Camera, Eye, EyeOff, UserCircle2, Building2, Clock, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useNotificationsStore } from '@/store/useNotificationsStore';
+import { useAuth } from '@/contexts/AuthContext';
+import { createReview, getReviewsByMission } from '@/lib/supabase-helpers';
 
 interface PostMissionReviewModalProps {
   missionId: string;
   missionTitle: string;
+  providerId: string;
   providerName: string;
   providerAvatar?: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-// Simulated worker review (mock — in real app, worker submits their own review)
-function generateMockWorkerReview(patronName: string) {
-  const templates = [
-    { rating: 5, comment: 'Patron très professionnel, accueil chaleureux. Les conditions de travail étaient excellentes. Je recommande !' },
-    { rating: 4, comment: 'Bonne expérience. L\'établissement est bien organisé, équipe agréable.' },
-    { rating: 5, comment: 'Parfait. Communication claire, paiement rapide. Un plaisir de travailler ici.' },
-    { rating: 4, comment: 'Mission intéressante, bon accueil. Quelques détails à améliorer sur le briefing initial.' },
-  ];
-  const pick = templates[Math.floor(Math.random() * templates.length)];
-  return {
-    rating: pick.rating,
-    comment: pick.comment,
-    author: 'Le prestataire',
-    date: new Date().toISOString(),
-  };
-}
+type CrossReview = {
+  rating: number;
+  comment: string;
+};
 
 export default function PostMissionReviewModal({
   missionId,
   missionTitle,
+  providerId,
   providerName,
   providerAvatar,
   isOpen,
@@ -43,36 +35,62 @@ export default function PostMissionReviewModal({
 }: PostMissionReviewModalProps) {
   const { addReview } = useMissionsStore();
   const { syncAddNotification } = useNotificationsStore();
+  const { user } = useAuth();
 
-  const [step, setStep] = useState<'RATE' | 'REVEAL' | 'DONE'>('RATE');
+  const [step, setStep] = useState<'RATE' | 'WAITING' | 'REVEAL'>('RATE');
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
   const [photos, setPhotos] = useState<string[]>([]);
-
-  // Worker's mock review (generated on reveal)
-  const [workerReview, setWorkerReview] = useState<{ rating: number; comment: string } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [workerReview, setWorkerReview] = useState<CrossReview | null>(null);
 
   if (!isOpen) return null;
 
   const ratingLabels = ['', 'Très mauvais', 'Mauvais', 'Correct', 'Bon', 'Excellent'];
   const displayRating = hoverRating || rating;
 
-  const handleSubmit = () => {
-    if (rating === 0) return;
+  const handleSubmit = async () => {
+    if (rating === 0 || submitting) return;
+    if (!user?.id) {
+      setSubmitError('Session expirée. Reconnectez-vous.');
+      return;
+    }
+    if (!providerId) {
+      setSubmitError('Prestataire introuvable pour cette mission.');
+      return;
+    }
 
-    // Save patron's review
+    setSubmitting(true);
+    setSubmitError(null);
+
+    const nowIso = new Date().toISOString();
+    const patronReviewPayload = {
+      missionId,
+      reviewerId: user.id,
+      revieweeId: providerId,
+      rating,
+      comment: comment.trim(),
+      photos,
+      videos: [] as string[],
+      date: nowIso,
+    };
+
+    const { error: insertError } = await createReview(patronReviewPayload);
+    if (insertError) {
+      setSubmitting(false);
+      setSubmitError(insertError.message || "Impossible d'enregistrer l'avis.");
+      return;
+    }
+
     addReview(missionId, {
       rating,
       comment: comment.trim(),
       photos,
       videos: [],
-      date: new Date().toISOString(),
+      date: nowIso,
     });
-
-    // Generate mock worker review for simultaneous reveal
-    const mockReview = generateMockWorkerReview('Le patron');
-    setWorkerReview(mockReview);
 
     syncAddNotification({
       title: 'Avis envoyé',
@@ -80,7 +98,19 @@ export default function PostMissionReviewModal({
       type: 'mission',
     });
 
-    setStep('REVEAL');
+    const { data: allReviews } = await getReviewsByMission(missionId);
+    const workerSide = (allReviews ?? []).find(
+      (r: any) => r.reviewerId === providerId && r.revieweeId === user.id
+    );
+
+    if (workerSide) {
+      setWorkerReview({ rating: workerSide.rating, comment: workerSide.comment || '' });
+      setStep('REVEAL');
+    } else {
+      setStep('WAITING');
+    }
+
+    setSubmitting(false);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,6 +134,8 @@ export default function PostMissionReviewModal({
     setComment('');
     setPhotos([]);
     setWorkerReview(null);
+    setSubmitError(null);
+    setSubmitting(false);
     onClose();
   };
 
@@ -251,14 +283,60 @@ export default function PostMissionReviewModal({
                   ))}
                 </div>
 
+                {submitError && (
+                  <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-400">
+                    {submitError}
+                  </div>
+                )}
+
                 {/* Submit */}
                 <button
                   onClick={handleSubmit}
-                  disabled={rating === 0}
+                  disabled={rating === 0 || submitting}
                   className="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-bold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  <Send className="w-4 h-4" />
-                  Envoyer mon avis
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      Envoyer mon avis
+                    </>
+                  )}
+                </button>
+              </motion.div>
+            )}
+
+            {/* Step: Waiting for worker review */}
+            {step === 'WAITING' && (
+              <motion.div
+                key="waiting"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-6 text-center py-4"
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring' }}
+                  className="w-14 h-14 rounded-full bg-blue-500/10 flex items-center justify-center mx-auto"
+                >
+                  <Clock className="w-7 h-7 text-blue-400" />
+                </motion.div>
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">Avis enregistré</h3>
+                  <p className="text-sm text-[var(--text-muted)] mt-2 max-w-sm mx-auto">
+                    Votre avis est verrouillé. Il sera dévoilé en même temps que celui de {providerName}, dès que le prestataire aura évalué la mission.
+                  </p>
+                </div>
+                <button
+                  onClick={handleClose}
+                  className="w-full py-3.5 bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] rounded-xl text-sm font-bold text-[var(--text-primary)] transition-colors"
+                >
+                  Fermer
                 </button>
               </motion.div>
             )}

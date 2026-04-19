@@ -7,6 +7,7 @@ import {
   createMission as createMissionInSupabase,
   updateMission as updateMissionInSupabase,
   getTeamByPatron as fetchTeamFromSupabase,
+  createDispute as createDisputeInSupabase,
 } from '@/lib/supabase-helpers';
 
 // Schedule statuses per member per day
@@ -37,6 +38,7 @@ interface MissionsState {
   rejectCandidate: (missionId: string, candidateId: string) => void;
   updateDpaeStatus: (missionId: string, status: DPAEMissionStatus, receiptId?: string) => void;
   reportDispute: (missionId: string, reason: DisputeReason, description: string, photos?: string[]) => void;
+  syncReportDispute: (missionId: string, reason: DisputeReason, description: string, photos?: string[]) => Promise<{ ok: boolean; error?: string }>;
   resolveDispute: (missionId: string, resolution: string) => void;
 
   // Async Supabase actions
@@ -286,6 +288,31 @@ export const useMissionsStore = create<MissionsState>()(
             : m
         )
       })),
+      syncReportDispute: async (missionId, reason, description, photos) => {
+        get().reportDispute(missionId, reason, description, photos);
+        const { error } = await createDisputeInSupabase({
+          missionId,
+          reason,
+          description,
+          photos: photos ?? null,
+          status: 'OPEN',
+        });
+        if (error) {
+          console.error('[syncReportDispute] Supabase error:', error);
+          return { ok: false, error: (error as any)?.message || 'Erreur serveur' };
+        }
+        try {
+          await updateMissionInSupabase(missionId, { status: 'DISPUTED' } as any);
+        } catch (err) {
+          console.warn('[syncReportDispute] status update warning:', err);
+        }
+        fetch('/api/missions/notify-dispute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ missionId, reason }),
+        }).catch(() => { /* best-effort */ });
+        return { ok: true };
+      },
       reportDispute: (missionId, reason, description, photos) => set((state) => ({
         missions: state.missions.map(m =>
           m.id === missionId
@@ -344,7 +371,18 @@ export const useMissionsStore = create<MissionsState>()(
         // Optimistic: add locally first
         get().addMission(mission);
         try {
-          await createMissionInSupabase(mission as any);
+          const { data } = await createMissionInSupabase(mission as any);
+          const persistedId = (data as any)?.id || mission.id;
+
+          if (mission.status === 'SEARCHING') {
+            fetch('/api/missions/notify-candidates', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ missionId: persistedId }),
+            }).catch((err) => {
+              console.warn('[syncAddMission] notify-candidates failed:', err);
+            });
+          }
         } catch (err) {
           console.error('[useMissionsStore] syncAddMission error:', err);
         }

@@ -1,6 +1,6 @@
 {
-  "name": "CHR Connect",
-  "short_name": "CHR Connect",
+  "name": "ConnectCHR",
+  "short_name": "ConnectCHR",
   "description": "Plateforme de mise en relation pour les professionnels HORECA",
   "start_url": "/",
   "display": "standalone",
