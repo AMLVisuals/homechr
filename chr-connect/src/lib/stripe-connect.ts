@@ -1,5 +1,5 @@
 import { getStripeServer } from './stripe-server';
-import { getAdminSupabase } from './push-server';
+import { getAdminSupabase } from './supabase-admin';
 
 export const PLATFORM_FEE_BPS = 1500; // 15% commission plateforme (en basis points)
 export const STAFF_RATE_CAPTURE_DELAY_HOURS = 48;

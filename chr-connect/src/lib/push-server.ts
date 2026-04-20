@@ -1,5 +1,6 @@
 import webpush from 'web-push';
-import { createClient } from '@supabase/supabase-js';
+export { getAdminSupabase } from './supabase-admin';
+import { getAdminSupabase } from './supabase-admin';
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
@@ -7,18 +8,6 @@ const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:support@home-chr.fr';
 
 if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
-}
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const SUPABASE_SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-
-export function getAdminSupabase() {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY manquant — requis pour envoyer des push.');
-  }
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
 }
 
 export interface PushPayload {

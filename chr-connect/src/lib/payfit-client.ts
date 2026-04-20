@@ -1,4 +1,4 @@
-import { getAdminSupabase } from './push-server';
+import { getAdminSupabase } from './supabase-admin';
 
 const PAYFIT_API_KEY = process.env.PAYFIT_API_KEY || '';
 const PAYFIT_COMPANY_ID = process.env.PAYFIT_COMPANY_ID || '';

@@ -1,4 +1,4 @@
-import { getAdminSupabase } from './push-server';
+import { getAdminSupabase } from './supabase-admin';
 
 const YOUSIGN_API_KEY = process.env.YOUSIGN_API_KEY || '';
 const YOUSIGN_BASE_URL = process.env.YOUSIGN_BASE_URL || 'https://api-sandbox.yousign.app/v3';

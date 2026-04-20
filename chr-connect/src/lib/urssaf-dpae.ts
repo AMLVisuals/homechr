@@ -1,4 +1,4 @@
-import { getAdminSupabase } from './push-server';
+import { getAdminSupabase } from './supabase-admin';
 
 const URSSAF_API_KEY = process.env.URSSAF_API_KEY || '';
 const URSSAF_SIRET = process.env.URSSAF_SIRET || '';
