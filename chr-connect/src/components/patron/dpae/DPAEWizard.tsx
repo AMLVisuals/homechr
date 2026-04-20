@@ -5,13 +5,13 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, ArrowLeft, ChevronRight, Building2, User, FileText,
-  CheckCircle2, Send, Loader2, Download, Printer, AlertCircle,
+  CheckCircle2, Send, Loader2, Download, Printer, AlertCircle, PenLine,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DPAEDeclaration } from '@/types/dpae';
 import { useDPAEStore } from '@/store/useDPAEStore';
 import { Mission } from '@/types/missions';
-import { downloadContract, printContract } from '@/lib/dpae-contract-generator';
+import { downloadContract, printContract, downloadContractPdf, contractToPdfBase64 } from '@/lib/dpae-contract-generator';
 import { APP_CONFIG } from '@/config/appConfig';
 
 type DPAEStep = 'employer' | 'employee' | 'contract' | 'submitting' | 'done';
@@ -62,6 +62,8 @@ export default function DPAEWizard({
   );
 
   const [createdDeclaration, setCreatedDeclaration] = useState<DPAEDeclaration | null>(null);
+  const [signatureState, setSignatureState] = useState<'idle' | 'generating-pdf' | 'sending' | 'sent' | 'error'>('idle');
+  const [signatureError, setSignatureError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleBack = () => {
@@ -322,21 +324,75 @@ export default function DPAEWizard({
                   </div>
                 )}
 
-                <div className="flex gap-3 justify-center">
+                <div className="flex flex-wrap gap-3 justify-center">
                   <button
-                    onClick={() => downloadContract(createdDeclaration)}
+                    onClick={() => downloadContractPdf(createdDeclaration)}
                     className="px-5 py-3 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors flex items-center gap-2"
                   >
                     <Download className="w-4 h-4" />
-                    Télécharger
+                    Télécharger PDF
                   </button>
                   <button
                     onClick={() => printContract(createdDeclaration)}
-                    className="px-5 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-2"
+                    className="px-5 py-3 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors flex items-center gap-2"
                   >
                     <Printer className="w-4 h-4" />
                     Imprimer
                   </button>
+                </div>
+
+                {/* Signature électronique */}
+                <div className="mt-2 p-4 rounded-xl bg-[var(--bg-hover)] border border-[var(--border)]">
+                  {signatureState === 'sent' ? (
+                    <div className="flex items-center gap-3 text-green-500">
+                      <CheckCircle2 className="w-5 h-5 shrink-0" />
+                      <div className="text-sm">
+                        <p className="font-bold">Contrat envoyé pour signature</p>
+                        <p className="text-xs text-[var(--text-muted)] mt-0.5">Email de signature envoyé aux 2 parties par Yousign.</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-xs text-[var(--text-muted)] mb-3">
+                        Signez le contrat électroniquement via Yousign. Chaque partie recevra un email pour signer à distance.
+                      </p>
+                      <button
+                        onClick={async () => {
+                          if (!mission?.id) {
+                            setSignatureError('Mission introuvable');
+                            setSignatureState('error');
+                            return;
+                          }
+                          setSignatureError(null);
+                          setSignatureState('generating-pdf');
+                          try {
+                            const pdfBase64 = await contractToPdfBase64(createdDeclaration);
+                            setSignatureState('sending');
+                            const contractRes = await fetch('/api/contracts/sign', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ contractId: mission.id, pdfBase64 }),
+                            });
+                            const data = await contractRes.json();
+                            if (!contractRes.ok) throw new Error(data.error || 'Échec signature');
+                            setSignatureState('sent');
+                          } catch (err: any) {
+                            setSignatureError(err?.message || 'Erreur');
+                            setSignatureState('error');
+                          }
+                        }}
+                        disabled={signatureState === 'generating-pdf' || signatureState === 'sending'}
+                        className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                      >
+                        {signatureState === 'generating-pdf' && <><Loader2 className="w-4 h-4 animate-spin" /> Génération du PDF...</>}
+                        {signatureState === 'sending' && <><Loader2 className="w-4 h-4 animate-spin" /> Envoi à Yousign...</>}
+                        {(signatureState === 'idle' || signatureState === 'error') && <><PenLine className="w-4 h-4" /> Envoyer pour signature électronique</>}
+                      </button>
+                      {signatureError && (
+                        <p className="mt-2 text-[11px] text-red-400">{signatureError}</p>
+                      )}
+                    </>
+                  )}
                 </div>
 
                 <button onClick={onClose} className="text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">

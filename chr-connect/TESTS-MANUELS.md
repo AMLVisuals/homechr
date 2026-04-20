@@ -2,7 +2,7 @@
 
 > Document destiné au testeur QA. Le dev ne teste pas l'UI lui-même.
 > À chaque nouveau sprint, de nouvelles sections seront ajoutées en bas.
-> Dernière mise à jour : **2026-04-19** (après Sprint 4 — tous sprints MVP codés).
+> Dernière mise à jour : **2026-04-20** (après complétion des micro-TODOs).
 
 ---
 
@@ -604,6 +604,53 @@ Ces tests seront ajoutés en **passe n°2** une fois les clés transmises.
 - **Signature Yousign mode sandbox** : les emails et SMS sont réels mais en mode test. Les numéros doivent être vrais pour OTP SMS.
 - **Stubs PayFit** : `net_amount` est une approximation (brut × 0.78). Les vrais calculs HCR CCN (mutuelle, CSG/CRDS, etc.) ne sont pas encore faits → PayFit le fera en mode API_REEL.
 - **Génération PDF du contrat à signer** : l'API `/api/contracts/sign` attend un `pdfBase64`, mais actuellement le contrat est généré en **HTML** par `generateContractHTML`. Il faut soit convertir HTML→PDF côté client (jsPDF/html2pdf), soit ajouter une lib `puppeteer` côté serveur. TODO.
+
+---
+
+---
+
+## TODOs complétés (2026-04-20)
+
+### T-TODO.1 — Chat côté prestataire
+**Setup** : worker avec mission SCHEDULED (candidature acceptée par patron).
+- [ ] Ouvrir la mission côté prestataire (MissionSheet)
+- [ ] Bouton **"Contacter le patron"** (icône message) visible au-dessus de "Partager/Accepter"
+- [ ] Visible uniquement pour missions status SCHEDULED / ON_WAY / ON_SITE / IN_PROGRESS / PENDING_VALIDATION
+- [ ] Invisible pour missions SEARCHING ou COMPLETED / CANCELLED
+- [ ] Clic → modal chat s'ouvre avec nom du patron (= venue name), thread correct
+- [ ] Envoi de message → push notif au patron (si push activé)
+- [ ] Réception en direct côté patron sans refresh
+
+### T-TODO.2 — Signature électronique Yousign (UI patron)
+**Setup** : DPAE complétée jusqu'à l'étape "done" + `YOUSIGN_API_KEY` configurée.
+- [ ] Dans le wizard DPAE, écran "DPAE envoyée !" → section **"Envoyer pour signature électronique"** visible
+- [ ] Clic → état "Génération du PDF..." (conversion HTML→PDF via jsPDF + html2canvas)
+- [ ] Puis "Envoi à Yousign..." (upload PDF + création signature_request)
+- [ ] Succès → message vert "Contrat envoyé pour signature"
+- [ ] Les 2 parties reçoivent un email Yousign
+- [ ] Vérifier Supabase `dpae_contracts` : `signature_status='SENT'`, `yousign_request_id` rempli, `sent_at` daté
+- [ ] Si `YOUSIGN_API_KEY` vide → erreur 503 affichée, état "Erreur"
+
+### T-TODO.3 — Génération bulletin PayFit (UI patron)
+**Setup** : mission STAFFING en status COMPLETED avec `actualHoursWorked` renseigné.
+- [ ] Ouvrir la mission → bouton **"Générer le bulletin de paie"** (icône FileText) visible sous les actions review/litige
+- [ ] Clic → loader → bannière verte "Bulletin généré (mode test)" si PAYFIT_API_KEY vide
+- [ ] Vérifier Supabase `payslip_jobs` : 1 row avec mission_id, provider='PAYFIT', status='PENDING', hours_worked, gross_amount, net_amount
+- [ ] Si `PAYFIT_API_KEY` configurée → `status='PROCESSING'` et `external_id` rempli
+
+### T-TODO.4 — PDF téléchargeable du contrat CDD
+**Setup** : DPAE soumise, accès à l'écran "done" du wizard.
+- [ ] Bouton **"Télécharger PDF"** (remplace l'ancien "Télécharger HTML")
+- [ ] Clic → téléchargement d'un **vrai .pdf** (pas .html)
+- [ ] Ouvrir le PDF → mise en page propre, conservation des styles
+- [ ] Pages multiples si contrat long (split automatique)
+
+### T-TODO.5 — Statut paiement dans liste missions
+- [ ] Dans l'onglet **Missions** côté patron, chaque mission affiche :
+  - Son prix
+  - Son statut (En cours / Acceptée / etc.)
+  - **Un nouveau badge de paiement** en plus (💳 Bloqué / ✓ Payé / Libéré / Remboursé / Échec)
+- [ ] Le badge n'apparaît PAS pour les missions sans paiement initié (status NONE/absent)
 
 ---
 

@@ -53,6 +53,9 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [capturingPayment, setCapturingPayment] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [payslipState, setPayslipState] = useState<'idle' | 'generating' | 'done' | 'error'>('idle');
+  const [payslipError, setPayslipError] = useState<string | null>(null);
+  const [payslipMode, setPayslipMode] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'DETAILS' | 'EVIDENCE' | 'PROVIDER' | 'INVOICE' | 'QUOTE' | 'CANDIDATES'>('DETAILS');
   const [showRating, setShowRating] = useState(false);
   const [showProviderProfile, setShowProviderProfile] = useState(false);
@@ -682,6 +685,46 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                           <AlertTriangle className="w-3.5 h-3.5" />
                           Signaler un problème
                         </button>
+                      )}
+
+                      {/* Bulletin de paie (missions STAFF validées) */}
+                      {((mission.category === 'STAFFING') || mission.staffValidation?.validated) && mission.actualHoursWorked && (
+                        <div className="mt-2">
+                          {payslipState === 'done' ? (
+                            <div className="w-full py-2.5 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center gap-2 text-green-500 text-xs font-bold">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              Bulletin généré{payslipMode === 'STUB' ? ' (mode test)' : ''}
+                            </div>
+                          ) : (
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                setPayslipError(null);
+                                setPayslipState('generating');
+                                try {
+                                  const res = await fetch('/api/payroll/generate', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ missionId: mission.id }),
+                                  });
+                                  const data = await res.json();
+                                  if (!res.ok) throw new Error(data.error || 'Échec');
+                                  setPayslipMode(data.mode || null);
+                                  setPayslipState('done');
+                                } catch (err: any) {
+                                  setPayslipError(err?.message || 'Erreur');
+                                  setPayslipState('error');
+                                }
+                              }}
+                              disabled={payslipState === 'generating'}
+                              className="w-full py-2.5 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 border border-blue-500/15 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            >
+                              {payslipState === 'generating' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
+                              Générer le bulletin de paie
+                            </button>
+                          )}
+                          {payslipError && <p className="mt-1 text-[11px] text-red-400">{payslipError}</p>}
+                        </div>
                       )}
                     </>
                   )}

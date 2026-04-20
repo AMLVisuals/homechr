@@ -1,16 +1,18 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Clock, DollarSign, X, ArrowRight, Navigation, Share2, ShieldCheck, Building2, ImageIcon, Info, Camera, CheckCircle, Wrench, QrCode, CalendarClock, UserPlus, XCircle } from 'lucide-react';
+import { MapPin, Clock, DollarSign, X, ArrowRight, Navigation, Share2, ShieldCheck, Building2, ImageIcon, Info, Camera, CheckCircle, Wrench, QrCode, CalendarClock, UserPlus, XCircle, MessageSquare } from 'lucide-react';
 import { Mission } from '@/types/missions';
 import { useState } from 'react';
 import { clsx } from 'clsx';
 import { EstablishmentSheet } from './EstablishmentSheet';
 import { DocumentViewer } from '@/components/shared/DocumentViewer';
+import ChatThreadModal from '@/components/shared/ChatThreadModal';
 import { useVenuesStore } from '@/store/useVenuesStore';
 import { useMissionEngine } from '@/store/mission-engine';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useEquipmentStore } from '@/store/useEquipmentStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { MissionEquipmentDetails } from '@/components/equipment';
 import type { EquipmentDocument } from '@/types/equipment';
 
@@ -27,6 +29,8 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
   const [isEstablishmentOpen, setIsEstablishmentOpen] = useState(false);
   const [isEquipmentOpen, setIsEquipmentOpen] = useState(false);
   const [hasApplied, setHasApplied] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
+  const { user, profile } = useAuth();
 
   const { startMission } = useMissionEngine();
   const { syncUpdateMission, addCandidate, removeCandidate } = useMissionsStore();
@@ -323,6 +327,17 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
                 </div>
               </div>
               
+              {/* Contacter le patron — visible dès que worker accepté */}
+              {mission.patronId && user?.id && ['SCHEDULED', 'ON_WAY', 'ON_SITE', 'IN_PROGRESS', 'PENDING_VALIDATION'].includes(mission.status) && (
+                <button
+                  onClick={() => setShowChatModal(true)}
+                  className="w-full mb-4 py-3 rounded-xl bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] border border-[var(--border)] text-[var(--text-primary)] text-sm font-bold flex items-center justify-center gap-2 transition-colors"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  Contacter le patron
+                </button>
+              )}
+
               {/* Actions */}
               <div className="grid grid-cols-4 gap-3">
                 <button
@@ -382,6 +397,21 @@ export function MissionSheet({ mission, isOpen, onClose, userLocation }: Mission
             onClose={() => setSelectedDocument(null)}
             readonly={true}
           />
+
+          {/* Chat avec le patron */}
+          {showChatModal && mission.patronId && user?.id && (
+            <ChatThreadModal
+              missionId={mission.id}
+              missionTitle={mission.title}
+              patronId={mission.patronId}
+              workerId={user.id}
+              peerName={mission.venue || 'Patron'}
+              peerId={mission.patronId}
+              senderName={`${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 'Prestataire'}
+              isOpen={showChatModal}
+              onClose={() => setShowChatModal(false)}
+            />
+          )}
 
           {/* Establishment Sheet */}
           <EstablishmentSheet

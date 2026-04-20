@@ -405,7 +405,7 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
                   </div>
                 </div>
                 
-                <div className="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto mt-1 md:mt-0">
+                <div className="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto mt-1 md:mt-0 gap-1">
                   <p className="font-bold text-[var(--text-primary)] text-base md:text-lg order-2 md:order-1">{mission.price}</p>
                   <span className={clsx(
                     "inline-flex items-center gap-1.5 px-2 md:px-2.5 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider order-1 md:order-2",
@@ -430,6 +430,24 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
                      mission.status === 'STANDBY' ? 'Attente pièce' :
                      'En attente'}
                   </span>
+                  {mission.paymentStatus && mission.paymentStatus !== 'NONE' && (
+                    <span className={clsx(
+                      "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase order-3",
+                      mission.paymentStatus === 'AUTHORIZED' ? "bg-blue-500/10 text-blue-400" :
+                      mission.paymentStatus === 'CAPTURED' ? "bg-emerald-500/10 text-emerald-400" :
+                      mission.paymentStatus === 'RELEASED' ? "bg-[var(--bg-active)] text-[var(--text-muted)]" :
+                      mission.paymentStatus === 'REFUNDED' ? "bg-red-500/10 text-red-400" :
+                      mission.paymentStatus === 'FAILED' ? "bg-red-500/10 text-red-400" :
+                      "bg-[var(--bg-active)] text-[var(--text-muted)]"
+                    )}>
+                      {mission.paymentStatus === 'AUTHORIZED' ? '💳 Bloqué' :
+                       mission.paymentStatus === 'CAPTURED' ? '✓ Payé' :
+                       mission.paymentStatus === 'RELEASED' ? 'Libéré' :
+                       mission.paymentStatus === 'REFUNDED' ? 'Remboursé' :
+                       mission.paymentStatus === 'FAILED' ? 'Échec' :
+                       'En attente'}
+                    </span>
+                  )}
                 </div>
               </div>
 
