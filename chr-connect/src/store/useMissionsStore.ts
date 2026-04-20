@@ -25,6 +25,8 @@ interface MissionsState {
   generateInvoice: (missionId: string) => void;
   payInvoice: (invoiceId: string) => void;
   rejectQuote: (missionId: string, rejection: NonNullable<Mission['quoteRejection']>) => void;
+  acceptQuote: (missionId: string, signature?: { signedAt: string; paymentMethod?: string; approvalText?: string }) => void;
+  askQuoteQuestion: (missionId: string, message: string) => void;
   setPartsStatus: (missionId: string, status: 'PART_ORDERED' | 'PART_RECEIVED') => void;
   validateStaffMission: (missionId: string, hoursWorked?: number) => void;
   resumeStandbyMission: (missionId: string) => void;
@@ -170,6 +172,41 @@ export const useMissionsStore = create<MissionsState>()(
           status: 'CANCELLED' as const,
           quoteRejection: rejection
         } : m)
+      })),
+      acceptQuote: (missionId, signature) => set((state) => ({
+        missions: state.missions.map(m => {
+          if (m.id !== missionId || !m.quote) return m;
+          return {
+            ...m,
+            status: 'SCHEDULED' as const,
+            quote: {
+              ...m.quote,
+              status: 'ACCEPTED' as const,
+              signature: {
+                ...m.quote.signature,
+                signed: true,
+                signedAt: signature?.signedAt ? new Date(signature.signedAt) : new Date(),
+                phoneVerified: m.quote.signature?.phoneVerified ?? false,
+              },
+            },
+          };
+        }),
+      })),
+      askQuoteQuestion: (missionId, message) => set((state) => ({
+        missions: state.missions.map(m => {
+          if (m.id !== missionId || !m.quote) return m;
+          const questions = (m.quote as any).questions || [];
+          return {
+            ...m,
+            quote: {
+              ...m.quote,
+              questions: [
+                ...questions,
+                { id: Math.random().toString(36).slice(2), question: message, askedAt: new Date().toISOString(), status: 'pending' },
+              ],
+            } as any,
+          };
+        }),
       })),
       setPartsStatus: (missionId, partsStatus) => set((state) => ({
         missions: state.missions.map(m => m.id === missionId ? { ...m, partsStatus } : m)

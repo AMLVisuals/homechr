@@ -821,6 +821,35 @@ Ces tests seront ajoutés en **passe n°2** une fois les clés transmises.
 
 ---
 
+## Sprint 6.5 — QuoteReceiverView wire (devis maintenance UI patron) (2026-04-20)
+
+### T-S6.5.1 — Accès depuis MissionDetailsModal
+**Setup** : une mission maintenance en status `QUOTE_SENT` avec un `mission.quote` (peut être injecté via le provider flow).
+- [ ] Ouvrir la mission → onglet **Devis** accessible
+- [ ] En haut de l'onglet : bouton gradient bleu→violet **"Étudier le devis en détail (analyse IA + signature)"**
+- [ ] Clic → ouvre `QuoteReceiverView` en overlay plein écran (z-index 300)
+
+### T-S6.5.2 — Workflow QuoteReceiverView
+- [ ] L'overlay affiche le workflow multi-steps : study / questions / terms / sign / pay
+- [ ] Analyse IA du devis (scoring, niveau de confiance)
+- [ ] Questions possibles sur les items du devis
+- [ ] CGV complètes affichables
+- [ ] Signature manuscrite + vérification téléphone
+- [ ] Choix mode de paiement
+
+### T-S6.5.3 — Accept / Reject / Question
+- [ ] **Accept** (signature validée) → appelle `acceptQuote(missionId, signatureData)` → quote.status devient `ACCEPTED`, mission status → `SCHEDULED`, overlay se ferme
+- [ ] **Reject** avec raison → appelle `rejectQuote(missionId, rejection)` → quote.status devient `REJECTED`, mission → `CANCELLED`, overlay se ferme
+- [ ] **Poser une question** → appelle `askQuoteQuestion(missionId, message)` → la question est persistée dans `mission.quote.questions[]` avec status `pending`
+- [ ] Bouton **Fermer** (X) en haut → ferme l'overlay sans modifier la mission
+
+### T-S6.5.4 — État mission après accept
+- [ ] La mission apparaît en statut "Acceptée" dans la liste
+- [ ] La mission passe dans le planning (côté onglet Planning)
+- [ ] Le flux paiement Stripe peut ensuite être déclenché
+
+---
+
 ## Matrice navigateurs recommandée
 | Navigateur | Chat | Push | Realtime |
 |---|---|---|---|

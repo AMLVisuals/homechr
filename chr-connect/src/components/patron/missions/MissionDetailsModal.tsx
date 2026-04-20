@@ -31,6 +31,7 @@ import PostMissionReviewModal from '../reviews/PostMissionReviewModal';
 import ChatThreadModal from '@/components/shared/ChatThreadModal';
 import MissionPaymentModal from './MissionPaymentModal';
 import { useAuth } from '@/contexts/AuthContext';
+import QuoteReceiverView from '../QuoteReceiverView';
 
 interface MissionDetailsModalProps {
   mission: Mission | null;
@@ -41,7 +42,7 @@ interface MissionDetailsModalProps {
 
 export default function MissionDetailsModal({ mission, isOpen, onClose }: MissionDetailsModalProps) {
   const { user } = useAuth();
-  const { addReview, generateInvoice, payInvoice, syncUpdateMission, rejectQuote, validateStaffMission, setPartsStatus, selectCandidate, rejectCandidate } = useMissionsStore();
+  const { addReview, generateInvoice, payInvoice, syncUpdateMission, rejectQuote, acceptQuote, askQuoteQuestion, validateStaffMission, setPartsStatus, selectCandidate, rejectCandidate } = useMissionsStore();
   const { venues } = useVenuesStore();
   const isPremium = useStore((s) => s.isPremium);
   const dpaeDeclaration = useDPAEStore((s) => mission ? s.getDeclarationByMission(mission.id) : undefined);
@@ -51,6 +52,7 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showChatModal, setShowChatModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showQuoteReceiver, setShowQuoteReceiver] = useState(false);
   const [capturingPayment, setCapturingPayment] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [payslipState, setPayslipState] = useState<'idle' | 'generating' | 'done' | 'error'>('idle');
@@ -1560,6 +1562,15 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
 
                       {activeTab === 'QUOTE' && mission.quote && (
                         <div className="animate-fadeIn space-y-4">
+                          {/* CTA vers analyse détaillée */}
+                          <button
+                            onClick={() => setShowQuoteReceiver(true)}
+                            className="w-full p-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold text-sm hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg"
+                          >
+                            <FileText className="w-4 h-4" />
+                            Étudier le devis en détail (analyse IA + signature)
+                          </button>
+
                           <div className="bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border)]">
                             <h3 className="text-sm font-bold text-[var(--text-muted)] uppercase mb-3">Devis #{mission.quote.reference}</h3>
                             <div className="space-y-2">
@@ -1725,6 +1736,44 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
           isOpen={showChatModal}
           onClose={() => setShowChatModal(false)}
         />
+      )}
+    </AnimatePresence>
+
+    {/* Quote Receiver full-screen overlay */}
+    <AnimatePresence>
+      {showQuoteReceiver && mission?.quote && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[300] bg-[var(--bg-app)] overflow-y-auto"
+        >
+          <QuoteReceiverView
+            quote={mission.quote}
+            onAccept={(signatureData) => {
+              acceptQuote(mission.id, {
+                signedAt: signatureData.signedAt instanceof Date ? signatureData.signedAt.toISOString() : new Date().toISOString(),
+                paymentMethod: signatureData.paymentMethod,
+                approvalText: signatureData.approvalText,
+              });
+              syncUpdateMission(mission.id, { status: 'SCHEDULED' });
+              setShowQuoteReceiver(false);
+            }}
+            onReject={(reason) => {
+              rejectQuote(mission.id, {
+                reason: 'too_expensive',
+                comment: reason,
+                rejectedAt: new Date().toISOString(),
+              });
+              syncUpdateMission(mission.id, { status: 'CANCELLED' });
+              setShowQuoteReceiver(false);
+            }}
+            onRequestModification={(message) => {
+              askQuoteQuestion(mission.id, message);
+            }}
+            onClose={() => setShowQuoteReceiver(false)}
+          />
+        </motion.div>
       )}
     </AnimatePresence>
 
