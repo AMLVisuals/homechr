@@ -273,3 +273,69 @@ export async function releasePayment(missionId: string): Promise<{ released: boo
 
   return { released: true };
 }
+
+/**
+ * Rembourse un paiement déjà capturé (litige résolu en faveur du patron).
+ * Montant en euros ; si omis, rembourse le total.
+ */
+export async function refundMissionPayment(params: {
+  missionId: string;
+  amountEuros?: number;
+  reason?: 'duplicate' | 'fraudulent' | 'requested_by_customer';
+}): Promise<{ refunded: boolean; refundId: string; amount: number }> {
+  const stripe = getStripeServer();
+  if (!stripe) throw new Error('Stripe non configuré');
+
+  const admin = getAdminSupabase();
+  const { data: mission } = await admin
+    .from('missions')
+    .select('stripe_payment_intent_id, payment_status, captured_amount, authorized_amount')
+    .eq('id', params.missionId)
+    .single();
+
+  if (!mission?.stripe_payment_intent_id) throw new Error('Aucun paiement à rembourser');
+
+  // Cas 1 : fonds déjà capturés → refund
+  if (mission.payment_status === 'CAPTURED') {
+    const amountCents = params.amountEuros
+      ? Math.round(params.amountEuros * 100)
+      : undefined;
+
+    const refund = await stripe.refunds.create({
+      payment_intent: mission.stripe_payment_intent_id,
+      amount: amountCents,
+      reason: params.reason || 'requested_by_customer',
+      reverse_transfer: true,
+      refund_application_fee: true,
+      metadata: { mission_id: params.missionId },
+    });
+
+    await admin
+      .from('missions')
+      .update({ payment_status: 'REFUNDED' })
+      .eq('id', params.missionId);
+
+    return {
+      refunded: true,
+      refundId: refund.id,
+      amount: (refund.amount || 0) / 100,
+    };
+  }
+
+  // Cas 2 : préauto non capturée → cancel (pas de refund à proprement parler)
+  if (mission.payment_status === 'PENDING' || mission.payment_status === 'AUTHORIZED') {
+    await stripe.paymentIntents.cancel(mission.stripe_payment_intent_id);
+    await admin
+      .from('missions')
+      .update({ payment_status: 'RELEASED' })
+      .eq('id', params.missionId);
+
+    return {
+      refunded: true,
+      refundId: `cancelled:${mission.stripe_payment_intent_id}`,
+      amount: mission.authorized_amount || 0,
+    };
+  }
+
+  throw new Error(`Impossible de rembourser (statut: ${mission.payment_status})`);
+}

@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import AdminSidebar from './AdminSidebar';
 import AdminOverviewTab from './tabs/AdminOverviewTab';
 import AdminUsersTab from './tabs/AdminUsersTab';
+import AdminDisputesTab from './tabs/AdminDisputesTab';
 import AdminSubscriptionsTab from './tabs/AdminSubscriptionsTab';
 import AdminSettingsTab from './tabs/AdminSettingsTab';
 import AdminStaffTab from './tabs/AdminStaffTab';
@@ -24,6 +25,7 @@ export default function AdminDashboard() {
     const tabMap: Record<string, AdminTab> = {
       '/admin/tableau-de-bord': 'DASHBOARD',
       '/admin/utilisateurs': 'USERS',
+      '/admin/litiges': 'DISPUTES',
       '/admin/abonnements': 'SUBSCRIPTIONS',
       '/admin/staff': 'STAFF',
       '/admin/parametres': 'SETTINGS',
@@ -134,6 +136,7 @@ export default function AdminDashboard() {
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-8">
           {activeTab === 'DASHBOARD' && isAdmin && <AdminOverviewTab />}
           {activeTab === 'USERS' && <AdminUsersTab />}
+          {activeTab === 'DISPUTES' && <AdminDisputesTab />}
           {activeTab === 'SUBSCRIPTIONS' && <AdminSubscriptionsTab />}
           {activeTab === 'STAFF' && isAdmin && <AdminStaffTab />}
           {activeTab === 'SETTINGS' && isAdmin && <AdminSettingsTab />}

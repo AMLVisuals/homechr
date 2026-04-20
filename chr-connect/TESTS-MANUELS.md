@@ -2,7 +2,7 @@
 
 > Document destiné au testeur QA. Le dev ne teste pas l'UI lui-même.
 > À chaque nouveau sprint, de nouvelles sections seront ajoutées en bas.
-> Dernière mise à jour : **2026-04-20** (après complétion des micro-TODOs).
+> Dernière mise à jour : **2026-04-20** (Sprint 5 admin litiges + refund Stripe).
 
 ---
 
@@ -26,6 +26,7 @@ Exécuter dans l'ordre via Supabase SQL Editor :
 3. `supabase-schema-sprint2.sql` → Realtime missions + index GIN skills
 4. `supabase-schema-sprint3.sql` → colonnes Stripe Connect sur profiles/missions + stripe_events
 5. `supabase-schema-sprint4.sql` → colonnes signature sur dpae_contracts + table payslip_jobs + mode submission DPAE
+6. `supabase-schema-sprint5.sql` → admin RLS sur mission_disputes, colonnes refund, `is_admin` sur profiles, table `user_blacklist`
 
 ### 3. Comptes de test — À CRÉER PAR LE TESTEUR
 
@@ -651,6 +652,88 @@ Ces tests seront ajoutés en **passe n°2** une fois les clés transmises.
   - Son statut (En cours / Acceptée / etc.)
   - **Un nouveau badge de paiement** en plus (💳 Bloqué / ✓ Payé / Libéré / Remboursé / Échec)
 - [ ] Le badge n'apparaît PAS pour les missions sans paiement initié (status NONE/absent)
+
+---
+
+## Sprint 5 — Workflow admin litiges + refund Stripe (2026-04-20)
+
+### T-S5.1 — Accès à l'onglet Litiges
+**Setup** : migration `supabase-schema-sprint5.sql` appliquée, se connecter sur `/admin/tableau-de-bord` avec admin@home-chr.fr.
+- [ ] Un nouvel onglet **"Litiges"** (icône alerte) apparaît dans la sidebar admin entre "Utilisateurs" et "Abonnements".
+- [ ] Clic → redirige vers `/admin/litiges`
+- [ ] La page affiche 4 stat cards (Ouverts / En examen / Résolus / Total remboursé)
+- [ ] Barre de filtres (Tous / Ouverts / En examen / Résolus patron / Résolus prestataire / Clôturés)
+- [ ] Barre de recherche fonctionnelle (filtre sur titre mission, patron, prestataire, description)
+
+### T-S5.2 — Listing des litiges réels
+**Pré-requis** : ouvrir au moins 1 litige côté patron (mission COMPLETED → bouton "Signaler un problème" dans MissionDetailsModal).
+- [ ] Le litige ouvert apparaît dans la liste admin en statut "Ouvert"
+- [ ] Carte affiche : titre mission, motif, nom patron, nom prestataire, date de création, badge statut
+- [ ] Cliquer sur la carte → ouvre la modale de résolution
+
+### T-S5.3 — Modale "Résoudre le litige"
+- [ ] Header : titre + nom mission
+- [ ] Champs affichés : Patron, Prestataire, Motif, Statut paiement
+- [ ] Section **"Description du signalement"** : texte + photos si présentes (cliquables → ouvre full-size dans nouvel onglet)
+- [ ] Zone textarea **"Note interne / résolution"** éditable
+- [ ] Si paiement CAPTURED ou PENDING : section verte **"Remboursement Stripe"** avec input montant (pré-rempli avec le montant capturé)
+- [ ] Checkbox **"Ajouter à la blacklist réciproque"**
+- [ ] 4 boutons d'action en bas : En examen / Patron / Prestataire / Clôturer
+
+### T-S5.4 — Passer en examen
+- [ ] Cliquer **"En examen"** → la modale se ferme
+- [ ] Le statut du litige passe à `UNDER_REVIEW` (badge orange "En examen")
+- [ ] Patron + prestataire reçoivent une notification push *"Litige en cours d'examen"*
+
+### T-S5.5 — Résolu en faveur du patron + refund Stripe (test critique)
+**Setup critique** : mission avec `payment_status = CAPTURED` (il faut donc avoir fait la chaîne complète : préauto → capture côté patron avant de signaler).
+- [ ] Dans la modale, renseigner note interne + montant refund (ex: montant complet)
+- [ ] Cliquer **"Patron"** → la modale se ferme après 1-2s
+- [ ] Le litige passe au statut `RESOLVED_PATRON`
+- [ ] Badge vert **"✓ Remboursé XX€"** apparaît sur la carte du litige
+- [ ] Côté patron : mission passe en statut CANCELLED
+- [ ] Côté Stripe dashboard : un **Refund** est visible sur le PaymentIntent (avec `reverse_transfer`)
+- [ ] Patron reçoit push *"Litige résolu en votre faveur (remboursement XX€)"*
+- [ ] Prestataire reçoit aussi la notification
+
+### T-S5.6 — Résolu en faveur du prestataire
+- [ ] Ouvrir un litige, cliquer **"Prestataire"**
+- [ ] Status passe à `RESOLVED_PROVIDER` (badge bleu)
+- [ ] **Aucun refund Stripe déclenché** (les fonds restent au prestataire)
+- [ ] Mission passe en statut COMPLETED
+- [ ] Les 2 parties reçoivent push
+
+### T-S5.7 — Clôture sans décision
+- [ ] Ouvrir un litige, cliquer **"Clôturer"**
+- [ ] Statut passe à `CLOSED` (badge gris)
+- [ ] Les 2 parties reçoivent push
+
+### T-S5.8 — Refund sur paiement non-capturé (préauto uniquement)
+**Setup** : mission avec `payment_status = PENDING` ou `AUTHORIZED`.
+- [ ] Résoudre en faveur patron
+- [ ] Le PaymentIntent est **annulé** (pas un refund au sens strict) — `payment_status` passe à `RELEASED`
+- [ ] Badge vert "Remboursé" apparaît avec le montant autorisé
+
+### T-S5.9 — Cas d'erreur refund
+**Setup** : si possible, forcer un état où le PaymentIntent est invalide (test sandbox).
+- [ ] Le litige est quand même résolu mais badge **"⚠ Refund échoué"** apparaît
+- [ ] La raison de l'erreur est ajoutée aux admin_notes
+- [ ] Le dev peut ensuite refaire le refund manuellement via Stripe dashboard
+
+### T-S5.10 — Blacklist réciproque
+- [ ] Résoudre un litige en cochant **"Ajouter à la blacklist"**
+- [ ] Vérifier dans Supabase table `user_blacklist` : 2 lignes créées (patron→worker et worker→patron)
+- [ ] Les 2 parties peuvent toujours voir l'historique mais ne peuvent plus candidater/être matchés (à vérifier sur le flux de candidature si implémenté — sinon c'est juste de la donnée)
+
+### T-S5.11 — Sécurité API
+- [ ] Tenter d'appeler `GET /api/admin/disputes` **sans token** → 403 "Token requis"
+- [ ] Tenter avec un token de **patron non-admin** → 403 "Accès réservé aux admins"
+- [ ] Seul un profil avec `is_admin = true` doit pouvoir accéder
+
+### T-S5.12 — Role SUPPORT
+**Setup** : se connecter avec un compte staff de rôle SUPPORT (pas ADMIN).
+- [ ] L'onglet **"Litiges"** doit rester accessible (pas adminOnly)
+- [ ] Le support peut donc aussi traiter les litiges
 
 ---
 
