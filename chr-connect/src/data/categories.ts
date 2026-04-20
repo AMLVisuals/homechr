@@ -1,8 +1,8 @@
 import {
-  Users, Wrench, Building2
+  Users, Wrench, Building2, Armchair
 } from 'lucide-react';
 
-export type CategoryId = 'PERSONNEL' | 'TECHNICIENS' | 'BATIMENTS' | 'STAFFING' | 'TECH' | 'MAINTENANCE';
+export type CategoryId = 'PERSONNEL' | 'TECHNICIENS' | 'BATIMENTS' | 'MOBILIER' | 'STAFFING' | 'TECH' | 'MAINTENANCE';
 
 export interface Service {
   id: string;
@@ -18,13 +18,15 @@ export interface Category {
   services: Service[];
 }
 
-export const COMING_SOON_CATEGORIES: CategoryId[] = ['BATIMENTS'];
+// MOBILIER n'est pas encore dispo (carte "À venir" sur l'accueil).
+// BATIMENTS est désormais actif (réutilise le flow Techniciens).
+export const COMING_SOON_CATEGORIES: CategoryId[] = ['MOBILIER'];
 
 export const CATEGORIES: Category[] = [
   {
     id: 'PERSONNEL',
-    label: 'Personnel / Extra',
-    description: 'Renforts salle et cuisine',
+    label: 'Personnel',
+    description: 'Renfort intérim · Auto-entrepreneur',
     icon: Users,
     services: [
       // Salle
@@ -60,6 +62,9 @@ export const CATEGORIES: Category[] = [
     description: 'Maintenance et équipements',
     icon: Wrench,
     services: [
+      // Café & Bière (prioritaire — onglet en premier par retour AML Visuals 20/04/2026)
+      { id: 'tech_cafe', label: 'Technicien Machine à Café', group: 'Café & Bière' },
+      { id: 'tech_biere', label: 'Technicien Pompe à Bière', group: 'Café & Bière' },
       // Froid & Climatisation
       { id: 'tech_froid', label: 'Technicien Froid', group: 'Froid & Climatisation' },
       { id: 'tech_ventilation', label: 'Technicien Ventilation / CVC', group: 'Froid & Climatisation' },
@@ -67,8 +72,6 @@ export const CATEGORIES: Category[] = [
       { id: 'tech_chaud', label: 'Technicien Chaud', group: 'Cuisson & Chaud' },
       // Équipement cuisine
       { id: 'tech_lave_vaisselle', label: 'Technicien Lave-vaisselle', group: 'Équipement cuisine' },
-      { id: 'tech_cafe', label: 'Technicien Machine à Café', group: 'Équipement cuisine' },
-      { id: 'tech_biere', label: 'Technicien Pompe à Bière', group: 'Équipement cuisine' },
       // Électricité & Plomberie
       { id: 'electricien', label: 'Électricien', group: 'Électricité & Plomberie' },
       { id: 'plombier', label: 'Plombier', group: 'Électricité & Plomberie' },
@@ -84,23 +87,50 @@ export const CATEGORIES: Category[] = [
   {
     id: 'BATIMENTS',
     label: 'Bâtiments',
-    description: 'Rénovation et construction',
+    description: 'Rénovation · Construction · Travaux spécifiques CHR',
     icon: Building2,
     services: [
-      { id: 'architecte_interieur', label: 'Architecte d\'intérieur' },
-      { id: 'architecte', label: 'Architecte' },
-      { id: 'menuisier', label: 'Menuisier' },
-      { id: 'peintre', label: 'Peintre' },
-      { id: 'platrier', label: 'Plâtrier' },
-      { id: 'carreleur', label: 'Carreleur' },
-      { id: 'macon', label: 'Maçon' },
-      { id: 'installateur_clim', label: 'Installateur climatisation' },
-      { id: 'installateur_vmc', label: 'Installateur VMC' },
-      { id: 'installateur_plomberie', label: 'Installateur plomberie' },
-      { id: 'installateur_electricite', label: 'Installateur électricité' },
-      { id: 'decorateur', label: 'Décorateur' },
-      { id: 'paysagiste', label: 'Paysagiste' },
-      { id: 'menuisier_metal', label: 'Menuisier métallier' },
+      // Rénovation
+      { id: 'peintre', label: 'Peintre', group: 'Rénovation' },
+      { id: 'platrier', label: 'Plâtrier', group: 'Rénovation' },
+      { id: 'carreleur', label: 'Carreleur', group: 'Rénovation' },
+      { id: 'decorateur', label: 'Décorateur', group: 'Rénovation' },
+      { id: 'menuisier', label: 'Menuisier', group: 'Rénovation' },
+      { id: 'menuisier_metal', label: 'Menuisier métallier', group: 'Rénovation' },
+      // Construction
+      { id: 'architecte', label: 'Architecte', group: 'Construction' },
+      { id: 'architecte_interieur', label: 'Architecte d\'intérieur', group: 'Construction' },
+      { id: 'macon', label: 'Maçon', group: 'Construction' },
+      { id: 'paysagiste', label: 'Paysagiste', group: 'Construction' },
+      // Travaux spécifiques CHR
+      { id: 'cuisine_pro', label: 'Installateur cuisine professionnelle', group: 'Travaux CHR' },
+      { id: 'mise_aux_normes', label: 'Mise aux normes HACCP / ERP', group: 'Travaux CHR' },
+      { id: 'terrasse', label: 'Aménagement de terrasse', group: 'Travaux CHR' },
+      // Installations techniques
+      { id: 'installateur_clim', label: 'Installateur climatisation', group: 'Installations techniques' },
+      { id: 'installateur_vmc', label: 'Installateur VMC', group: 'Installations techniques' },
+      { id: 'installateur_plomberie', label: 'Installateur plomberie', group: 'Installations techniques' },
+      { id: 'installateur_electricite', label: 'Installateur électricité', group: 'Installations techniques' },
+    ]
+  },
+  {
+    id: 'MOBILIER',
+    label: 'Mobilier CHR',
+    description: 'Achat, livraison et installation de mobilier professionnel',
+    icon: Armchair,
+    services: [
+      // Mobilier intérieur
+      { id: 'tables_chaises', label: 'Tables & chaises', group: 'Mobilier intérieur' },
+      { id: 'banquettes', label: 'Banquettes', group: 'Mobilier intérieur' },
+      { id: 'comptoirs', label: 'Comptoirs de bar', group: 'Mobilier intérieur' },
+      // Mobilier extérieur
+      { id: 'terrasse_mobilier', label: 'Mobilier de terrasse', group: 'Mobilier extérieur' },
+      // Équipement spécifique
+      { id: 'vitrines_refrigerees', label: 'Vitrines réfrigérées', group: 'Équipement spécifique' },
+      { id: 'meubles_bar', label: 'Meubles de bar', group: 'Équipement spécifique' },
+      { id: 'luminaires', label: 'Luminaires & déco lumière', group: 'Équipement spécifique' },
+      // Occasion / reconditionné
+      { id: 'mobilier_occasion', label: 'Mobilier d\'occasion / reconditionné', group: 'Occasion' },
     ]
   }
 ];

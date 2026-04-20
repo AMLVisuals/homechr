@@ -536,6 +536,31 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
               />
             )
           )}
+
+          {/* Total récapitulatif en bas de liste (AML Visuals retour produit) */}
+          {filteredMissions.length > 0 && (
+            <div className="mt-2 p-4 rounded-xl bg-[var(--bg-hover)] border border-[var(--border)] flex items-center justify-between">
+              <div className="text-sm">
+                <p className="font-bold text-[var(--text-primary)]">
+                  Total · {filteredMissions.length} demande{filteredMissions.length > 1 ? 's' : ''}
+                </p>
+                <p className="text-xs text-[var(--text-muted)]">
+                  {filter === 'ARCHIVES' ? formatMonthKey(archiveMonthKey) : 'Filtre actif'}
+                </p>
+              </div>
+              <p className="text-lg font-bold text-[var(--text-primary)]">
+                {(() => {
+                  const total = filteredMissions.reduce((sum, m) => {
+                    const p = typeof m.price === 'number'
+                      ? m.price
+                      : parseFloat(String(m.price || '0').replace(/[^\d.]/g, '')) || 0;
+                    return sum + p;
+                  }, 0);
+                  return total.toFixed(0) + ' €';
+                })()}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

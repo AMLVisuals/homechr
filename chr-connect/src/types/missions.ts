@@ -216,6 +216,7 @@ export interface Mission {
   dpaeReceiptId?: string;        // AEE URSSAF
   actualHoursWorked?: number;
   payslipUrl?: string;
+  employmentType?: 'EXTRA' | 'FREELANCE' | 'NONE'; // EXTRA CDD → DPAE obligatoire ; FREELANCE auto-entrepreneur → pas de DPAE
 
   // ── Paiement Stripe Connect ──
   stripePaymentIntentId?: string;

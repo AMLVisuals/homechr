@@ -142,6 +142,7 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
   const [isNow, setIsNow] = useState(true);
   const [customDate, setCustomDate] = useState('');
   const [customTime, setCustomTime] = useState('');
+  const [employmentType, setEmploymentType] = useState<'EXTRA' | 'FREELANCE'>('EXTRA');
 
   const poste = ALL_POSTES.find(p => p.id === selectedPosteId);
 
@@ -184,6 +185,9 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
       staffing_number_of_people: count,
       staffing_hourly_rate: poste.rate,
       staffing_role: poste.label,
+      employment_type: employmentType, // EXTRA (CDD d'usage + DPAE) | FREELANCE (auto-entrepreneur, pas de DPAE)
+      // DPAE requise uniquement si salarié (EXTRA). Freelance facture directement.
+      dpae_status: employmentType === 'FREELANCE' ? 'NOT_REQUIRED' : 'PENDING',
     };
 
     await syncAddMission(mission as any);
@@ -329,6 +333,41 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
               </p>
 
               <div className="space-y-6 max-w-lg mx-auto w-full overflow-y-auto">
+                {/* Statut du prestataire (Extra CDD / Auto-entrepreneur) */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[var(--text-secondary)]">Statut du prestataire</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setEmploymentType('EXTRA')}
+                      className={cn(
+                        'p-3 rounded-xl border-2 transition-all text-left',
+                        employmentType === 'EXTRA'
+                          ? 'border-purple-500 bg-purple-500/10'
+                          : 'border-[var(--border)] bg-[var(--bg-card)] hover:border-purple-500/50'
+                      )}
+                    >
+                      <p className="font-bold text-sm text-[var(--text-primary)]">Extra (CDD d'usage)</p>
+                      <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
+                        Salarié temporaire · DPAE employeur obligatoire
+                      </p>
+                    </button>
+                    <button
+                      onClick={() => setEmploymentType('FREELANCE')}
+                      className={cn(
+                        'p-3 rounded-xl border-2 transition-all text-left',
+                        employmentType === 'FREELANCE'
+                          ? 'border-emerald-500 bg-emerald-500/10'
+                          : 'border-[var(--border)] bg-[var(--bg-card)] hover:border-emerald-500/50'
+                      )}
+                    >
+                      <p className="font-bold text-sm text-[var(--text-primary)]">Auto-entrepreneur</p>
+                      <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
+                        Indépendant · Facture directement · Pas de DPAE
+                      </p>
+                    </button>
+                  </div>
+                </div>
+
                 {/* Establishment selector */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-[var(--text-secondary)]">Établissement concerné</label>

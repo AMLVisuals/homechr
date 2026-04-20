@@ -60,3 +60,16 @@ CREATE TRIGGER trg_invoice_archive_until
   BEFORE INSERT OR UPDATE OF electronic_status ON invoices
   FOR EACH ROW
   EXECUTE FUNCTION set_invoice_archive_until();
+
+-- ============================================================================
+-- SPRINT 8 bis — Statut d'emploi sur missions (EXTRA CDD / FREELANCE auto-entrepreneur)
+-- ============================================================================
+ALTER TABLE missions
+  ADD COLUMN IF NOT EXISTS employment_type TEXT
+    CHECK (employment_type IN ('EXTRA','FREELANCE','NONE'))
+    DEFAULT 'NONE';
+
+-- Les missions FREELANCE n'ont pas de DPAE obligatoire
+UPDATE missions
+  SET dpae_status = 'NOT_REQUIRED'
+  WHERE employment_type = 'FREELANCE' AND dpae_status = 'PENDING';
