@@ -4,6 +4,7 @@ import {
   getCalendarEvents,
   createCalendarEvent,
   deleteCalendarEvent,
+  updateCalendarEvent,
 } from '@/lib/supabase-helpers';
 
 export type EventType = 'MAINTENANCE' | 'STAFFING' | 'SUPPLY' | 'EVENT' | 'OTHER' | 'NOTE';
@@ -42,6 +43,7 @@ interface CalendarStore {
   // Async Supabase actions
   fetchEvents: (userId: string, month?: string) => Promise<void>;
   syncAddEvent: (event: Omit<CalendarEvent, 'id'>) => Promise<void>;
+  syncUpdateEvent: (id: string, updates: Partial<CalendarEvent>) => Promise<void>;
   syncDeleteEvent: (id: string) => Promise<void>;
 }
 
@@ -89,6 +91,24 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
     } catch (err) {
       console.error('[calendarStore] syncAddEvent failed:', err);
       set({ isLoading: false, error: err instanceof Error ? err.message : 'Erreur lors de l\'ajout de l\'evenement' });
+    }
+  },
+
+  syncUpdateEvent: async (id: string, updates: Partial<CalendarEvent>) => {
+    const previousEvents = get().events;
+    // Optimistic update
+    set((state) => ({
+      events: state.events.map((e) => (e.id === id ? { ...e, ...updates } : e)),
+    }));
+
+    try {
+      await updateCalendarEvent(id, updates);
+    } catch (err) {
+      console.error('[calendarStore] syncUpdateEvent failed:', err);
+      set({
+        events: previousEvents,
+        error: err instanceof Error ? err.message : 'Erreur lors de la modification',
+      });
     }
   },
 

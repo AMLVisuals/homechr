@@ -8,6 +8,7 @@ import { clsx } from 'clsx';
 import { useCalendarStore, CalendarEvent, EventType } from '@/store/calendarStore';
 import { useVenuesStore } from '@/store/useVenuesStore';
 import EventModal from '../planning/EventModal';
+import WeekDayView from '../planning/WeekDayView';
 import MissionDetailsModal from '../missions/MissionDetailsModal';
 import { CreateMissionWizard } from '@/components/mission/CreateMissionWizard';
 import { useMissionsStore } from '@/store/useMissionsStore';
@@ -24,8 +25,11 @@ const EVENT_FILTERS: { id: EventType | 'ALL'; label: string; color: string }[] =
   { id: 'OTHER', label: 'Autre', color: 'bg-gray-500' },
 ];
 
+type PlanningView = 'MONTH' | 'WEEK' | 'DAY';
+
 export default function PlanningTab() {
-  const { events, syncDeleteEvent } = useCalendarStore();
+  const { events, syncDeleteEvent, syncUpdateEvent } = useCalendarStore();
+  const [viewMode, setViewMode] = useState<PlanningView>('MONTH');
   const { activeVenueId, venues } = useVenuesStore();
   const { missions } = useMissionsStore();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -98,10 +102,45 @@ export default function PlanningTab() {
   }, [year, month, startDayIndex, daysInMonth, prevMonthDays]);
 
   const changeMonth = (delta: number) => {
+    if (viewMode === 'WEEK') {
+      const d = new Date(currentDate);
+      d.setDate(d.getDate() + delta * 7);
+      setCurrentDate(d);
+      setSelectedDate(d.toISOString().split('T')[0]);
+      return;
+    }
+    if (viewMode === 'DAY') {
+      const d = new Date(currentDate);
+      d.setDate(d.getDate() + delta);
+      setCurrentDate(d);
+      setSelectedDate(d.toISOString().split('T')[0]);
+      return;
+    }
     const newDate = new Date(year, month + delta, 1);
     setCurrentDate(newDate);
-    // Optionally auto-select the first day of the new month to keep context sync
-    // setSelectedDate(newDate.toISOString().split('T')[0]);
+  };
+
+  const handleEventReschedule = async (eventId: string, newDate: string, newTime: string) => {
+    const ev = events.find((e) => e.id === eventId);
+    if (!ev) return;
+    let newEndTime: string | undefined = ev.endTime;
+    if (ev.endTime) {
+      const [sh, sm] = ev.time.split(':').map(Number);
+      const [eh, em] = ev.endTime.split(':').map(Number);
+      const durMin = (eh * 60 + em) - (sh * 60 + sm);
+      const [nh, nm] = newTime.split(':').map(Number);
+      const totalMin = nh * 60 + nm + durMin;
+      const endH = Math.floor(totalMin / 60);
+      const endM = totalMin % 60;
+      newEndTime = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`;
+    }
+    await syncUpdateEvent(eventId, { date: newDate, time: newTime, endTime: newEndTime });
+  };
+
+  const handleCreateAt = (date: string, time: string) => {
+    setSelectedDate(date);
+    setEditingEvent({ id: '', title: '', date, time, type: 'OTHER' } as any);
+    setIsModalOpen(true);
   };
 
   const filteredEvents = useMemo(() => {
@@ -240,6 +279,24 @@ export default function PlanningTab() {
 
           {/* Controls Row */}
           <div className="flex items-center justify-between md:justify-end gap-2 md:gap-4 w-full md:w-auto">
+            {/* View Switcher M/W/D */}
+            <div className="flex items-center bg-[var(--bg-input)] rounded-lg p-1 border border-[var(--border)] shadow-inner shrink-0">
+              {(['MONTH', 'WEEK', 'DAY'] as const).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setViewMode(v)}
+                  className={clsx(
+                    'px-2 md:px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all',
+                    viewMode === v
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  )}
+                >
+                  {v === 'MONTH' ? 'M' : v === 'WEEK' ? 'S' : 'J'}
+                </button>
+              ))}
+            </div>
+
             <div className="flex items-center bg-[var(--bg-input)] rounded-lg p-1 border border-[var(--border)] shadow-inner shrink-0">
               <button
                 onClick={() => changeMonth(-1)}
@@ -366,6 +423,29 @@ export default function PlanningTab() {
 
         {/* Calendar Grid - Auto Fit */}
         <div className="flex-1 flex flex-col min-h-[350px] md:min-h-0 p-2 md:p-4">
+          {viewMode !== 'MONTH' ? (
+            <div className="flex-1 overflow-auto custom-scrollbar">
+              <WeekDayView
+                mode={viewMode}
+                anchorDate={currentDate}
+                events={filteredEvents}
+                missions={missions}
+                filterType={filterType}
+                onItemClick={(item) => {
+                  if (item.kind === 'mission') {
+                    setSelectedMission(item.mission);
+                    setIsMissionModalOpen(true);
+                  } else {
+                    setEditingEvent(item.event);
+                    setIsModalOpen(true);
+                  }
+                }}
+                onEventReschedule={handleEventReschedule}
+                onCreateAt={handleCreateAt}
+              />
+            </div>
+          ) : (
+          <>
           <div className="grid grid-cols-7 mb-2 px-1">
             {DAYS.map(d => (
               <div key={d} className="text-center text-[var(--text-muted)] text-[10px] font-bold uppercase tracking-widest py-1">
@@ -455,6 +535,8 @@ export default function PlanningTab() {
               );
             })}
           </div>
+          </>
+          )}
         </div>
       </div>
       </div>

@@ -513,6 +513,17 @@ export async function deleteCalendarEvent(eventId: string) {
   return { error };
 }
 
+export async function updateCalendarEvent(eventId: string, updates: Record<string, any>) {
+  const { data, error } = await supabase
+    .from('calendar_events')
+    .update(toSnakeCase(updates))
+    .eq('id', eventId)
+    .select()
+    .single();
+  if (error) console.error('[updateCalendarEvent] Supabase error:', error.message, error.details);
+  return { data: data ? toCamelCase(data) : null, error };
+}
+
 // ============================================================================
 // NOTIFICATIONS
 // ============================================================================

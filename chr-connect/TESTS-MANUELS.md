@@ -774,6 +774,53 @@ Ces tests seront ajoutés en **passe n°2** une fois les clés transmises.
 
 ---
 
+## Sprint 6 — Planning vues semaine/jour + drag-drop + conflits (2026-04-20)
+
+### T-S6.1 — View switcher
+- [ ] Dans l'onglet **Planning**, 3 boutons M/S/J en haut à droite (Mois / Semaine / Jour)
+- [ ] Cliquer M → vue mois classique (calendrier grille)
+- [ ] Cliquer S → vue semaine (colonnes 7 jours + grille heures 7h-23h)
+- [ ] Cliquer J → vue jour (une colonne + grille heures)
+- [ ] Boutons ← / → naviguent selon la vue active (mois/semaine/jour)
+
+### T-S6.2 — Vue semaine
+- [ ] 7 colonnes (Lun→Dim) + colonne heures à gauche (7h à 23h)
+- [ ] Les events apparaissent positionnés selon leur `time` et hauteur selon `endTime`
+- [ ] Le jour courant est surligné en bleu
+- [ ] Missions planifiées (avec `scheduledDate`) apparaissent en indigo
+
+### T-S6.3 — Drag-and-drop replanification
+**Setup** : créer un event "Test DnD" à 10h lundi.
+- [ ] Cliquer et glisser la carte event vers un autre créneau (ex: mercredi 14h)
+- [ ] La zone cible est surlignée en vert pendant le drag
+- [ ] Lâcher → l'event est déplacé visuellement
+- [ ] Rafraîchir la page → l'event est bien à sa nouvelle date/heure (persistence Supabase via `syncUpdateEvent`)
+- [ ] La durée (endTime) est préservée (ex: event 10h-12h devient 14h-16h)
+
+### T-S6.4 — Détection conflits
+**Setup** : créer 2 events qui se chevauchent (ex: 10h-11h + 10h30-11h30 le même jour).
+- [ ] Les 2 cartes s'affichent avec un **ring rouge** (anneau rouge autour)
+- [ ] Icône **AlertTriangle** ⚠ visible à côté du titre
+- [ ] Le conflit est détecté entre events, entre missions, ou entre un event et une mission
+
+### T-S6.5 — Double-clic pour créer
+- [ ] Double-cliquer sur un créneau vide (ex: mardi 15h) → ouvre la modale de création d'event pré-remplie avec cette date et heure
+- [ ] Compléter le titre et sauver → l'event apparaît au bon endroit
+
+### T-S6.6 — Vue jour
+- [ ] Passer en J → une seule colonne grande largeur avec grille heures
+- [ ] Drag-drop marche pareil (mais dans la même colonne, change uniquement l'heure)
+- [ ] Navigation ← / → avance/recule d'**un jour**
+
+### T-S6.7 — Clic event/mission
+- [ ] Cliquer un event sans drag → ouvre la modale d'édition de l'event
+- [ ] Cliquer une mission (indigo) → ouvre MissionDetailsModal
+
+### T-S6.8 — Filtres cohérents
+- [ ] Les filtres de type event (MAINTENANCE/STAFFING/etc.) fonctionnent aussi dans les vues semaine/jour
+
+---
+
 ## Matrice navigateurs recommandée
 | Navigateur | Chat | Push | Realtime |
 |---|---|---|---|
