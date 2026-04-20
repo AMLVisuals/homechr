@@ -115,11 +115,19 @@ export const useStockStore = create<StockState>()(
       syncAddItem: async (item: StockItem) => {
         set({ isLoading: true, error: null });
         try {
-          await upsertStockItem(item);
-          set((state) => ({ items: [...state.items, item], isLoading: false }));
+          const { data, error } = await upsertStockItem(item);
+          if (error) {
+            const msg = error.message || 'Erreur lors de l\'ajout';
+            console.error('[useStockStore] syncAddItem supabase error:', error);
+            set({ isLoading: false, error: msg });
+            throw new Error(msg);
+          }
+          const persisted = (data as StockItem | null) || item;
+          set((state) => ({ items: [...state.items, persisted], isLoading: false }));
         } catch (err) {
           console.error('[useStockStore] syncAddItem failed:', err);
           set({ isLoading: false, error: err instanceof Error ? err.message : 'Erreur lors de l\'ajout' });
+          throw err;
         }
       },
 

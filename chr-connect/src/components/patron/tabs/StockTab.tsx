@@ -40,8 +40,10 @@ function formatRelativeTime(isoString: string): string {
 
 export default function StockTab() {
   const { isPremium } = useStore();
-  const { items, syncAddItem, syncRemoveItem, applyChanges, history, lastValidatedAt } = useStockStore();
+  const { items, syncAddItem, syncRemoveItem, applyChanges, history, lastValidatedAt, error: storeError } = useStockStore();
   const { activeVenueId } = useVenuesStore();
+  const [addError, setAddError] = useState<string | null>(null);
+  const [addSubmitting, setAddSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<StockCategory | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -86,22 +88,45 @@ export default function StockTab() {
     setNewPrice('');
   };
 
-  const handleAdd = () => {
-    if (!newName || !newQuantity) return;
-    syncAddItem({
-      id: `s-${Date.now()}`,
-      name: newName,
-      quantity: parseFloat(newQuantity),
-      unit: newUnit,
-      alertThreshold: parseFloat(newThreshold) || 0,
-      category: newCategory,
-      supplier: newSupplier || undefined,
-      unitPrice: newPrice ? parseFloat(newPrice) : undefined,
-      venueId: activeVenueId || 'v1',
-      lastUpdated: new Date().toISOString().split('T')[0],
-    });
-    resetForm();
-    setShowAddModal(false);
+  const handleAdd = async () => {
+    setAddError(null);
+    if (!newName || !newQuantity) {
+      setAddError('Nom et quantité sont requis.');
+      return;
+    }
+    if (!activeVenueId) {
+      setAddError('Sélectionnez un établissement avant d\'ajouter un article.');
+      return;
+    }
+    setAddSubmitting(true);
+    try {
+      await syncAddItem({
+        // Supabase génère l'UUID (colonne id UUID DEFAULT gen_random_uuid())
+        // On envoie un id temporaire juste pour satisfaire le type TS ; il sera remplacé côté DB
+        id: crypto.randomUUID(),
+        name: newName,
+        quantity: parseFloat(newQuantity),
+        unit: newUnit,
+        alertThreshold: parseFloat(newThreshold) || 0,
+        category: newCategory,
+        supplier: newSupplier || undefined,
+        unitPrice: newPrice ? parseFloat(newPrice) : undefined,
+        venueId: activeVenueId,
+        lastUpdated: new Date().toISOString().split('T')[0],
+      });
+      // Si le store a remonté une erreur, on l'affiche
+      const latestError = useStockStore.getState().error;
+      if (latestError) {
+        setAddError(latestError);
+        return;
+      }
+      resetForm();
+      setShowAddModal(false);
+    } catch (err: any) {
+      setAddError(err?.message || 'Erreur lors de l\'ajout');
+    } finally {
+      setAddSubmitting(false);
+    }
   };
 
   useEffect(() => {
@@ -200,7 +225,7 @@ export default function StockTab() {
           )}
 
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => (() => { setAddError(null); setShowAddModal(true); })()}
             className="hidden md:flex px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-blue-500/25 transition-all items-center gap-2"
           >
             <Plus className="w-4 h-4" />
@@ -391,7 +416,7 @@ export default function StockTab() {
                 title="Aucun article en stock"
                 description="Ajoutez votre premier article pour commencer à gérer votre inventaire."
                 actionLabel="Ajouter un article"
-                onAction={() => setShowAddModal(true)}
+                onAction={() => (() => { setAddError(null); setShowAddModal(true); })()}
               />
             </div>
           )}
@@ -436,7 +461,7 @@ export default function StockTab() {
       {/* Mobile FAB */}
       {pendingCount === 0 && (
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={() => (() => { setAddError(null); setShowAddModal(true); })()}
           className="md:hidden fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30 flex items-center justify-center active:scale-95 transition-transform"
         >
           <Plus className="w-6 h-6" />
@@ -515,19 +540,25 @@ export default function StockTab() {
                 </div>
               </div>
 
-              <div className="p-6 border-t border-[var(--border)]">
+              <div className="p-6 border-t border-[var(--border)] space-y-3">
+                {addError && (
+                  <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-sm text-red-500 flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>{addError}</span>
+                  </div>
+                )}
                 <button
                   onClick={handleAdd}
-                  disabled={!newName || !newQuantity}
+                  disabled={!newName || !newQuantity || addSubmitting}
                   className={clsx(
                     'w-full py-3.5 rounded-xl font-semibold transition-all flex items-center justify-center gap-2',
-                    newName && newQuantity
+                    newName && newQuantity && !addSubmitting
                       ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg'
                       : 'bg-[var(--bg-active)] text-[var(--text-muted)] cursor-not-allowed'
                   )}
                 >
                   <Check className="w-5 h-5" />
-                  Ajouter l&apos;article
+                  {addSubmitting ? 'Ajout...' : 'Ajouter l\'article'}
                 </button>
               </div>
             </motion.div>

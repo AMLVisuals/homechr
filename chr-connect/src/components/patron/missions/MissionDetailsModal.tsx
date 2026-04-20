@@ -53,6 +53,9 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
   const [showChatModal, setShowChatModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showQuoteReceiver, setShowQuoteReceiver] = useState(false);
+  const [einvoiceState, setEinvoiceState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [einvoiceError, setEinvoiceError] = useState<string | null>(null);
+  const [einvoiceReference, setEinvoiceReference] = useState<string | null>(null);
   const [capturingPayment, setCapturingPayment] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [payslipState, setPayslipState] = useState<'idle' | 'generating' | 'done' | 'error'>('idle');
@@ -1628,6 +1631,92 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                 <span className="text-[var(--text-secondary)]">{mission.invoice.dueDate}</span>
                               </div>
                             </div>
+                          </div>
+
+                          {/* ── Facturation électronique (loi septembre 2026) ── */}
+                          <div className="bg-blue-500/5 rounded-2xl p-5 border border-blue-500/30">
+                            <div className="flex items-start justify-between mb-3">
+                              <div>
+                                <h4 className="font-bold text-[var(--text-primary)] flex items-center gap-2">
+                                  <ShieldCheck className="w-4 h-4 text-blue-500" />
+                                  Facturation électronique
+                                </h4>
+                                <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                                  Conforme Factur-X · Transmission PDP/PPF · Archivage 10 ans
+                                </p>
+                              </div>
+                              {einvoiceState === 'sent' && (
+                                <span className="text-xs font-bold px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/30">
+                                  TRANSMISE
+                                </span>
+                              )}
+                            </div>
+
+                            {einvoiceState === 'sent' && einvoiceReference && (
+                              <p className="text-[11px] text-[var(--text-secondary)] mb-3">
+                                Référence plateforme : <code className="font-mono">{einvoiceReference}</code>
+                              </p>
+                            )}
+
+                            {einvoiceError && (
+                              <div className="mb-3 p-2 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-500">
+                                {einvoiceError}
+                              </div>
+                            )}
+
+                            <button
+                              onClick={async () => {
+                                if (einvoiceState === 'sending' || einvoiceState === 'sent') return;
+                                setEinvoiceState('sending');
+                                setEinvoiceError(null);
+                                try {
+                                  const { data: { session } } = await supabase.auth.getSession();
+                                  if (!session) throw new Error('Session expirée');
+                                  const res = await fetch('/api/invoices/send', {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                      Authorization: `Bearer ${session.access_token}`,
+                                    },
+                                    body: JSON.stringify({
+                                      invoiceId: mission.invoice!.id,
+                                      channel: 'PDP',
+                                    }),
+                                  });
+                                  const json = await res.json();
+                                  if (!res.ok) throw new Error(json.error || 'Erreur transmission');
+                                  setEinvoiceReference(json.reference || null);
+                                  setEinvoiceState('sent');
+                                } catch (err: any) {
+                                  setEinvoiceError(err?.message || 'Erreur');
+                                  setEinvoiceState('error');
+                                }
+                              }}
+                              disabled={einvoiceState === 'sending' || einvoiceState === 'sent'}
+                              className={clsx(
+                                'w-full py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2',
+                                einvoiceState === 'sent'
+                                  ? 'bg-emerald-500/10 text-emerald-500 cursor-default'
+                                  : 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:brightness-110 disabled:opacity-60'
+                              )}
+                            >
+                              {einvoiceState === 'sending' ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  Transmission en cours...
+                                </>
+                              ) : einvoiceState === 'sent' ? (
+                                <>
+                                  <CheckCircle2 className="w-4 h-4" />
+                                  Facture transmise
+                                </>
+                              ) : (
+                                <>
+                                  <Send className="w-4 h-4" />
+                                  Générer et transmettre (Factur-X)
+                                </>
+                              )}
+                            </button>
                           </div>
                         </div>
                       )}
