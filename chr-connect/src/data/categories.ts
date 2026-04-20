@@ -62,7 +62,7 @@ export const CATEGORIES: Category[] = [
     description: 'Maintenance et équipements',
     icon: Wrench,
     services: [
-      // Café & Bière (prioritaire — onglet en premier par retour AML Visuals 20/04/2026)
+      // Café & Bière (prioritaire — onglet en premier)
       { id: 'tech_cafe', label: 'Technicien Machine à Café', group: 'Café & Bière' },
       { id: 'tech_biere', label: 'Technicien Pompe à Bière', group: 'Café & Bière' },
       // Froid & Climatisation

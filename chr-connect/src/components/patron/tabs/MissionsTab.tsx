@@ -398,7 +398,7 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-bold text-base md:text-lg text-[var(--text-primary)] group-hover:text-blue-400 transition-colors truncate">{mission.title}</h3>
-                      {/* Badge statut d'emploi (AML Visuals point 8) */}
+                      {/* Badge statut d'emploi */}
                       {mission.employmentType === 'EXTRA' && (
                         <span className="text-[9px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/30 uppercase">
                           Extra CDD
@@ -556,7 +556,7 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
             )
           )}
 
-          {/* Total récapitulatif en bas de liste (AML Visuals retour produit) */}
+          {/* Total récapitulatif en bas de liste */}
           {filteredMissions.length > 0 && (
             <div className="mt-2 p-4 rounded-xl bg-[var(--bg-hover)] border border-[var(--border)] flex items-center justify-between">
               <div className="text-sm">

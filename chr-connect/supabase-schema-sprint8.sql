@@ -76,7 +76,7 @@ UPDATE missions
 
 -- ============================================================================
 -- SPRINT 8 ter — Infos administratives auto-entrepreneur sur profiles
--- (Parcours AML Visuals point 9 : SIRET / IBAN / TVA)
+-- (Parcours prestataire : SIRET / IBAN / TVA)
 -- ============================================================================
 ALTER TABLE profiles
   ADD COLUMN IF NOT EXISTS iban TEXT,

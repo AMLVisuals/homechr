@@ -491,8 +491,8 @@ Ces tests seront ajoutés en **passe n°2** une fois les clés transmises.
 - **Chat côté prestataire** : toujours pas de bouton "Contacter le patron" côté worker (besoin de refactor mission-sheet côté worker).
 - **2FA (TOTP)** : non implémenté. À activer via Supabase Auth (Settings > Authentication > MFA) + ajouter UI enrollment dans Settings.
 - **Accessibilité WCAG AA** : non audité. Contrastes non vérifiés, labels ARIA incomplets.
-- **Charte couleur rationalisée** (rapport AML §3.2.5) : reporté.
-- **Header simplifié** (rapport AML §3.2.2) : reporté.
+- **Charte couleur rationalisée** : reporté.
+- **Header simplifié** : reporté.
 - **Drag-drop planning** : reporté.
 - **Analytics benchmark anonymisé** : reporté (nécessite data de plusieurs établissements).
 
@@ -912,9 +912,9 @@ Inspecter le DOM via DevTools (onglet Accessibility) :
 
 ---
 
-## Sprint 8 — AML Visuals Retours Produit (2026-04-20)
+## Sprint 8 — Retours produit (2026-04-20)
 
-> Basé sur le document "HomeCHR Retours Produit.odt" — 9 points de retour.
+> 9 points de retour produit.
 > **SQL requis** : `supabase-schema-sprint8.sql` à exécuter avant tests.
 
 ### T-S8.P1 — SOS Extra : statut auto-entrepreneur

@@ -105,7 +105,7 @@ export async function getMessages(
 }
 
 // Modération légère : masque les tentatives de partage de coordonnées externes
-// pour éviter le contournement de la plateforme (audit AML §4.2.3)
+// pour éviter le contournement de la plateforme
 const PHONE_FR = /(?:\+33[\s.\-]?|0)[1-9](?:[\s.\-]?\d{2}){4}/g;
 const EMAIL_RE = /[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}/g;
 const EXTERNAL_CHANNELS = /\b(whatsapp|telegram|signal|instagram|snapchat|facebook|messenger)\b/gi;

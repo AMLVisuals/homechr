@@ -8,7 +8,6 @@ import { supabase } from '@/lib/supabase';
 
 /**
  * Écran "Informations administratives" auto-entrepreneur.
- * AML Visuals retour produit (20/04/2026) — point 9.
  *
  * Champs : SIRET (14 chiffres), IBAN, TVA (cocher), Forme juridique, Code APE.
  * Affiché uniquement pour les prestataires avec employment_category = 'FREELANCE'.
