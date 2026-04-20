@@ -904,6 +904,42 @@ Dans Supabase Dashboard → Authentication → Providers → MFA :
 
 ---
 
+## Sprint 7.5 — A11y + Header simplifié (2026-04-20)
+
+### T-S7.5.1 — Skip-to-content link
+- [ ] Charger n'importe quelle page (ex: `/patron/tableau-de-bord`)
+- [ ] Appuyer sur **Tab** → un lien bleu **"Aller au contenu principal"** apparaît en haut à gauche
+- [ ] Presser Enter → le focus saute au `#main-content` (ignore la sidebar et le header)
+
+### T-S7.5.2 — Focus visible global
+- [ ] Naviguer au clavier avec **Tab** sur le dashboard patron
+- [ ] Tous les boutons/liens/inputs ont un **anneau bleu** (2px) visible au focus
+- [ ] Le focus ne disparaît pas (pas de `outline: none` sans remplacement)
+
+### T-S7.5.3 — Avatar patron = vraies initiales
+- [ ] L'avatar en haut à droite (cercle gradient bleu→violet) affiche **les initiales réelles** du user (ex: "AB" pour Adam Berki)
+- [ ] Si pas de first_name/last_name : fallback sur première lettre de l'email
+- [ ] Clic sur l'avatar → ouvre la modale Paramètres (avant : non-cliquable, "LF" hardcodé)
+
+### T-S7.5.4 — CTA Premium masqué si déjà Premium
+**Setup** : dans Paramètres → Abonnement → "Passer au Premium" (toggle `isPremium=true`).
+- [ ] Le bouton **"Premium"** (doré) dans le header patron **disparaît**
+- [ ] Rétrograder → le bouton réapparaît
+
+### T-S7.5.5 — Aria labels header
+Inspecter le DOM via DevTools (onglet Accessibility) :
+- [ ] Bouton menu mobile : `aria-label="Ouvrir le menu"` + `aria-expanded`
+- [ ] Bouton search mobile : `aria-label="Rechercher"`
+- [ ] Bouton notifications : `aria-label="Notifications (X non lues)"` + `aria-expanded`
+- [ ] Bouton avatar : `aria-label="Paramètres (connecté en tant que ...)"`
+
+### T-S7.5.6 — Reduced motion
+**Setup** : dans les préférences système → "Réduire les animations" (macOS Accessibility, Windows Ease of Access).
+- [ ] Les animations Framer Motion sont raccourcies à 0.01ms (via `prefers-reduced-motion`)
+- [ ] Pas de nausée possible pour les users sensibles
+
+---
+
 ## Matrice navigateurs recommandée
 | Navigateur | Chat | Push | Realtime |
 |---|---|---|---|

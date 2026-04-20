@@ -47,10 +47,13 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="ConnectCHR" />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
+        <a href="#main-content" className="skip-to-content">
+          Aller au contenu principal
+        </a>
         <ServiceWorkerRegistration />
         <Providers>
           <ThemeProvider>
-            {children}
+            <div id="main-content">{children}</div>
           </ThemeProvider>
         </Providers>
       </body>

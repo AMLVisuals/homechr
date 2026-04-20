@@ -29,6 +29,7 @@ import { useMissionsStore } from '@/store/useMissionsStore';
 import { Mission } from '@/types/missions';
 import { APP_CONFIG } from '@/config/appConfig';
 import { useDocumentsStore } from '@/store/useDocumentsStore';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ICON_MAP: Record<string, any> = {
   Wrench, ChefHat, Monitor, Hammer, Users, Calendar, Scale
@@ -53,13 +54,21 @@ import SettingsModal from '../shared/SettingsModal';
 const MONTH_SHORT_FR = ['JAN', 'FÉV', 'MAR', 'AVR', 'MAI', 'JUIN', 'JUIL', 'AOÛ', 'SEPT', 'OCT', 'NOV', 'DÉC'];
 
 export default function PatronDashboard() {
-  const { setUserRole } = useStore();
+  const { setUserRole, isPremium } = useStore();
   const { activeVenueId, venues } = useVenuesStore();
   const { missions } = useMissionsStore();
+  const { profile } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
 
   const activeVenue = venues.find(v => v.id === activeVenueId);
+
+  const userInitials = (() => {
+    const fn = profile?.first_name?.[0] || '';
+    const ln = profile?.last_name?.[0] || '';
+    const init = `${fn}${ln}`.toUpperCase();
+    return init || profile?.email?.[0]?.toUpperCase() || '?';
+  })();
 
   const getInitialTab = (path: string) => {
     const tabMap: Record<string, string> = {
@@ -296,23 +305,35 @@ export default function PatronDashboard() {
         {/* Header */}
         <header className="h-16 flex items-center justify-between px-4 lg:px-8 border-b border-[var(--border)] z-50 bg-[var(--bg-header)] backdrop-blur-xl sticky top-0" style={{ boxShadow: 'var(--shadow-card)' }}>
           <div className="flex items-center gap-4 lg:gap-6 w-full lg:w-auto relative">
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden absolute left-0 p-2 -ml-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] relative z-10">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden absolute left-0 p-2 -ml-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] relative z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+              aria-label="Ouvrir le menu"
+              aria-expanded={isMobileMenuOpen}
+            >
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex-1 flex justify-center lg:justify-start items-center gap-3">
               <VenueSelector onAddVenue={() => { setVenueDashboardView('FORM'); setShowVenueDashboard(true); }} onManage={() => { setVenueDashboardView('LIST'); setShowVenueDashboard(true); }} />
-              <button
-                onClick={() => { setActiveTab('PREMIUM'); router.push('/patron/premium'); }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black transition-all text-xs font-bold hover:from-amber-300 hover:to-yellow-400 shadow-sm shadow-amber-500/20"
-              >
-                <Crown className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Premium</span>
-              </button>
+              {!isPremium && (
+                <button
+                  onClick={() => { setActiveTab('PREMIUM'); router.push('/patron/premium'); }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black transition-all text-xs font-bold hover:from-amber-300 hover:to-yellow-400 shadow-sm shadow-amber-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
+                  aria-label="Passer au plan Premium"
+                >
+                  <Crown className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Premium</span>
+                </button>
+              )}
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <button onClick={() => setShowMobileSearch(!showMobileSearch)} className="md:hidden p-2 rounded-full bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+            <button
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              className="md:hidden p-2 rounded-full bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              aria-label="Rechercher"
+            >
               <Search className="w-5 h-5" />
             </button>
             <div className="relative hidden md:block">
@@ -384,9 +405,14 @@ export default function PatronDashboard() {
               )}
             </div>
             <div className="relative">
-              <button onClick={() => setShowNotifications(!showNotifications)} className="w-10 h-10 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] flex items-center justify-center transition-colors relative">
-                <Bell className="w-5 h-5 text-[var(--text-secondary)]" />
-                {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />}
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="w-10 h-10 rounded-full bg-[var(--bg-hover)] hover:bg-[var(--bg-active)] flex items-center justify-center transition-colors relative focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} non lues)` : ''}`}
+                aria-expanded={showNotifications}
+              >
+                <Bell className="w-5 h-5 text-[var(--text-secondary)]" aria-hidden="true" />
+                {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" aria-hidden="true" />}
               </button>
               <AnimatePresence>
                 {showNotifications && (
@@ -413,11 +439,15 @@ export default function PatronDashboard() {
                 )}
               </AnimatePresence>
             </div>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-[1px] cursor-pointer hover:scale-105 transition-transform hidden md:block">
+            <button
+              onClick={() => setShowSettings(true)}
+              className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-[1px] cursor-pointer hover:scale-105 transition-transform hidden md:block focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              aria-label={`Paramètres (connecté en tant que ${profile?.first_name || profile?.email || 'utilisateur'})`}
+            >
               <div className="w-full h-full rounded-full bg-[var(--bg-card)] flex items-center justify-center overflow-hidden">
-                <span className="font-bold text-sm text-[var(--text-primary)]">LF</span>
+                <span className="font-bold text-sm text-[var(--text-primary)]">{userInitials}</span>
               </div>
-            </div>
+            </button>
           </div>
         </header>
 
