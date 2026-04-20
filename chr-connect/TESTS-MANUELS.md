@@ -735,6 +735,43 @@ Ces tests seront ajoutés en **passe n°2** une fois les clés transmises.
 - [ ] L'onglet **"Litiges"** doit rester accessible (pas adminOnly)
 - [ ] Le support peut donc aussi traiter les litiges
 
+### T-S5.13 — Blacklist active dans le matching
+**Setup** : un patron A et un worker B ont eu un litige qui a été résolu en cochant "Ajouter à la blacklist".
+- [ ] Patron A crée une nouvelle mission SEARCHING avec skills correspondant à ceux de worker B
+- [ ] Worker B ne reçoit **pas** la notification push "Nouvelle mission"
+- [ ] Dans la réponse de `/api/missions/notify-candidates`, `excluded: 1` (au moins)
+- [ ] Worker B dans son onglet "Rechercher" ne voit **plus** les missions du patron A
+- [ ] (Des missions d'autres patrons restent visibles)
+
+---
+
+## Sprint 5.5 — Historique paiements patron (2026-04-20)
+
+### T-S5.5.1 — Onglet Paiements dans la sidebar
+- [ ] Un nouvel onglet **"Paiements"** (icône CreditCard bleue) apparaît entre "Mes documents" et "Planning"
+- [ ] Clic → `/patron/paiements`
+
+### T-S5.5.2 — Stats globales
+- [ ] 4 stat cards en haut : Total dépensé / En attente (bloqués) / Commission payée / Remboursé
+- [ ] Les montants sont calculés sur l'ensemble des missions du patron avec `payment_status` non nul
+
+### T-S5.5.3 — Filtres et recherche
+- [ ] 6 filtres : Tous / Bloqués / Payés / Libérés / Remboursés / Échoués
+- [ ] Barre de recherche (titre mission ou nom prestataire)
+- [ ] Cliquer un filtre recharge instantanément la liste
+
+### T-S5.5.4 — Liste
+- [ ] Chaque ligne affiche : titre mission, badge statut coloré, nom prestataire, date, commission, montant
+- [ ] Cliquer une ligne → ouvre la modale détails
+
+### T-S5.5.5 — Modale détails paiement
+- [ ] Affiche : Mission, Prestataire, Statut, Autorisé, Capturé, Commission 15%, Net prestataire (captured - commission)
+- [ ] Dates création + capture
+- [ ] ID Stripe PaymentIntent avec lien direct vers le dashboard Stripe test
+
+### T-S5.5.6 — État vide
+- [ ] Si aucun paiement : affiche le composant EmptyState avec icône CreditCard et message approprié selon le filtre
+
 ---
 
 ## Matrice navigateurs recommandée

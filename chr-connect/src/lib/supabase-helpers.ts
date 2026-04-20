@@ -212,13 +212,33 @@ export async function getMissionsByProvider(providerId: string) {
   return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
-export async function getSearchingMissions() {
+export async function getSearchingMissions(workerId?: string) {
   const { data, error } = await supabase
     .from('missions')
     .select('*')
     .eq('status', 'SEARCHING')
     .order('created_at', { ascending: false });
-  return { data: (data ?? []).map(d => toCamelCase(d)), error };
+  if (error || !data) return { data: [], error };
+
+  // Filtrer les missions dont le patron est blacklisté (réciproque)
+  let blacklistedPatronIds = new Set<string>();
+  if (workerId) {
+    const { data: rows } = await supabase
+      .from('user_blacklist')
+      .select('blocker_id, blocked_id')
+      .or(`blocker_id.eq.${workerId},blocked_id.eq.${workerId}`);
+    if (rows) {
+      for (const r of rows) {
+        if (r.blocker_id === workerId) blacklistedPatronIds.add(r.blocked_id);
+        if (r.blocked_id === workerId) blacklistedPatronIds.add(r.blocker_id);
+      }
+    }
+  }
+
+  const filtered = blacklistedPatronIds.size > 0
+    ? data.filter((d: any) => !blacklistedPatronIds.has(d.patron_id))
+    : data;
+  return { data: filtered.map(d => toCamelCase(d)), error };
 }
 
 export async function getMission(missionId: string) {

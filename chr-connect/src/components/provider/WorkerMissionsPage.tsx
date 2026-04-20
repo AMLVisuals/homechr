@@ -209,7 +209,7 @@ function AvailableMissionsList() {
     setError('');
     try {
       const [missionsRes, candidaturesRes] = await Promise.all([
-        getSearchingMissions(),
+        getSearchingMissions(profile?.id),
         profile ? getMyCandidatures(profile.id) : Promise.resolve({ data: [], error: null }),
       ]);
       if (missionsRes.error) {

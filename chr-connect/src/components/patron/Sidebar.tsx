@@ -19,6 +19,7 @@ export const NAV_ITEMS = [
   { id: 'STOCK', icon: Package, label: 'Stock', path: '/patron/stock', premium: true },
   { id: 'GARAGE', icon: Warehouse, label: 'Mes équipements', path: '/patron/equipements' },
   { id: 'INVOICES', icon: FileText, label: 'Mes documents', path: '/patron/factures' },
+  { id: 'PAYMENTS', icon: CreditCard, label: 'Paiements', path: '/patron/paiements' },
   { id: 'PLANNING', icon: Calendar, label: 'Planning', path: '/patron/planning' },
 ];
 

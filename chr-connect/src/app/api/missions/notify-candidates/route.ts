@@ -52,8 +52,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, matched: 0, pushed: 0 });
     }
 
+    // Exclure les workers blacklistés par le patron (ou ayant blacklisté le patron)
+    let blacklistedIds = new Set<string>();
+    if (mission.patron_id) {
+      const { data: blacklistRows } = await admin
+        .from('user_blacklist')
+        .select('blocker_id, blocked_id')
+        .or(`blocker_id.eq.${mission.patron_id},blocked_id.eq.${mission.patron_id}`);
+      if (blacklistRows) {
+        for (const row of blacklistRows) {
+          if (row.blocker_id === mission.patron_id) blacklistedIds.add(row.blocked_id);
+          if (row.blocked_id === mission.patron_id) blacklistedIds.add(row.blocker_id);
+        }
+      }
+    }
+
+    const filteredWorkers = workers.filter((w: any) => !blacklistedIds.has(w.id));
+    if (filteredWorkers.length === 0) {
+      return NextResponse.json({ ok: true, matched: 0, pushed: 0, excluded: blacklistedIds.size });
+    }
+
     const missionSkills: string[] = Array.isArray(mission.skills) ? mission.skills : [];
-    const ranked = workers
+    const ranked = filteredWorkers
       .map((w: any) => {
         const ws: string[] = Array.isArray(w.skills) ? w.skills : [];
         const overlap = missionSkills.length === 0
@@ -85,6 +105,7 @@ export async function POST(req: NextRequest) {
       ok: true,
       matched: ranked.length,
       pushed: totalSent,
+      excluded: blacklistedIds.size,
     });
   } catch (err: any) {
     return NextResponse.json({ error: err?.message || 'Erreur serveur' }, { status: 500 });

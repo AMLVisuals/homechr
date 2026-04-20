@@ -40,6 +40,7 @@ import PlanningTab from './tabs/PlanningTab';
 import TeamTab from './tabs/TeamTab';
 import InvoicesTab from './tabs/InvoicesTab';
 import PayslipsTab from './tabs/PayslipsTab';
+import PaymentsTab from './tabs/PaymentsTab';
 import PremiumTab from './tabs/PremiumTab';
 import StockTab from './tabs/StockTab';
 import DPAETab from './tabs/DPAETab';
@@ -70,6 +71,7 @@ export default function PatronDashboard() {
       '/patron/premium': 'PREMIUM',
       '/patron/equipements': 'GARAGE',
       '/patron/factures': 'INVOICES',
+      '/patron/paiements': 'PAYMENTS',
       '/patron/planning': 'PLANNING',
       '/patron/stock': 'STOCK',
       '/patron/dpae': 'DPAE',
@@ -738,6 +740,7 @@ export default function PatronDashboard() {
           {activeTab === 'STOCK' && <StockTab />}
           {activeTab === 'DPAE' && <DPAETab />}
           {activeTab === 'INVOICES' && <InvoicesTab />}
+          {activeTab === 'PAYMENTS' && <PaymentsTab />}
         </div>
       </div>
 
