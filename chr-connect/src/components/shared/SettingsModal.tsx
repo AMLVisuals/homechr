@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sun, Moon, Crown, ChevronRight, LogOut, Bell, BellOff, Loader2 } from 'lucide-react';
+import { X, Sun, Moon, Crown, ChevronRight, LogOut, Bell, BellOff, Loader2, Shield, ShieldCheck } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -14,6 +14,8 @@ import {
   subscribeToPush,
   unsubscribeFromPush,
 } from '@/lib/push-client';
+import { listFactors, unenrollFactor } from '@/lib/mfa';
+import MFASetupModal from './MFASetupModal';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -27,6 +29,24 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [mounted, setMounted] = useState(false);
   const [pushState, setPushState] = useState<'unsupported' | 'denied' | 'on' | 'off' | 'loading'>('loading');
   const [pushError, setPushError] = useState<string | null>(null);
+  const [mfaFactor, setMfaFactor] = useState<{ id: string; friendlyName: string } | null>(null);
+  const [mfaLoading, setMfaLoading] = useState(false);
+  const [mfaError, setMfaError] = useState<string | null>(null);
+  const [showMfaSetup, setShowMfaSetup] = useState(false);
+
+  const loadMfa = async () => {
+    if (!user?.id) return;
+    setMfaLoading(true);
+    try {
+      const { totp } = await listFactors();
+      const verified = totp.find((f: any) => f.status === 'verified');
+      setMfaFactor(verified ? { id: verified.id, friendlyName: verified.friendly_name || 'Authenticator' } : null);
+    } catch (err: any) {
+      setMfaError(err?.message || 'Erreur MFA');
+    } finally {
+      setMfaLoading(false);
+    }
+  };
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -44,7 +64,23 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       const sub = await getExistingSubscription();
       setPushState(sub ? 'on' : 'off');
     })();
-  }, [isOpen]);
+    loadMfa();
+  }, [isOpen, user?.id]);
+
+  const handleDisableMfa = async () => {
+    if (!mfaFactor) return;
+    if (!confirm('Désactiver la 2FA ? Votre compte sera moins protégé.')) return;
+    setMfaLoading(true);
+    setMfaError(null);
+    try {
+      await unenrollFactor(mfaFactor.id);
+      setMfaFactor(null);
+    } catch (err: any) {
+      setMfaError(err?.message || 'Erreur désactivation 2FA');
+    } finally {
+      setMfaLoading(false);
+    }
+  };
 
   const handleTogglePush = async () => {
     if (!user?.id) return;
@@ -180,6 +216,61 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </div>
               </section>
 
+              {/* Sécurité */}
+              <section>
+                <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Sécurité</h3>
+                <div className="p-4 rounded-2xl border border-[var(--border)] bg-[var(--bg-hover)]">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      {mfaFactor ? (
+                        <ShieldCheck className="w-5 h-5 text-emerald-500" />
+                      ) : (
+                        <Shield className="w-5 h-5 text-[var(--text-muted)]" />
+                      )}
+                      <span className="font-bold text-[var(--text-primary)] text-sm">
+                        Authentification à deux facteurs (2FA)
+                      </span>
+                    </div>
+                    {mfaFactor && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">
+                        ACTIVE
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)] mb-3">
+                    {mfaFactor
+                      ? `Application authenticator liée (${mfaFactor.friendlyName}). Un code à 6 chiffres vous sera demandé à chaque connexion.`
+                      : 'Renforcez la sécurité de votre compte avec une app authenticator (Google Authenticator, 1Password, Authy).'}
+                  </p>
+                  <button
+                    onClick={() => {
+                      if (mfaFactor) {
+                        handleDisableMfa();
+                      } else {
+                        setShowMfaSetup(true);
+                      }
+                    }}
+                    disabled={mfaLoading || !user?.id}
+                    className={`w-full py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                      mfaFactor
+                        ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20'
+                        : 'bg-emerald-500 text-white hover:bg-emerald-600'
+                    } disabled:opacity-40 disabled:cursor-not-allowed`}
+                  >
+                    {mfaLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : mfaFactor ? (
+                      'Désactiver la 2FA'
+                    ) : (
+                      'Activer la 2FA'
+                    )}
+                  </button>
+                  {mfaError && (
+                    <p className="mt-2 text-[11px] text-red-400">{mfaError}</p>
+                  )}
+                </div>
+              </section>
+
               {/* Notifications */}
               <section>
                 <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Notifications</h3>
@@ -257,6 +348,15 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               <p className="text-xs text-[var(--text-muted)] text-center">ConnectCHR v1.0</p>
             </div>
           </motion.div>
+
+          <MFASetupModal
+            isOpen={showMfaSetup}
+            onClose={() => setShowMfaSetup(false)}
+            onSuccess={() => {
+              setShowMfaSetup(false);
+              loadMfa();
+            }}
+          />
         </>
       )}
     </AnimatePresence>,

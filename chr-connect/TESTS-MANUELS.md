@@ -850,6 +850,60 @@ Ces tests seront ajoutés en **passe n°2** une fois les clés transmises.
 
 ---
 
+## Sprint 7 — 2FA Supabase MFA (TOTP) (2026-04-20)
+
+### T-S7.1 — Pré-requis Supabase
+Dans Supabase Dashboard → Authentication → Providers → MFA :
+- [ ] **Activer TOTP** (si pas déjà le cas)
+- [ ] Aucune migration SQL supplémentaire requise (MFA utilise les tables Supabase Auth internes)
+
+### T-S7.2 — Activation 2FA depuis Paramètres
+**Setup** : se connecter avec n'importe quel compte (patron ou prestataire).
+- [ ] Ouvrir Paramètres (roue crantée bottom-right ou sidebar)
+- [ ] Nouvelle section **"Sécurité"** visible (au-dessus de "Notifications")
+- [ ] Badge shield gris + label "Authentification à deux facteurs (2FA)"
+- [ ] Bouton vert **"Activer la 2FA"**
+- [ ] Clic → ouvre `MFASetupModal` (z-index 10000)
+
+### T-S7.3 — Scan QR code + saisie manuelle
+- [ ] La modale affiche un **QR code SVG**
+- [ ] Scanner avec Google Authenticator / 1Password / Authy / Microsoft Authenticator → un nouveau compte "ConnectCHR" apparaît dans l'app
+- [ ] Alternative : copier la **clé manuelle** (bouton clipboard)
+- [ ] Cliquer "J'ai ajouté le compte" → passe à l'étape vérification
+
+### T-S7.4 — Vérification code 6 chiffres
+- [ ] Champ texte accepte uniquement 6 chiffres
+- [ ] Entrer le code de l'app → clic "Vérifier"
+- [ ] Si OK : écran "✓ 2FA activée" vert, modale se ferme
+- [ ] Si code incorrect : message d'erreur rouge sous le champ
+
+### T-S7.5 — État post-activation
+- [ ] De retour dans Paramètres, section Sécurité :
+  - Badge shield devient **vert** (ShieldCheck)
+  - Badge "ACTIVE" vert à droite
+  - Texte : "Application authenticator liée"
+  - Bouton devient rouge **"Désactiver la 2FA"**
+
+### T-S7.6 — Challenge MFA au login suivant
+**Setup** : se déconnecter puis tenter de se reconnecter avec email/password.
+- [ ] Après login email/password réussi, un nouvel écran apparaît : **"Code à 2 facteurs"**
+- [ ] Champ grand format 6 chiffres
+- [ ] Entrer le code depuis l'app authenticator → clic "Valider"
+- [ ] Si OK : accès au dashboard comme normal
+- [ ] Si code erroné : message "Code 2FA invalide. Veuillez réessayer."
+- [ ] Bouton "Retour" permet d'annuler (revient à l'écran login email/password)
+
+### T-S7.7 — Désactivation 2FA
+- [ ] Paramètres → bouton "Désactiver la 2FA"
+- [ ] Confirmation native (`confirm()`) : "Désactiver la 2FA ? Votre compte sera moins protégé."
+- [ ] OK → le facteur est retiré, badge repasse en gris
+- [ ] Le login suivant ne demande plus de code
+
+### T-S7.8 — Comptes avec skills multiples
+- [ ] Tester avec admin@home-chr.fr, un patron, un prestataire — la 2FA fonctionne identique pour tous
+
+---
+
 ## Matrice navigateurs recommandée
 | Navigateur | Chat | Push | Realtime |
 |---|---|---|---|

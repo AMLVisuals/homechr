@@ -12,7 +12,7 @@ import { clsx } from 'clsx';
 
 export default function RoleSwitcher() {
   const { setUserRole } = useStore();
-  const { signIn, signUp, updateProfile, profile, loading } = useAuth();
+  const { signIn, signUp, updateProfile, verifyMfaCode, profile, loading } = useAuth();
 
   // Auto-login : si une session Supabase existe avec un profil, on redirige
   useEffect(() => {
@@ -31,6 +31,7 @@ export default function RoleSwitcher() {
   // Auth form state
   const [authForm, setAuthForm] = useState({ firstName: '', lastName: '', email: '', phone: '', password: '', confirmPassword: '' });
   const [authError, setAuthError] = useState('');
+  const [mfaChallenge, setMfaChallenge] = useState<{ factorId: string; code: string } | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -49,12 +50,32 @@ export default function RoleSwitcher() {
       return;
     }
     setIsSubmitting(true);
-    const { error } = await signIn(authForm.email, authForm.password);
+    const { error, mfaRequired, factorId } = await signIn(authForm.email, authForm.password);
     setIsSubmitting(false);
     if (error) {
       setAuthError('Email ou mot de passe incorrect.');
       return;
     }
+    if (mfaRequired && factorId) {
+      setMfaChallenge({ factorId, code: '' });
+      return;
+    }
+    if (selectedRole) {
+      setUserRole(selectedRole);
+    }
+  };
+
+  const handleMfaVerify = async () => {
+    if (!mfaChallenge || mfaChallenge.code.length !== 6) return;
+    setAuthError('');
+    setIsSubmitting(true);
+    const { error } = await verifyMfaCode(mfaChallenge.factorId, mfaChallenge.code);
+    setIsSubmitting(false);
+    if (error) {
+      setAuthError('Code 2FA invalide. Veuillez réessayer.');
+      return;
+    }
+    setMfaChallenge(null);
     if (selectedRole) {
       setUserRole(selectedRole);
     }
@@ -179,7 +200,58 @@ export default function RoleSwitcher() {
           )}
 
           {/* ── ÉTAPE 2 : Authentification ── */}
-          {step === 'auth' && (
+          {step === 'auth' && mfaChallenge && (
+            <motion.div
+              key="mfa"
+              initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}
+              className="glass-strong rounded-3xl p-4 md:p-8 max-w-md mx-auto"
+            >
+              <div className="text-center mb-6">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mx-auto mb-3">
+                  <User className="w-7 h-7 text-white" />
+                </div>
+                <h2 className="text-xl md:text-2xl font-bold text-[var(--text-primary)]">Code à 2 facteurs</h2>
+                <p className="text-sm text-[var(--text-muted)] mt-2">
+                  Entrez le code à 6 chiffres de votre app authenticator.
+                </p>
+              </div>
+
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                value={mfaChallenge.code}
+                onChange={(e) => setMfaChallenge({ ...mfaChallenge, code: e.target.value.replace(/\D/g, '').slice(0, 6) })}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleMfaVerify(); }}
+                placeholder="123456"
+                autoFocus
+                className="w-full px-4 py-3 text-center text-2xl font-mono tracking-[0.5em] bg-[var(--bg-hover)] border border-[var(--border)] rounded-xl focus:outline-none focus:border-emerald-500 mb-4"
+              />
+
+              {authError && (
+                <p className="text-sm text-red-400 text-center mb-3">{authError}</p>
+              )}
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setMfaChallenge(null); setAuthError(''); }}
+                  className="flex-1 py-3 rounded-xl bg-[var(--bg-hover)] text-[var(--text-primary)] font-semibold hover:bg-[var(--bg-active)]"
+                >
+                  Retour
+                </button>
+                <button
+                  onClick={handleMfaVerify}
+                  disabled={mfaChallenge.code.length !== 6 || isSubmitting}
+                  className="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Vérification...' : 'Valider'}
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 'auth' && !mfaChallenge && (
             <motion.div
               key="auth"
               initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}

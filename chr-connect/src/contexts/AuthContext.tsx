@@ -36,9 +36,10 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signUp: (email: string, password: string, metadata?: Record<string, unknown>) => Promise<{ error: Error | null }>;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: Error | null; mfaRequired?: boolean; factorId?: string }>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<{ error: Error | null }>;
+  verifyMfaCode: (factorId: string, code: string) => Promise<{ error: Error | null }>;
 }
 
 // ============================================================================
@@ -168,7 +169,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Connexion
   async function signIn(email: string, password: string) {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error as Error | null };
+    if (error) return { error: error as Error | null };
+
+    // Vérifier si MFA est requis pour atteindre aal2
+    try {
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (aal?.currentLevel !== aal?.nextLevel && aal?.nextLevel === 'aal2') {
+        // Récupérer le factorId TOTP vérifié
+        const { data: factors } = await supabase.auth.mfa.listFactors();
+        const totp = factors?.totp?.find((f: any) => f.status === 'verified');
+        if (totp) {
+          return { error: null, mfaRequired: true, factorId: totp.id };
+        }
+      }
+    } catch (err) {
+      console.error('[AuthContext] MFA check error:', err);
+    }
+
+    return { error: null };
+  }
+
+  async function verifyMfaCode(factorId: string, code: string) {
+    try {
+      const challenge = await supabase.auth.mfa.challenge({ factorId });
+      if (challenge.error) return { error: challenge.error as Error };
+      const verify = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: challenge.data.id,
+        code,
+      });
+      if (verify.error) return { error: verify.error as Error };
+      return { error: null };
+    } catch (err: any) {
+      return { error: err as Error };
+    }
   }
 
   // Déconnexion
@@ -202,6 +236,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signIn,
       signOut,
       updateProfile,
+      verifyMfaCode,
     }}>
       {children}
     </AuthContext.Provider>
