@@ -396,11 +396,30 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
                     })()}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-bold text-base md:text-lg text-[var(--text-primary)] group-hover:text-blue-400 transition-colors truncate">{mission.title}</h3>
-                    <div className="flex items-center gap-2 text-xs md:text-sm text-[var(--text-secondary)]">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-bold text-base md:text-lg text-[var(--text-primary)] group-hover:text-blue-400 transition-colors truncate">{mission.title}</h3>
+                      {/* Badge statut d'emploi (AML Visuals point 8) */}
+                      {mission.employmentType === 'EXTRA' && (
+                        <span className="text-[9px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/30 uppercase">
+                          Extra CDD
+                        </span>
+                      )}
+                      {mission.employmentType === 'FREELANCE' && (
+                        <span className="text-[9px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 uppercase">
+                          Auto-entrepreneur
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-xs md:text-sm text-[var(--text-secondary)] flex-wrap">
                       <span className="font-medium text-[var(--text-secondary)] truncate">{mission.category}</span>
                       <span className="shrink-0">•</span>
                       <span className="shrink-0">{mission.date ? new Date(mission.date).toLocaleDateString('fr-FR') : "Aujourd'hui"}</span>
+                      {mission.venue && (
+                        <>
+                          <span className="shrink-0">•</span>
+                          <span className="shrink-0 truncate">{mission.venue}</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>

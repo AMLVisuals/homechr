@@ -7,6 +7,7 @@ import { useMissionEngine } from '@/store/mission-engine';
 import { usePathname, useRouter } from 'next/navigation';
 import RoleSwitcher from '@/components/RoleSwitcher';
 import ProviderProfileEditor from '@/components/provider/ProviderProfileEditor';
+import FreelanceAdminInfo from '@/components/provider/FreelanceAdminInfo';
 import MissionWorkflow from '@/components/mission/MissionWorkflow';
 import MissionPopup from '@/components/provider/MissionPopup';
 import DispatchSearchingOverlay from '@/components/provider/DispatchSearchingOverlay';
@@ -301,8 +302,9 @@ export default function Home() {
 
           </div>
         ) : (
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto space-y-4">
             <ProviderProfileEditor />
+            <FreelanceAdminInfo />
           </div>
         )}
       </div>

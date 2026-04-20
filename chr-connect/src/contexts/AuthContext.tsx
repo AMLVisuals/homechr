@@ -26,6 +26,11 @@ export interface Profile {
   hourly_rate: number | null;
   radius_km: number;
   is_available: boolean;
+  // Infos fiscales & bancaires auto-entrepreneur (AML Visuals 20/04/2026)
+  iban?: string | null;
+  vat_liable?: boolean | null;
+  ape_code?: string | null;
+  legal_form?: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -73,3 +73,16 @@ ALTER TABLE missions
 UPDATE missions
   SET dpae_status = 'NOT_REQUIRED'
   WHERE employment_type = 'FREELANCE' AND dpae_status = 'PENDING';
+
+-- ============================================================================
+-- SPRINT 8 ter — Infos administratives auto-entrepreneur sur profiles
+-- (Parcours AML Visuals point 9 : SIRET / IBAN / TVA)
+-- ============================================================================
+ALTER TABLE profiles
+  ADD COLUMN IF NOT EXISTS iban TEXT,
+  ADD COLUMN IF NOT EXISTS vat_liable BOOLEAN DEFAULT false,
+  ADD COLUMN IF NOT EXISTS ape_code TEXT,
+  ADD COLUMN IF NOT EXISTS legal_form TEXT; -- 'AUTO_ENTREPRENEUR', 'SARL', 'SAS', 'EI', etc.
+
+-- Index pour recherches par SIRET (côté admin)
+CREATE INDEX IF NOT EXISTS idx_profiles_siret ON profiles(siret) WHERE siret IS NOT NULL;

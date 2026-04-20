@@ -1,34 +1,6 @@
-# ConnectCHR — Plan de tests manuels
 
-> Document destiné au testeur QA. Le dev ne teste pas l'UI lui-même.
-> À chaque nouveau sprint, de nouvelles sections seront ajoutées en bas.
-> Dernière mise à jour : **2026-04-20** (Sprint 5 admin litiges + refund Stripe).
 
----
-
-## Pré-requis environnement
-
-### 1. Variables d'environnement (`.env.local`)
-Vérifier que ces clés existent et sont renseignées :
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
-- `STRIPE_SECRET_KEY`
-- `NEXT_PUBLIC_VAPID_PUBLIC_KEY` *(Sprint 1)*
-- `VAPID_PRIVATE_KEY` *(Sprint 1)*
-- `VAPID_SUBJECT` *(Sprint 1)*
-- `SUPABASE_SERVICE_ROLE_KEY` *(Sprint 1 — à ajouter manuellement depuis Supabase Dashboard → Settings → API)*
-
-### 2. Migrations SQL Supabase appliquées
-Exécuter dans l'ordre via Supabase SQL Editor :
-1. `supabase-schema.sql` (base, déjà appliqué normalement)
-2. `supabase-schema-sprint1.sql` → chat + push_subscriptions
-3. `supabase-schema-sprint2.sql` → Realtime missions + index GIN skills
-4. `supabase-schema-sprint3.sql` → colonnes Stripe Connect sur profiles/missions + stripe_events
-5. `supabase-schema-sprint4.sql` → colonnes signature sur dpae_contracts + table payslip_jobs + mode submission DPAE
-6. `supabase-schema-sprint5.sql` → admin RLS sur mission_disputes, colonnes refund, `is_admin` sur profiles, table `user_blacklist`
-
-### 3. Comptes de test — À CRÉER PAR LE TESTEUR
+ Comptes de test — À CRÉER PAR LE TESTEUR
 
 Le testeur crée les comptes via le signup de l'app (c'est le **premier test** à effectuer — valide le parcours d'inscription). Il doit ensuite **partager les credentials** avec le dev dans un canal privé (Slack DM, email sécurisé, 1Password partagé, etc.) pour que le dev puisse aussi s'y connecter au besoin (diagnostic, vérif data, etc.).
 
@@ -937,6 +909,65 @@ Inspecter le DOM via DevTools (onglet Accessibility) :
 **Setup** : dans les préférences système → "Réduire les animations" (macOS Accessibility, Windows Ease of Access).
 - [ ] Les animations Framer Motion sont raccourcies à 0.01ms (via `prefers-reduced-motion`)
 - [ ] Pas de nausée possible pour les users sensibles
+
+---
+
+## Sprint 8 — AML Visuals Retours Produit (2026-04-20)
+
+> Basé sur le document "HomeCHR Retours Produit.odt" — 9 points de retour.
+> **SQL requis** : `supabase-schema-sprint8.sql` à exécuter avant tests.
+
+### T-S8.P1 — SOS Extra : statut auto-entrepreneur
+- [ ] Ouvrir SOS Extra → choisir un poste → étape 2
+- [ ] Nouveau selector **"Statut du prestataire"** en tête de page
+- [ ] Option violette "Extra (CDD d'usage)" — sous-titre "DPAE employeur obligatoire"
+- [ ] Option verte "Auto-entrepreneur" — sous-titre "Indépendant · Facture directement · Pas de DPAE"
+- [ ] Valider une mission en Auto-entrepreneur → la mission a `employment_type: 'FREELANCE'` et `dpae_status: 'NOT_REQUIRED'`
+- [ ] Aucune invite à faire la DPAE n'apparaît pour la mission FREELANCE
+
+### T-S8.P2 — Techniciens : Café/Bière en premier + total récap
+- [ ] Ouvrir le sélecteur de service TECHNICIENS dans CreateMissionWizard
+- [ ] Le groupe **"Café & Bière"** (Tech Machine à Café + Tech Pompe à Bière) est le **premier** affiché
+- [ ] Dans l'onglet Missions patron : une ligne **"Total · N demandes"** en bas de la liste
+- [ ] Chaque mission reste une carte distincte
+
+### T-S8.P3 — Bug ajout article stock corrigé
+**Setup** : patron Premium, établissement actif.
+- [ ] Onglet Stock → bouton "Ajouter un article"
+- [ ] Remplir Nom="Coca", Quantité=5, Catégorie=**Boissons**, Seuil=5, Prix=85
+- [ ] Cliquer "Ajouter l'article" → loading "Ajout..." puis fermeture
+- [ ] L'article Coca apparaît dans la liste
+- [ ] Retest les 3 autres catégories → toutes OK
+- [ ] Si pas d'établissement actif : message rouge "Sélectionnez un établissement..."
+
+### T-S8.P4 — Facturation électronique (loi septembre 2026)
+**Setup** : `supabase-schema-sprint8.sql` appliqué. Une mission COMPLETED avec facture.
+- [ ] MissionDetailsModal → onglet Facture → section bleue "Facturation électronique"
+- [ ] Bouton "Générer et transmettre (Factur-X)" → "Transmission en cours..." → "Facture transmise" + référence
+- [ ] Vérifier Supabase : `invoices.electronic_status='TRANSMITTED'`, `archive_until` = date + 10 ans, ligne dans `invoice_send_history`
+- [ ] Sans PDP_API_KEY → mode STUB (référence `STUB-xxxx`)
+
+### T-S8.P5 — Module Bâtiments activé
+- [ ] L'accueil n'affiche plus "Bientôt disponible" sur Bâtiments
+- [ ] CreateMissionWizard catégorie Bâtiments → 4 groupes visibles (Rénovation / Construction / Travaux CHR / Installations)
+
+### T-S8.P6 — Module Mobilier CHR "À venir"
+- [ ] Accueil : nouvelle carte "Mobilier CHR" (icône Armchair) avec badge "À venir"
+
+### T-S8.P7 — Module Personnel reclassé
+- [ ] Accueil carte Personnel : titre "Personnel", sous-titre "Renfort intérim · Auto-entrepreneur"
+
+### T-S8.P8 — Badge statut emploi côté employeur
+- [ ] Chaque mission dans MissionsTab affiche badge EXTRA CDD (violet) ou AUTO-ENTREPRENEUR (vert)
+- [ ] Nom établissement affiché en plus de catégorie + date
+
+### T-S8.P9 — Parcours auto-entrepreneur : infos admin
+**Setup** : compte prestataire FREELANCE.
+- [ ] "Mon profil" → section verte "Informations administratives"
+- [ ] Champs : SIRET (14 chiffres), Forme juridique (select), Code APE, IBAN (validation FR76...), checkbox TVA
+- [ ] Note : "Le livret A n'est pas accepté"
+- [ ] Sauvegarde → "Informations enregistrées"
+- [ ] Colonnes Supabase `profiles.iban / vat_liable / ape_code / legal_form` renseignées
 
 ---
 
