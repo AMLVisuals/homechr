@@ -29,6 +29,15 @@ interface Specialty {
 }
 
 const GROUPS: { name: string; color: string; specialties: Specialty[] }[] = [
+  // Café & Bière placés en tête (priorité produit)
+  {
+    name: 'Café & Bière',
+    color: 'from-amber-500 to-orange-600',
+    specialties: [
+      { id: 'tech_cafe', label: 'Technicien Machine à Café', icon: Coffee },
+      { id: 'tech_biere', label: 'Technicien Pompe à Bière', icon: Beer },
+    ],
+  },
   {
     name: 'Froid & Climatisation',
     color: 'from-sky-500 to-blue-600',
@@ -49,8 +58,6 @@ const GROUPS: { name: string; color: string; specialties: Specialty[] }[] = [
     color: 'from-emerald-500 to-teal-500',
     specialties: [
       { id: 'tech_lave_vaisselle', label: 'Technicien Lave-vaisselle', icon: Utensils },
-      { id: 'tech_cafe', label: 'Technicien Machine à Café', icon: Coffee },
-      { id: 'tech_biere', label: 'Technicien Pompe à Bière', icon: Beer },
     ],
   },
   {
@@ -315,13 +322,13 @@ export default function SOSTechLauncher({ isOpen, onClose }: SOSTechLauncherProp
                         <button
                           key={s.id}
                           onClick={() => handleSelectSpecialty(s.id)}
-                          className={`rounded-2xl bg-gradient-to-br ${group.color} p-3.5 flex items-center gap-3 text-left overflow-hidden active:opacity-80 transition-opacity`}
+                          className={`min-h-[72px] rounded-2xl bg-gradient-to-br ${group.color} p-3 flex items-center gap-2.5 text-left active:opacity-80 transition-opacity`}
                         >
                           <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
                             <s.icon className="w-4 h-4 text-white" />
                           </div>
-                          <div className="min-w-0">
-                            <h4 className="text-sm font-bold text-white leading-tight truncate">{s.label}</h4>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-[13px] font-bold text-white leading-tight break-words">{s.label}</h4>
                           </div>
                         </button>
                       ))}

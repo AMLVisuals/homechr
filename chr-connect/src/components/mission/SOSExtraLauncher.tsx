@@ -293,14 +293,14 @@ export default function SOSExtraLauncher({ isOpen, onClose }: SOSExtraLauncherPr
                         <button
                           key={p.id}
                           onClick={() => handleSelectPoste(p.id)}
-                          className={`rounded-2xl bg-gradient-to-br ${group.color} p-3.5 flex items-center gap-3 text-left overflow-hidden active:opacity-80 transition-opacity`}
+                          className={`min-h-[80px] rounded-2xl bg-gradient-to-br ${group.color} p-3 flex items-center gap-2.5 text-left active:opacity-80 transition-opacity`}
                         >
                           <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
                             <p.icon className="w-4 h-4 text-white" />
                           </div>
-                          <div className="min-w-0">
-                            <h4 className="text-sm font-bold text-white leading-tight truncate">{p.label}</h4>
-                            <p className="text-[11px] text-white/60">{p.range}</p>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-[13px] font-bold text-white leading-tight break-words">{p.label}</h4>
+                            <p className="text-[11px] text-white/60 mt-0.5">{p.range}</p>
                           </div>
                         </button>
                       ))}
