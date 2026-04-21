@@ -11,7 +11,7 @@ import { useMissionsStore } from '@/store/useMissionsStore';
 import { useStore } from '@/store/useStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mission } from '@/types/missions';
-import { getSearchingMissions, applyToMission, getMyCandidatures, cancelCandidature } from '@/lib/supabase-helpers';
+import { getSearchingMissions, applyToMission, getMyCandidatures, cancelCandidature, getMissionsByProvider } from '@/lib/supabase-helpers';
 import { subscribeToSearchingMissions, subscribeToMyCandidatures } from '@/lib/missions-realtime';
 import MissionRadar from './MissionRadar';
 
@@ -31,8 +31,27 @@ const TABS = [
 
 export default function WorkerMissionsPage({ authorizedCategories, radarOverlay, initialTab }: WorkerMissionsPageProps) {
   const { missions, removeCandidate } = useMissionsStore();
+  const { profile } = useAuth();
   const isOnAir = useStore((s) => s.isOnAir);
   const [activeTab, setActiveTab] = useState(initialTab || 'SEARCH');
+  const [providerMissions, setProviderMissions] = useState<any[]>([]);
+  const [providerLoading, setProviderLoading] = useState(false);
+
+  // Charge les missions assignées (SCHEDULED / IN_PROGRESS / COMPLETED) depuis Supabase
+  useEffect(() => {
+    if (!profile?.id) return;
+    let cancelled = false;
+    async function load() {
+      setProviderLoading(true);
+      const { data } = await getMissionsByProvider(profile!.id);
+      if (!cancelled) {
+        setProviderMissions(data || []);
+        setProviderLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [profile?.id]);
 
   // All tabs including Radar (only when available)
   const allTabs = useMemo(() => {
@@ -63,18 +82,17 @@ export default function WorkerMissionsPage({ authorizedCategories, radarOverlay,
 
   const effectiveTab = activeTab === 'RADAR' && !isOnAir ? 'SEARCH' : activeTab;
 
-  // Data
+  // Data — lu depuis Supabase (provider_id = self), PAS depuis le store local
   const completedMissions = useMemo(() =>
-    missions.filter(m => m.status === 'COMPLETED'),
-    [missions]
+    providerMissions.filter(m => m.status === 'COMPLETED'),
+    [providerMissions]
   );
 
   const upcomingMissions = useMemo(() =>
-    missions.filter(m =>
-      m.status === 'SCHEDULED' ||
-      (m.scheduled && m.candidates?.some(c => c.id === 'worker-self' && c.status === 'ACCEPTED'))
+    providerMissions.filter(m =>
+      ['SCHEDULED', 'ON_WAY', 'ON_SITE', 'IN_PROGRESS', 'MATCHED', 'DIAGNOSING', 'QUOTE_SENT', 'STANDBY', 'PENDING_VALIDATION', 'AWAITING_PATRON_CONFIRMATION'].includes(m.status)
     ),
-    [missions]
+    [providerMissions]
   );
 
   const myCandidatures = useMemo(() =>
@@ -131,12 +149,12 @@ export default function WorkerMissionsPage({ authorizedCategories, radarOverlay,
           )}
           {effectiveTab === 'COMPLETED' && (
             <TabContent key="completed">
-              <CompletedList missions={completedMissions} />
+              <CompletedList missions={completedMissions} loading={providerLoading} />
             </TabContent>
           )}
           {effectiveTab === 'UPCOMING' && (
             <TabContent key="upcoming">
-              <UpcomingList missions={upcomingMissions} />
+              <UpcomingList missions={upcomingMissions} loading={providerLoading} />
             </TabContent>
           )}
           {effectiveTab === 'CANDIDATURES' && (
@@ -291,21 +309,40 @@ function AvailableMissionsList() {
       {availableMissions.map((m: any) => {
         const hasApplied = appliedIds.has(m.id);
         const isApplying = applyingId === m.id;
+        const venuePhoto: string | undefined = m.venue?.photo_url;
+        const equipmentPhoto: string | undefined = m.equipment?.equipment_photos?.[0]?.url;
+        const photo = venuePhoto || equipmentPhoto;
+        const venueName: string | undefined = m.venue?.name;
+        const venueCity: string | undefined = m.venue?.city;
+        const equipmentLabel: string | undefined = m.equipment
+          ? (m.equipment.nickname || [m.equipment.brand, m.equipment.model].filter(Boolean).join(' '))
+          : undefined;
+        const subject = venueName || equipmentLabel;
         return (
           <div key={m.id} className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-4 transition-all hover:border-amber-500/30" style={{ boxShadow: 'var(--shadow-card)' }}>
             <div className="flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-                <Briefcase className="w-5 h-5 text-amber-400" />
-              </div>
+              {photo ? (
+                <img
+                  src={photo}
+                  alt={subject || 'Mission'}
+                  className="w-16 h-16 rounded-xl object-cover shrink-0 border border-[var(--border)]"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                  <Briefcase className="w-6 h-6 text-amber-400" />
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <h4 className="font-bold text-sm text-[var(--text-primary)] truncate">{m.title || 'Mission sans titre'}</h4>
-                {m.description && (
-                  <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">{m.description}</p>
+                {subject && (
+                  <div className="flex items-center gap-1 mt-0.5 text-xs text-[var(--text-muted)]">
+                    <MapPin className="w-3 h-3 shrink-0" />
+                    <span className="truncate">
+                      {subject}{venueCity ? ` · ${venueCity}` : ''}
+                    </span>
+                  </div>
                 )}
                 <div className="flex items-center gap-2 mt-2 text-xs text-[var(--text-muted)] flex-wrap">
-                  {m.staffingRole && (
-                    <span className="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full font-medium">{m.staffingRole}</span>
-                  )}
                   {m.staffingDate && (
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
@@ -331,6 +368,12 @@ function AvailableMissionsList() {
                 )}
               </div>
             </div>
+            {m.description && (
+              <div className="mt-3 pt-3 border-t border-[var(--border)]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">Description</p>
+                <p className="text-xs text-[var(--text-secondary)] line-clamp-3">{m.description}</p>
+              </div>
+            )}
             <button
               onClick={() => handleApply(m)}
               disabled={hasApplied || isApplying}
@@ -470,9 +513,48 @@ function SupabaseCandidaturesList() {
   );
 }
 
-/* ── Completed Missions ────────────────────────── */
+/* ── Helpers affichage (mission venue / equipment photo + price) ────── */
 
-function CompletedList({ missions }: { missions: Mission[] }) {
+function missionPhotoUrl(m: any): string | undefined {
+  return m?.venue?.photo_url || m?.equipment?.equipment_photos?.[0]?.url;
+}
+
+function missionSubject(m: any): string | undefined {
+  if (m?.venue?.name) return m.venue.name;
+  if (m?.equipment) {
+    return m.equipment.nickname || [m.equipment.brand, m.equipment.model].filter(Boolean).join(' ');
+  }
+  return undefined;
+}
+
+function formatMissionPrice(m: any): string {
+  if (m.priceFinal) return `${m.priceFinal}€`;
+  if (m.staffingHourlyRate) return `${m.staffingHourlyRate}€/h`;
+  if (m.priceEstimatedMin && m.priceEstimatedMax) return `${m.priceEstimatedMin}-${m.priceEstimatedMax}€`;
+  if (m.priceEstimatedMin) return `À partir de ${m.priceEstimatedMin}€`;
+  return '—';
+}
+
+function missionDateLabel(m: any): string | null {
+  const d = m.scheduledAt || m.scheduled_at || m.staffingDate;
+  if (!d) return null;
+  try {
+    return new Date(d).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return null;
+  }
+}
+
+/* ── Completed Missions (Supabase) ────────────────────────── */
+
+function CompletedList({ missions, loading }: { missions: any[]; loading?: boolean }) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[300px]">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--text-muted)]" />
+      </div>
+    );
+  }
   if (missions.length === 0) {
     return (
       <EmptyState
@@ -484,45 +566,54 @@ function CompletedList({ missions }: { missions: Mission[] }) {
   }
   return (
     <div className="space-y-3">
-      {missions.map((m) => (
-        <div key={m.id} className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-4 hover:border-green-500/30 transition-all cursor-pointer" style={{ boxShadow: 'var(--shadow-card)' }}>
-          <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="w-5 h-5 text-green-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="font-bold text-sm text-[var(--text-primary)] truncate">{m.title}</h4>
-              <div className="flex items-center gap-2 mt-1 text-xs text-[var(--text-muted)]">
-                <MapPin className="w-3 h-3 shrink-0" />
-                <span className="truncate">{m.venue || 'Client'}</span>
-                {m.date && (
-                  <>
-                    <span className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
-                    <span>{m.date}</span>
-                  </>
-                )}
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <p className="font-bold text-sm text-[var(--text-primary)]">{m.price}</p>
-              {m.review && (
-                <div className="flex items-center gap-0.5 justify-end mt-1">
-                  {[1, 2, 3, 4, 5].map(i => (
-                    <Star key={i} className={clsx("w-3 h-3", i <= m.review!.rating ? "text-amber-400 fill-amber-400" : "text-[var(--text-muted)]")} />
-                  ))}
+      {missions.map((m: any) => {
+        const photo = missionPhotoUrl(m);
+        const subject = missionSubject(m);
+        const dateLabel = missionDateLabel(m);
+        return (
+          <div key={m.id} className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-4 hover:border-green-500/30 transition-all cursor-pointer" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="flex items-center gap-4">
+              {photo ? (
+                <img src={photo} alt={subject || 'Mission'} className="w-14 h-14 rounded-xl object-cover shrink-0 border border-[var(--border)]" />
+              ) : (
+                <div className="w-14 h-14 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-5 h-5 text-green-400" />
                 </div>
               )}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-sm text-[var(--text-primary)] truncate">{m.title}</h4>
+                <div className="flex items-center gap-2 mt-1 text-xs text-[var(--text-muted)]">
+                  <MapPin className="w-3 h-3 shrink-0" />
+                  <span className="truncate">{subject || 'Client'}</span>
+                  {dateLabel && (
+                    <>
+                      <span className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
+                      <span>{dateLabel}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="font-bold text-sm text-[var(--text-primary)]">{formatMissionPrice(m)}</p>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
 
-/* ── Upcoming Missions ─────────────────────────── */
+/* ── Upcoming Missions (Supabase) ─────────────────────────── */
 
-function UpcomingList({ missions }: { missions: Mission[] }) {
+function UpcomingList({ missions, loading }: { missions: any[]; loading?: boolean }) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[300px]">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--text-muted)]" />
+      </div>
+    );
+  }
   if (missions.length === 0) {
     return (
       <EmptyState
@@ -534,35 +625,44 @@ function UpcomingList({ missions }: { missions: Mission[] }) {
   }
   return (
     <div className="space-y-3">
-      {missions.map((m) => (
-        <div key={m.id} className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-4 hover:border-blue-500/30 transition-all cursor-pointer" style={{ boxShadow: 'var(--shadow-card)' }}>
-          <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
-              <CalendarClock className="w-5 h-5 text-blue-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="font-bold text-sm text-[var(--text-primary)] truncate">{m.title}</h4>
-              <div className="flex items-center gap-2 mt-1 text-xs text-[var(--text-muted)]">
-                <MapPin className="w-3 h-3 shrink-0" />
-                <span className="truncate">{m.venue || 'Client'}</span>
-                {m.scheduledDate && (
-                  <>
-                    <span className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
-                    <Clock className="w-3 h-3" />
-                    <span>{new Date(m.scheduledDate).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
-                  </>
-                )}
+      {missions.map((m: any) => {
+        const photo = missionPhotoUrl(m);
+        const subject = missionSubject(m);
+        const dateLabel = missionDateLabel(m);
+        return (
+          <div key={m.id} className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-4 hover:border-blue-500/30 transition-all cursor-pointer" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="flex items-center gap-4">
+              {photo ? (
+                <img src={photo} alt={subject || 'Mission'} className="w-14 h-14 rounded-xl object-cover shrink-0 border border-[var(--border)]" />
+              ) : (
+                <div className="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
+                  <CalendarClock className="w-5 h-5 text-blue-400" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-sm text-[var(--text-primary)] truncate">{m.title}</h4>
+                <div className="flex items-center gap-2 mt-1 text-xs text-[var(--text-muted)]">
+                  <MapPin className="w-3 h-3 shrink-0" />
+                  <span className="truncate">{subject || 'Client'}</span>
+                  {dateLabel && (
+                    <>
+                      <span className="w-1 h-1 rounded-full bg-[var(--text-muted)]" />
+                      <Clock className="w-3 h-3" />
+                      <span>{dateLabel}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="font-bold text-sm text-[var(--text-primary)]">{formatMissionPrice(m)}</p>
+                <span className="text-[10px] font-bold text-blue-400 uppercase bg-blue-500/10 px-2 py-0.5 rounded-full">
+                  Confirmée
+                </span>
               </div>
             </div>
-            <div className="text-right shrink-0">
-              <p className="font-bold text-sm text-[var(--text-primary)]">{m.price}</p>
-              <span className="text-[10px] font-bold text-blue-400 uppercase bg-blue-500/10 px-2 py-0.5 rounded-full">
-                Confirmée
-              </span>
-            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

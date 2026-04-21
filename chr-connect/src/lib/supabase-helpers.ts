@@ -206,7 +206,11 @@ export async function getMissionsByPatron(patronId: string) {
 export async function getMissionsByProvider(providerId: string) {
   const { data, error } = await supabase
     .from('missions')
-    .select('*')
+    .select(`
+      *,
+      venue:venues(id, name, photo_url, city, address),
+      equipment:equipment(id, brand, model, nickname, category, equipment_photos(url, type))
+    `)
     .eq('provider_id', providerId)
     .order('created_at', { ascending: false });
   return { data: (data ?? []).map(d => toCamelCase(d)), error };
@@ -215,7 +219,11 @@ export async function getMissionsByProvider(providerId: string) {
 export async function getSearchingMissions(workerId?: string) {
   const { data, error } = await supabase
     .from('missions')
-    .select('*')
+    .select(`
+      *,
+      venue:venues(id, name, photo_url, city, address),
+      equipment:equipment(id, brand, model, nickname, category, equipment_photos(url, type))
+    `)
     .eq('status', 'SEARCHING')
     .order('created_at', { ascending: false });
   if (error || !data) return { data: [], error };
@@ -260,10 +268,29 @@ export async function createMission(mission: Record<string, any>) {
   return { data: data ? toCamelCase(data) : null, error };
 }
 
+// Champs locaux (store Zustand) qui n'ont PAS de colonne Supabase et doivent être
+// strippés avant tout UPDATE. Évite "column X does not exist" et l'échec silencieux.
+const MISSION_LOCAL_ONLY_FIELDS = new Set([
+  'provider',
+  'candidates',
+  'invoice',
+  'review',
+  'quote',
+  'dispute',
+  'location',
+  'client',
+  'venue',
+  'equipment',
+]);
+
 export async function updateMission(missionId: string, updates: Record<string, any>) {
+  const cleaned: Record<string, any> = {};
+  for (const [key, value] of Object.entries(updates)) {
+    if (!MISSION_LOCAL_ONLY_FIELDS.has(key)) cleaned[key] = value;
+  }
   const { data, error } = await supabase
     .from('missions')
-    .update(toSnakeCase(updates))
+    .update(toSnakeCase(cleaned))
     .eq('id', missionId)
     .select()
     .single();

@@ -1497,7 +1497,9 @@ export default function MissionDetailsModal({ mission, isOpen, onClose }: Missio
                                               selectCandidate(mission.id, candidate.id);
                                               const workerProfileId = candidate.workerId || candidate.id;
                                               // Passer la mission en SCHEDULED dans Supabase
-                                              await syncUpdateMission(mission.id, { status: 'SCHEDULED', provider: { id: workerProfileId, name: candidate.name, rating: candidate.rating, completedMissions: candidate.completedMissions, bio: '', phone: '' } });
+                                              // IMPORTANT: la colonne Supabase est provider_id (UUID), pas provider (objet).
+                                              // On garde provider en local pour le store (affichage) mais on ne l'envoie plus à Supabase.
+                                              await syncUpdateMission(mission.id, { status: 'SCHEDULED', providerId: workerProfileId, provider: { id: workerProfileId, name: candidate.name, rating: candidate.rating, completedMissions: candidate.completedMissions, bio: '', phone: '' } } as any);
 
                                               if (candidate.workerId) {
                                                 fetch('/api/push/send', {
