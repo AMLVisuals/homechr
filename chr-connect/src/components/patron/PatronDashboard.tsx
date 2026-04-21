@@ -9,7 +9,7 @@ import {
   Wrench, ChefHat, Monitor, Hammer, Ruler,
   Clock, MapPin, Star, CreditCard, X,
   ArrowUpRight, AlertCircle, CheckCircle2, User, LogOut,
-  Warehouse, QrCode, Menu, Scale, Receipt, Crown,
+  Warehouse, QrCode, Menu, Scale, Receipt, Crown, Armchair,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CreateMissionWizard, type CategoryId } from '@/components/mission/CreateMissionWizard';
@@ -556,11 +556,12 @@ export default function PatronDashboard() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                   {[
-                    { id: 'PERSONNEL', label: 'Personnel / Extra', desc: 'Renforts salle et cuisine', icon: Users, gradient: 'from-purple-500 to-pink-500' },
+                    { id: 'PERSONNEL', label: 'Personnel', desc: 'Renfort intérim · Auto-entrepreneur', icon: Users, gradient: 'from-purple-500 to-pink-500' },
                     { id: 'TECHNICIENS', label: 'Techniciens', desc: 'Maintenance et équipements', icon: Wrench, gradient: 'from-orange-500 to-red-500' },
-                    { id: 'BATIMENTS', label: 'Bâtiments', desc: 'Rénovation et construction', icon: Hammer, gradient: 'from-emerald-500 to-teal-500' },
+                    { id: 'BATIMENTS', label: 'Bâtiments', desc: 'Rénovation · Construction · Travaux CHR', icon: Hammer, gradient: 'from-emerald-500 to-teal-500' },
+                    { id: 'MOBILIER', label: 'Mobilier CHR', desc: 'Achat, livraison et installation', icon: Armchair, gradient: 'from-amber-500 to-yellow-500' },
                   ].map((cat) => {
                     const isComingSoon = COMING_SOON_CATEGORIES.includes(cat.id as any);
                     return (
