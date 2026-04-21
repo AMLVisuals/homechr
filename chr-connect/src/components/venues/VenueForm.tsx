@@ -85,10 +85,19 @@ export default function VenueForm({ initialData, onClose, onSuccess }: VenueForm
   };
 
   const canSubmit = !needsDocuments || allDocsUploaded;
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
+    if (!user?.id) {
+      setSubmitError('Vous devez être connecté pour créer un établissement.');
+      return;
+    }
+
+    setSubmitError(null);
+    setSubmitting(true);
 
     // Ensure photoUrl is set for backward compatibility (use first photo)
     const submissionData = {
@@ -96,16 +105,29 @@ export default function VenueForm({ initialData, onClose, onSuccess }: VenueForm
       photoUrl: formData.photos && formData.photos.length > 0 ? formData.photos[0].url : undefined
     };
 
-    if (initialData?.id) {
-      syncUpdateVenue(initialData.id, submissionData);
-    } else {
-      syncAddVenue(submissionData, user!.id);
-      // Mark patron profile as pending validation after first venue + docs
-      if (needsDocuments && allDocsUploaded) {
-        setPatronProfileStatus('pending_validation');
+    try {
+      if (initialData?.id) {
+        await syncUpdateVenue(initialData.id, submissionData);
+      } else {
+        const created = await syncAddVenue(submissionData, user.id);
+        if (!created) {
+          // L'erreur a déjà été logguée dans le store ; on lit le dernier état
+          const err = useVenuesStore.getState().error;
+          setSubmitError(err || 'Création échouée. Vérifiez votre connexion ou contactez le support.');
+          setSubmitting(false);
+          return;
+        }
+        // Mark patron profile as pending validation after first venue + docs
+        if (needsDocuments && allDocsUploaded) {
+          setPatronProfileStatus('pending_validation');
+        }
       }
+      setSubmitting(false);
+      onSuccess();
+    } catch (err: any) {
+      setSubmitError(err?.message || 'Erreur inattendue');
+      setSubmitting(false);
     }
-    onSuccess();
   };
 
   const handleDocStatusChange = (docType: ComplianceDocType) => (status: DocUploadStatus) => {
@@ -582,24 +604,32 @@ export default function VenueForm({ initialData, onClose, onSuccess }: VenueForm
         )}
       </div>
 
-      <div className="p-6 border-t border-[var(--border)] flex gap-4 bg-[var(--bg-input)] shrink-0 z-10">
-        <button
-          onClick={onClose}
-          className="flex-1 py-3 rounded-xl font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors"
-        >
-          Annuler
-        </button>
-        <button
-          onClick={handleSubmit}
-          disabled={!canSubmit}
-          className={`flex-1 py-3 rounded-xl font-bold transition-colors shadow-lg ${
-            canSubmit
-              ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-blue-500/20'
-              : 'bg-[var(--bg-hover)] text-[var(--text-muted)] cursor-not-allowed shadow-none'
-          }`}
-        >
-          {needsDocuments ? 'Enregistrer et soumettre' : 'Enregistrer'}
-        </button>
+      <div className="p-6 border-t border-[var(--border)] bg-[var(--bg-input)] shrink-0 z-10 space-y-3">
+        {submitError && (
+          <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-sm text-red-500">
+            <strong>Erreur :</strong> {submitError}
+          </div>
+        )}
+        <div className="flex gap-4">
+          <button
+            onClick={onClose}
+            disabled={submitting}
+            className="flex-1 py-3 rounded-xl font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors disabled:opacity-50"
+          >
+            Annuler
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={!canSubmit || submitting}
+            className={`flex-1 py-3 rounded-xl font-bold transition-colors shadow-lg ${
+              canSubmit && !submitting
+                ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-blue-500/20'
+                : 'bg-[var(--bg-hover)] text-[var(--text-muted)] cursor-not-allowed shadow-none'
+            }`}
+          >
+            {submitting ? 'Enregistrement...' : (needsDocuments ? 'Enregistrer et soumettre' : 'Enregistrer')}
+          </button>
+        </div>
       </div>
     </div>
   );
