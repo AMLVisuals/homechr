@@ -133,7 +133,7 @@ export function FaultDeclarationModal({
       reportFault(equipment.id, selectedFault.id, description);
 
       // Create mission
-      const missionId = `mission_${Date.now()}`;
+      const missionId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `mission_${Date.now()}`;
       const mission = {
         id: missionId,
         title: `${selectedFault.label} - ${equipment.brand} ${equipment.model}`,
@@ -155,15 +155,16 @@ export function FaultDeclarationModal({
         machineId: equipment.id,
       };
 
-      syncAddMission(mission);
+      await syncAddMission(mission as any);
       setCreatedMissionId(missionId);
       setStep('success');
 
       if (onMissionCreated) {
         onMissionCreated(missionId);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create mission:', error);
+      alert(`Erreur lors de la création : ${error?.message || 'inconnue'}`);
     } finally {
       setIsSubmitting(false);
     }

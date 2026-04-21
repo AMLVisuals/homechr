@@ -54,7 +54,7 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
 
   // ── Existing local actions (backward compat) ──────────────────────
   addEvent: (event) => set((state) => ({
-    events: [...state.events, { ...event, id: Math.random().toString(36).substr(2, 9) }]
+    events: [...state.events, { ...event, id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2) }]
   })),
   updateEvent: (id, updatedEvent) => set((state) => ({
     events: state.events.map((e) => e.id === id ? { ...e, ...updatedEvent } : e)
@@ -81,16 +81,18 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
   syncAddEvent: async (event: Omit<CalendarEvent, 'id'>) => {
     const newEvent: CalendarEvent = {
       ...event,
-      id: Math.random().toString(36).substr(2, 9),
+      id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2),
     };
 
     set({ isLoading: true, error: null });
     try {
-      await createCalendarEvent(newEvent);
+      const { error } = await createCalendarEvent(newEvent);
+      if (error) throw new Error(error.message || 'Échec création évènement');
       set((state) => ({ events: [...state.events, newEvent], isLoading: false }));
     } catch (err) {
       console.error('[calendarStore] syncAddEvent failed:', err);
       set({ isLoading: false, error: err instanceof Error ? err.message : 'Erreur lors de l\'ajout de l\'evenement' });
+      throw err;
     }
   },
 
@@ -102,13 +104,15 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
     }));
 
     try {
-      await updateCalendarEvent(id, updates);
+      const { error } = await updateCalendarEvent(id, updates);
+      if (error) throw new Error(error.message || 'Échec mise à jour évènement');
     } catch (err) {
       console.error('[calendarStore] syncUpdateEvent failed:', err);
       set({
         events: previousEvents,
         error: err instanceof Error ? err.message : 'Erreur lors de la modification',
       });
+      throw err;
     }
   },
 
@@ -118,7 +122,8 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
     set((state) => ({ events: state.events.filter((e) => e.id !== id) }));
 
     try {
-      await deleteCalendarEvent(id);
+      const { error } = await deleteCalendarEvent(id);
+      if (error) throw new Error(error.message || 'Échec suppression évènement');
     } catch (err) {
       console.error('[calendarStore] syncDeleteEvent failed:', err);
       // Revert
@@ -126,6 +131,7 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
         events: previousEvents,
         error: err instanceof Error ? err.message : 'Erreur lors de la suppression',
       });
+      throw err;
     }
   },
 }));

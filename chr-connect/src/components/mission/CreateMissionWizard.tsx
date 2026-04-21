@@ -668,7 +668,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
 
     try {
       // Create mission based on type
-      const missionId = `mission_${Date.now()}`;
+      const missionId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `mission_${Date.now()}`;
       let createdMission: any = null;
 
       if (selectedCategory?.id === 'PERSONNEL' && selectedStaffingRole) {
@@ -691,7 +691,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
           date: new Date().toISOString(),
         };
 
-        syncAddMission(createdMission);
+        await syncAddMission(createdMission);
       } else if (selectedEquipment && selectedProblem) {
         // Equipment mission
         reportFault(selectedEquipment.id, selectedProblem.id, description || selectedProblem.label);
@@ -720,7 +720,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
           date: missionDate,
         };
 
-        syncAddMission(createdMission);
+        await syncAddMission(createdMission);
       } else {
         // Generic mission (TECH, DESIGN)
         let price = 'Sur devis';
@@ -756,7 +756,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
           mediaData,
         };
 
-        syncAddMission(createdMission);
+        await syncAddMission(createdMission);
       }
 
       // Add relation fee info

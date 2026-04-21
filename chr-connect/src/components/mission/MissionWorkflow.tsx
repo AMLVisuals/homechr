@@ -128,7 +128,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
     // Simulate patron confirmation after DELAY
     const autoConfirmTimeout = setTimeout(() => {
       if (activeMissionId) {
-        syncUpdateMission(activeMissionId, { status: 'ON_WAY' });
+        syncUpdateMission(activeMissionId, { status: 'ON_WAY' }).catch((err) => console.error('[MissionWorkflow] ON_WAY failed:', err));
       }
       setStatus('ACCEPTED');
     }, DELAY * 1000);
@@ -167,7 +167,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
     }, 1000);
 
     const timeout = setTimeout(() => {
-      syncUpdateMission(activeMissionId, { status: 'IN_PROGRESS' });
+      syncUpdateMission(activeMissionId, { status: 'IN_PROGRESS' }).catch((err) => console.error('[MissionWorkflow] IN_PROGRESS failed:', err));
     }, DELAY * 1000);
 
     return () => {
@@ -201,7 +201,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
           syncUpdateMission(activeMissionId, {
             technicianLocation: { lat, lng },
             eta: newEta
-          });
+          }).catch((err) => console.error('[MissionWorkflow] location update failed:', err));
         }
 
         if (newDist < 100) setInstruction("Vous êtes arrivé à destination");
@@ -217,19 +217,19 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
 
   const handleStartTrip = () => {
     setStatus('ON_WAY');
-    if (activeMissionId) syncUpdateMission(activeMissionId, { status: 'ON_WAY' });
+    if (activeMissionId) syncUpdateMission(activeMissionId, { status: 'ON_WAY' }).catch((err) => console.error('[MissionWorkflow] handleStartTrip failed:', err));
   };
 
   const handleArrived = () => {
     setStatus('ON_SITE');
-    if (activeMissionId) syncUpdateMission(activeMissionId, { status: 'ON_SITE' });
+    if (activeMissionId) syncUpdateMission(activeMissionId, { status: 'ON_SITE' }).catch((err) => console.error('[MissionWorkflow] handleArrived failed:', err));
   };
 
   // STAFF flow: "Confirmer ma présence" → mission goes PENDING_VALIDATION (patron must validate)
   const handleConfirmPresence = () => {
     setStatus('PENDING_VALIDATION');
     if (activeMissionId) {
-      syncUpdateMission(activeMissionId, { status: 'PENDING_VALIDATION' });
+      syncUpdateMission(activeMissionId, { status: 'PENDING_VALIDATION' }).catch((err) => console.error('[MissionWorkflow] handleConfirmPresence failed:', err));
     }
   };
 
@@ -264,7 +264,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
   // TECH flow: transition ON_SITE → DIAGNOSING
   const handleStartDiagnosis = () => {
     setStatus('DIAGNOSING');
-    if (activeMissionId) syncUpdateMission(activeMissionId, { status: 'DIAGNOSING' });
+    if (activeMissionId) syncUpdateMission(activeMissionId, { status: 'DIAGNOSING' }).catch((err) => console.error('[MissionWorkflow] DIAGNOSING failed:', err));
   };
 
   // TECH flow: open quote builder
@@ -277,7 +277,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
   const handleQuoteSubmit = (quote: FinalQuote) => {
     setShowQuoteBuilder(false);
     if (activeMissionId) {
-      syncUpdateMission(activeMissionId, { status: 'QUOTE_SENT', quote });
+      syncUpdateMission(activeMissionId, { status: 'QUOTE_SENT', quote }).catch((err) => console.error('[MissionWorkflow] QUOTE_SENT failed:', err));
     }
     setStatus('AWAITING_QUOTE_RESPONSE');
   };
@@ -292,7 +292,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
       addInterimNote(quickNote);
       if (activeMissionId) {
         const currentNotes = activeMission?.notes || [];
-        syncUpdateMission(activeMissionId, { notes: [...currentNotes, quickNote] });
+        syncUpdateMission(activeMissionId, { notes: [...currentNotes, quickNote] }).catch((err) => console.error('[MissionWorkflow] quickNote failed:', err));
       }
       setQuickNote('');
       setShowQuickNote(false);
@@ -336,7 +336,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
               ...activeMission?.evidence,
               before: { type: mediaType, url: mockUrl }
             }
-          });
+          }).catch((err) => console.error('[MissionWorkflow] BEFORE evidence failed:', err));
         }
       } else if (evidenceStep === 'INTERIM') {
         addInterimMedia(mediaType, mockUrl);
@@ -355,7 +355,7 @@ export default function MissionWorkflow({ onMissionEnd }: MissionWorkflowProps) 
       syncUpdateMission(activeMissionId, {
         status: 'COMPLETED',
         report: data.text
-      });
+      }).catch((err) => console.error('[MissionWorkflow] COMPLETED failed:', err));
       generateInvoice(activeMissionId);
     }
   };

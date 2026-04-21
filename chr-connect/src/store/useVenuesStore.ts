@@ -39,7 +39,7 @@ export const useVenuesStore = create<VenuesState>((set, get) => ({
 
   addVenue: (venueData) => set((state) => {
     const newVenue: Venue = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2),
       name: venueData.name || 'Nouvel Établissement',
       address: venueData.address || '',
       city: venueData.city || '',

@@ -143,7 +143,7 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
 
     try {
       // Create staffing mission (equipmentId = null)
-      const missionId = `mission_${Date.now()}`;
+      const missionId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `mission_${Date.now()}`;
       const mission = {
         id: missionId,
         title: `${selectedRole.role} (x${numberOfPeople})`,
@@ -162,10 +162,11 @@ export function RequestStaffModal({ isOpen, onClose }: RequestStaffModalProps) {
         },
       };
 
-      syncAddMission(mission);
+      await syncAddMission(mission as any);
       setStep('success');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create staffing mission:', error);
+      alert(`Erreur : ${error?.message || 'inconnue'}`);
     } finally {
       setIsSubmitting(false);
     }

@@ -55,7 +55,7 @@ export const useDocumentsStore = create<DocumentsState>()(
         const now = new Date().toISOString();
         const newDoc: StoredDocument = {
           ...doc,
-          id: `doc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `doc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           createdAt: now,
           updatedAt: now,
         };
@@ -90,18 +90,20 @@ export const useDocumentsStore = create<DocumentsState>()(
         const now = new Date().toISOString();
         const newDoc: StoredDocument = {
           ...doc,
-          id: `doc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `doc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           createdAt: now,
           updatedAt: now,
         };
 
         set({ isLoading: true, error: null });
         try {
-          await createDocument(newDoc);
+          const { error } = await createDocument(newDoc);
+          if (error) throw new Error(error.message || 'Échec création document');
           set((state) => ({ documents: [newDoc, ...state.documents], isLoading: false }));
         } catch (err) {
           console.error('[useDocumentsStore] syncAddDocument failed:', err);
           set({ isLoading: false, error: err instanceof Error ? err.message : 'Erreur lors de l\'ajout du document' });
+          throw err;
         }
       },
 

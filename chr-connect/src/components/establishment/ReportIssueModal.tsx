@@ -292,7 +292,7 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
       reportFault(selectedEquipment.id, selectedProblem.id, description || selectedProblem.label);
 
       // Create mission
-      const missionId = `mission_${Date.now()}`;
+      const missionId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `mission_${Date.now()}`;
       const mission = {
         id: missionId,
         title: `${selectedProblem.label} - ${selectedEquipment.brand} ${selectedEquipment.model}`,
@@ -312,11 +312,12 @@ export function ReportIssueModal({ isOpen, onClose, preselectedEquipment }: Repo
         },
       };
 
-      syncAddMission(mission);
+      await syncAddMission(mission as any);
       setCreatedMissionId(missionId);
       setStep('success');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create mission:', error);
+      alert(`Erreur : ${error?.message || 'inconnue'}`);
     } finally {
       setIsSubmitting(false);
     }

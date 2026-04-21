@@ -408,7 +408,8 @@ export const useMissionsStore = create<MissionsState>()(
         // Optimistic: add locally first
         get().addMission(mission);
         try {
-          const { data } = await createMissionInSupabase(mission as any);
+          const { data, error } = await createMissionInSupabase(mission as any);
+          if (error) throw new Error(error.message || 'Échec création mission');
           const persistedId = (data as any)?.id || mission.id;
 
           if (mission.status === 'SEARCHING') {
@@ -422,16 +423,29 @@ export const useMissionsStore = create<MissionsState>()(
           }
         } catch (err) {
           console.error('[useMissionsStore] syncAddMission error:', err);
+          // Rollback optimistic insert
+          set((state) => ({ missions: state.missions.filter((m) => m.id !== mission.id) }));
+          set({ error: err instanceof Error ? err.message : 'Erreur création mission' });
+          throw err;
         }
       },
 
       syncUpdateMission: async (id: string, updates: Partial<Mission>) => {
+        // Snapshot for rollback
+        const previous = get().missions.find((m) => m.id === id);
         // Optimistic: update locally first
         get().updateMission(id, updates);
         try {
-          await updateMissionInSupabase(id, updates as any);
+          const { error } = await updateMissionInSupabase(id, updates as any);
+          if (error) throw new Error(error.message || 'Échec mise à jour mission');
         } catch (err) {
           console.error('[useMissionsStore] syncUpdateMission error:', err);
+          // Rollback optimistic update
+          if (previous) {
+            set((state) => ({ missions: state.missions.map((m) => m.id === id ? previous : m) }));
+          }
+          set({ error: err instanceof Error ? err.message : 'Erreur mise à jour mission' });
+          throw err;
         }
       },
 

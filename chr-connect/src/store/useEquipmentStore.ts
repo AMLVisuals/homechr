@@ -252,28 +252,44 @@ export const useEquipmentStore = create<EquipmentState>()(
       syncAddEquipment: async (data) => {
         const newEquipment = get().addEquipment(data);
         try {
-          await createEquipmentInSupabase(newEquipment as any);
+          const { error } = await createEquipmentInSupabase(newEquipment as any);
+          if (error) throw new Error(error.message || 'Échec création équipement');
         } catch (err) {
           console.error('[useEquipmentStore] syncAddEquipment error:', err);
+          // Rollback
+          set((state) => ({ equipment: state.equipment.filter((e: any) => e.id !== newEquipment.id) }));
+          throw err;
         }
         return newEquipment;
       },
 
       syncUpdateEquipment: async (id, updates) => {
+        const previous = get().equipment.find((e: any) => e.id === id);
         get().updateEquipment(id, updates);
         try {
-          await updateEquipmentInSupabase(id, updates as any);
+          const { error } = await updateEquipmentInSupabase(id, updates as any);
+          if (error) throw new Error(error.message || 'Échec mise à jour équipement');
         } catch (err) {
           console.error('[useEquipmentStore] syncUpdateEquipment error:', err);
+          if (previous) {
+            set((state) => ({ equipment: state.equipment.map((e: any) => e.id === id ? previous : e) }));
+          }
+          throw err;
         }
       },
 
       syncDeleteEquipment: async (id) => {
+        const previous = get().equipment.find((e: any) => e.id === id);
         get().deleteEquipment(id);
         try {
-          await softDeleteEquipment(id);
+          const { error } = await softDeleteEquipment(id);
+          if (error) throw new Error(error.message || 'Échec suppression équipement');
         } catch (err) {
           console.error('[useEquipmentStore] syncDeleteEquipment error:', err);
+          if (previous) {
+            set((state) => ({ equipment: [...state.equipment, previous] }));
+          }
+          throw err;
         }
       },
     }),
