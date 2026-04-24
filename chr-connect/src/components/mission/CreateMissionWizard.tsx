@@ -57,6 +57,7 @@ import { COMING_SOON_CATEGORIES } from '@/data/categories';
 import { useEstablishment } from '@/contexts/EstablishmentContext';
 import { useMissionsStore } from '@/store/useMissionsStore';
 import { useStore } from '@/store/useStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { useEquipmentStore } from '@/store/useEquipmentStore';
 import {
   getProblemsForCategory,
@@ -264,6 +265,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
   const { syncAddEvent } = useCalendarStore();
   const { reportFault } = useEquipmentStore();
   const isPremium = useStore((s) => s.isPremium);
+  const { user, profile } = useAuth();
 
   // Portal mount guard
   const [mounted, setMounted] = useState(false);
@@ -659,7 +661,17 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
   };
 
   const handleSubmit = async () => {
-    if (!currentEstablishment) return;
+    // Avant : if (!currentEstablishment) return;  -> click silencieux si venue
+    // pas encore chargé depuis Supabase. On affiche l'erreur à l'utilisateur.
+    if (!currentEstablishment) {
+      setSubmitError('Aucun établissement sélectionné. Retournez à l\'écran précédent et sélectionnez un établissement.');
+      return;
+    }
+    const patronId = profile?.id || user?.id;
+    if (!patronId) {
+      setSubmitError('Session expirée. Reconnectez-vous pour publier la mission.');
+      return;
+    }
 
     setIsSubmitting(true);
     setSubmitError(null);
@@ -680,6 +692,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
         
         createdMission = {
           id: missionId,
+          patronId,
           title: `${selectedStaffingRole.role} - ${staffingCount} personne(s)`,
           venue: currentEstablishment.name,
           venueId: currentEstablishment.id,
@@ -702,6 +715,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
 
         createdMission = {
           id: missionId,
+          patronId,
           title: `${selectedProblem.label} - ${selectedEquipment.brand} ${selectedEquipment.model}`,
           venue: currentEstablishment.name,
           venueId: currentEstablishment.id,
@@ -743,6 +757,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
 
         createdMission = {
           id: missionId,
+          patronId,
           title: `${selectedSubCategory?.label || 'Mission'} - ${currentEstablishment.name}`,
           venue: currentEstablishment.name,
           venueId: currentEstablishment.id,
