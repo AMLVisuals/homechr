@@ -353,6 +353,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
   }, [currentMediaIndex, media]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [isPayingRelationFee, setIsPayingRelationFee] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -661,6 +662,7 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
     if (!currentEstablishment) return;
 
     setIsSubmitting(true);
+    setSubmitError(null);
     
     // Prepare photos/media
     const photos = media.map(m => m.url);
@@ -794,8 +796,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
       }
 
       setStep('success');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create mission:', error);
+      setSubmitError(error?.message || 'La création de la mission a échoué. Réessayez ou contactez le support.');
     } finally {
       setIsSubmitting(false);
     }
@@ -2090,6 +2093,12 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                   </div>
                 </div>
 
+                {submitError && (
+                  <div className="mb-3 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-sm text-red-500">
+                    {submitError}
+                  </div>
+                )}
+
                 {/* Pay button */}
                 <button
                   onClick={async () => {
@@ -2217,6 +2226,12 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
                 Continuer
                 <ChevronRight className="w-5 h-5" />
               </button>
+            )}
+
+            {step === 'summary' && submitError && (
+              <div className="mb-3 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-sm text-red-500">
+                {submitError}
+              </div>
             )}
 
             {step === 'summary' && (

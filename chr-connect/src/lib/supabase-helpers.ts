@@ -258,42 +258,76 @@ export async function getMission(missionId: string) {
   return { data: data ? toCamelCase(data) : null, error };
 }
 
-export async function createMission(mission: Record<string, any>) {
-  const { data, error } = await supabase
-    .from('missions')
-    .insert(toSnakeCase(mission))
-    .select()
-    .single();
-  if (error) console.error('[createMission] Supabase error:', error.message, error.details);
-  return { data: data ? toCamelCase(data) : null, error };
-}
-
-// Champs locaux (store Zustand) qui n'ont PAS de colonne Supabase et doivent être
-// strippés avant tout UPDATE. Évite "column X does not exist" et l'échec silencieux.
+// Champs locaux (store Zustand / UI) qui n'ont PAS de colonne Supabase et doivent
+// être strippés avant tout INSERT ou UPDATE. Évite "column X does not exist"
+// et l'échec silencieux. Garde cette liste alignée avec la table `missions` de
+// supabase-schema.sql (+ sprints 3, 4, 8).
 const MISSION_LOCAL_ONLY_FIELDS = new Set([
+  // objets/agrégats stockés dans d'autres tables
   'provider',
   'candidates',
   'invoice',
   'review',
   'quote',
   'dispute',
-  'location',
+  'pendingWorker',
+  // doublons ou types incompatibles avec les colonnes DB
+  'venue',            // colonne = venue_id
+  'equipment',        // relation jointe
   'client',
-  'venue',
-  'equipment',
+  'location',         // pas de colonne (provider_location existe en JSONB)
+  'price',            // string "300€ est." -> colonnes NUMERIC price_estimated_min/max/final
+  'date',             // pas de colonne (scheduled_at existe)
+  'scheduledDate',    // string ISO -> TIMESTAMPTZ scheduled_at (géré ailleurs si besoin)
+  'distance',
+  'expert',
+  'photos',           // relation/array -> before_photo / after_photo single TEXT
+  'mediaData',
+  'quoteRejection',
+  'staffValidation',
+  'technicianLocation',
 ]);
 
-export async function updateMission(missionId: string, updates: Record<string, any>) {
+function cleanMissionPayload(mission: Record<string, any>): Record<string, any> {
   const cleaned: Record<string, any> = {};
-  for (const [key, value] of Object.entries(updates)) {
-    if (!MISSION_LOCAL_ONLY_FIELDS.has(key)) cleaned[key] = value;
+  for (const [key, value] of Object.entries(mission)) {
+    if (MISSION_LOCAL_ONLY_FIELDS.has(key)) continue;
+    if (value === undefined) continue;
+    cleaned[key] = value;
   }
+  return cleaned;
+}
+
+export async function createMission(mission: Record<string, any>) {
+  const cleaned = cleanMissionPayload(mission);
+
+  // Injecte patron_id depuis la session Supabase si non fourni par l'appelant.
+  // Les wizards locaux (CreateMissionWizard, SOSExtra, SOSTech, etc.) ne
+  // connaissent pas toujours l'ID du patron, or la colonne est NOT NULL.
+  if (!cleaned.patron_id && !cleaned.patronId) {
+    const { data: userRes } = await supabase.auth.getUser();
+    const uid = userRes?.user?.id;
+    if (uid) cleaned.patron_id = uid;
+  }
+
+  const { data, error } = await supabase
+    .from('missions')
+    .insert(toSnakeCase(cleaned))
+    .select()
+    .single();
+  if (error) console.error('[createMission] Supabase error:', error.message, error.details, error.hint);
+  return { data: data ? toCamelCase(data) : null, error };
+}
+
+export async function updateMission(missionId: string, updates: Record<string, any>) {
+  const cleaned = cleanMissionPayload(updates);
   const { data, error } = await supabase
     .from('missions')
     .update(toSnakeCase(cleaned))
     .eq('id', missionId)
     .select()
     .single();
+  if (error) console.error('[updateMission] Supabase error:', error.message, error.details, error.hint);
   return { data: data ? toCamelCase(data) : null, error };
 }
 
@@ -523,9 +557,17 @@ export async function getCalendarEvents(userId: string, month?: string) {
 }
 
 export async function createCalendarEvent(event: Record<string, any>) {
+  const payload: Record<string, any> = { ...event };
+  // RLS "Users manage own events" FOR ALL USING (auth.uid() = user_id)
+  // Les appelants (wizard, etc.) oublient souvent user_id → insert bloqué.
+  if (!payload.user_id && !payload.userId) {
+    const { data: userRes } = await supabase.auth.getUser();
+    const uid = userRes?.user?.id;
+    if (uid) payload.user_id = uid;
+  }
   const { data, error } = await supabase
     .from('calendar_events')
-    .insert(toSnakeCase(event))
+    .insert(toSnakeCase(payload))
     .select()
     .single();
   if (error) console.error('[createCalendarEvent] Supabase error:', error.message, error.details);
@@ -585,10 +627,11 @@ export async function markAllNotificationsRead(userId: string) {
 export async function createNotification(notification: Record<string, any>) {
   const { data, error } = await supabase
     .from('notifications')
-    .insert(notification)
+    .insert(toSnakeCase(notification))
     .select()
     .single();
-  return { data, error };
+  if (error) console.error('[createNotification] Supabase error:', error.message, error.details);
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 // ============================================================================
@@ -604,13 +647,31 @@ export async function getTeamByPatron(patronId: string) {
   return { data: data ?? [], error };
 }
 
+// Champs locaux TeamMember côté store Zustand sans équivalent colonne DB.
+const TEAM_LOCAL_ONLY_FIELDS = new Set(['joinedAt']);
+
 export async function addTeamMember(member: Record<string, any>) {
+  const payload: Record<string, any> = {};
+  for (const [k, v] of Object.entries(member)) {
+    if (TEAM_LOCAL_ONLY_FIELDS.has(k)) continue;
+    if (v === undefined) continue;
+    payload[k] = v;
+  }
+
+  // patron_id NOT NULL + RLS auth.uid() = patron_id
+  if (!payload.patron_id && !payload.patronId) {
+    const { data: userRes } = await supabase.auth.getUser();
+    const uid = userRes?.user?.id;
+    if (uid) payload.patron_id = uid;
+  }
+
   const { data, error } = await supabase
     .from('team_members')
-    .insert(member)
+    .insert(toSnakeCase(payload))
     .select()
     .single();
-  return { data, error };
+  if (error) console.error('[addTeamMember] Supabase error:', error.message, error.details);
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function removeTeamMember(memberId: string) {
@@ -638,12 +699,19 @@ export async function getActiveSubscription(userId: string) {
 }
 
 export async function createSubscription(sub: Record<string, any>) {
+  const payload: Record<string, any> = { ...sub };
+  if (!payload.user_id && !payload.userId) {
+    const { data: userRes } = await supabase.auth.getUser();
+    const uid = userRes?.user?.id;
+    if (uid) payload.user_id = uid;
+  }
   const { data, error } = await supabase
     .from('subscriptions')
-    .insert(sub)
+    .insert(toSnakeCase(payload))
     .select()
     .single();
-  return { data, error };
+  if (error) console.error('[createSubscription] Supabase error:', error.message, error.details);
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 // ============================================================================
@@ -653,10 +721,11 @@ export async function createSubscription(sub: Record<string, any>) {
 export async function createDPAE(dpae: Record<string, any>) {
   const { data, error } = await supabase
     .from('dpae_declarations')
-    .insert(dpae)
+    .insert(toSnakeCase(dpae))
     .select()
     .single();
-  return { data, error };
+  if (error) console.error('[createDPAE] Supabase error:', error.message, error.details);
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function getDPAEByMission(missionId: string) {
@@ -681,12 +750,20 @@ export async function getWorkerCompliance(workerId: string) {
 }
 
 export async function upsertWorkerCompliance(compliance: Record<string, any>) {
+  const payload: Record<string, any> = { ...compliance };
+  // worker_id NOT NULL + RLS auth.uid() = worker_id
+  if (!payload.worker_id && !payload.workerId) {
+    const { data: userRes } = await supabase.auth.getUser();
+    const uid = userRes?.user?.id;
+    if (uid) payload.worker_id = uid;
+  }
   const { data, error } = await supabase
     .from('worker_compliance')
-    .upsert(compliance)
+    .upsert(toSnakeCase(payload))
     .select()
     .single();
-  return { data, error };
+  if (error) console.error('[upsertWorkerCompliance] Supabase error:', error.message, error.details);
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 // ============================================================================
@@ -699,16 +776,27 @@ export async function getDocumentsByOwner(ownerId: string) {
     .select('*')
     .eq('owner_id', ownerId)
     .order('created_at', { ascending: false });
-  return { data: data ?? [], error };
+  return { data: (data ?? []).map(d => toCamelCase(d)), error };
 }
 
 export async function createDocument(doc: Record<string, any>) {
+  const payload: Record<string, any> = { ...doc };
+
+  // Injecte owner_id depuis la session si l'appelant ne l'a pas fourni.
+  // Colonne NOT NULL côté DB — sans ça l'insert échoue silencieusement.
+  if (!payload.owner_id && !payload.ownerId) {
+    const { data: userRes } = await supabase.auth.getUser();
+    const uid = userRes?.user?.id;
+    if (uid) payload.owner_id = uid;
+  }
+
   const { data, error } = await supabase
     .from('stored_documents')
-    .insert(doc)
+    .insert(toSnakeCase(payload))
     .select()
     .single();
-  return { data, error };
+  if (error) console.error('[createDocument] Supabase error:', error.message, error.details, error.hint);
+  return { data: data ? toCamelCase(data) : null, error };
 }
 
 export async function deleteDocument(docId: string) {
@@ -735,8 +823,9 @@ export async function getMaintenanceByEquipment(equipmentId: string) {
 export async function createMaintenanceRecord(record: Record<string, any>) {
   const { data, error } = await supabase
     .from('maintenance_records')
-    .insert(record)
+    .insert(toSnakeCase(record))
     .select()
     .single();
-  return { data, error };
+  if (error) console.error('[createMaintenanceRecord] Supabase error:', error.message, error.details);
+  return { data: data ? toCamelCase(data) : null, error };
 }
