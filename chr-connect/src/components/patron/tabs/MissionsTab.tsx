@@ -79,13 +79,15 @@ function extractDate(mission: Mission): Date | null {
 
   // 1. Date de facture (toujours ISO)
   return tryParse(mission.invoice?.date)
-    // 2. Date de la mission si ISO
+    // 2. scheduled_at (date prevue, persistee en DB)
+    ?? tryParse((mission as any).scheduledAt)
+    // 3. Date de la mission si ISO
     ?? tryParse(mission.date)
-    // 3. Date de la mission format français ("05 Juin", "12 Mars 2025")
+    // 4. Date de la mission format français ("05 Juin", "12 Mars 2025")
     ?? (mission.date ? parseFrenchDate(mission.date) : null)
-    // 4. scheduledDate
+    // 5. scheduledDate (legacy)
     ?? tryParse(mission.scheduledDate)
-    // 5. staffValidation date
+    // 6. staffValidation date
     ?? tryParse(mission.staffValidation?.validatedAt)
     ?? null;
 }
@@ -107,8 +109,10 @@ function formatMonthKey(key: string): string {
 
 const STATUS_FILTERS = [
   { id: 'ALL', label: 'Tout' },
+  { id: 'SEARCHING', label: 'En recherche' },
   { id: 'ACTION_REQUIRED', label: 'Action requise' },
   { id: 'SCHEDULED', label: 'Acceptée' },
+  { id: 'IN_PROGRESS', label: 'En cours' },
   { id: 'ARCHIVES', label: 'Archives' },
 ];
 
@@ -208,12 +212,17 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
       // 4. Status Filter
       if (filter === 'ALL') return true;
 
+      if (filter === 'SEARCHING') {
+        return m.status === 'SEARCHING' && !m.scheduled;
+      }
+
       if (filter === 'SCHEDULED') {
         return m.status === 'SCHEDULED' || (m.status === 'SEARCHING' && m.scheduled === true);
       }
 
       if (filter === 'ACTION_REQUIRED') {
-        const hasActionStatus = ['PENDING_VALIDATION', 'QUOTE_SENT', 'AWAITING_PATRON_CONFIRMATION', 'SEARCHING'].includes(m.status);
+        // SEARCHING n'est PAS une action du patron — c'est la plateforme qui cherche.
+        const hasActionStatus = ['PENDING_VALIDATION', 'QUOTE_SENT', 'AWAITING_PATRON_CONFIRMATION'].includes(m.status);
         const hasPendingCandidates = m.scheduled && m.candidates && m.candidates.some(c => c.status === 'PENDING') && m.status !== 'SCHEDULED';
         const needsDPAE = m.category === 'STAFFING' && ['SCHEDULED', 'ON_WAY', 'ON_SITE', 'IN_PROGRESS'].includes(m.status) && m.dpaeStatus !== 'VALIDATED' && m.dpaeStatus !== 'NOT_REQUIRED';
         return hasActionStatus || hasPendingCandidates || needsDPAE;
@@ -413,7 +422,20 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
                     <div className="flex items-center gap-2 text-xs md:text-sm text-[var(--text-secondary)] flex-wrap">
                       <span className="font-medium text-[var(--text-secondary)] truncate">{mission.category}</span>
                       <span className="shrink-0">•</span>
-                      <span className="shrink-0">{mission.date ? new Date(mission.date).toLocaleDateString('fr-FR') : "Aujourd'hui"}</span>
+                      <span className="shrink-0">{(() => {
+                        // Priorite : scheduledAt (date prevue) > date (legacy) > today
+                        const raw = (mission as any).scheduledAt || mission.date;
+                        if (!raw) return "Aujourd'hui";
+                        const d = new Date(raw);
+                        if (Number.isNaN(d.getTime())) return "Aujourd'hui";
+                        const today = new Date();
+                        const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+                        const sameDay = (a: Date, b: Date) =>
+                          a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+                        if (sameDay(d, today)) return "Aujourd'hui";
+                        if (sameDay(d, tomorrow)) return "Demain";
+                        return d.toLocaleDateString('fr-FR');
+                      })()}</span>
                       {mission.venue && (
                         <>
                           <span className="shrink-0">•</span>

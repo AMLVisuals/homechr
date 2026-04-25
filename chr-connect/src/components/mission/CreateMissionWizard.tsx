@@ -675,10 +675,21 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
 
     setIsSubmitting(true);
     setSubmitError(null);
-    
+
     // Prepare photos/media
     const photos = media.map(m => m.url);
     const mediaData = media; // Store full media with annotations
+
+    // Date prevue = staffingDate (+ staffingTime) si user a planifie, sinon
+    // immediat. On ecrit dans `scheduledAt` (colonne DB scheduled_at) plutot
+    // que dans `date` (champ local non persiste) pour que la liste missions
+    // affiche la bonne date apres reload.
+    const scheduledAtIso: string | null = (() => {
+      if (!staffingDate) return null;
+      const time = staffingTime && /^\d{2}:\d{2}$/.test(staffingTime) ? staffingTime : '09:00';
+      const iso = new Date(`${staffingDate}T${time}:00`).toISOString();
+      return Number.isNaN(new Date(iso).getTime()) ? null : iso;
+    })();
 
     try {
       // Create mission based on type
@@ -703,7 +714,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
           status: 'SEARCHING' as const,
           location: { lat: 48.8566, lng: 2.3522 },
           category: 'STAFFING' as const,
-          date: new Date().toISOString(),
+          date: scheduledAtIso || new Date().toISOString(),
+          scheduledAt: scheduledAtIso || undefined,
+          scheduled: !!scheduledAtIso,
         };
 
         await syncAddMission(createdMission);
@@ -733,7 +746,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
             equipment: [selectedEquipment.category.toLowerCase()],
             machineType: selectedEquipment.model,
           },
-          date: missionDate,
+          date: scheduledAtIso || missionDate,
+          scheduledAt: scheduledAtIso || undefined,
+          scheduled: !!scheduledAtIso,
         };
 
         await syncAddMission(createdMission);
@@ -768,7 +783,9 @@ export function CreateMissionWizard({ isOpen, onClose, defaultCategory, defaultD
           status: 'SEARCHING' as const,
           location: { lat: 48.8566, lng: 2.3522 },
           category: selectedCategory?.id as any,
-          date,
+          date: scheduledAtIso || date,
+          scheduledAt: scheduledAtIso || undefined,
+          scheduled: !!scheduledAtIso,
           photos,
           mediaData,
         };

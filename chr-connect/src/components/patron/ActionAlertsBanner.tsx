@@ -108,22 +108,9 @@ function buildAlerts(missions: Mission[], activeVenueId: string | null): ActionA
       });
     }
 
-    // Mission en recherche de prestataire
-    if (m.status === 'SEARCHING' && !m.scheduled) {
-      alerts.push({
-        id: `searching-${m.id}`,
-        missionId: m.id,
-        missionTitle: m.title,
-        type: 'AWAITING_CONFIRMATION',
-        icon: Search,
-        label: m.urgent ? 'Urgent — En recherche' : 'En recherche',
-        description: `${m.title} — En attente d'un prestataire`,
-        gradient: m.urgent ? 'from-red-500/15 to-orange-500/10' : 'from-blue-500/15 to-cyan-500/10',
-        borderColor: m.urgent ? 'border-red-500/30' : 'border-blue-500/30',
-        iconColor: m.urgent ? 'text-red-400' : 'text-blue-400',
-        dotColor: m.urgent ? 'bg-red-500' : 'bg-blue-500',
-      });
-    }
+    // SEARCHING n'est PAS une action requise du patron (la plateforme cherche
+    // le prestataire). Affichage retire de cette banniere ; l'onglet Missions
+    // garde un badge "En recherche" pour la visibilite.
 
     // Mission en attente de pièces (STANDBY)
     if (m.status === 'STANDBY') {
