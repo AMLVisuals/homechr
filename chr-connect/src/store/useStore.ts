@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { ComplianceDocType } from '@/types/compliance';
 
 export type UserRole = 'PATRON' | 'WORKER' | null;
@@ -49,7 +50,7 @@ interface AppState {
   addRequest: (request: any) => void;
 }
 
-export const useStore = create<AppState>((set, get) => ({
+export const useStore = create<AppState>()(persist((set, get) => ({
   userRole: null,
   setUserRole: (role) => set({ userRole: role }),
 
@@ -96,4 +97,18 @@ export const useStore = create<AppState>((set, get) => ({
 
   pendingRequests: [],
   addRequest: (request) => set((state) => ({ pendingRequests: [request, ...state.pendingRequests] })),
+}), {
+  name: 'app-store-v1',
+  // Persiste seulement les preferences UI/abonnement. Le reste reste en
+  // memoire (pendingRequests sont ephemeres, patronDocUploads gere par flow).
+  partialize: (state) => ({
+    userRole: state.userRole,
+    theme: state.theme,
+    subscriptionTier: state.subscriptionTier,
+    isPremium: state.isPremium,
+    patronProfileStatus: state.patronProfileStatus,
+    patronDocUploads: state.patronDocUploads,
+    workerSkills: state.workerSkills,
+    isOnAir: state.isOnAir,
+  }),
 }));

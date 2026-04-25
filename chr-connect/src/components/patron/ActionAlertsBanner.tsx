@@ -91,22 +91,8 @@ function buildAlerts(missions: Mission[], activeVenueId: string | null): ActionA
       }
     }
 
-    // Devis reçu
-    if (m.status === 'QUOTE_SENT') {
-      alerts.push({
-        id: `quote-${m.id}`,
-        missionId: m.id,
-        missionTitle: m.title,
-        type: 'QUOTE_RECEIVED',
-        icon: FileText,
-        label: 'Devis reçu',
-        description: `${m.title} — À accepter ou refuser`,
-        gradient: 'from-orange-500/15 to-yellow-500/10',
-        borderColor: 'border-orange-500/30',
-        iconColor: 'text-orange-400',
-        dotColor: 'bg-orange-500',
-      });
-    }
+    // Devis : workflow desactive cote app (les patrons ne recoivent pas de
+    // devis dans l'app pour le moment).
 
     // SEARCHING n'est PAS une action requise du patron (la plateforme cherche
     // le prestataire). Affichage retire de cette banniere ; l'onglet Missions

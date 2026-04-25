@@ -222,7 +222,8 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
 
       if (filter === 'ACTION_REQUIRED') {
         // SEARCHING n'est PAS une action du patron — c'est la plateforme qui cherche.
-        const hasActionStatus = ['PENDING_VALIDATION', 'QUOTE_SENT', 'AWAITING_PATRON_CONFIRMATION'].includes(m.status);
+        // QUOTE_SENT retire : workflow devis non disponible cote app.
+        const hasActionStatus = ['PENDING_VALIDATION', 'AWAITING_PATRON_CONFIRMATION'].includes(m.status);
         const hasPendingCandidates = m.scheduled && m.candidates && m.candidates.some(c => c.status === 'PENDING') && m.status !== 'SCHEDULED';
         const needsDPAE = m.category === 'STAFFING' && ['SCHEDULED', 'ON_WAY', 'ON_SITE', 'IN_PROGRESS'].includes(m.status) && m.dpaeStatus !== 'VALIDATED' && m.dpaeStatus !== 'NOT_REQUIRED';
         return hasActionStatus || hasPendingCandidates || needsDPAE;
@@ -513,11 +514,10 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
                   ? mission.candidates.filter(c => c.status === 'PENDING').length
                   : 0;
                 const showConfirm = mission.status === 'AWAITING_PATRON_CONFIRMATION';
-                const showQuote = mission.status === 'QUOTE_SENT';
                 const showValidation = mission.status === 'PENDING_VALIDATION';
                 const showSearching = mission.status === 'SEARCHING' && !mission.scheduled;
 
-                if (!pendingCandidates && !showConfirm && !showQuote && !showValidation && !showSearching) return null;
+                if (!pendingCandidates && !showConfirm && !showValidation && !showSearching) return null;
 
                 return (
                   <div className="flex flex-wrap gap-2 mt-3 pl-3 md:pl-4">
@@ -533,12 +533,6 @@ export default function MissionsTab({ onMissionClick }: MissionsTabProps) {
                         <UserCheck className="w-3 h-3" />
                         Prestataire à confirmer
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                      </span>
-                    )}
-                    {showQuote && (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20 text-[11px] font-bold text-orange-400">
-                        Devis à consulter
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
                       </span>
                     )}
                     {showValidation && (
